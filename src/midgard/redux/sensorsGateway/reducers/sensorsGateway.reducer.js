@@ -37,6 +37,9 @@ import {
   GET_AGGREGATE_REPORT,
   GET_AGGREGATE_REPORT_SUCCESS,
   GET_AGGREGATE_REPORT_FAILURE,
+  GET_SENSOR_REPORT,
+  GET_SENSOR_REPORT_SUCCESS,
+  GET_SENSOR_REPORT_FAILURE,
   GET_GATEWAY_OPTIONS,
   GET_GATEWAY_OPTIONS_SUCCESS,
   GET_GATEWAY_OPTIONS_FAILURE,
@@ -74,6 +77,7 @@ const initialState = {
   aggregateReportData: null,
   gatewayOptions: null,
   sensorOptions: null,
+  sensorReportAlerts: null,
 };
 
 // Reducer
@@ -338,42 +342,21 @@ export default (state = initialState, action) => {
         loaded: true,
         error: action.error,
       };
-    case GET_SENSORS_TYPE:
+    case GET_SENSOR_REPORT:
       return {
         ...state,
         loading: true,
         loaded: false,
         error: null,
       };
-    case GET_SENSORS_TYPE_SUCCESS:
+    case GET_SENSOR_REPORT_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
-        sensorTypeList: action.data,
+        sensorReportAlerts: action.data,
       };
-    case GET_SENSORS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-    case GET_SENSORS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-    case GET_SENSORS_TYPE_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorTypeList: action.data,
-      };
-    case GET_SENSORS_TYPE_FAILURE:
+    case GET_SENSOR_REPORT_FAILURE:
       return {
         ...state,
         loading: false,

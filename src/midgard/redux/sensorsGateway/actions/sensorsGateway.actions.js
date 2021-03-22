@@ -148,6 +148,10 @@ export const GET_AGGREGATE_REPORT = "SENSORS/GET_AGGREGATE_REPORT";
 export const GET_AGGREGATE_REPORT_SUCCESS = "SENSORS/GET_AGGREGATE_REPORT_SUCCESS";
 export const GET_AGGREGATE_REPORT_FAILURE = "SENSORS/GET_AGGREGATE_REPORT_FAILURE";
 
+export const GET_SENSOR_REPORT = "SENSORS/GET_SENSOR_REPORT";
+export const GET_SENSOR_REPORT_SUCCESS = "SENSORS/GET_SENSOR_REPORT_SUCCESS";
+export const GET_SENSOR_REPORT_FAILURE = "SENSORS/GET_SENSOR_REPORT_FAILURE";
+
 export const GET_SENSOR_OPTIONS = "ITEMS/GET_SENSOR_OPTIONS";
 export const GET_SENSOR_OPTIONS_SUCCESS = "ITEMS/GET_SENSOR_OPTIONS_SUCCESS";
 export const GET_SENSOR_OPTIONS_FAILURE = "ITEMS/GET_SENSOR_OPTIONS_FAILURE";
@@ -220,7 +224,12 @@ export const getSensorType = () => ({
 
 export const getAggregateReport = () => ({
   type: GET_AGGREGATE_REPORT,
-})
+});
+
+export const getSensorReportAlerts = (shipment_custody_status) => ({
+  type: GET_SENSOR_REPORT,
+  shipment_custody_status,
+});
 
 export const addSensorType = (payload) => ({
   type: ADD_SENSORS_TYPE,
