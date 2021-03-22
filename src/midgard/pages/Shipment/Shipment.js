@@ -45,7 +45,7 @@ import {
   getGatewayType,
   getSensors,
   getSensorType,
-  getSensorReport,
+  getAggregateReport,
 } from "midgard/redux/sensorsGateway/actions/sensorsGateway.actions";
 import { MAP_API_URL, convertUnitsOfMeasure, getLocalDateTime } from "midgard/utils/utilMethods";
 import {
@@ -110,7 +110,7 @@ function Shipment(props) {
     unitsOfMeasure,
     custodyData,
     sensorData,
-    sensorReportData,
+    aggregateReportData,
     loading,
     shipmentOptions,
     custodyOptions,
@@ -161,8 +161,8 @@ function Shipment(props) {
       dispatch(getSensors(organization));
       dispatch(getSensorType());
     }
-    if (!sensorReportData) {
-      dispatch(getSensorReport());
+    if (!aggregateReportData) {
+      dispatch(getAggregateReport());
     }
     if (shipmentOptions === null) {
       httpService
@@ -203,7 +203,7 @@ function Shipment(props) {
       custodianData &&
       custodyData &&
       itemData &&
-      sensorReportData &&
+      aggregateReportData &&
       shipmentFlag
     ) {
 
@@ -213,7 +213,7 @@ function Shipment(props) {
         itemData,
         shipmentFlag,
         custodyData,
-        sensorReportData,
+        aggregateReportData,
       );
       setRows(formattedRows);
       let activeRows = formattedRows.filter((row) => {
@@ -231,12 +231,12 @@ function Shipment(props) {
           setSelectedShipment(activeRows[0]);
       }
     }
-  }, [shipmentData, custodianData, itemData, shipmentFlag, custodyData, sensorReportData]);
+  }, [shipmentData, custodianData, itemData, shipmentFlag, custodyData, aggregateReportData]);
 
   useEffect(() => {
     if (selectedShipment) {
       let markersToSet = [];
-      let sensorReportInfo = [];
+      let aggregateReportInfo = [];
       let temperatureUnit = unitsOfMeasure.filter((obj) => {
         return obj.supported_class === "Temperature";
       })[0]["name"].toLowerCase()
@@ -279,7 +279,7 @@ function Shipment(props) {
                 if (!markerFound) {
                   markersToSet.push(marker);
                 }
-                sensorReportInfo.push(marker);
+                aggregateReportInfo.push(marker);
               }
             } catch (e) {
               console.log(e);
@@ -289,7 +289,7 @@ function Shipment(props) {
       });
       setMarkers(_.orderBy(markersToSet, (item) => {return moment(item.timestamp)}, ['asc']));
       setZoomLevel(12);
-      selectedShipment['sensor_report_info'] = sensorReportInfo;
+      selectedShipment['sensor_report_info'] = aggregateReportInfo;
     }
   }, [selectedShipment]);
 
@@ -421,7 +421,7 @@ function Shipment(props) {
         </Grid>
       </Grid>
       <ShipmentSensorTable
-        sensorReport={selectedShipment?.sensor_report_info}
+        aggregateReport={selectedShipment?.sensor_report_info}
         shipmentName={selectedShipment?.name}
         selectedMarker={selectedShipment && selectedMarker}
         cols={SHIPMENT_SENSOR_COLUMNS}

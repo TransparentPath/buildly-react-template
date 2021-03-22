@@ -22,7 +22,7 @@ import {
   GET_SENSORS,
   SENSOR_SEARCH,
   GET_SENSORS_TYPE,
-  GET_SENSORS_REPORT,
+  GET_AGGREGATE_REPORT,
   Add_SENSOR,
   DELETE_SENSOR,
   EDIT_SENSOR,
@@ -31,8 +31,8 @@ import {
   getSensors,
   GET_SENSORS_TYPE_SUCCESS,
   GET_SENSORS_TYPE_FAILURE,
-  GET_SENSORS_REPORT_SUCCESS,
-  GET_SENSORS_REPORT_FAILURE,
+  GET_AGGREGATE_REPORT_SUCCESS,
+  GET_AGGREGATE_REPORT_FAILURE,
   DELETE_SENSOR_FAILURE,
   EDIT_SENSOR_SUCCESS,
   EDIT_SENSOR_FAILURE,
@@ -305,7 +305,7 @@ function* getSensorTypeList() {
   }
 }
 
-function* getSensorReportList(payload) {
+function* getaggregateReportList(payload) {
   try {
     const data = yield call(
       httpService.makeRequest,
@@ -314,7 +314,7 @@ function* getSensorReportList(payload) {
       null,
       true
     );
-    yield [yield put({ type: GET_SENSORS_REPORT_SUCCESS, data: data.data })];
+    yield [yield put({ type: GET_AGGREGATE_REPORT_SUCCESS, data: data.data })];
   } catch (error) {
     console.log("error", error);
     yield [
@@ -326,7 +326,7 @@ function* getSensorReportList(payload) {
         })
       ),
       yield put({
-        type: GET_SENSORS_REPORT_FAILURE,
+        type: GET_AGGREGATE_REPORT_FAILURE,
         error: error,
       }),
     ];
@@ -745,8 +745,8 @@ function* watchGetSensorType() {
   yield takeLatest(GET_SENSORS_TYPE, getSensorTypeList);
 }
 
-function* watchGetSensorReport() {
-  yield takeLatest(GET_SENSORS_REPORT, getSensorReportList);
+function* watchGetaggregateReport() {
+  yield takeLatest(GET_AGGREGATE_REPORT, getaggregateReportList);
 }
 
 function* watchAddSensor() {
@@ -795,7 +795,7 @@ export default function* sensorsGatewaySaga() {
     watchEditGateway(),
     watchGetSensor(),
     watchGetSensorType(),
-    watchGetSensorReport(),
+    watchGetaggregateReport(),
     watchAddSensor(),
     watchEditSensor(),
     watchDeleteSensor(),

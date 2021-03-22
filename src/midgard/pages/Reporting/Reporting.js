@@ -29,7 +29,7 @@ import {
 import {
   getSensors,
   getSensorType,
-  getSensorReport,
+  getAggregateReport,
 } from "midgard/redux/sensorsGateway/actions/sensorsGateway.actions";
 import {
   getShipmentDetails,
@@ -96,7 +96,7 @@ function Reporting(props) {
   const {
     dispatch,
     loading,
-    sensorReportData,
+    aggregateReportData,
     shipmentData,
     custodianData,
     custodyData,
@@ -143,8 +143,8 @@ function Reporting(props) {
     if (!shipmentData) {
       dispatch(getShipmentDetails(organization));
     }
-    if (!sensorReportData) {
-      dispatch(getSensorReport());
+    if (!aggregateReportData) {
+      dispatch(getAggregateReport());
     }
     if (!custodianData) {
       dispatch(getCustodians(organization));
@@ -168,7 +168,7 @@ function Reporting(props) {
       shipmentData &&
       custodianData &&
       custodyData &&
-      sensorReportData &&
+      aggregateReportData &&
       contactInfo &&
       unitsOfMeasure
     ) {
@@ -176,7 +176,7 @@ function Reporting(props) {
         shipmentData,
         custodianData,
         custodyData,
-        sensorReportData,
+        aggregateReportData,
         contactInfo,
         unitsOfMeasure,
       );
@@ -186,7 +186,7 @@ function Reporting(props) {
         setSelectedShipment(overview[0]);
       }
     }
-  }, [shipmentData, custodianData, custodyData, sensorReportData]);
+  }, [shipmentData, custodianData, custodyData, aggregateReportData]);
 
   useEffect(() => {
     if (selectedShipment) {
@@ -334,7 +334,7 @@ function Reporting(props) {
         </Grid>
         </Grid>
         <ShipmentSensorTable
-          sensorReport={selectedShipment?.sensor_report}
+          aggregateReport={selectedShipment?.sensor_report}
           shipmentName={selectedShipment?.name}
           selectedMarker={selectedShipment && selectedMarker}
         />

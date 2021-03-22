@@ -34,9 +34,9 @@ import {
   GET_SENSORS_TYPE,
   GET_SENSORS_TYPE_SUCCESS,
   GET_SENSORS_TYPE_FAILURE,
-  GET_SENSORS_REPORT,
-  GET_SENSORS_REPORT_SUCCESS,
-  GET_SENSORS_REPORT_FAILURE,
+  GET_AGGREGATE_REPORT,
+  GET_AGGREGATE_REPORT_SUCCESS,
+  GET_AGGREGATE_REPORT_FAILURE,
   GET_GATEWAY_OPTIONS,
   GET_GATEWAY_OPTIONS_SUCCESS,
   GET_GATEWAY_OPTIONS_FAILURE,
@@ -71,7 +71,7 @@ const initialState = {
   gatewayData: null,
   sensorData: null,
   sensorTypeList: null,
-  sensorReportData: null,
+  aggregateReportData: null,
   gatewayOptions: null,
   sensorOptions: null,
 };
@@ -84,7 +84,7 @@ export default (state = initialState, action) => {
   if (gatewayTypePresent) {
     deletedGatewayType = editedGatewayType;
     editedGatewayType = [ ...editedGatewayType, action.gatewayType ];
-  };
+  }
 
   let deletedSensorType;
   let editedSensorType = state.sensorTypeList;
@@ -92,7 +92,7 @@ export default (state = initialState, action) => {
   if (sensorTypePresent) {
     deletedSensorType = editedSensorType;
     editedSensorType = [ ...editedSensorType, action.sensorType ];
-  };
+  }
 
   switch (action.type) {
     case GET_GATEWAYS:
@@ -380,21 +380,21 @@ export default (state = initialState, action) => {
         loaded: true,
         error: action.error,
       };
-    case GET_SENSORS_REPORT:
+    case GET_AGGREGATE_REPORT:
       return {
         ...state,
         loading: true,
         loaded: false,
         error: null,
       };
-    case GET_SENSORS_REPORT_SUCCESS:
+    case GET_AGGREGATE_REPORT_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
-        sensorReportData: action.data,
+        aggregateReportData: action.data,
       };
-    case GET_SENSORS_REPORT_FAILURE:
+    case GET_AGGREGATE_REPORT_FAILURE:
       return {
         ...state,
         loading: false,
