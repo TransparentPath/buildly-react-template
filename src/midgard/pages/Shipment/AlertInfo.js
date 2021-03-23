@@ -26,19 +26,27 @@ const useStyles = makeStyles((theme) => ({
     margin: "0",
   },
   alert: {
-    width: "100%",
-    position: "absolute",
-    [theme.breakpoints.up("sm")]: {
-      width: "50%",
-      left: "50%",
-      transform: "translateX(-50%)",
+    width: '100%',
+    position: 'absolute',
+    [theme.breakpoints.up('sm')]: {
+      width: '50%',
+      left: '55%',
+      transform: 'translateX(-50%)',
     },
-    [theme.breakpoints.down("xs")]: {
-      top: "-40px",
+    [theme.breakpoints.up('md')]: {
+      left: '55%',
+      width: 'max-content',
+      transform: 'translateX(-50%)',
+    },
+    [theme.breakpoints.down('xs')]: {
+      top: '16px',
+      width: '50%',
+      left: '60%',
+      transform: 'translateX(-40%)',
     },
     top: 0,
     margin: 0,
-    borderRadius: "24px",
+    borderRadius: '24px',
   },
   message: {
     overflow: "hidden",
