@@ -140,7 +140,7 @@ function Dashboard(props) {
       dispatch(getSensorType());
     }
     if (!aggregateReportData) {
-      dispatch(getAggregateReport());
+      dispatch(getAggregateReport(organization));
     }
     if (!dashboardItems) {
       dispatch(getDashboardItems(organization));

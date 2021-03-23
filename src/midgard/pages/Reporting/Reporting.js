@@ -30,6 +30,7 @@ import {
   getSensors,
   getSensorType,
   getAggregateReport,
+  getSensorReportAlerts,
 } from "midgard/redux/sensorsGateway/actions/sensorsGateway.actions";
 import {
   getShipmentDetails,
@@ -144,7 +145,7 @@ function Reporting(props) {
       dispatch(getShipmentDetails(organization));
     }
     if (!aggregateReportData) {
-      dispatch(getAggregateReport());
+      dispatch(getAggregateReport(organization));
     }
     if (!custodianData) {
       dispatch(getCustodians(organization));

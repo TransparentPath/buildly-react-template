@@ -46,6 +46,7 @@ import {
   getSensors,
   getSensorType,
   getAggregateReport,
+  getSensorReportAlerts,
 } from "midgard/redux/sensorsGateway/actions/sensorsGateway.actions";
 import { MAP_API_URL, convertUnitsOfMeasure, getLocalDateTime } from "midgard/utils/utilMethods";
 import {
@@ -114,6 +115,7 @@ function Shipment(props) {
     loading,
     shipmentOptions,
     custodyOptions,
+    sensorReportAlerts,
   } = props;
   const classes = useStyles();
   const [openConfirmModal, setConfirmModal] = useState(false);
@@ -162,7 +164,10 @@ function Shipment(props) {
       dispatch(getSensorType());
     }
     if (!aggregateReportData) {
-      dispatch(getAggregateReport());
+      dispatch(getAggregateReport(organization));
+    }
+    if (!sensorReportAlerts) {
+      dispatch(getSensorReportAlerts(organization));
     }
     if (shipmentOptions === null) {
       httpService

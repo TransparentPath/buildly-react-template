@@ -313,7 +313,7 @@ function* getAggregateReportList(payload) {
     const data = yield call(
       httpService.makeRequest,
       "get",
-      `${environment.API_URL}${sensorApiEndPoint}aggregate_report/`,
+      `${environment.API_URL}${sensorApiEndPoint}aggregate_report/?organization_uuid=${payload.organization_uuid}`,
       null,
       true
     );
@@ -341,7 +341,7 @@ function* getSensorReportAlerts(payload) {
     const data = yield call(
       httpService.makeRequest,
       "get",
-      `${environment.API_URL}${sensorApiEndPoint}sensor_report/`,
+      `${environment.API_URL}${sensorApiEndPoint}sensor_report/?organization_uuid=${payload.organization_uuid}&shipment_custody_status=left,arriving,reached`,
       null,
       true
     );
@@ -830,7 +830,8 @@ export default function* sensorsGatewaySaga() {
     watchEditGateway(),
     watchGetSensor(),
     watchGetSensorType(),
-    watchGetaggregateReport(),
+    watchGetAggregateReport(),
+    watchGetSensorReportAlerts(),
     watchAddSensor(),
     watchEditSensor(),
     watchDeleteSensor(),

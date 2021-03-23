@@ -222,13 +222,14 @@ export const getSensorType = () => ({
   type: GET_SENSORS_TYPE,
 });
 
-export const getAggregateReport = () => ({
+export const getAggregateReport = (organization_uuid) => ({
   type: GET_AGGREGATE_REPORT,
+  organization_uuid,
 });
 
-export const getSensorReportAlerts = (shipment_custody_status) => ({
+export const getSensorReportAlerts = (organization_uuid) => ({
   type: GET_SENSOR_REPORT,
-  shipment_custody_status,
+  organization_uuid,
 });
 
 export const addSensorType = (payload) => ({
