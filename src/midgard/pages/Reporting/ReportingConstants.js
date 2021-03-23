@@ -226,14 +226,20 @@ export const getShipmentOverview = (
               if (!markerFound) {
                 markersToSet.push(marker);
               }
-              aggregateReportInfo.push(marker);
-              temperatureData.push({ 'x': localDateTime, 'y': temperature });
+              sensorReportInfo.push(marker);
+              const graphPoint = _.find(temperatureData, {
+                x: localDateTime
+              });
+              if (!graphPoint) {
+                temperatureData.push({ 'x': localDateTime, 'y': temperature });
               lightData.push({ 'x': localDateTime, 'y': report_entry.report_light });
               shockData.push({ 'x': localDateTime, 'y': report_entry.report_shock });
               tiltData.push({ 'x': localDateTime, 'y': report_entry.report_tilt });
               humidityData.push({ 'x': localDateTime, 'y': report_entry.report_humidity });
               batteryData.push({ 'x': localDateTime, 'y': report_entry.report_battery });
               pressureData.push({ 'x': localDateTime, 'y': report_entry.report_pressure });
+              }
+
             }
             } catch (e) {
               console.log(e);
