@@ -121,28 +121,36 @@ function AlertInfo(props) {
         custodyRows = getFormattedCustodyRows(custodyData, custodianData);
       }
       shipmentData && shipmentData.forEach((element) => {
-        custodyRows && custodyRows.forEach((custody) => {
-          if (custody.shipment_id === element.shipment_uuid && custody.has_current_custody === true) {
-            currentCustody = custody
-            return
-          }
-        })
-
         sensorReportAlerts && sensorReportAlerts.forEach((sensorReportAlert,index) => {
-          if (element.partner_shipment_id === sensorReportAlert.shipment_id && sensorReportAlert.custodian_id &&
-            currentCustody.custodian_data.custodian_uuid === sensorReportAlert.custodian_id[0]) {
+          if (element.partner_shipment_id === sensorReportAlert.shipment_id && sensorReportAlert.custodian_id){
+            custodyRows && custodyRows.forEach((custody) => {
+              if (custody.shipment_id === element.shipment_uuid && custody.custodian_data.custodian_uuid === sensorReportAlert.custodian_id[0]) {
+                currentCustody = custody
+                return
+              }
+            })
+            let message = ''
+            switch(sensorReportAlert.shipment_custody_status) {
+              case 'left':
+                message = 'Has left start location'
+                break
+              case 'arriving':
+                message = 'Is arriving end location'
+                break
+              case 'reached':
+                message = 'Has reached end location'
+                break
+            }
             alerts.push({
               type: sensorReportAlert.shipment_custody_status,
-              name: `Shipment #${element.shipment_uuid} ${sensorReportAlert.shipment_custody_status === 'arriving' ? 'is' : 'has'}
-              ${sensorReportAlert.shipment_custody_status} custody of ${currentCustody.custodian_name}`,
+              name: `${message} : Shipment #${element.shipment_uuid} Custody : ${currentCustody.custodian_name}`,
               shipment: element.shipment_uuid,
               custody_at: sensorReportAlert.present_start_geofence ? "start" : "end",
             });
             openAlerts.push(index);
             messages.push({
               shipment_uuid: element.shipment_uuid,
-              alert_message: `Shipment ${sensorReportAlert.shipment_custody_status === 'arriving' ? 'is' : 'has'}
-              ${sensorReportAlert.shipment_custody_status} custody of ${currentCustody.custodian_name}`,
+              alert_message: `Shipment ${message} of ${currentCustody.custodian_name}`,
               date_time: sensorReportAlert.report_date_time,
             })
           }
@@ -158,8 +166,8 @@ function AlertInfo(props) {
         }))
       }
       setOpenGeofenceAlerts(openAlerts);
-    }
-  }, [shipmentData, custodyData, sensorReportAlerts]);
+  }
+  }, [shipmentData, sensorReportAlerts]);
 
   const classes = useStyles();
   const handleClose = (event, index, type) => {

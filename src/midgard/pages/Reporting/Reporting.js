@@ -280,7 +280,7 @@ function Reporting(props) {
                   (<Typography variant="h6">{column.label}</Typography>) :
                   (<Typography variant="h6">Custody Details</Typography>)}
                   {column.name === "custody_info"  && selectedShipment[column.name] ? selectedShipment[column.name].map((key, index) => (
-                    <div key={`custody_info_${index}`} style={{marginBottom:10}}>
+                    <div key={`custody_info_${index}`} style={{marginBottom:10, color: selectedShipment['custody_info'][index]['custody_type'] === 'Current' ? '#EBC645' : '#ffffff'}}>
                       <Typography variant="body1">Custody Type: {selectedShipment['custody_info'][index]['custody_type']}</Typography>
                       <Typography variant="body1">Custodian Address: {selectedShipment['contact_info'][index]['address']}</Typography>
                       </div>

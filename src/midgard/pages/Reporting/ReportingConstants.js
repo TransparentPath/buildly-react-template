@@ -226,7 +226,7 @@ export const getShipmentOverview = (
               if (!markerFound) {
                 markersToSet.push(marker);
               }
-              sensorReportInfo.push(marker);
+              aggregateReportInfo.push(marker);
               const graphPoint = _.find(temperatureData, {
                 x: localDateTime
               });
