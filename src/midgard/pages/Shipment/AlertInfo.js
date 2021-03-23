@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
       transform: 'translateX(-50%)',
     },
     [theme.breakpoints.down('xs')]: {
-      top: '16px',
+      top: '60px',
       width: '50%',
       left: '60%',
       transform: 'translateX(-40%)',
