@@ -163,8 +163,6 @@ function AddCustodyForm(props) {
             selectedCustodian = list;
           }
         });
-        start_of_custody_address.value = selectedCustodian.location;
-        end_of_custody_address.value = selectedCustodian.location;
         getLatLong(selectedCustodian.location,'start')
         getLatLong(selectedCustodian.location,'end')
       }
@@ -219,29 +217,35 @@ function AddCustodyForm(props) {
   };
 
   const setStartLocation = (value) => {
-    getAddress(value,'start');
+    // getAddress(value,'start');
     handleStartLocation(value);
   };
 
   const setEndLocation = (value) => {
-    getAddress(value,'end');
+    // getAddress(value,'end');
     handleEndLocation(value);
   };
 
   const getLatLong = (address,pointer) => {
-    Geocode.setApiKey(GEO_CODE_API);
+    if (pointer === 'start') setStartAddress(address)
+    else if (pointer === 'end') setEndAddress(address)
+    if ((pointer === 'start' && address !== start_of_custody_address && address != "") ||
+    (pointer === 'end' && address !== end_of_custody_address && address != "")) {
+      Geocode.setApiKey(GEO_CODE_API);
         Geocode.setLanguage("en");
         Geocode.fromAddress(address).then(
           (response) => {
             const { lat, lng } = response.results[0].geometry.location;
             if (pointer === 'start') setStartLocation(`${lat},${lng}`);
-            if (pointer === 'end') setEndLocation(`${lat},${lng}`);
+            else if (pointer === 'end') setEndLocation(`${lat},${lng}`);
           },
           (error) => {
             console.error(error);
           }
         );
-  }
+    }
+    }
+
   const getAddress = (latlong,pointer) => {
     Geocode.setApiKey(GEO_CODE_API);
     Geocode.setLanguage("en");
@@ -406,6 +410,7 @@ function AddCustodyForm(props) {
                   autoComplete="start_of_custody_address"
                   value={start_of_custody_address}
                   onChange={(e) => getLatLong(e.target.value,'start')}
+                  // onBlur={(e) => getLatLong(e.target.value,'start')}
                 />
                 <MapComponent
                   isMarkerShown
@@ -422,8 +427,8 @@ function AddCustodyForm(props) {
                       lng:
                         start_of_custody_location &&
                         parseFloat(start_of_custody_location.split(",")[1]),
-                      onMarkerDrag: setStartLocation,
-                      draggable: true,
+                      // onMarkerDrag: setStartLocation,
+                      // draggable: true,
                       radius : organizationData.radius,
                     },
                   ]}
@@ -441,6 +446,7 @@ function AddCustodyForm(props) {
                   autoComplete="end_of_custody_address"
                   value={end_of_custody_address}
                   onChange={(e) => getLatLong(e.target.value,'end')}
+                  // onBlur={(e) => getLatLong(e.target.value,'end')}
                 />
                 <MapComponent
                   isMarkerShown
@@ -457,8 +463,8 @@ function AddCustodyForm(props) {
                       lng:
                         end_of_custody_location &&
                         parseFloat(end_of_custody_location.split(",")[1]),
-                      onMarkerDrag: setEndLocation,
-                      draggable: true,
+                      // onMarkerDrag: setEndLocation,
+                      // draggable: true,
                       radius : organizationData.radius,
                     },
                   ]}
