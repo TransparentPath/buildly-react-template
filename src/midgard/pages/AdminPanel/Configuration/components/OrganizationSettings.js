@@ -68,9 +68,6 @@ const OrganizationSettings = ({ dispatch, loading, organizationData }) => {
   const [radius, setRadius] = useState(
     (organizationData && organizationData.radius) || 0
   );
-  // const radius = useInput((organizationData && organizationData.radius) || 0, {
-  //   required: true,
-  // });
 
   const [formError, setFormError] = useState({});
 
