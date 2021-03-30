@@ -26,6 +26,7 @@
     "moment": "^2.26.0",
     "mui-datatables": "^3.7.6",
     "npm": "^6.9.0",
+    "pdfjs-dist": "^2.6.347",
     "polished": "^3.2.0",
     "react": "^16.7.0",
     "react-chartjs-2": "^2.11.1",

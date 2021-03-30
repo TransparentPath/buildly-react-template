@@ -48,6 +48,10 @@ export const DELETE_SHIPMENT_FLAG = "SHIPMENT/DELETE_SHIPMENT_FLAG";
 export const DELETE_SHIPMENT_FLAG_SUCCESS = "SHIPMENT/DELETE_SHIPMENT_FLAG_SUCCESS";
 export const DELETE_SHIPMENT_FLAG_FAILURE = "SHIPMENT/DELETE_SHIPMENT_FLAG_FAILURE";
 
+export const UPLOAD_BILL = "SHIPMENT/UPLOAD_BILL";
+export const UPLOAD_BILL_SUCCESS = "SHIPMENT/UPLOAD_BILL_SUCCESS";
+export const UPLOAD_BILL_FAILURE = "SHIPMENT/UPLOAD_BILL_FAILURE";
+
 /**
  *
  * @param {Object} formData
@@ -144,4 +148,9 @@ export const editShipmentFlag = (payload) => ({
 export const deleteShipmentFlag = (id) => ({
   type: DELETE_SHIPMENT_FLAG,
   id,
+});
+
+export const uploadBill = (data) => ({
+  type: UPLOAD_BILL,
+  data,
 });

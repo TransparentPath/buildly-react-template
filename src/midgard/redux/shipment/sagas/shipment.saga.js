@@ -31,6 +31,9 @@ import {
   DELETE_SHIPMENT_FLAG,
   DELETE_SHIPMENT_FLAG_SUCCESS,
   DELETE_SHIPMENT_FLAG_FAILURE,
+  UPLOAD_BILL,
+  UPLOAD_BILL_SUCCESS,
+  UPLOAD_BILL_FAILURE,
 } from "../actions/shipment.actions";
 import { compareSort } from "../../../utils/utilMethods";
 import { routes } from "../../../routes/routesConstants";
@@ -438,6 +441,46 @@ function* deleteShipmentFlag(payload) {
   }
 }
 
+function* uploadBill(payload) {
+  try {
+    const response = yield call(
+      httpService.makeRequest,
+      "post",
+      `${environment.API_URL}${shipmentApiEndPoint}upload_file/`,
+      payload.data,
+      true
+    );
+    yield [
+      yield put({ 
+        type: UPLOAD_BILL_SUCCESS,
+        url: response.data['aws url'],
+      }),
+      yield put(
+        showAlert({
+          type: "success",
+          open: true,
+          message: "Successfully Uploaded Bill",
+        })
+      ),
+    ];
+  } catch (error) {
+    console.log(error);
+    yield [
+      yield put(
+        showAlert({
+          type: "error",
+          open: true,
+          message: "Couldn't Upload Bill due to some error!",
+        })
+      ),
+      yield put({
+        type: UPLOAD_BILL_FAILURE,
+        error: error,
+      }),
+    ];
+  }
+}
+
 function* watchGetShipment() {
   yield takeLatest(GET_SHIPMENTS, getShipmentList);
 }
@@ -478,6 +521,10 @@ function* watchDeleteShipmentFlag() {
   yield takeLatest(DELETE_SHIPMENT_FLAG, deleteShipmentFlag);
 }
 
+function* watchUploadBill() {
+  yield takeLatest(UPLOAD_BILL, uploadBill);
+}
+
 export default function* shipmentSaga() {
   yield all([
     watchGetShipment(),
@@ -490,5 +537,6 @@ export default function* shipmentSaga() {
     watchAddShipmentFlag(),
     watchEditShipmentFlag(),
     watchDeleteShipmentFlag(),
+    watchUploadBill(),
   ]);
 }
