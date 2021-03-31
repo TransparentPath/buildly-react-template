@@ -206,6 +206,11 @@ function AlertInfo(props) {
                     dispatch(updateCustody(custodyFormValues));
                   }
                 })
+                const previousCustody = {
+                  id: currentCustody.id,
+                  has_current_custody: false,
+                }
+                dispatch(updateCustody(previousCustody));
               }
             }
           }
