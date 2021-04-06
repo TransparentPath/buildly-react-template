@@ -6,6 +6,7 @@ import { UserContext } from "midgard/context/User.context";
 import {
   setShipmentAlerts,
   emailAlerts,
+  editShipment,
 } from "../../redux/shipment/actions/shipment.actions";
 import { getFormattedCustodyRows } from "./ShipmentConstants";
 import { updateCustody } from "../../redux/custodian/actions/custodian.actions";
@@ -258,6 +259,25 @@ function AlertInfo(props) {
                         has_current_custody: false,
                       };
                       dispatch(updateCustody(previousCustody));
+                    }
+
+                    if (
+                      sensorReportAlert.shipment_custody_status ===
+                        "present-end-geofence" ||
+                      (sensorReportAlert.shipment_custody_status ===
+                        "reached-end-geofence" &&
+                        currentCustody.custody_uuid ===
+                          sensorReportAlert.current_custody_id)
+                    ) {
+                      element.status = "Completed";
+                      dispatch(
+                        editShipment(
+                          element,
+                          null,
+                          null,
+                          element.organization_uuid
+                        )
+                      );
                     }
                   }
                 }
