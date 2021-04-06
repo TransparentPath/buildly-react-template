@@ -89,6 +89,9 @@ function AlertInfo(props) {
       let alerts = [];
       let openAlerts = [];
       let messages = [];
+      let viewedShipmentAlerts = localStorage.getItem("shipmentAlerts")
+        ? JSON.parse(localStorage.getItem("shipmentAlerts"))
+        : [];
       shipmentData &&
         shipmentData.forEach((element, index) => {
           shipmentFlag &&
@@ -97,12 +100,16 @@ function AlertInfo(props) {
                 element.flags.indexOf(flag.url) !== -1 &&
                 flag.type !== "None" &&
                 (element.status.toLowerCase() === "planned" ||
-                  element.status.toLowerCase() === "enroute")
+                  element.status.toLowerCase() === "enroute") &&
+                !viewedShipmentAlerts.includes(
+                  element.shipment_uuid + "-" + flag.id
+                )
               ) {
                 alerts.push({
                   type: flag.type,
                   name: flag.name,
                   shipment: element.name,
+                  url: element.shipment_uuid + "-" + flag.id,
                   severity:
                     flag.type.toLowerCase() === "warning" ? "warning" : "error",
                 });
@@ -144,7 +151,7 @@ function AlertInfo(props) {
       let messages = [];
       let currentCustody = {};
       let updatedCustodies = [];
-      let viewedAlerts = localStorage.getItem("geofenceAlerts")
+      let viewedGeoAlerts = localStorage.getItem("geofenceAlerts")
         ? JSON.parse(localStorage.getItem("geofenceAlerts"))
         : [];
 
@@ -211,7 +218,7 @@ function AlertInfo(props) {
                       message = "Custody Handoff";
                       break;
                   }
-                  if (!viewedAlerts.includes(sensorReportAlert.id)) {
+                  if (!viewedGeoAlerts.includes(sensorReportAlert.id)) {
                     alerts.push({
                       type: sensorReportAlert.shipment_custody_status,
                       name: `${message} : ${currentCustody.custodian_name} -  Shipment ${element.name}`,
@@ -285,6 +292,15 @@ function AlertInfo(props) {
     event.preventDefault();
     if (type === "shipment") {
       let open = shipmentAlerts.data.filter((item, idx) => idx !== index);
+      let current = shipmentAlerts.data[index];
+      let viewedShipmentAlerts = localStorage.getItem("shipmentAlerts")
+        ? JSON.parse(localStorage.getItem("shipmentAlerts"))
+        : [];
+      viewedShipmentAlerts.push(current.url);
+      localStorage.setItem(
+        "shipmentAlerts",
+        JSON.stringify(viewedShipmentAlerts)
+      );
       if (open.length === 0) {
         dispatch(setShipmentAlerts({ show: false, data: open }));
       } else {
@@ -294,11 +310,11 @@ function AlertInfo(props) {
     } else if (type === "geofence") {
       let open = geofenceAlerts.data.filter((item, idx) => idx !== index);
       let current = geofenceAlerts.data[index];
-      let viewedAlerts = localStorage.getItem("geofenceAlerts")
+      let viewedGeoAlerts = localStorage.getItem("geofenceAlerts")
         ? JSON.parse(localStorage.getItem("geofenceAlerts"))
         : [];
-      viewedAlerts.push(current.id);
-      localStorage.setItem("geofenceAlerts", JSON.stringify(viewedAlerts));
+      viewedGeoAlerts.push(current.id);
+      localStorage.setItem("geofenceAlerts", JSON.stringify(viewedGeoAlerts));
       if (open.length === 0) {
         setGeofenceAlerts({ show: false, data: open });
       } else {
