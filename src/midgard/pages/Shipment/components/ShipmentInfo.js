@@ -136,8 +136,8 @@ function ShipmentInfo(props) {
   const [uom_distance, setUomDistance] = useState(
     (editData && editData.uom_distance) || ""
   );
-  const [platform_type, setPlatformType] = useState(
-    (editData && editData.platform_type) || ""
+  const [platform_name, setPlatformType] = useState(
+    (editData && editData.platform_name) || "ICLP"
   );
 
   const [formError, setFormError] = useState({});
@@ -153,7 +153,7 @@ function ShipmentInfo(props) {
     uom_temp: "",
     uom_distance: "",
     uom_weight,
-    platform_type: "",
+    platform_name: "",
   });
   const organization = useContext(UserContext).organization.organization_uuid;
 
@@ -207,9 +207,9 @@ function ShipmentInfo(props) {
         shipmentOptions.actions.POST,
         "uom_weight"
       );
-      metadata["platform_type"] = setOptionsData(
+      metadata["platform_name"] = setOptionsData(
         shipmentOptions.actions.POST,
-        "platform_type"
+        "platform_name"
       );
     }
 
@@ -299,7 +299,7 @@ function ShipmentInfo(props) {
       uom_temp: uom_temp,
       uom_weight: uom_weight,
       organization_uuid: organization,
-      platform_type: platform_type,
+      platform_name: platform_name,
     };
 
     if (editPage && editData) {
@@ -550,11 +550,11 @@ function ShipmentInfo(props) {
                       margin="normal"
                       fullWidth
                       required
-                      id="platform_type"
+                      id="platform_name"
                       select
                       label="Sensor Platform"
                       disabled={viewOnly}
-                      value={platform_type}
+                      value={platform_name}
                       onChange={(e) => setPlatformType(e.target.value)}
                       InputProps={
                         fieldsMetadata["uom_temp"].help_text && {
