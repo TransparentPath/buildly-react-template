@@ -138,7 +138,9 @@ function AddGateway({
       last_known_battery_level: battery_level.value,
       ...(editPage && editData && { id: editData.id }),
       mac_address: mac_address.value,
-      last_known_location: [last_known_location],
+      last_known_location: [
+        last_known_location === "" ? "null, null" : last_known_location,
+      ],
       gateway_status: gateway_status.value,
       organization_uuid: organization,
     };
@@ -460,7 +462,11 @@ function AddGateway({
                       label="Last Known Location"
                       name="last_known_location"
                       autoComplete="last_known_location"
-                      value={last_known_location}
+                      value={
+                        last_known_location === "null,null"
+                          ? ""
+                          : last_known_location
+                      }
                       InputProps={
                         gatewayMetaData["last_known_location"] &&
                         gatewayMetaData["last_known_location"].help_text && {
