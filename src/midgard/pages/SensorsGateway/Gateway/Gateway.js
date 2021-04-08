@@ -126,9 +126,9 @@ function Gateway(props) {
   return (
     <DashboardWrapper
       loading={loading}
-      onAddButtonClick={onAddButtonClick}
+      // onAddButtonClick={onAddButtonClick}
       dashboardHeading={"Gateway"}
-      addButtonHeading={"Add Gateway"}
+      // addButtonHeading={"Add Gateway"}
       editAction={editGatewayAction}
       deleteAction={deleteGatewayAction}
       columns={gatewayColumns}
