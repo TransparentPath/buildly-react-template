@@ -1,4 +1,5 @@
 import moment from "moment";
+import { compareSort } from "../../utils/utilMethods";
 
 export const gatewayColumns = [
   // { id: "id", label: "Id", minWidth: 50 },
@@ -120,3 +121,15 @@ export const GATEWAY_STATUS = [
   { value: "unavailable", name: "Unavailable" },
   { value: "in-transit", name: "In-transit" },
 ];
+
+export const getActiveGateways = (data, gateway_type, gatewayTypeList) => {
+  let gatewayData = getFormattedRow(data, gatewayTypeList);
+  return (
+    gatewayData.sort(compareSort("name")) &&
+    gatewayData.filter(
+      (gateway) =>
+        !gateway.is_active &&
+        gateway.gateway_type_value.toLowerCase().includes(gateway_type)
+    )
+  );
+};
