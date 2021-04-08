@@ -136,7 +136,7 @@ function ShipmentInfo(props) {
   const [uom_distance, setUomDistance] = useState(
     (editData && editData.uom_distance) || ""
   );
-  const [platform_name, setPlatformType] = useState(
+  const [platform_name, setPlatformName] = useState(
     (editData && editData.platform_name) || "ICLP"
   );
 
@@ -555,15 +555,15 @@ function ShipmentInfo(props) {
                       label="Sensor Platform"
                       disabled={viewOnly}
                       value={platform_name}
-                      onChange={(e) => setPlatformType(e.target.value)}
+                      onChange={(e) => setPlatformName(e.target.value)}
                       InputProps={
-                        fieldsMetadata["uom_temp"].help_text && {
+                        fieldsMetadata["platform_name"].help_text && {
                           endAdornment: (
                             <InputAdornment position="start">
-                              {fieldsMetadata["uom_temp"].help_text && (
+                              {fieldsMetadata["platform_name"].help_text && (
                                 <CustomizedTooltips
                                   toolTipText={
-                                    fieldsMetadata["uom_temp"].help_text
+                                    fieldsMetadata["platform_name"].help_text
                                   }
                                 />
                               )}
