@@ -44,7 +44,7 @@ const returnFormattedData = (value) => {
 };
 
 export const getFormattedRow = (data, itemTypeList, shipmentData) => {
-  if (data && itemTypeList) {
+  if (data && itemTypeList && shipmentData) {
     let formattedData = [...data];
     formattedData.forEach((element) => {
       element["shipment"] = [];
@@ -119,16 +119,23 @@ export const getFormattedSensorRow = (data, sensorTypeList, gatewayData) => {
 export const GATEWAY_STATUS = [
   { value: "available", name: "Available" },
   { value: "unavailable", name: "Unavailable" },
+  { value: "assigned", name: "Assigned" },
   { value: "in-transit", name: "In-transit" },
 ];
 
-export const getActiveGateways = (data, gateway_type, gatewayTypeList) => {
-  let gatewayData = getFormattedRow(data, gatewayTypeList);
+export const getAvailableGateways = (
+  data,
+  gateway_type,
+  gatewayTypeList,
+  shipmentData
+) => {
+  let gatewayData = getFormattedRow(data, gatewayTypeList, shipmentData);
   return (
     gatewayData.sort(compareSort("name")) &&
     gatewayData.filter(
       (gateway) =>
-        !gateway.is_active &&
+        // !gateway.is_active &&
+        gateway.gateway_status === "available" &&
         gateway.gateway_type_value.toLowerCase().includes(gateway_type)
     )
   );

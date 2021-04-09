@@ -103,7 +103,7 @@ function AddGateway({
   });
   const [formError, setFormError] = useState({});
 
-  const buttonText = editPage ? "save" : "Submit";
+  const buttonText = editPage ? "Save" : "Add Gateway";
   const formTitle = editPage ? "Edit Gateway" : "Add Gateway";
 
   const [gatewayMetaData, setGatewayMetaData] = useState({});
