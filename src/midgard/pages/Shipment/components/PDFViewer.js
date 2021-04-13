@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 
-const PdfViewer = ({ url, canvas }) => {
+const PdfViewer = ({ url, canvas, getPdfText }) => {
   const canvasRef = useRef();
   pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -20,7 +20,10 @@ const PdfViewer = ({ url, canvas }) => {
           canvasContext: canvas.getContext('2d'),
           viewport: viewport
         };
-        page.render(renderContext);
+        let task = page.render(renderContext);
+        task.promise.then(() => {
+          getPdfText(canvas.toDataURL('image/jpeg'));
+        });
       });   
   }, [pdfRef]);
 
@@ -31,7 +34,11 @@ const PdfViewer = ({ url, canvas }) => {
   useEffect(() => {
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(loadedPdf => {
-      setPdfRef(loadedPdf);
+      if (!pdfRef || 
+        (pdfRef && pdfRef.fingerprint !== loadedPdf.fingerprint)
+      ) {
+        setPdfRef(loadedPdf)
+      }
     }, function (reason) {
       console.error(reason);
     });

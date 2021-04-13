@@ -33,9 +33,9 @@ import {
   DELETE_SHIPMENT_FLAG,
   DELETE_SHIPMENT_FLAG_SUCCESS,
   DELETE_SHIPMENT_FLAG_FAILURE,
-  UPLOAD_BILL,
-  UPLOAD_BILL_SUCCESS,
-  UPLOAD_BILL_FAILURE,
+  ADD_PDF_IDENTIFIER,
+  ADD_PDF_IDENTIFIER_SUCCESS,
+  ADD_PDF_IDENTIFIER_FAILURE,
 } from "../actions/shipment.actions";
 
 const initialState = {
@@ -321,7 +321,7 @@ export default (state = initialState, action) => {
         error: action.error,
       };
 
-    case UPLOAD_BILL:
+    case ADD_PDF_IDENTIFIER:
       return {
         ...state,
         loading: true,
@@ -329,15 +329,20 @@ export default (state = initialState, action) => {
         error: null,
       };
 
-    case UPLOAD_BILL_SUCCESS:
+    case ADD_PDF_IDENTIFIER_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
-        shipmentFormData: { ...state.shipmentFormData, uploaded_pdf: action.url },
+        shipmentFormData: {
+          ...state.shipmentFormData,
+          uploaded_pdf: action.uploaded_pdf,
+          uploaded_pdf_link: action.uploaded_pdf_link,
+          unique_identifier: action.unique_identifier,
+        },
       };
       
-    case UPLOAD_BILL_FAILURE:
+    case ADD_PDF_IDENTIFIER_FAILURE:
       return {
         ...state,
         loading: false,

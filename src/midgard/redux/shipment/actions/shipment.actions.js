@@ -48,9 +48,9 @@ export const DELETE_SHIPMENT_FLAG = "SHIPMENT/DELETE_SHIPMENT_FLAG";
 export const DELETE_SHIPMENT_FLAG_SUCCESS = "SHIPMENT/DELETE_SHIPMENT_FLAG_SUCCESS";
 export const DELETE_SHIPMENT_FLAG_FAILURE = "SHIPMENT/DELETE_SHIPMENT_FLAG_FAILURE";
 
-export const UPLOAD_BILL = "SHIPMENT/UPLOAD_BILL";
-export const UPLOAD_BILL_SUCCESS = "SHIPMENT/UPLOAD_BILL_SUCCESS";
-export const UPLOAD_BILL_FAILURE = "SHIPMENT/UPLOAD_BILL_FAILURE";
+export const ADD_PDF_IDENTIFIER = "SHIPMENT/ADD_PDF_IDENTIFIER";
+export const ADD_PDF_IDENTIFIER_SUCCESS = "SHIPMENT/ADD_PDF_IDENTIFIER_SUCCESS";
+export const ADD_PDF_IDENTIFIER_FAILURE = "SHIPMENT/ADD_PDF_IDENTIFIER_FAILURE";
 
 /**
  *
@@ -64,10 +64,12 @@ export const saveShipmentFormData = (formData) => ({
 /**
  * Get Shipment Details
  * @param {String} organization_uuid
+ * @param {Number} id
  */
-export const getShipmentDetails = (organization_uuid) => ({
+export const getShipmentDetails = (organization_uuid, id=null) => ({
   type: GET_SHIPMENTS,
   organization_uuid,
+  id,
 });
 
 /**
@@ -150,7 +152,15 @@ export const deleteShipmentFlag = (id) => ({
   id,
 });
 
-export const uploadBill = (data) => ({
-  type: UPLOAD_BILL,
+export const pdfIdentifier = (
+  data, filename, identifier, payload, history, redirectTo, organization_uuid
+) => ({
+  type: ADD_PDF_IDENTIFIER,
   data,
+  filename,
+  identifier,
+  payload,
+  history,
+  redirectTo,
+  organization_uuid,
 });

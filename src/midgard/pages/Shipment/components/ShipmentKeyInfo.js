@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { getDocument } from "pdfjs-dist";
+import _ from "lodash";
+import { createWorker } from "tesseract.js";
 import {
   Button,
   Card,
@@ -10,9 +11,13 @@ import {
   makeStyles,
   TextField,
   CircularProgress,
+  Link,
 } from "@material-ui/core";
+import { Autocomplete } from '@material-ui/lab';
 import PdfViewer from "./PDFViewer";
-import { uploadBill } from "midgard/redux/shipment/actions/shipment.actions";
+import Loader from "midgard/components/Loader/Loader";
+import { pdfIdentifier } from "midgard/redux/shipment/actions/shipment.actions";
+import { routes } from "midgard/routes/routesConstants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(4),
   },
   textfield: {
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(3),
   },
   preview: {
     width: theme.spacing(69),
@@ -38,12 +43,14 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: -12,
   },
   loadingWrapper: {
-    // margin: theme.spacing(1),
     position: "relative",
   },
   submit: {
     borderRadius: "18px",
     fontSize: 11,
+  },
+  autoComplete: {
+    width: "100%",
   },
 }));
 
@@ -54,45 +61,85 @@ const ShipmentKeyInfo = ({
   viewOnly,
   handleNext,
   handleCancel,
+  history,
 }) => {
   const classes = useStyles();
+  const worker = createWorker({
+    logger: (m) => console.log(m),
+  });
 
   const [file, setFile] = useState(null);
   const [text, setText] = useState(null);
   const [key, setKey] = useState('');
+  const [loadingText, setLoadingText] = useState(false);
+  const [options, setOptions] = useState([]);
+  const [keyValue, setKeyValue] = useState('');
 
-  const getPdfText = async (pdf) => {
-    let pdfUrl = URL.createObjectURL(pdf);
-    let doc = await getDocument(pdfUrl).promise;
-    let pageTextPromises = Array.from({length: doc.numPages}, async (v,i) => {
-        return (await (await doc.getPage(i+1)).getTextContent()).items.map(token => token.str.replace(/[^a-zA-Z0-9:;,.?!-() ]/g, '')).join('');
-    });
-    const pageTexts = await Promise.all(pageTextPromises);
-    return pageTexts.join(" ");
+  const getPdfText = async (imageUrl) => {
+    await worker.load();
+    await worker.loadLanguage("eng");
+    await worker.initialize("eng");
+    const {data:{text}} = await worker.recognize(imageUrl);
+    setText(text);
+    setLoadingText(false);
+    await worker.terminate();
   }
 
   const searchOnBlur = () => {
-    var re = new RegExp("(.{0,20})" + key + "(.{0,20})", "gi"), m;
-    var lines = [];
-    while (m = re.exec(text)) {
-      console.log(m);
-      var line = (m[1] ? "..." : "") + m[0] + (m[2] ? "..." : "");
-      lines.push(line);
+    if (key) {
+      var re = new RegExp("(.{0,20})" + key + "(.{0,20})", "gi"), m;
+      var values = [];
+      while (m = re.exec(text)) {
+        // var line = (m[1] ? "..." : "") + m[0] + (m[2] ? "..." : "");
+        values.push(m[2]);
+      }
+      let options = [];
+      values.forEach(value => {
+        const segments = value[0] === ":" ? value.split(": ") : value.split(" ");
+        const segment = segments[1]
+          ? segments[1].split(" ")[0]
+          : segments[0].split(" ")[0]
+
+        if (segment.match("^[A-Za-z0-9]+$")) {
+          options = [ ...options, segment ];
+        }
+      });
+      setOptions(options);
     }
-    console.log(lines);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    let formData = new FormData();
-    formData.append('file', file, file.name);
-    dispatch(uploadBill(formData));
+    let uploadFile = new FormData();
+    uploadFile.append('file', file, file.name);
+    const identifier = key ? JSON.stringify({[key]: keyValue}) : null;
 
-    console.log("Submit clicked");
+    dispatch(pdfIdentifier(
+      uploadFile,
+      file.name,
+      identifier,
+      shipmentFormData,
+      history,
+      `${routes.SHIPMENT}/edit/:${shipmentFormData.id}`,
+      shipmentFormData.organization_uuid,
+    ));
+
+    const fileInput = document.getElementById("key-file");
+    setFile(null);
+    setText(null);
+    setKey('');
+    fileInput.value = '';
+    fileInput.files = null;
   };
 
   return (
     <Container className={classes.root} maxWidth="sm">
+      {loadingText && 
+        <Loader
+          open={loadingText}
+          label="Extracting text from selected PDF"
+        />
+      }
       <form noValidate onSubmit={handleSubmit}>
         <Card variant="outlined">
           <CardContent>
@@ -106,18 +153,71 @@ const ShipmentKeyInfo = ({
               className={classes.textfield}
               InputLabelProps={{ shrink: true }}
               onChange={e => {
-                setFile(e.target.files[0])
-                getPdfText(e.target.files[0])
-                  .then((text) => {
-                    console.log(text)
-                    setText(text)
-                  })
-                  .catch((error) => console.log(error))
+                const maxAllowedSize = 2 * 1024 * 1024;
+                if (e.target.files[0].type === "application/pdf") {
+                  if (e.target.files[0].size < maxAllowedSize) {
+                    setFile(e.target.files[0])
+                    setLoadingText(true)
+                  } else {
+                    e.target.files=null
+                    e.target.value=''
+                    alert("File size is more that 2MB. Please upload another file.")
+                  }
+                } else {
+                  e.target.files=null
+                  e.target.value=''
+                  alert("Only PDF files are allowed for upload.")
+                }
               }}
+              helperText={
+                shipmentFormData
+                && shipmentFormData.uploaded_pdf
+                && shipmentFormData.uploaded_pdf_link
+                && shipmentFormData.unique_identifier
+                && shipmentFormData.uploaded_pdf.length > 0
+                && shipmentFormData.uploaded_pdf_link.length > 0
+                ? (
+                  <React.Fragment>
+                    <span>
+                      {"PDF(s) already uploaded for this shipment "}
+                      {_.map(shipmentFormData.uploaded_pdf, (pdfName, index) => (
+                        <React.Fragment key={index}>
+                          <Link
+                            color="primary"
+                            href={shipmentFormData.uploaded_pdf_link[index]}
+                            target="_blank"
+                          >
+                            {pdfName}
+                          </Link>
+                          {index < shipmentFormData.uploaded_pdf.length-1 &&
+                            <span>{", "}</span>
+                          }
+                        </React.Fragment>
+                      ))
+                      }
+                    </span>
+                    <br />
+                    <br />
+                    <span>
+                      <em>Unique Identifier</em>
+                    </span>
+                    <br />
+                    <span>
+                      {`${_.keys(
+                        JSON.parse(shipmentFormData.unique_identifier),
+                      )[0]}: ${_.values(
+                        JSON.parse(shipmentFormData.unique_identifier),
+                      )[0]}`}
+                    </span>
+                  </React.Fragment>
+                )
+                : ""
+              }
             />
+            {file &&
             <TextField
+              className={classes.textfield}
               variant="outlined"
-              required
               fullWidth
               id="file-search"
               name="file-search"
@@ -126,6 +226,29 @@ const ShipmentKeyInfo = ({
               onChange={e => setKey(e.target.value)}
               onBlur={searchOnBlur}
             />
+            }
+            {file && key &&
+              <Autocomplete
+                freeSolo
+                className={classes.autoComplete}
+                id="unique-identifier"
+                options={options}
+                value={keyValue}
+                onChange={(event, newValue) => {
+                  setKeyValue(newValue);
+                }}
+                renderInput={params =>
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    required
+                    fullWidth
+                    label="What should be the key value?"
+                    onChange={(e) => setKeyValue(e.target.value)}
+                  />
+                }
+              />
+            }
           </CardContent>
         </Card>
         <Grid className={classes.buttonContainer} container spacing={3}>
@@ -149,7 +272,7 @@ const ShipmentKeyInfo = ({
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  disabled={loading || !file}
+                  disabled={Boolean(loading || !file || (key && !keyValue))}
                 >
                   Save
                 </Button>
@@ -178,10 +301,8 @@ const ShipmentKeyInfo = ({
       {file && 
         <PdfViewer
           canvas={classes.preview}
-          url={shipmentFormData.uploaded_pdf
-            ? shipmentFormData.uploaded_pdf
-            : URL.createObjectURL(file)
-          }
+          url={URL.createObjectURL(file)}
+          getPdfText={getPdfText}
         />
       }
     </Container>
