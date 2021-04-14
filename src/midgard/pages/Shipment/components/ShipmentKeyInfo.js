@@ -14,6 +14,7 @@ import {
   Link,
 } from "@material-ui/core";
 import { Autocomplete } from '@material-ui/lab';
+import { PictureAsPdf as PictureAsPdfIcon } from '@material-ui/icons';
 import PdfViewer from "./PDFViewer";
 import Loader from "midgard/components/Loader/Loader";
 import { pdfIdentifier } from "midgard/redux/shipment/actions/shipment.actions";
@@ -51,6 +52,14 @@ const useStyles = makeStyles((theme) => ({
   },
   autoComplete: {
     width: "100%",
+  },
+  caption: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: theme.spacing(2),
+  },
+  pdfIcon: {
+    marginRight: theme.spacing(1),
   },
 }));
 
@@ -178,26 +187,30 @@ const ShipmentKeyInfo = ({
                 && shipmentFormData.uploaded_pdf_link.length > 0
                 ? (
                   <React.Fragment>
-                    <span>
-                      {"PDF(s) already uploaded for this shipment "}
-                      {_.map(shipmentFormData.uploaded_pdf, (pdfName, index) => (
-                        <React.Fragment key={index}>
-                          <Link
-                            color="primary"
-                            href={shipmentFormData.uploaded_pdf_link[index]}
-                            target="_blank"
-                          >
-                            {pdfName}
-                          </Link>
-                          {index < shipmentFormData.uploaded_pdf.length-1 &&
-                            <span>{", "}</span>
-                          }
-                        </React.Fragment>
-                      ))
-                      }
+                    <span className={classes.caption}>
+                      <PictureAsPdfIcon
+                        className={classes.pdfIcon}
+                        fontSize="large"
+                      />
+                      <span>
+                        {"PDF(s) already uploaded for this shipment "}
+                        {_.map(shipmentFormData.uploaded_pdf, (pdfName, index) => (
+                          <React.Fragment key={index}>
+                            <Link
+                              color="primary"
+                              href={shipmentFormData.uploaded_pdf_link[index]}
+                              target="_blank"
+                            >
+                              {pdfName}
+                            </Link>
+                            {index < shipmentFormData.uploaded_pdf.length-1 &&
+                              <span>{", "}</span>
+                            }
+                          </React.Fragment>
+                        ))
+                        }
+                      </span>
                     </span>
-                    <br />
-                    <br />
                     <span>
                       <em>Unique Identifier</em>
                     </span>
