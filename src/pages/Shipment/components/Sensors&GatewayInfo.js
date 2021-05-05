@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { connect } from 'react-redux';
+import React, { useState, useContext } from "react";
+import { connect } from "react-redux";
 import {
   makeStyles,
   TextField,
@@ -11,61 +11,64 @@ import {
   Grid,
   Button,
   CircularProgress,
-} from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
+} from "@material-ui/core";
+import { Autocomplete } from "@material-ui/lab";
 import {
   CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
   CheckBox as CheckBoxIcon,
-} from '@material-ui/icons';
-import DataTable from '@components/Table/Table';
-import { UserContext } from '@context/User.context';
+} from "@material-ui/icons";
+import DataTable from "@components/Table/Table";
+import { UserContext } from "@context/User.context";
 import {
   gatewayColumns,
   getFormattedRow,
   sensorsColumns,
   getFormattedSensorRow,
   getAvailableGateways,
-} from '@pages/SensorsGateway/Constants';
-import { editShipment } from '@redux/shipment/actions/shipment.actions';
-import { routes } from '@routes/routesConstants';
+} from "@pages/SensorsGateway/Constants";
+import { editShipment } from "@redux/shipment/actions/shipment.actions";
+import { routes } from "@routes/routesConstants";
+import { checkIfCustodianInfoEdited } from "./custodian-info/AddCustodyForm";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '& > * + *': {
+    "& > * + *": {
       marginTop: theme.spacing(3),
     },
   },
   buttonContainer: {
     margin: theme.spacing(8, 0),
-    textAlign: 'center',
-    justifyContent: 'center',
+    textAlign: "center",
+    justifyContent: "center",
   },
   alignRight: {
-    marginLeft: 'auto',
+    marginLeft: "auto",
   },
   buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
     marginTop: -12,
     marginLeft: -12,
   },
   loadingWrapper: {
-    position: 'relative',
+    position: "relative",
   },
   form: {
-    width: '100%',
+    width: "100%",
     marginTop: theme.spacing(1),
-    [theme.breakpoints.up('sm')]: {
-      width: '70%',
-      margin: 'auto',
+    [theme.breakpoints.up("sm")]: {
+      width: "70%",
+      margin: "auto",
     },
   },
   submit: {
-    borderRadius: '18px',
+    borderRadius: "18px",
     fontSize: 11,
   },
 }));
+
+export let checkIfSensorGatewayEdited;
 
 const SensorsGatewayInfo = ({
   gatewayData,
@@ -80,10 +83,11 @@ const SensorsGatewayInfo = ({
   sensorData,
   sensorTypeList,
   viewOnly,
+  setConfirmModal,
 }) => {
   const classes = useStyles();
   const [gatewayIds, setGatewayIds] = useState(
-    (shipmentFormData && shipmentFormData.gateway_ids) || [],
+    (shipmentFormData && shipmentFormData.gateway_ids) || []
   );
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -107,21 +111,16 @@ const SensorsGatewayInfo = ({
         }
       }
     });
-    rows = getFormattedRow(
-      selectedRows, gatewayTypeList, shipmentData,
-    );
-    sensorsRow = getFormattedSensorRow(
-      selectedSensors, sensorTypeList,
-    );
+    rows = getFormattedRow(selectedRows, gatewayTypeList, shipmentData);
+    sensorsRow = getFormattedSensorRow(selectedSensors, sensorTypeList);
   }
 
   const onInputChange = (value) => {
     setGatewayIds(value.map((val) => val.gateway_uuid));
+    checkIfSensorGatewayEdited = () => true;
   };
 
-  const submitDisabled = () => (
-    !gatewayIds.length || gatewayData === null
-  );
+  const submitDisabled = () => !gatewayIds.length || gatewayData === null;
 
   /**
    * Submit The form and add/edit custodian
@@ -137,11 +136,26 @@ const SensorsGatewayInfo = ({
         shipmentFormValue,
         history,
         `${routes.SHIPMENT}/edit/:${shipmentFormData.id}`,
-        organization,
-      ),
+        organization
+      )
     );
   };
 
+  const onNextClick = () => {
+    if (checkIfSensorGatewayEdited()) {
+      setConfirmModal(true);
+    } else {
+      handleNext();
+    }
+  };
+
+  const onCancelClick = () => {
+    if (checkIfSensorGatewayEdited()) {
+      setConfirmModal(true);
+    } else {
+      handleCancel();
+    }
+  };
   return (
     <Box mb={5} mt={3}>
       <form noValidate onSubmit={handleSubmit}>
@@ -154,16 +168,16 @@ const SensorsGatewayInfo = ({
                   id="combo-box-demo"
                   disabled={viewOnly}
                   options={
-                    (gatewayData
-                      && getAvailableGateways(
+                    (gatewayData &&
+                      getAvailableGateways(
                         gatewayData,
                         shipmentFormData.platform_name
                           ? shipmentFormData.platform_name.toLowerCase()
-                          : 'iclp',
+                          : "iclp",
                         gatewayTypeList,
-                        shipmentData,
-                      ))
-                    || []
+                        shipmentData
+                      )) ||
+                    []
                   }
                   getOptionLabel={(option) => option && option.name}
                   filterSelectedOptions
@@ -226,11 +240,7 @@ const SensorsGatewayInfo = ({
             )}
           </Grid>
         </Box>
-        <Grid
-          container
-          spacing={3}
-          className={classes.buttonContainer}
-        >
+        <Grid container spacing={3} className={classes.buttonContainer}>
           <Grid item xs={6} sm={2}>
             {viewOnly ? (
               <Button
@@ -239,7 +249,7 @@ const SensorsGatewayInfo = ({
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                onClick={handleCancel}
+                onClick={onCancelClick}
               >
                 Done
               </Button>
@@ -270,7 +280,7 @@ const SensorsGatewayInfo = ({
               variant="contained"
               color="primary"
               fullWidth
-              onClick={handleNext}
+              onClick={onNextClick}
               className={classes.submit}
             >
               Next: Environmental Limits

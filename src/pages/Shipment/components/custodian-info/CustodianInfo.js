@@ -6,7 +6,8 @@ import DataTable from "@components/Table/Table";
 import { UserContext } from "@context/User.context";
 import { editShipment } from "@redux/shipment/actions/shipment.actions";
 import { routes } from "@routes/routesConstants";
-import AddCustodyForm from "./AddCustodyForm";
+import ConfirmModal from "@components/Modal/ConfirmModal";
+import AddCustodyForm, { checkIfCustodianInfoEdited } from "./AddCustodyForm";
 import {
   getFormattedCustodyRows,
   custodyColumns,
@@ -68,6 +69,7 @@ const CustodianInfo = (props) => {
     (shipmentFormData && shipmentFormData.custodian_ids) || []
   );
   const [openModal, setOpenModal] = useState(false);
+  const [openConfirmModal, setConfirmModal] = useState(false);
   const [rows, setRows] = useState([]);
   const [editItem, setEditItem] = useState(null);
   const organization = useContext(UserContext).organization.organization_uuid;
@@ -130,9 +132,18 @@ const CustodianInfo = (props) => {
     setItemIds(newArr);
   };
 
-  const oncloseModal = () => {
-    setEditItem(null);
+  const handleConfirmModal = () => {
+    setConfirmModal(false);
     setOpenModal(false);
+  };
+
+  const oncloseModal = () => {
+    if (checkIfCustodianInfoEdited) {
+      setConfirmModal(true);
+    } else {
+      setEditItem(null);
+      setOpenModal(false);
+    }
   };
 
   const editCustody = (item) => {
@@ -230,6 +241,13 @@ const CustodianInfo = (props) => {
           </Button>
         </Grid>
       </Grid>
+      <ConfirmModal
+        open={openConfirmModal}
+        setOpen={setConfirmModal}
+        submitAction={handleConfirmModal}
+        title="Your changes are unsaved and will be discarded. Are you sure to leave?"
+        submitText="Yes"
+      />
     </Box>
   );
 };

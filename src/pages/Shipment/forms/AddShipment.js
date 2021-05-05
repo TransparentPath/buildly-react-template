@@ -18,9 +18,11 @@ import ViewDetailsWrapper from '../components/ViewDetailsWrapper';
 import EnvironmentalLimitsInfo, {
   checkIfEnvironmentLimitsEdited,
 } from '../components/EnvironmentalLimitsInfo';
-import CustodianInfo from '../components/custodian-info/CustodianInfo';
-import ItemInfo from '../components/ItemInfo';
-import SensorsGatewayInfo from '../components/Sensors&GatewayInfo';
+import CustodianInfo, {
+  checkIfCustodianEdited,
+} from '../components/custodian-info/CustodianInfo';
+import ItemInfo, { checkIfItemInfoEdited } from '../components/ItemInfo';
+import SensorsGatewayInfo, { checkIfSensorGatewayEdited } from '../components/Sensors&GatewayInfo';
 import ShipmentInfo, {
   checkIfShipmentInfoEdited,
 } from '../components/ShipmentInfo';
@@ -51,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const getSteps = () => ([
+const getSteps = () => [
   'Shipment Details',
   'Shipment Key',
   'Items',
@@ -59,7 +61,7 @@ const getSteps = () => ([
   'Sensors & Gateways',
   // 'Shipment Overview',
   'Environmental Limits',
-]);
+];
 
 const getStepContent = (
   stepIndex,
@@ -108,6 +110,7 @@ const getStepContent = (
             viewOnly={viewOnly}
             handleNext={handleNext}
             handleCancel={handleCancel}
+            setConfirmModal={setConfirmModal}
           />
         </ViewDetailsWrapper>
       );
@@ -128,6 +131,7 @@ const getStepContent = (
             redirectTo={`${routes.SHIPMENT}/add`}
             handleNext={handleNext}
             handleCancel={handleCancel}
+            setConfirmModal={setConfirmModal}
           />
         </ViewDetailsWrapper>
       );
@@ -148,6 +152,7 @@ const getStepContent = (
             redirectTo={`${routes.SHIPMENT}/add`}
             handleNext={handleNext}
             handleCancel={handleCancel}
+            setConfirmModal={setConfirmModal}
           />
         </ViewDetailsWrapper>
       );
@@ -168,6 +173,7 @@ const getStepContent = (
             redirectTo={`${routes.SHIPMENT}/add`}
             handleNext={handleNext}
             handleCancel={handleCancel}
+            setConfirmModal={setConfirmModal}
           />
         </ViewDetailsWrapper>
       );
@@ -206,7 +212,7 @@ const AddShipment = (props) => {
   const editData = location.state && location.state.data;
   const user = useContext(UserContext);
   // For non-admins the forms becomes view-only once the shipment status is no longer just planned
-  const viewOnly = !(checkForGlobalAdmin(user))
+  const viewOnly = !checkForGlobalAdmin(user)
     && editPage
     && editData
     && editData.status
@@ -270,13 +276,13 @@ const AddShipment = (props) => {
         return false;
 
       case 2:
-        return false;
+        return checkIfItemInfoEdited();
 
       case 3:
-        return false;
+        return false; // Handled in Custody Info
 
       case 4:
-        return false;
+        return checkIfSensorGatewayEdited();
 
       case 5:
         return checkIfEnvironmentLimitsEdited();
@@ -300,11 +306,7 @@ const AddShipment = (props) => {
             <Hidden xsDown>
               <Grid container alignItems="center" justify="center">
                 <Grid item sm={10}>
-                  <Stepper
-                    activeStep={activeStep}
-                    alternativeLabel
-                    nonLinear
-                  >
+                  <Stepper activeStep={activeStep} alternativeLabel nonLinear>
                     {steps.map((label, index) => (
                       <Step
                         key={`step${index}:${label}`}
