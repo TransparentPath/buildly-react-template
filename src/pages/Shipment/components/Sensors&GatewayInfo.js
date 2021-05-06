@@ -119,10 +119,11 @@ const SensorsGatewayInfo = ({
 
   const onInputChange = (value) => {
     setGatewayIds(value.map((val) => val.gateway_uuid));
-    checkIfSensorGatewayEdited = () => true;
   };
 
   const submitDisabled = () => !gatewayIds.length || gatewayData === null;
+
+  checkIfSensorGatewayEdited = () => Boolean(gatewayIds.length > 0);
 
   /**
    * Submit The form and add/edit custodian

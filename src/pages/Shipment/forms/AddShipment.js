@@ -203,6 +203,7 @@ const getStepContent = (
             handleNext={handleNext}
             handleCancel={handleCancel}
             setConfirmModal={setConfirmModal}
+            setConfirmModalFor={setConfirmModalFor}
           />
         </ViewDetailsWrapper>
       );
@@ -229,7 +230,7 @@ const AddShipment = (props) => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [openModal, toggleModal] = useState(true);
   const [openConfirmModal, setConfirmModal] = useState(false);
-  const [confirmModalFor, setConfirmModalFor] = useState('close');
+  const [confirmModalFor, setConfirmModalFor] = useState('');
 
   const steps = getSteps();
   const maxSteps = steps.length;
@@ -251,9 +252,10 @@ const AddShipment = (props) => {
   };
 
   const handleStep = (step) => () => {
-    setConfirmModalFor(`step-${step}`);
-    if (checkIfFormEdited(activeStep)) setConfirmModal(true);
-    else {
+    if (checkIfFormEdited(activeStep)) {
+      setConfirmModalFor(`step-${step}`);
+      setConfirmModal(true);
+    } else {
       handleConfirmModal();
       if (shipmentFormData !== null) {
         setActiveStep(step);
@@ -263,17 +265,21 @@ const AddShipment = (props) => {
 
   const closeModal = () => {
     setConfirmModalFor('close');
-    if (checkIfFormEdited(activeStep)) setConfirmModal(true);
-    else {
+    if (checkIfFormEdited(activeStep)) {
+      setConfirmModal(true);
+    } else {
       handleConfirmModal();
       toggleModal(false);
+      dispatch(saveShipmentFormData(null));
+      history.push(routes.SHIPMENT);
     }
   };
 
   const handleCancel = () => {
-    setConfirmModalFor('close');
-    if (checkIfFormEdited(activeStep)) setConfirmModal(true);
-    else {
+    if (checkIfFormEdited(activeStep)) {
+      setConfirmModalFor('close');
+      setConfirmModal(true);
+    } else {
       handleConfirmModal();
     }
   };

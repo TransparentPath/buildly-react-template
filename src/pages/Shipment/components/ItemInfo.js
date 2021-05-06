@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // eslint-disable-next-line import/no-mutable-exports
-export let checkIfItemInfoEdited = () => false;
+export let checkIfItemInfoEdited;
 
 const ItemsInfo = ({
   itemData,
@@ -105,11 +105,11 @@ const ItemsInfo = ({
       itemIdArray.push(val.url);
     });
     setItemIds(itemIdArray);
-    checkIfItemInfoEdited = () => true;
   };
 
   const submitDisabled = () => itemIds.length === 0 || itemData === null;
 
+  checkIfItemInfoEdited = () => Boolean(itemIds.length > 0);
   /**
    * Submit The form and add/edit custodian
    * @param {Event} event the default submit event

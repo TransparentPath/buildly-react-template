@@ -84,6 +84,7 @@ const EnvironmentalLimitsInfo = ({
   shipmentOptions,
   viewOnly,
   setConfirmModal,
+  setConfirmModalFor,
 }) => {
   const theme = useTheme();
   const classes = useStyles();
@@ -193,6 +194,7 @@ const EnvironmentalLimitsInfo = ({
 
   const onCancelClick = () => {
     if (checkIfEnvironmentLimitsEdited() === true) {
+      setConfirmModalFor('close');
       setConfirmModal(true);
     } else {
       handleCancel();
