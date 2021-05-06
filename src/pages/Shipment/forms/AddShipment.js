@@ -74,6 +74,7 @@ const getStepContent = (
   maxSteps,
   handleCancel,
   setConfirmModal,
+  setConfirmModalFor,
 ) => {
   switch (stepIndex) {
     case 0:
@@ -94,6 +95,7 @@ const getStepContent = (
             handleCancel={handleCancel}
             redirectTo={`${routes.SHIPMENT}`}
             setConfirmModal={setConfirmModal}
+            setConfirmModalFor={setConfirmModalFor}
           />
         </ViewDetailsWrapper>
       );
@@ -113,6 +115,7 @@ const getStepContent = (
             handleNext={handleNext}
             handleCancel={handleCancel}
             setConfirmModal={setConfirmModal}
+            setConfirmModalFor={setConfirmModalFor}
           />
         </ViewDetailsWrapper>
       );
@@ -134,6 +137,7 @@ const getStepContent = (
             handleNext={handleNext}
             handleCancel={handleCancel}
             setConfirmModal={setConfirmModal}
+            setConfirmModalFor={setConfirmModalFor}
           />
         </ViewDetailsWrapper>
       );
@@ -155,6 +159,7 @@ const getStepContent = (
             handleNext={handleNext}
             handleCancel={handleCancel}
             setConfirmModal={setConfirmModal}
+            setConfirmModalFor={setConfirmModalFor}
           />
         </ViewDetailsWrapper>
       );
@@ -176,6 +181,7 @@ const getStepContent = (
             handleNext={handleNext}
             handleCancel={handleCancel}
             setConfirmModal={setConfirmModal}
+            setConfirmModalFor={setConfirmModalFor}
           />
         </ViewDetailsWrapper>
       );
@@ -223,6 +229,8 @@ const AddShipment = (props) => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [openModal, toggleModal] = useState(true);
   const [openConfirmModal, setConfirmModal] = useState(false);
+  const [confirmModalFor, setConfirmModalFor] = useState('close');
+
   const steps = getSteps();
   const maxSteps = steps.length;
   let formTitle;
@@ -235,28 +243,26 @@ const AddShipment = (props) => {
   }
 
   const handleNext = () => {
-    if (checkIfFormEdited(activeStep)) setConfirmModal(true);
-    else {
-      handleConfirmModal();
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
-    if (checkIfFormEdited(activeStep)) setConfirmModal(true);
-    else {
-      handleConfirmModal();
-      setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    }
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   const handleStep = (step) => () => {
-    if (shipmentFormData !== null) {
-      setActiveStep(step);
+    setConfirmModalFor(`step-${step}`);
+    if (checkIfFormEdited(activeStep)) setConfirmModal(true);
+    else {
+      handleConfirmModal();
+      if (shipmentFormData !== null) {
+        setActiveStep(step);
+      }
     }
   };
 
   const closeModal = () => {
+    setConfirmModalFor('close');
     if (checkIfFormEdited(activeStep)) setConfirmModal(true);
     else {
       handleConfirmModal();
@@ -265,6 +271,7 @@ const AddShipment = (props) => {
   };
 
   const handleCancel = () => {
+    setConfirmModalFor('close');
     if (checkIfFormEdited(activeStep)) setConfirmModal(true);
     else {
       handleConfirmModal();
@@ -273,8 +280,18 @@ const AddShipment = (props) => {
 
   const handleConfirmModal = () => {
     setConfirmModal(false);
-    dispatch(saveShipmentFormData(null));
-    history.push(routes.SHIPMENT);
+    if (confirmModalFor === 'close') {
+      dispatch(saveShipmentFormData(null));
+      history.push(routes.SHIPMENT);
+    } else if (confirmModalFor === 'next') {
+      handleNext();
+    } else if (confirmModalFor.includes('step')) {
+      // eslint-disable-next-line radix
+      const step = parseInt(confirmModalFor.split('-')[1]);
+      if (shipmentFormData !== null) {
+        setActiveStep(step);
+      }
+    }
   };
 
   const checkIfFormEdited = (currentStep) => {
@@ -344,6 +361,7 @@ const AddShipment = (props) => {
                   maxSteps,
                   handleCancel,
                   setConfirmModal,
+                  setConfirmModalFor,
                 )}
               </div>
               <ConfirmModal

@@ -85,6 +85,7 @@ const SensorsGatewayInfo = ({
   sensorTypeList,
   viewOnly,
   setConfirmModal,
+  setConfirmModalFor,
 }) => {
   const classes = useStyles();
   const [gatewayIds, setGatewayIds] = useState(
@@ -144,6 +145,7 @@ const SensorsGatewayInfo = ({
 
   const onNextClick = () => {
     if (checkIfSensorGatewayEdited()) {
+      setConfirmModalFor('next');
       setConfirmModal(true);
     } else {
       handleNext();
@@ -152,6 +154,7 @@ const SensorsGatewayInfo = ({
 
   const onCancelClick = () => {
     if (checkIfSensorGatewayEdited()) {
+      setConfirmModalFor('close');
       setConfirmModal(true);
     } else {
       handleCancel();

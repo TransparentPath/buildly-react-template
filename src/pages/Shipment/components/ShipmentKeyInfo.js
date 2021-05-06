@@ -76,6 +76,7 @@ const ShipmentKeyInfo = ({
   handleCancel,
   history,
   setConfirmModal,
+  setConfirmModalFor,
 }) => {
   const classes = useStyles();
   const worker = createWorker({
@@ -176,6 +177,7 @@ const ShipmentKeyInfo = ({
 
   const onNextClick = () => {
     if (checkIfShipmentKeyEdited()) {
+      setConfirmModalFor('next');
       setConfirmModal(true);
     } else {
       handleNext();
@@ -184,6 +186,7 @@ const ShipmentKeyInfo = ({
 
   const onCancelClick = () => {
     if (checkIfShipmentKeyEdited()) {
+      setConfirmModalFor('close');
       setConfirmModal(true);
     } else {
       handleCancel();

@@ -77,6 +77,7 @@ const ItemsInfo = ({
   unitsOfMeasure,
   viewOnly,
   setConfirmModal,
+  setConfirmModalFor,
 }) => {
   const classes = useStyles();
   const [itemIds, setItemIds] = useState(
@@ -130,6 +131,7 @@ const ItemsInfo = ({
 
   const onNextClick = () => {
     if (checkIfItemInfoEdited()) {
+      setConfirmModalFor('next');
       setConfirmModal(true);
     } else {
       handleNext();
@@ -138,6 +140,7 @@ const ItemsInfo = ({
 
   const onCancelClick = () => {
     if (checkIfItemInfoEdited()) {
+      setConfirmModalFor('close');
       setConfirmModal(true);
     } else {
       handleCancel();

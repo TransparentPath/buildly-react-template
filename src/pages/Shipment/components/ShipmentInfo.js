@@ -98,6 +98,7 @@ const ShipmentInfo = (props) => {
     shipmentOptions,
     viewOnly,
     setConfirmModal,
+    setConfirmModalFor,
   } = props;
   const classes = useStyles();
   const theme = useTheme();
@@ -357,6 +358,7 @@ const ShipmentInfo = (props) => {
 
   const onNextClick = () => {
     if (checkIfShipmentInfoEdited() === true) {
+      setConfirmModalFor('next');
       setConfirmModal(true);
     } else {
       handleNext();
@@ -365,6 +367,7 @@ const ShipmentInfo = (props) => {
 
   const onCancelClick = () => {
     if (checkIfShipmentInfoEdited() === true) {
+      setConfirmModalFor('close');
       setConfirmModal(true);
     } else {
       handleCancel();
