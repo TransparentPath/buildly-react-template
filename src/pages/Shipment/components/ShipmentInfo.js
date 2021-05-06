@@ -81,6 +81,7 @@ const useStyles = makeStyles((theme) => ({
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
+// eslint-disable-next-line import/no-mutable-exports
 export let checkIfShipmentInfoEdited;
 
 const ShipmentInfo = (props) => {

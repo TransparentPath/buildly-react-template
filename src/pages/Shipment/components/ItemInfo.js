@@ -1,6 +1,6 @@
-import React, { useState, useContext } from "react";
-import { connect } from "react-redux";
-import _ from "lodash";
+import React, { useState, useContext } from 'react';
+import { connect } from 'react-redux';
+import _ from 'lodash';
 import {
   makeStyles,
   TextField,
@@ -12,56 +12,57 @@ import {
   Grid,
   Button,
   CircularProgress,
-} from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
+} from '@material-ui/core';
+import { Autocomplete } from '@material-ui/lab';
 import {
   CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
   CheckBox as CheckBoxIcon,
-} from "@material-ui/icons";
-import DataTable from "@components/Table/Table";
-import { UserContext } from "@context/User.context";
-import { getFormattedRow, itemColumns } from "@pages/Items/ItemsConstants";
-import { editShipment } from "@redux/shipment/actions/shipment.actions";
-import { routes } from "@routes/routesConstants";
+} from '@material-ui/icons';
+import DataTable from '@components/Table/Table';
+import { UserContext } from '@context/User.context';
+import { getFormattedRow, itemColumns } from '@pages/Items/ItemsConstants';
+import { editShipment } from '@redux/shipment/actions/shipment.actions';
+import { routes } from '@routes/routesConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    "& > * + *": {
+    '& > * + *': {
       marginTop: theme.spacing(3),
     },
   },
   buttonContainer: {
     margin: theme.spacing(8, 0),
-    textAlign: "center",
-    justifyContent: "center",
+    textAlign: 'center',
+    justifyContent: 'center',
   },
   alignRight: {
-    marginLeft: "auto",
+    marginLeft: 'auto',
   },
   buttonProgress: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
     marginTop: -12,
     marginLeft: -12,
   },
   loadingWrapper: {
-    position: "relative",
+    position: 'relative',
   },
   form: {
-    width: "100%",
+    width: '100%',
     marginTop: theme.spacing(1),
-    [theme.breakpoints.up("sm")]: {
-      width: "70%",
-      margin: "auto",
+    [theme.breakpoints.up('sm')]: {
+      width: '70%',
+      margin: 'auto',
     },
   },
   submit: {
-    borderRadius: "18px",
+    borderRadius: '18px',
     fontSize: 11,
   },
 }));
 
+// eslint-disable-next-line import/no-mutable-exports
 export let checkIfItemInfoEdited = () => false;
 
 const ItemsInfo = ({
@@ -79,7 +80,7 @@ const ItemsInfo = ({
 }) => {
   const classes = useStyles();
   const [itemIds, setItemIds] = useState(
-    (shipmentFormData && shipmentFormData.items) || []
+    (shipmentFormData && shipmentFormData.items) || [],
   );
   const organization = useContext(UserContext).organization.organization_uuid;
 
@@ -122,8 +123,8 @@ const ItemsInfo = ({
         shipmentFormValue,
         history,
         `${routes.SHIPMENT}/edit/:${shipmentFormData.id}`,
-        organization
-      )
+        organization,
+      ),
     );
   };
 
@@ -155,7 +156,7 @@ const ItemsInfo = ({
                   id="tags-outlined"
                   disabled={viewOnly}
                   options={
-                    (itemData && _.orderBy(itemData, ["name"], ["asc"])) || []
+                    (itemData && _.orderBy(itemData, ['name'], ['asc'])) || []
                   }
                   getOptionLabel={(option) => option && option.name}
                   filterSelectedOptions

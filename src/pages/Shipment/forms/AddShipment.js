@@ -18,15 +18,17 @@ import ViewDetailsWrapper from '../components/ViewDetailsWrapper';
 import EnvironmentalLimitsInfo, {
   checkIfEnvironmentLimitsEdited,
 } from '../components/EnvironmentalLimitsInfo';
-import CustodianInfo, {
-  checkIfCustodianEdited,
-} from '../components/custodian-info/CustodianInfo';
+import CustodianInfo from '../components/custodian-info/CustodianInfo';
 import ItemInfo, { checkIfItemInfoEdited } from '../components/ItemInfo';
-import SensorsGatewayInfo, { checkIfSensorGatewayEdited } from '../components/Sensors&GatewayInfo';
+import SensorsGatewayInfo, {
+  checkIfSensorGatewayEdited,
+} from '../components/Sensors&GatewayInfo';
 import ShipmentInfo, {
   checkIfShipmentInfoEdited,
 } from '../components/ShipmentInfo';
-import ShipmentKeyInfo from '../components/ShipmentKeyInfo';
+import ShipmentKeyInfo, {
+  checkIfShipmentKeyEdited,
+} from '../components/ShipmentKeyInfo';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -233,11 +235,19 @@ const AddShipment = (props) => {
   }
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    if (checkIfFormEdited(activeStep)) setConfirmModal(true);
+    else {
+      handleConfirmModal();
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    if (checkIfFormEdited(activeStep)) setConfirmModal(true);
+    else {
+      handleConfirmModal();
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    }
   };
 
   const handleStep = (step) => () => {
@@ -273,7 +283,7 @@ const AddShipment = (props) => {
         return checkIfShipmentInfoEdited();
 
       case 1:
-        return false;
+        return checkIfShipmentKeyEdited();
 
       case 2:
         return checkIfItemInfoEdited();
