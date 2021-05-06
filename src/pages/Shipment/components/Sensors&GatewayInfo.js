@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export let checkIfSensorGatewayEdited;
+export let checkIfSensorGatewayEdited = () => false;
 
 const SensorsGatewayInfo = ({
   gatewayData,

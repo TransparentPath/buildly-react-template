@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export let checkIfItemInfoEdited;
+export let checkIfItemInfoEdited = () => false;
 
 const ItemsInfo = ({
   itemData,
