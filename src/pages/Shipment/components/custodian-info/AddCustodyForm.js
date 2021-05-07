@@ -16,6 +16,7 @@ import {
 import DatePickerComponent from '@components/DatePicker/DatePicker';
 import { MapComponent } from '@components/MapComponent/MapComponent';
 import CustomizedTooltips from '@components/ToolTip/ToolTip';
+import { environment } from '@environments/environment';
 import { useInput } from '@hooks/useInput';
 import { getFormattedRow } from '@pages/Custodians/CustodianConstants';
 import {
@@ -23,7 +24,6 @@ import {
   editCustody,
 } from '@redux/custodian/actions/custodian.actions';
 import { validators } from '@utils/validators';
-import { MAP_API_URL, GEO_CODE_API } from '@utils/utilMethods';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -237,7 +237,7 @@ const AddCustodyForm = ({
         && address !== '')
     ) {
       latLongChanged = true;
-      Geocode.setApiKey(GEO_CODE_API);
+      Geocode.setApiKey(environment.GEO_CODE_API);
       Geocode.setLanguage('en');
       Geocode.fromAddress(address).then(
         (response) => {
@@ -257,7 +257,7 @@ const AddCustodyForm = ({
   };
 
   const getAddress = (latLong, pointer) => {
-    Geocode.setApiKey(GEO_CODE_API);
+    Geocode.setApiKey(environment.GEO_CODE_API);
     Geocode.setLanguage('en');
     const latlong = latLong.split(',');
     Geocode.fromLatLng(latlong[0], latlong[1]).then(
@@ -452,7 +452,7 @@ const AddCustodyForm = ({
                 />
                 <MapComponent
                   isMarkerShown
-                  googleMapURL={MAP_API_URL}
+                  googleMapURL={environment.MAP_API_URL}
                   zoom={10}
                   loadingElement={<div style={{ height: '100%' }} />}
                   containerElement={<div style={{ height: '200px' }} />}
@@ -487,7 +487,7 @@ const AddCustodyForm = ({
                 />
                 <MapComponent
                   isMarkerShown
-                  googleMapURL={MAP_API_URL}
+                  googleMapURL={environment.MAP_API_URL}
                   zoom={10}
                   loadingElement={<div style={{ height: '100%' }} />}
                   containerElement={<div style={{ height: '200px' }} />}
