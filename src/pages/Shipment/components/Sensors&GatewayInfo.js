@@ -123,7 +123,8 @@ const SensorsGatewayInfo = ({
 
   const submitDisabled = () => !gatewayIds.length || gatewayData === null;
 
-  checkIfSensorGatewayEdited = () => Boolean(gatewayIds.length > 0);
+  // eslint-disable-next-line max-len
+  checkIfSensorGatewayEdited = () => Boolean(gatewayIds.length !== shipmentFormData.gateway_ids.length);
 
   /**
    * Submit The form and add/edit custodian
@@ -259,25 +260,25 @@ const SensorsGatewayInfo = ({
                 Done
               </Button>
             ) : (
-              <div className={classes.loadingWrapper}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}
-                  disabled={loading || submitDisabled()}
-                >
-                  Save
+                <div className={classes.loadingWrapper}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    disabled={loading || submitDisabled()}
+                  >
+                    Save
                 </Button>
-                {loading && (
-                <CircularProgress
-                  size={24}
-                  className={classes.buttonProgress}
-                />
-                )}
-              </div>
-            )}
+                  {loading && (
+                    <CircularProgress
+                      size={24}
+                      className={classes.buttonProgress}
+                    />
+                  )}
+                </div>
+              )}
           </Grid>
 
           <Grid item xs={12} sm={4}>

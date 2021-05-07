@@ -109,7 +109,7 @@ const ItemsInfo = ({
 
   const submitDisabled = () => itemIds.length === 0 || itemData === null;
 
-  checkIfItemInfoEdited = () => Boolean(itemIds.length > 0);
+  checkIfItemInfoEdited = () => Boolean(itemIds.length !== shipmentFormData.items.length);
   /**
    * Submit The form and add/edit custodian
    * @param {Event} event the default submit event
@@ -223,25 +223,25 @@ const ItemsInfo = ({
                 Done
               </Button>
             ) : (
-              <div className={classes.loadingWrapper}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}
-                  disabled={loading || submitDisabled()}
-                >
-                  Save
+                <div className={classes.loadingWrapper}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    disabled={loading || submitDisabled()}
+                  >
+                    Save
                 </Button>
-                {loading && (
-                  <CircularProgress
-                    size={24}
-                    className={classes.buttonProgress}
-                  />
-                )}
-              </div>
-            )}
+                  {loading && (
+                    <CircularProgress
+                      size={24}
+                      className={classes.buttonProgress}
+                    />
+                  )}
+                </div>
+              )}
           </Grid>
           <Grid item xs={12} sm={4}>
             <Button
