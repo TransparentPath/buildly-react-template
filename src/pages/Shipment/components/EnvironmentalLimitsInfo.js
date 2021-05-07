@@ -140,16 +140,12 @@ const EnvironmentalLimitsInfo = ({
     }
   }, [shipmentOptions]);
 
-  let tempMinMaxChange = false;
-  let humidMinMaxChange = false;
-
   const handleTempMinMaxChange = (e, value) => {
     setMinMaxTempValue(value);
     changeMinTempVal(value[0]);
     changeMaxTempVal(value[3]);
     changeHighTempVal(value[2]);
     changeLowTempVal(value[1]);
-    tempMinMaxChange = true;
   };
 
   const handleHumidMinMaxChange = (e, value) => {
@@ -158,7 +154,6 @@ const EnvironmentalLimitsInfo = ({
     changeMaxHumidVal(value[3]);
     changeHighHumidVal(value[2]);
     changeLowHumidVal(value[1]);
-    humidMinMaxChange = true;
   };
 
   /**
@@ -190,7 +185,22 @@ const EnvironmentalLimitsInfo = ({
     );
   };
 
-  checkIfEnvironmentLimitsEdited = () => tempMinMaxChange || humidMinMaxChange;
+  const shipmentFormMinMaxHumid = [
+    shipmentFormData.min_excursion_humidity || 0,
+    shipmentFormData.min_warning_humidity || 35,
+    shipmentFormData.max_warning_humidity || 75,
+    shipmentFormData.max_excursion_humidity || 100,
+  ];
+  const shipmentFormMinMaxTemp = [
+    shipmentFormData.min_excursion_temp || 0,
+    shipmentFormData.min_warning_temp || 35,
+    shipmentFormData.max_warning_temp || 75,
+    shipmentFormData.max_excursion_temp || 100,
+  ];
+  checkIfEnvironmentLimitsEdited = () => !(minMaxTempValue.length === shipmentFormMinMaxTemp.length
+    && shipmentFormMinMaxTemp.every((item) => minMaxTempValue.indexOf(item) > -1)) || !(
+    minMaxHumidValue.length === shipmentFormMinMaxHumid.length
+      && shipmentFormMinMaxHumid.every((item) => minMaxHumidValue.indexOf(item) > -1));
 
   const onCancelClick = () => {
     if (checkIfEnvironmentLimitsEdited() === true) {

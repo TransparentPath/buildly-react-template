@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -345,6 +346,7 @@ const ShipmentInfo = (props) => {
     }
     setFlags(flagsUrl);
   };
+  let shipmentFlags = (editData && editData.flags) || []
 
   checkIfShipmentInfoEdited = () => (
     shipment_name.hasChanged()
@@ -354,6 +356,7 @@ const ShipmentInfo = (props) => {
     || route_desc.hasChanged()
     || mode_type.hasChanged()
     || route_dist.hasChanged()
+    || (flags.length !== shipmentFlags.length)
   );
 
   const onNextClick = () => {

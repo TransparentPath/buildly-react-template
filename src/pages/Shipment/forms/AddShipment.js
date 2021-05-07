@@ -264,11 +264,10 @@ const AddShipment = (props) => {
   };
 
   const closeModal = () => {
-    setConfirmModalFor('close');
     if (checkIfFormEdited(activeStep)) {
+      setConfirmModalFor('close');
       setConfirmModal(true);
     } else {
-      handleConfirmModal();
       toggleModal(false);
       dispatch(saveShipmentFormData(null));
       history.push(routes.SHIPMENT);
@@ -280,7 +279,8 @@ const AddShipment = (props) => {
       setConfirmModalFor('close');
       setConfirmModal(true);
     } else {
-      handleConfirmModal();
+      dispatch(saveShipmentFormData(null));
+      history.push(routes.SHIPMENT);
     }
   };
 
@@ -343,8 +343,7 @@ const AddShipment = (props) => {
                     {steps.map((label, index) => (
                       <Step
                         key={`step${index}:${label}`}
-                        className={`${
-                          shipmentFormData !== null && classes.step
+                        className={`${shipmentFormData !== null && classes.step
                         }`}
                         onClick={handleStep(index)}
                       >
