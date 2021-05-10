@@ -20,9 +20,10 @@ import {
 } from '@material-ui/icons';
 import DataTable from '@components/Table/Table';
 import { UserContext } from '@context/User.context';
-import { getFormattedRow, itemColumns } from '@pages/Items/ItemsConstants';
+import { getFormattedRow } from '@pages/Items/ItemsConstants';
 import { editShipment } from '@redux/shipment/actions/shipment.actions';
 import { routes } from '@routes/routesConstants';
+import { itemColumns } from '../ShipmentConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {

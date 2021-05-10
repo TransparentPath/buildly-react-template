@@ -140,7 +140,7 @@ const CustodianInfo = (props) => {
   };
 
   const oncloseModal = () => {
-    if (checkIfCustodianInfoEdited) {
+    if (checkIfCustodianInfoEdited()) {
       setConfirmModal(true);
     } else {
       setEditItem(null);

@@ -20,15 +20,14 @@ import {
 import DataTable from '@components/Table/Table';
 import { UserContext } from '@context/User.context';
 import {
-  gatewayColumns,
   getFormattedRow,
-  sensorsColumns,
   getFormattedSensorRow,
   getAvailableGateways,
 } from '@pages/SensorsGateway/Constants';
 import { editShipment } from '@redux/shipment/actions/shipment.actions';
 import { routes } from '@routes/routesConstants';
 import { checkIfCustodianInfoEdited } from './custodian-info/AddCustodyForm';
+import { gatewayColumns, sensorsColumns } from '../ShipmentConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -79,8 +79,8 @@ const AddCustodyForm = ({
   rows,
 }) => {
   const classes = useStyles();
-  const [custodianId, setCustodianId] = useState(
-    (editItem && editItem.custodian_data) || '',
+  const [custodianURL, setCustodianURL] = useState(
+    (editItem && editItem.custodian_data && editItem.custodian_data.url) || '',
   );
   const [custodianList, setCustodianList] = useState([]);
   const [start_of_custody, handleStartChange] = useState(
@@ -140,12 +140,12 @@ const AddCustodyForm = ({
     }
   }, [editItem]);
 
-  const submitDisabled = () => !custodianId;
+  const submitDisabled = () => !custodianURL;
 
   const onInputChange = (e) => {
     const { value } = e.target;
     if (value) {
-      setCustodianId(value);
+      setCustodianURL(value);
       // if (itemIds.indexOf(value.custodian_uuid) === -1)
       //   setItemIds([...itemIds, value.custodian_uuid]);
       if (custodianList.length > 0) {
@@ -159,7 +159,7 @@ const AddCustodyForm = ({
         getLatLong(selectedCustodian.location, 'end');
       }
     } else {
-      setCustodianId(value);
+      setCustodianURL(value);
     }
   };
 
@@ -191,7 +191,7 @@ const AddCustodyForm = ({
     const custodyFormValues = {
       start_of_custody,
       end_of_custody,
-      custodian: [custodianId.url],
+      custodian: [custodianURL],
       start_of_custody_location: start_of_custody_location || null,
       end_of_custody_location: end_of_custody_location || null,
       shipment_id: shipment.value,
@@ -279,16 +279,15 @@ const AddCustodyForm = ({
     );
   };
   let latLongChanged = false;
-  checkIfCustodianInfoEdited = () => {
-    // eslint-disable-next-line no-unused-expressions
+  checkIfCustodianInfoEdited = () => (
     load_id.hasChanged()
-      || shipment.hasChanged()
-      || shipment_name.hasChanged()
-      || has_current_custody.hasChanged()
-      || first_custody.hasChanged()
-      || last_custody.hasChanged()
-      || latLongChanged;
-  };
+    || shipment.hasChanged()
+    || shipment_name.hasChanged()
+    || has_current_custody.hasChanged()
+    || first_custody.hasChanged()
+    || last_custody.hasChanged()
+    || latLongChanged
+  );
 
   return (
     <Box mb={5} mt={3}>
@@ -349,28 +348,29 @@ const AddCustodyForm = ({
                   variant="outlined"
                   margin="normal"
                   fullWidth
-                  id="custodianId"
+                  id="custodianURL"
                   select
                   required
                   label="Custodian"
                   disabled={viewOnly}
-                  error={formError.custodianId && formError.custodianId.error}
+                  error={formError.custodianURL && formError.custodianURL.error}
                   helperText={
-                    formError.custodianId ? formError.custodianId.message : ''
+                    formError.custodianURL ? formError.custodianURL.message : ''
                   }
-                  onBlur={(e) => handleBlur(e, 'required', custodianId, 'custodianId')}
-                  value={custodianId}
+                  onBlur={(e) => handleBlur(e, 'required', custodianURL, 'custodianURL')}
+                  value={custodianURL}
                   onChange={onInputChange}
                   InputProps={
                     custodyMetaData.custodian
-                    && custodyMetaData.custodian.help_text && {
+                    && custodyMetaData.custodian.help_text
+                    && {
                       endAdornment: (
                         <InputAdornment position="start">
-                          {custodyMetaData.custodian.help_text && (
-                            <CustomizedTooltips
-                              toolTipText={custodyMetaData.custodian.help_text}
-                            />
-                          )}
+                          <CustomizedTooltips
+                            toolTipText={
+                              custodyMetaData.custodian.help_text
+                            }
+                          />
                         </InputAdornment>
                       ),
                     }
@@ -383,7 +383,7 @@ const AddCustodyForm = ({
                       (item, index) => (
                         <MenuItem
                           key={`custodian${index}:${item.id}`}
-                          value={item}
+                          value={item.url}
                         >
                           {item.name}
                         </MenuItem>
@@ -601,29 +601,6 @@ const AddCustodyForm = ({
                   <MenuItem value={false}>NO</MenuItem>
                 </TextField>
               </Grid>
-            </Grid>
-            <Grid container spacing={3} justify="center">
-              {/* <Grid item xs={6}>
-                <div className={classes.loadingWrapper}>
-                  <Button
-                    type='button'
-                    fullWidth
-                    variant='contained'
-                    color='primary'
-                    onClick={(e) => onAddCustodyClick(e)}
-                    className={classes.submit}
-                    disabled={loading || !custodianId}
-                  >
-                    {`Add Custody`}
-                  </Button>
-                  {loading && (
-                    <CircularProgress
-                      size={24}
-                      className={classes.buttonProgress}
-                    />
-                  )}
-                </div>
-              </Grid> */}
             </Grid>
           </CardContent>
         </Card>
