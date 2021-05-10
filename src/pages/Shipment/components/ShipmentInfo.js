@@ -346,7 +346,7 @@ const ShipmentInfo = (props) => {
     }
     setFlags(flagsUrl);
   };
-  let shipmentFlags = (editData && editData.flags) || []
+  const shipmentFlags = (editData && editData.flags) || [];
 
   checkIfShipmentInfoEdited = () => (
     shipment_name.hasChanged()
@@ -718,6 +718,7 @@ const ShipmentInfo = (props) => {
                             ? `${option.name} (${option.type})`
                             : ''
                         )}
+                        getOptionSelected={(option, value) => `${option.name} (${option.type})` === `${value.name} (${value.type})`}
                         style={{ flex: 1 }}
                         onChange={(event, newValue) => onShipmentFlagChange(newValue)}
                         value={

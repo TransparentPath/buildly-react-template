@@ -185,6 +185,7 @@ const SensorsGatewayInfo = ({
                     || []
                   }
                   getOptionLabel={(option) => option && option.name}
+                  getOptionSelected={(option, value) => option.name === value.name}
                   filterSelectedOptions
                   onChange={(event, newValue) => onInputChange(newValue)}
                   defaultValue={rows}
@@ -259,25 +260,25 @@ const SensorsGatewayInfo = ({
                 Done
               </Button>
             ) : (
-                <div className={classes.loadingWrapper}>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    disabled={loading || submitDisabled()}
-                  >
-                    Save
+              <div className={classes.loadingWrapper}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  disabled={loading || submitDisabled()}
+                >
+                  Save
                 </Button>
-                  {loading && (
-                    <CircularProgress
-                      size={24}
-                      className={classes.buttonProgress}
-                    />
-                  )}
-                </div>
-              )}
+                {loading && (
+                <CircularProgress
+                  size={24}
+                  className={classes.buttonProgress}
+                />
+                )}
+              </div>
+            )}
           </Grid>
 
           <Grid item xs={12} sm={4}>
