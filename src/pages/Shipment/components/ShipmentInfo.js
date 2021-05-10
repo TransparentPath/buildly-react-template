@@ -359,13 +359,13 @@ const ShipmentInfo = (props) => {
     || (flags.length !== shipmentFlags.length)
   );
 
-  const onNextClick = () => {
+  const onNextClick = (event) => {
     if (checkIfShipmentInfoEdited() === true) {
-      setConfirmModalFor('next');
-      setConfirmModal(true);
-    } else {
-      handleNext();
+      // setConfirmModalFor('next');
+      // setConfirmModal(true);
+      handleSubmit(event);
     }
+    handleNext();
   };
 
   const onCancelClick = () => {
@@ -920,6 +920,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...state.shipmentReducer,
   ...state.itemsReducer,
   ...state.custodianReducer,
+  ...state.optionsReducer,
 });
 
 export default connect(mapStateToProps)(ShipmentInfo);

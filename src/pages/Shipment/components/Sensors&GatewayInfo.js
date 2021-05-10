@@ -144,13 +144,13 @@ const SensorsGatewayInfo = ({
     );
   };
 
-  const onNextClick = () => {
+  const onNextClick = (event) => {
     if (checkIfSensorGatewayEdited()) {
-      setConfirmModalFor('next');
-      setConfirmModal(true);
-    } else {
-      handleNext();
+      // setConfirmModalFor('next');
+      // setConfirmModal(true);
+      handleSubmit(event);
     }
+    handleNext();
   };
 
   const onCancelClick = () => {

@@ -556,6 +556,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.sensorsGatewayReducer,
   ...state.shipmentReducer,
+  ...state.optionsReducer,
 });
 
 export default connect(mapStateToProps)(EnvironmentalLimitsInfo);

@@ -130,13 +130,13 @@ const ItemsInfo = ({
     );
   };
 
-  const onNextClick = () => {
+  const onNextClick = (event) => {
     if (checkIfItemInfoEdited()) {
-      setConfirmModalFor('next');
-      setConfirmModal(true);
-    } else {
-      handleNext();
+      // setConfirmModalFor('next');
+      // setConfirmModal(true);
+      handleSubmit(event);
     }
+    handleNext();
   };
 
   const onCancelClick = () => {

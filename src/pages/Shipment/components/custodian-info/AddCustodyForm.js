@@ -151,7 +151,7 @@ const AddCustodyForm = ({
       if (custodianList.length > 0) {
         let selectedCustodian = '';
         custodianList.forEach((list) => {
-          if (list.custodian_uuid === value.custodian_uuid) {
+          if (list.custodian_uuid === value) {
             selectedCustodian = list;
           }
         });
@@ -287,6 +287,7 @@ const AddCustodyForm = ({
     || first_custody.hasChanged()
     || last_custody.hasChanged()
     || latLongChanged
+    || custodianURL !== (editItem && editItem.custodian_data && editItem.custodian_data.url) || ''
   );
 
   return (
@@ -383,7 +384,7 @@ const AddCustodyForm = ({
                       (item, index) => (
                         <MenuItem
                           key={`custodian${index}:${item.id}`}
-                          value={item.url}
+                          value={item.custodian_uuid}
                         >
                           {item.name}
                         </MenuItem>

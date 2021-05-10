@@ -175,13 +175,13 @@ const ShipmentKeyInfo = ({
 
   checkIfShipmentKeyEdited = () => fileChanged || Boolean(key || keyValue);
 
-  const onNextClick = () => {
+  const onNextClick = (event) => {
     if (checkIfShipmentKeyEdited()) {
-      setConfirmModalFor('next');
-      setConfirmModal(true);
-    } else {
-      handleNext();
+      // setConfirmModalFor('next');
+      // setConfirmModal(true);
+      handleSubmit(event);
     }
+    handleNext();
   };
 
   const onCancelClick = () => {
