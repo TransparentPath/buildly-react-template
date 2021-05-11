@@ -289,7 +289,7 @@ const SensorsGatewayInfo = ({
               onClick={onNextClick}
               className={classes.submit}
             >
-              Next: Environmental Limits
+              Save & Next: Environmental Limits
             </Button>
           </Grid>
         </Grid>

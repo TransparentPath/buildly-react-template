@@ -239,7 +239,7 @@ const CustodianInfo = (props) => {
             onClick={handleNext}
             className={classes.submit}
           >
-            Next: Sensors & Gateways
+            Save & Next: Sensors & Gateways
           </Button>
         </Grid>
       </Grid>

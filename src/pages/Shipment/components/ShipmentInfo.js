@@ -906,7 +906,7 @@ const ShipmentInfo = (props) => {
                 disabled={shipmentFormData === null}
                 className={classes.submit}
               >
-                Next: Shipment Key
+                Save & Next: Shipment Key
               </Button>
             </Grid>
           </Grid>

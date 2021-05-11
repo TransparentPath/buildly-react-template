@@ -342,7 +342,7 @@ const ShipmentKeyInfo = ({
               onClick={onNextClick}
               className={classes.submit}
             >
-              Next: Items
+              Save & Next: Items
             </Button>
           </Grid>
         </Grid>
