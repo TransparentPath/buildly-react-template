@@ -73,8 +73,6 @@ const AlertInfo = ({
       && sensorAlerts.length > 0
     ) {
       let alerts = [];
-      let messages = [];
-      let shipmentIds = [];
       const viewedSensorAlerts = localStorage.getItem('sensorAlerts')
         ? JSON.parse(localStorage.getItem('sensorAlerts'))
         : [];
@@ -120,20 +118,6 @@ const AlertInfo = ({
                     date_time: shipAlert.timestamp,
                   },
                 ];
-                messages = [
-                  ...messages,
-                  {
-                    type: shipAlert.is_recovered
-                      ? 'recover'
-                      : 'sensor',
-                    shipment_uuid: shipment.name,
-                    alert_message: shipAlert.is_recovered
-                      ? `Recovered ${flag.name}`
-                      : flag.name,
-                    date_time: shipAlert.timestamp,
-                  },
-                ];
-                shipmentIds = [...shipmentIds, shipment.id];
               }
             });
           }
@@ -142,58 +126,6 @@ const AlertInfo = ({
 
       if (alerts && alerts.length) {
         setSenAlerts(alerts);
-      }
-      if (shipmentIds && shipmentIds.length) {
-        const ids = _.uniq(shipmentIds);
-        _.forEach(ids, (id) => {
-          const shipment = _.find(shipmentData, { id });
-          if (shipment && !shipment.had_alert) {
-            dispatch(editShipment({
-              ...shipment,
-              had_alert: true,
-            }));
-          }
-        });
-      }
-      if (
-        user
-        && user.email_alert_flag
-        && messages.length > 0
-      ) {
-        const lastSensorEmail = localStorage.getItem('lastSensorEmail');
-        const now = moment();
-        const sensorMsgs = _.filter(messages, (msg) => (
-          msg.type === 'sensor'
-          && moment(msg.date_time).unix() > lastSensorEmail
-        ));
-        const recoverMsgs = _.filter(messages, (msg) => (
-          msg.type === 'recover'
-          && moment(msg.date_time).unix() > lastSensorEmail
-        ));
-
-        if (sensorMsgs && sensorMsgs.length > 0) {
-          dispatch(
-            emailAlerts({
-              user_uuid: user.core_user_uuid,
-              messages: sensorMsgs,
-              date_time: now.toJSON(),
-              subject_line: 'Warning / Excursion Alerts',
-            }),
-          );
-          localStorage.setItem('lastSensorEmail', now.unix());
-        }
-
-        if (recoverMsgs && recoverMsgs.length > 0) {
-          dispatch(
-            emailAlerts({
-              user_uuid: user.core_user_uuid,
-              messages: recoverMsgs,
-              date_time: now.toJSON(),
-              subject_line: 'Recovery Alerts',
-            }),
-          );
-          localStorage.setItem('lastSensorEmail', now.unix());
-        }
       }
     }
   }, [shipmentData, shipmentFlag, sensorAlerts]);
@@ -389,24 +321,14 @@ const AlertInfo = ({
         && user.email_alert_flag
         && messages.length > 0
       ) {
-        const lastGeofenceEmail = localStorage.getItem('lastGeofenceEmail');
-        const now = moment();
-        const geoMsgs = _.filter(messages, (msg) => (
-          msg.type === 'geofence'
-          && moment(msg.date_time).unix() > lastGeofenceEmail
-        ));
-
-        if (geoMsgs && geoMsgs.length > 0) {
-          dispatch(
-            emailAlerts({
-              user_uuid: user.core_user_uuid,
-              messages: geoMsgs,
-              date_time: now.toJSON(),
-              subject_line: 'Geofence Alerts',
-            }),
-          );
-          localStorage.setItem('lastGeofenceEmail', now.unix());
-        }
+        dispatch(
+          emailAlerts({
+            user_uuid: user.core_user_uuid,
+            messages,
+            date_time: moment().toJSON(),
+            subject_line: 'Geofence Alerts',
+          }),
+        );
       }
     }
   }, [shipmentData, geofenceAlerts]);
