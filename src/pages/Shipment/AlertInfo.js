@@ -98,7 +98,7 @@ const AlertInfo = ({
                 && !_.includes(viewedSensorAlerts, shipAlert.id)
               ) {
                 let severity;
-                if (shipAlert.is_recovered) {
+                if (shipAlert.recovered_alert_id) {
                   severity = 'success';
                 } else {
                   severity = _.lowerCase(flag.type) === 'warning'
@@ -109,13 +109,13 @@ const AlertInfo = ({
                 alerts = [
                   ...alerts,
                   {
-                    name: shipAlert.is_recovered
+                    name: shipAlert.recovered_alert_id
                       ? `Recovered - ${flag.name}`
                       : flag.name,
                     shipment: shipment.name,
                     id: shipAlert.id,
                     severity,
-                    date_time: shipAlert.timestamp,
+                    date_time: shipAlert.create_date,
                   },
                 ];
               }
