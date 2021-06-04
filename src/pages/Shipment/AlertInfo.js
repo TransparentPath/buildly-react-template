@@ -28,12 +28,12 @@ const useStyles = makeStyles((theme) => ({
       transform: 'translateX(-50%)',
     },
     [theme.breakpoints.up('md')]: {
+      width: '60%',
       left: '55%',
-      width: 'max-content',
       transform: 'translateX(-50%)',
     },
     [theme.breakpoints.down('xs')]: {
-      top: '60px',
+      top: '16px',
       width: '50%',
       left: '60%',
       transform: 'translateX(-40%)',
