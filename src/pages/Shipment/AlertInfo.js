@@ -61,7 +61,7 @@ const AlertInfo = ({
   const classes = useStyles();
   const [senAlerts, setSenAlerts] = useState([]);
   const [geoAlerts, setGeoAlerts] = useState([]);
-  const user = useContext(UserContext);
+  const { organization_uuid } = useContext(UserContext).organization;
 
   useEffect(() => {
     if (
@@ -316,14 +316,10 @@ const AlertInfo = ({
       if (alerts && alerts.length) {
         setGeoAlerts(alerts);
       }
-      if (
-        user
-        && user.email_alert_flag
-        && messages.length > 0
-      ) {
+      if (messages.length > 0) {
         dispatch(
           emailAlerts({
-            user_uuid: user.core_user_uuid,
+            organization_uuid,
             messages,
             date_time: moment().toJSON(),
             subject_line: 'Geofence Alerts',
