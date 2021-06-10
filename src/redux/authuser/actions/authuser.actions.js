@@ -43,6 +43,10 @@ export const RESET_PASSWORD_CHECK = 'AUTH/RESET_PASSWORD_CHECK';
 export const RESET_PASSWORD_CHECK_SUCCESS = 'AUTH/RESET_PASSWORD_CHECK_SUCCESS';
 export const RESET_PASSWORD_CHECK_FAILURE = 'AUTH/RESET_PASSWORD_CHECK_FAILURE';
 
+export const LOAD_ORG_NAMES = 'AUTH/LOAD_ORG_NAMES';
+export const LOAD_ORG_NAMES_SUCCESS = 'AUTH/LOAD_ORG_NAMES_SUCCESS';
+export const LOAD_ORG_NAMES_FAILURE = 'AUTH/LOAD_ORG_NAMES_FAILURE';
+
 /**
  * Login action
  * @param {{ username, password }} credentials
@@ -134,4 +138,11 @@ export const resetPasswordCheck = (data, history) => ({
   type: RESET_PASSWORD_CHECK,
   data,
   history,
+});
+
+/**
+ * Load all Organizations Names
+ */
+export const loadOrgNames = () => ({
+  type: LOAD_ORG_NAMES,
 });

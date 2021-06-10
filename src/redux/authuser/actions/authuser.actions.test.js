@@ -163,3 +163,13 @@ describe('Reset Password Check action', () => {
       .toEqual(expectedAction);
   });
 });
+
+// Test Load Org Names
+describe('actions', () => {
+  it('should create an action to load org names', () => {
+    const expectedAction = {
+      type: actions.LOAD_ORG_NAMES,
+    };
+    expect(actions.loadOrgNames()).toEqual(expectedAction);
+  });
+});

@@ -40,6 +40,9 @@ import {
   UPDATE_ORGANIZATION,
   UPDATE_ORGANIZATION_SUCCESS,
   UPDATE_ORGANIZATION_FAILURE,
+  LOAD_ORG_NAMES,
+  LOAD_ORG_NAMES_SUCCESS,
+  LOAD_ORG_NAMES_FAILURE,
 } from '@redux/authuser/actions/authuser.actions';
 
 function* logout() {
@@ -435,6 +438,21 @@ function* updateOrganizationData(payload) {
   }
 }
 
+function* loadOrganizationNames() {
+  try {
+    const data = yield call(
+      httpService.makeRequest,
+      'get',
+      `${environment.API_URL}organization/fetch_orgs/`,
+      null,
+      true,
+    );
+    yield put({ type: LOAD_ORG_NAMES_SUCCESS, orgNames: data.data });
+  } catch (error) {
+    yield put({ type: LOAD_ORG_NAMES_FAILURE, error });
+  }
+}
+
 function* watchResetPasswordCheck() {
   yield takeLatest(RESET_PASSWORD_CHECK, resetPasswordCheck);
 }
@@ -479,6 +497,10 @@ function* watchUpdateOrganization() {
   yield takeLatest(UPDATE_ORGANIZATION, updateOrganizationData);
 }
 
+function* watchLoadOrganizationNames() {
+  yield takeLatest(LOAD_ORG_NAMES, loadOrganizationNames);
+}
+
 export default function* authSaga() {
   yield all([
     watchLogin(),
@@ -492,5 +514,6 @@ export default function* authSaga() {
     watchConfirmResetPassword(),
     watchResetPasswordCheck(),
     watchUpdateOrganization(),
+    watchLoadOrganizationNames(),
   ]);
 }

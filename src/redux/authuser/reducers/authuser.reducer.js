@@ -29,6 +29,9 @@ import {
   UPDATE_ORGANIZATION,
   UPDATE_ORGANIZATION_SUCCESS,
   UPDATE_ORGANIZATION_FAILURE,
+  LOAD_ORG_NAMES,
+  LOAD_ORG_NAMES_SUCCESS,
+  LOAD_ORG_NAMES_FAILURE,
 } from '@redux/authuser/actions/authuser.actions';
 
 const initialState = {
@@ -37,6 +40,7 @@ const initialState = {
   data: null,
   error: null,
   organizationData: null,
+  orgNames: null,
 };
 
 // Reducer
@@ -284,6 +288,30 @@ export default (state = initialState, action) => {
       };
 
     case UPDATE_ORGANIZATION_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        error: action.error,
+      };
+
+    case LOAD_ORG_NAMES:
+      return {
+        ...state,
+        loading: true,
+        loaded: false,
+        error: null,
+      };
+
+    case LOAD_ORG_NAMES_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        orgNames: action.orgNames,
+      };
+
+    case LOAD_ORG_NAMES_FAILURE:
       return {
         ...state,
         loading: false,
