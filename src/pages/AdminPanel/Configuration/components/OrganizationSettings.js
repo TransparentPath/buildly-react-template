@@ -93,7 +93,7 @@ const OrganizationSettings = ({
       'miles',
       'distance',
     ));
-    setOrgType(organizationData.organization_type);
+    setOrgType(organizationData.organization_type || '');
   };
 
   /**
@@ -169,7 +169,7 @@ const OrganizationSettings = ({
             {_.map(orgTypes, (type) => (
               <MenuItem
                 key={`orgType-${type.id}`}
-                value={type.name}
+                value={type.id}
               >
                 {_.capitalize(type.name)}
               </MenuItem>

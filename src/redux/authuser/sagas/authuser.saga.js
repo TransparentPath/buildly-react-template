@@ -456,8 +456,6 @@ function* loadOrganizationNames() {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}organization/fetch_orgs/`,
-      null,
-      true,
     );
     yield put({ type: LOAD_ORG_NAMES_SUCCESS, orgNames: data.data });
   } catch (error) {
@@ -471,8 +469,6 @@ function* getOrgTypes() {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}organization_type/`,
-      null,
-      true,
     );
     yield put({ type: GET_ORG_TYPES_SUCCESS, orgTypes: data.data });
   } catch (error) {
@@ -488,7 +484,6 @@ function* addOrgType(payload) {
       'post',
       `${environment.API_URL}organization_type/`,
       data,
-      true,
     );
     yield put({ type: ADD_ORG_TYPE_SUCCESS, orgType: response.data });
   } catch (error) {
@@ -501,10 +496,9 @@ function* editOrgType(payload) {
   try {
     const response = yield call(
       httpService.makeRequest,
-      'put',
-      `${environment.API_URL}organization_type/${data.id}`,
+      'patch',
+      `${environment.API_URL}organization_type/${data.id}/`,
       data,
-      true,
     );
     yield put({ type: EDIT_ORG_TYPE_SUCCESS, orgType: response.data });
   } catch (error) {
@@ -519,8 +513,6 @@ function* deleteOrgType(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}organization_type/${id}`,
-      null,
-      true,
     );
     yield put({ type: DELETE_ORG_TYPE_SUCCESS, id });
   } catch (error) {
