@@ -43,6 +43,18 @@ import {
   LOAD_ORG_NAMES,
   LOAD_ORG_NAMES_SUCCESS,
   LOAD_ORG_NAMES_FAILURE,
+  GET_ORG_TYPES,
+  GET_ORG_TYPES_SUCCESS,
+  GET_ORG_TYPES_FAILURE,
+  ADD_ORG_TYPE,
+  ADD_ORG_TYPE_SUCCESS,
+  ADD_ORG_TYPE_FAILURE,
+  EDIT_ORG_TYPE,
+  EDIT_ORG_TYPE_SUCCESS,
+  EDIT_ORG_TYPE_FAILURE,
+  DELETE_ORG_TYPE,
+  DELETE_ORG_TYPE_SUCCESS,
+  DELETE_ORG_TYPE_FAILURE,
 } from '@redux/authuser/actions/authuser.actions';
 
 function* logout() {
@@ -453,6 +465,69 @@ function* loadOrganizationNames() {
   }
 }
 
+function* getOrgTypes() {
+  try {
+    const data = yield call(
+      httpService.makeRequest,
+      'get',
+      `${environment.API_URL}organization_type/`,
+      null,
+      true,
+    );
+    yield put({ type: GET_ORG_TYPES_SUCCESS, orgTypes: data.data });
+  } catch (error) {
+    yield put({ type: GET_ORG_TYPES_FAILURE, error });
+  }
+}
+
+function* addOrgType(payload) {
+  const { data } = payload;
+  try {
+    const response = yield call(
+      httpService.makeRequest,
+      'post',
+      `${environment.API_URL}organization_type/`,
+      data,
+      true,
+    );
+    yield put({ type: ADD_ORG_TYPE_SUCCESS, orgType: response.data });
+  } catch (error) {
+    yield put({ type: ADD_ORG_TYPE_FAILURE, error });
+  }
+}
+
+function* editOrgType(payload) {
+  const { data } = payload;
+  try {
+    const response = yield call(
+      httpService.makeRequest,
+      'put',
+      `${environment.API_URL}organization_type/${data.id}`,
+      data,
+      true,
+    );
+    yield put({ type: EDIT_ORG_TYPE_SUCCESS, orgType: response.data });
+  } catch (error) {
+    yield put({ type: EDIT_ORG_TYPE_FAILURE, error });
+  }
+}
+
+function* deleteOrgType(payload) {
+  const { id } = payload;
+  try {
+    const response = yield call(
+      httpService.makeRequest,
+      'delete',
+      `${environment.API_URL}organization_type/${id}`,
+      null,
+      true,
+    );
+    yield put({ type: DELETE_ORG_TYPE_SUCCESS, id });
+  } catch (error) {
+    yield put({ type: DELETE_ORG_TYPE_FAILURE, error });
+  }
+}
+
 function* watchResetPasswordCheck() {
   yield takeLatest(RESET_PASSWORD_CHECK, resetPasswordCheck);
 }
@@ -501,6 +576,22 @@ function* watchLoadOrganizationNames() {
   yield takeLatest(LOAD_ORG_NAMES, loadOrganizationNames);
 }
 
+function* watchGetOrgTypes() {
+  yield takeLatest(GET_ORG_TYPES, getOrgTypes);
+}
+
+function* watchAddOrgType() {
+  yield takeLatest(ADD_ORG_TYPE, addOrgType);
+}
+
+function* watchEditOrgType() {
+  yield takeLatest(EDIT_ORG_TYPE, editOrgType);
+}
+
+function* watchDeleteOrgType() {
+  yield takeLatest(DELETE_ORG_TYPE, deleteOrgType);
+}
+
 export default function* authSaga() {
   yield all([
     watchLogin(),
@@ -515,5 +606,9 @@ export default function* authSaga() {
     watchResetPasswordCheck(),
     watchUpdateOrganization(),
     watchLoadOrganizationNames(),
+    watchGetOrgTypes(),
+    watchAddOrgType(),
+    watchEditOrgType(),
+    watchDeleteOrgType(),
   ]);
 }
