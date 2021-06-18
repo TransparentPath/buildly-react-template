@@ -17,6 +17,7 @@ const PushNotification = ({
   custodianData,
 }) => {
   const [alerts, setAlerts] = useState([]);
+  const [openAlerts, setOpenAlerts] = useState([]);
   const alertsSocket = useRef(null);
   const { organization_uuid } = useContext(UserContext).organization;
 
@@ -203,16 +204,48 @@ const PushNotification = ({
           });
         });
 
-        _.forEach(alertsArray, (alert) => {
+        if (alertsArray && alertsArray.length > 0) {
+          const alert = alertsArray[0];
           dispatch(showAlert({
             type: alert.severity,
             open: true,
             message: `${alert.message} | ${moment(alert.date_time).fromNow()}`,
+            id: alert.id,
+            onClose: handleClose,
           }));
-        });
+          setOpenAlerts(alertsArray);
+        }
       }
     }
   }, [shipmentData, shipmentFlag, custodyData, custodianData, alerts]);
+
+  const handleClose = (id) => {
+    const present = _.find(alerts, { id });
+    const open = _.filter(openAlerts, (a) => a.id !== id);
+
+    let viewedAlerts = localStorage.getItem('viewedAlerts')
+      ? JSON.parse(localStorage.getItem('viewedAlerts'))
+      : [];
+    if (present) {
+      viewedAlerts = [...viewedAlerts, id];
+    }
+    localStorage.setItem(
+      'viewedAlerts',
+      JSON.stringify(viewedAlerts),
+    );
+
+    if (open.length > 0) {
+      const alert = open[0];
+      dispatch(showAlert({
+        type: alert.severity,
+        open: true,
+        message: `${alert.message} | ${moment(alert.date_time).fromNow()}`,
+        id: alert.id,
+        onClose: handleClose,
+      }));
+      setOpenAlerts(open);
+    }
+  };
 
   return <></>;
 };
