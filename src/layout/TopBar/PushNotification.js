@@ -48,8 +48,11 @@ const PushNotification = ({
 
       alertsSocket.current.onmessage = (message) => {
         const msg = JSON.parse(message.data);
+        if (msg.command === 'fetch_alerts') {
+          setAlerts(msg.alerts);
+        }
         if (msg.command === 'new_alert') {
-          setAlerts([...alerts, ...msg.alerts]);
+          setAlerts([...alerts, msg.alerts]);
         }
       };
     }

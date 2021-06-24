@@ -10,6 +10,7 @@ export const environment = window.environment || {
   MAP_API_KEY,
   MAP_API_URL: `https://maps.googleapis.com/maps/api/js?key=${MAP_API_KEY}&v=3.exp&libraries=geometry,drawing,places`,
   GEO_CODE_API: 'AIzaSyDw-lNn69CSWKBGz97HeVuJQKIhiVLcFyE',
+  ALERT_SOCKET_URL: 'wss://127.0.0.1:8002/ws/alerts/',
   session_timeout: 1000,
   production: false,
 };
