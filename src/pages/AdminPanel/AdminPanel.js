@@ -30,7 +30,7 @@ const AdminPanel = ({ history, location, organizationData }) => {
     ? [
       { label: 'Configuration', value: 'configuration' },
       { label: 'Import/Export', value: 'import-export' },
-      { leabel: 'Consortium', value: 'consortium' },
+      { label: 'Consortium', value: 'consortium' },
     ]
     : [
       { label: 'Configuration', value: 'configuration' },
