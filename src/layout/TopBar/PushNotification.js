@@ -207,24 +207,26 @@ const PushNotification = ({
           });
         });
 
-        if (alertsArray && alertsArray.length > 0) {
-          const alert = alertsArray[0];
-          dispatch(showAlert({
-            type: alert.severity,
-            open: true,
-            message: `${alert.message} | ${moment(alert.date_time).fromNow()}`,
-            id: alert.id,
-            onClose: handleClose,
-          }));
-          setOpenAlerts(alertsArray);
-        }
+        setOpenAlerts(alertsArray);
       }
     }
   }, [shipmentData, shipmentFlag, custodyData, custodianData, alerts]);
 
+  useEffect(() => {
+    if (openAlerts.length > 0) {
+      const alert = openAlerts[0];
+      dispatch(showAlert({
+        type: alert.severity,
+        open: true,
+        message: `${alert.message} | ${moment(alert.date_time).fromNow()}`,
+        id: alert.id,
+        onClose: handleClose,
+      }));
+    }
+  }, [openAlerts]);
+
   const handleClose = (id) => {
     const present = _.find(alerts, { id });
-    const open = _.filter(openAlerts, (a) => a.id !== id);
 
     let viewedAlerts = localStorage.getItem('viewedAlerts')
       ? JSON.parse(localStorage.getItem('viewedAlerts'))
@@ -237,17 +239,10 @@ const PushNotification = ({
       JSON.stringify(viewedAlerts),
     );
 
-    if (open.length > 0) {
-      const alert = open[0];
-      dispatch(showAlert({
-        type: alert.severity,
-        open: true,
-        message: `${alert.message} | ${moment(alert.date_time).fromNow()}`,
-        id: alert.id,
-        onClose: handleClose,
-      }));
-      setOpenAlerts(open);
-    }
+    const open = _.filter(openAlerts, (opnalrt) => (
+      !_.includes(viewedAlerts, opnalrt.id)
+    ));
+    setOpenAlerts(open);
   };
 
   return <></>;
