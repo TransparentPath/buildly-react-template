@@ -46,6 +46,7 @@ import {
   getGatewayType,
   getSensors,
   getSensorType,
+  getSensorAlerts,
 } from '@redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
@@ -57,6 +58,7 @@ import {
   MAP_TOOLTIP,
   SHIPMENT_DATA_TABLE_TOOLTIP,
 } from './ShipmentConstants';
+import AlertInfo from './AlertInfo';
 import ShipmentDataTable from './components/ShipmentDataTable';
 import AddShipment from './forms/AddShipment';
 
@@ -111,6 +113,7 @@ const Shipment = (props) => {
     shipmentOptions,
     custodyOptions,
     timezone,
+    sensorAlerts,
   } = props;
   const classes = useStyles();
 
@@ -136,12 +139,18 @@ const Shipment = (props) => {
 
   useEffect(() => {
     if (shipmentData === null) {
-      const getUpdatedSensorData = !aggregateReportData;
+      const getUpdatedSensorData = !aggregateReportData || !sensorAlerts;
       dispatch(getShipmentDetails(
         organization,
         null,
         getUpdatedSensorData,
       ));
+    } else {
+      const ids = _.toString(
+        _.map(shipmentData, 'partner_shipment_id'),
+      );
+      const encodedIds = encodeURIComponent(ids);
+      dispatch(getSensorAlerts(encodedIds, 24));
     }
     if (custodianData === null) {
       dispatch(getCustodians(organization));
@@ -394,6 +403,7 @@ const Shipment = (props) => {
   return (
     <Box mt={5} mb={5}>
       {loading && <Loader open={loading} />}
+      <AlertInfo {...props} />
       <Box mb={3} mt={2}>
         <Button
           type="button"

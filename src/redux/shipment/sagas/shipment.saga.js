@@ -7,6 +7,7 @@ import { environment } from '@environments/environment';
 import { showAlert } from '@redux/alert/actions/alert.actions';
 import {
   getAggregateReport,
+  getSensorAlerts,
 } from '@redux/sensorsGateway/actions/sensorsGateway.actions';
 import { routes } from '@routes/routesConstants';
 import {
@@ -72,6 +73,7 @@ function* getShipmentList(payload) {
       if (payload.getUpdatedSensorData) {
         yield [
           yield put(getAggregateReport(encodedIds)),
+          yield put(getSensorAlerts(encodedIds, 24)),
         ];
       }
     }

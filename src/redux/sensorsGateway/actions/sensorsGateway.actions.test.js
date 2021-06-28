@@ -246,8 +246,9 @@ describe('Get Sensor Alerts action', () => {
     const expectedAction = {
       type: actions.GET_SENSOR_ALERTS,
       partnerShipmentIds,
+      hourRange: 24,
     };
-    expect(actions.getAllSensorAlerts(partnerShipmentIds))
+    expect(actions.getSensorAlerts(partnerShipmentIds, 24))
       .toEqual(expectedAction);
   });
 });

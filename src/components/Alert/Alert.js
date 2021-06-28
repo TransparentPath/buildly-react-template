@@ -25,9 +25,6 @@ const Alert = ({ data, dispatch }) => {
       return;
     }
     dispatch(hideAlert());
-    if (data && data.onClose) {
-      data.onClose(data.id);
-    }
   };
 
   return (

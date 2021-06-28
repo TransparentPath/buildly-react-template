@@ -55,9 +55,9 @@ import {
   GET_AGGREGATE_REPORT,
   GET_AGGREGATE_REPORT_SUCCESS,
   GET_AGGREGATE_REPORT_FAILURE,
-  GET_ALL_SENSOR_ALERTS,
-  GET_ALL_SENSOR_ALERTS_SUCCESS,
-  GET_ALL_SENSOR_ALERTS_FAILURE,
+  GET_SENSOR_ALERTS,
+  GET_SENSOR_ALERTS_SUCCESS,
+  GET_SENSOR_ALERTS_FAILURE,
 } from '../actions/sensorsGateway.actions';
 
 const sensorApiEndPoint = 'sensors/';
@@ -712,19 +712,30 @@ function* getAggregateReportList(payload) {
   }
 }
 
-function* getAllSensorAlerts(payload) {
+function* getSensorAlerts(payload) {
+  let finalURL = `${environment.API_URL}${sensorApiEndPoint}sensor_report_alert/?shipment_ids=${payload.partnerShipmentIds}`;
+  if (payload.hourRange > 0) {
+    finalURL = `${finalURL}&hours_range=${payload.hourRange}`;
+  }
   try {
     const response = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${sensorApiEndPoint}sensor_report_alert/?shipment_ids=${payload.partnerShipmentIds}`,
+      finalURL,
       null,
       true,
     );
-    yield put({
-      type: GET_ALL_SENSOR_ALERTS_SUCCESS,
-      data: response.data,
-    });
+    if (payload.hourRange > 0) {
+      yield put({
+        type: GET_SENSOR_ALERTS_SUCCESS,
+        filteredData: response.data,
+      });
+    } else {
+      yield put({
+        type: GET_SENSOR_ALERTS_SUCCESS,
+        allData: response.data,
+      });
+    }
   } catch (error) {
     yield [
       yield put(
@@ -735,7 +746,7 @@ function* getAllSensorAlerts(payload) {
         }),
       ),
       yield put({
-        type: GET_ALL_SENSOR_ALERTS_FAILURE,
+        type: GET_SENSOR_ALERTS_FAILURE,
         error,
       }),
     ];
@@ -814,8 +825,8 @@ function* watchGetAggregateReport() {
   yield takeLatest(GET_AGGREGATE_REPORT, getAggregateReportList);
 }
 
-function* watchGetAllSensorAlerts() {
-  yield takeLatest(GET_ALL_SENSOR_ALERTS, getAllSensorAlerts);
+function* watchGetSensorAlerts() {
+  yield takeLatest(GET_SENSOR_ALERTS, getSensorAlerts);
 }
 
 export default function* sensorsGatewaySaga() {
@@ -838,6 +849,6 @@ export default function* sensorsGatewaySaga() {
     watchEditSensorType(),
     watchDeleteSensorType(),
     watchGetAggregateReport(),
-    watchGetAllSensorAlerts(),
+    watchGetSensorAlerts(),
   ]);
 }

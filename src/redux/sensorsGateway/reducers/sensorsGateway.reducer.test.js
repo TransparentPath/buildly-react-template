@@ -10,6 +10,7 @@ const initialState = {
   sensorData: null,
   sensorTypeList: null,
   aggregateReportData: null,
+  sensorAlerts: null,
   allAlerts: null,
 };
 
@@ -672,33 +673,32 @@ describe('Get Aggregate Report reducer', () => {
   });
 });
 
-describe('Get All Sensor Alerts reducer', () => {
+describe('Get Sensor Alerts reducer', () => {
   it('Empty Reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.GET_ALL_SENSOR_ALERTS },
+      { type: actions.GET_SENSOR_ALERTS },
     )).toEqual({
       ...initialState,
       loading: true,
     });
   });
 
-  it('Get All Sensor Alerts success Reducer', () => {
+  it('Get Sensor Alerts success Reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.GET_ALL_SENSOR_ALERTS_SUCCESS },
+      { type: actions.GET_SENSOR_ALERTS_SUCCESS },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      allAlerts: undefined,
     });
   });
 
-  it('Get All Sensor Alerts fail Reducer', () => {
+  it('Get Sensor Alerts fail Reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.GET_ALL_SENSOR_ALERTS_FAILURE },
+      { type: actions.GET_SENSOR_ALERTS_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,
