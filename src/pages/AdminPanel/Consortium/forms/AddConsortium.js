@@ -188,7 +188,7 @@ const AddConsortium = ({
                   fullWidth
                   required
                   id="name"
-                  label="Custodian Type"
+                  label="Consortium Name"
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
