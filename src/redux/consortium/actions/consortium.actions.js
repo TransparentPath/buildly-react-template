@@ -44,7 +44,7 @@ export const editConsortium = (data) => ({
  * Delete Consortium action
  * @param {Number} id
  */
-export const deleteConsortium = (id) => ({
+export const deleteConsortium = (uuid) => ({
   type: DELETE_CONSORTIUM,
-  id,
+  uuid,
 });

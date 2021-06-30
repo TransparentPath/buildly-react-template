@@ -37,11 +37,11 @@ describe('edit consortium action', () => {
 // Test Delete Consortium Action
 describe('delete consortium action', () => {
   it('should create an action to delete consortium', () => {
-    const id = 1;
+    const uuid = 'gweti-wgiuwe-3t982gwse-38wgugwbb';
     const expectedAction = {
       type: actions.DELETE_CONSORTIUM,
-      id,
+      uuid,
     };
-    expect(actions.deleteConsortium(id)).toEqual(expectedAction);
+    expect(actions.deleteConsortium(uuid)).toEqual(expectedAction);
   });
 });

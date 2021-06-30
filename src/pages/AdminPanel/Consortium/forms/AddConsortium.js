@@ -9,7 +9,9 @@ import {
   Button,
   TextField,
   CircularProgress,
+  Chip,
 } from '@material-ui/core';
+import { Autocomplete } from '@material-ui/lab';
 import FormModal from '@components/Modal/FormModal';
 import { useInput } from '@hooks/useInput';
 import { validators } from '@utils/validators';
@@ -53,6 +55,7 @@ const AddConsortium = ({
   location,
   loading,
   dispatch,
+  custodianData,
 }) => {
   const classes = useStyles();
   const [openFormModal, setFormModal] = useState(true);
@@ -68,6 +71,9 @@ const AddConsortium = ({
   const name = useInput((editData && editData.name) || '', {
     required: true,
   });
+  const [custodians, setCustodians] = useState((
+    editData && editData.custodian_uuids
+  ) || []);
   const [formError, setFormError] = useState({});
 
   const buttonText = editPage ? 'Save' : 'Add Consortium';
@@ -105,6 +111,7 @@ const AddConsortium = ({
     let data = {
       ...editData,
       name: name.value,
+      custodian_uuids: custodians,
       edit_date: currentDateTime,
     };
     if (editPage) {
@@ -162,6 +169,21 @@ const AddConsortium = ({
     return errorExists;
   };
 
+  const onInputChange = (value) => {
+    switch (true) {
+      case (value.length > custodians.length):
+        setCustodians([...custodians, _.last(value).custodian_uuid]);
+        break;
+
+      case (value.length < custodians.length):
+        setCustodians(value);
+        break;
+
+      default:
+        break;
+    }
+  };
+
   return (
     <div>
       {openFormModal && (
@@ -197,6 +219,45 @@ const AddConsortium = ({
                   }
                   onBlur={(e) => handleBlur(e, 'required', name)}
                   {...name.bind}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Autocomplete
+                  fullWidth
+                  multiple
+                  filterSelectedOptions
+                  id="custodians"
+                  options={custodianData}
+                  getOptionLabel={(option) => (
+                    option && option.name
+                  )}
+                  getOptionSelected={(option, value) => (
+                    option.custodian_uuid === value
+                  )}
+                  value={custodians}
+                  onChange={(e, newValue) => onInputChange(newValue)}
+                  renderTags={(value, getTagProps) => (
+                    _.map(value, (option, index) => (
+                      <Chip
+                        variant="default"
+                        label={
+                          custodianData
+                            ? _.find(custodianData, { custodian_uuid: option })?.name
+                            : ''
+                        }
+                        {...getTagProps({ index })}
+                      />
+                    ))
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Custodians"
+                      placeholder="Attach"
+                      margin="normal"
+                    />
+                  )}
                 />
               </Grid>
               <Grid container spacing={2} justify="center">
@@ -244,6 +305,7 @@ const AddConsortium = ({
 const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.consortiumReducer,
+  ...state.custodianReducer,
 });
 
 export default connect(mapStateToProps)(AddConsortium);

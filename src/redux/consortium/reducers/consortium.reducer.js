@@ -112,7 +112,7 @@ export default (state = initialState, action) => {
 
     case DELETE_CONSORTIUM_SUCCESS: {
       const deleted = _.filter(state.data, (data) => (
-        data.id !== action.id
+        data.consortium_uuid !== action.uuid
       ));
       return {
         ...state,
