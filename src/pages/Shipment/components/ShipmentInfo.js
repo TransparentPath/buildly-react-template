@@ -863,14 +863,13 @@ const ShipmentInfo = (props) => {
                       onChange={(e) => setConsortiumUuid(e.target.value)}
                     >
                       <MenuItem value="">Select</MenuItem>
-                      {consortiumData
-                      && consortiumData.length > 0
+                      {consortiumData.length > 0
                       && _.map(
                         consortiumData,
                         (data, index) => (
                           <MenuItem
                             key={`consortium${index}:${data.name}`}
-                            value={data.uuid}
+                            value={data.consortium_uuid}
                           >
                             {data.name}
                           </MenuItem>

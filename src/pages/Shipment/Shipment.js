@@ -478,6 +478,7 @@ const Shipment = (props) => {
             setSelectedShipment={setSelectedShipment}
             tileView={tileView}
             timezone={timezone}
+            consortiumData={consortiumData}
           />
         </Grid>
         <Grid item xs={12} md={tileView ? 6 : 12}>
