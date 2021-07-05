@@ -37,7 +37,6 @@ import {
 } from '@utils/utilMethods';
 import AdminMenu from './AdminMenu';
 import AccountMenu from './AccountMenu';
-import PushNotification from './PushNotification';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -213,8 +212,6 @@ const TopBar = ({
             handleMyAccountClick={handleMyAccountClick}
           />
         </div>
-
-        <PushNotification />
       </Toolbar>
     </AppBar>
   );

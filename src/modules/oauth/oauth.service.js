@@ -76,6 +76,10 @@ const setCurrentCoreUser = (user, coreuser) => {
     'currentUser',
     JSON.stringify(currentUser[0]),
   );
+  localStorage.setItem(
+    'alertGrp',
+    currentUser[0].organization.organization_uuid,
+  );
 };
 
 /**
@@ -130,7 +134,6 @@ const logout = () => {
     localStorage.removeItem('token_stored_at');
     localStorage.removeItem('oauthUser');
     localStorage.removeItem('currentUser');
-    localStorage.removeItem('viewedAlerts');
   }
 };
 
