@@ -12,6 +12,6 @@ export const environment = window.environment || {
   GEO_CODE_API: 'AIzaSyDw-lNn69CSWKBGz97HeVuJQKIhiVLcFyE',
   ALERT_SOCKET_URL: 'ws://127.0.0.1:8001/ws/alert/',
   session_timeout: 1000,
-  hide_notification: 6000,
+  hide_notification: 1000 * 60 * 10,
   production: false,
 };

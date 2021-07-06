@@ -7,15 +7,19 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import { AppContext } from '@context/App.context';
 import { environment } from '@environments/environment';
+import { oauthService } from '@modules/oauth/oauth.service';
 
 const PushNotification = () => {
   const [alerts, setAlerts] = useState([]);
   const alertsSocket = useRef(null);
   const appTitle = useContext(AppContext).title;
-  const alertGrp = localStorage.getItem('alertGrp');
+  const { alertGrp, pushPreference } = oauthService.getPushSettings();
 
   useEffect(() => {
-    if (alertGrp) {
+    if (alertGrp && pushPreference && (
+      pushPreference.geofence
+      || pushPreference.environmental
+    )) {
       alertsSocket.current = new WebSocket(
         `${environment.ALERT_SOCKET_URL}${alertGrp}/`,
       );
@@ -35,16 +39,46 @@ const PushNotification = () => {
 
       alertsSocket.current.onmessage = (message) => {
         const msg = JSON.parse(message.data);
+        let pushAlerts;
+
+        switch (true) {
+          case (pushPreference.geofence
+            && pushPreference.environmental):
+            pushAlerts = [...msg.alerts];
+            break;
+
+          case pushPreference.geofence:
+            pushAlerts = _.filter(
+              [...msg.alerts],
+              { severity: 'info' },
+            );
+            break;
+
+          case pushPreference.environmental:
+            pushAlerts = _.filter(
+              [...msg.alerts],
+              (alert) => _.includes(
+                ['error', 'warning', 'success'],
+                alert.severity,
+              ),
+            );
+            break;
+
+          default:
+            pushAlerts = [];
+            break;
+        }
+
         if (msg.command === 'fetch_alerts') {
           const viewed = getViewedNotifications();
           const filteredAlerts = _.filter(
-            [...msg.alerts],
+            pushAlerts,
             (alert) => !_.includes(viewed, alert.id),
           );
           setAlerts(filteredAlerts);
         }
         if (msg.command === 'new_alert') {
-          setAlerts([...alerts, ...msg.alerts]);
+          setAlerts([...alerts, ...pushAlerts]);
         }
       };
     }
@@ -54,7 +88,11 @@ const PushNotification = () => {
         alertsSocket.current.close();
       }
     };
-  }, [alertGrp]);
+  }, [
+    alertGrp,
+    (pushPreference && pushPreference.geofence),
+    (pushPreference && pushPreference.environmental),
+  ]);
 
   useEffect(() => {
     if (alerts.length > 0) {

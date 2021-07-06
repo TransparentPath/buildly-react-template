@@ -76,9 +76,9 @@ const setCurrentCoreUser = (user, coreuser) => {
     'currentUser',
     JSON.stringify(currentUser[0]),
   );
-  localStorage.setItem(
-    'alertGrp',
+  setPushSettings(
     currentUser[0].organization.organization_uuid,
+    currentUser[0].push_preference,
   );
 };
 
@@ -137,6 +137,35 @@ const logout = () => {
   }
 };
 
+/**
+ * Set the alert group as well as notification preference that
+ * user has opted for
+ * @param alertGrp
+ * @param pushPreference
+ */
+const setPushSettings = (alertGrp = null, pushPreference = null) => {
+  if (alertGrp) {
+    localStorage.setItem('alertGrp', alertGrp);
+  }
+  if (pushPreference) {
+    localStorage.setItem(
+      'pushPreference',
+      JSON.stringify(pushPreference),
+    );
+  }
+};
+
+/**
+ * Returns the current Push Settings.
+ */
+const getPushSettings = () => {
+  const alertGrp = localStorage.getItem('alertGrp') || null;
+  const pushPreference = localStorage.getItem('pushPreference')
+    ? JSON.parse(localStorage.getItem('pushPreference'))
+    : null;
+  return { alertGrp, pushPreference };
+};
+
 export const oauthService = {
   authenticateWithPasswordFlow,
   getOauthUser,
@@ -147,4 +176,6 @@ export const oauthService = {
   getJwtToken,
   logout,
   setCurrentCoreUser,
+  setPushSettings,
+  getPushSettings,
 };
