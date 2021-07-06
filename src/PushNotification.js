@@ -8,8 +8,9 @@ import moment from 'moment-timezone';
 import { AppContext } from '@context/App.context';
 import { environment } from '@environments/environment';
 import { oauthService } from '@modules/oauth/oauth.service';
+import { showAlert } from '@redux/alert/actions/alert.actions';
 
-const PushNotification = () => {
+const PushNotification = ({ dispatch }) => {
   const [alerts, setAlerts] = useState([]);
   const alertsSocket = useRef(null);
   const appTitle = useContext(AppContext).title;
@@ -108,6 +109,13 @@ const PushNotification = () => {
           closeNotification(alert.id);
         },
       });
+      dispatch(showAlert({
+        type: alert.severity,
+        open: true,
+        message: `${alert.alert_message} | ${moment(alert.create_date).fromNow()}`,
+        id: alert.id,
+        onClose: closeNotification,
+      }));
       setTimeout(() => {
         const viewed = getViewedNotifications();
         if (!_.includes(viewed, alert.id)) {
