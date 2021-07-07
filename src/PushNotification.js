@@ -10,24 +10,33 @@ import { environment } from '@environments/environment';
 import { oauthService } from '@modules/oauth/oauth.service';
 import { showAlert } from '@redux/alert/actions/alert.actions';
 
-const PushNotification = ({ dispatch }) => {
+const PushNotification = ({ dispatch, loaded }) => {
   const [alerts, setAlerts] = useState([]);
+  const [pushGrp, setPushGrp] = useState('');
+  const [pushGeo, setPushGeo] = useState(false);
+  const [pushEnv, setPushEnv] = useState(false);
   const alertsSocket = useRef(null);
   const appTitle = useContext(AppContext).title;
-  const { alertGrp, pushPreference } = oauthService.getPushSettings();
 
   useEffect(() => {
-    if (alertGrp && pushPreference && (
-      pushPreference.geofence
-      || pushPreference.environmental
-    )) {
+    const loggedIn = oauthService.hasValidAccessToken();
+    if (!loggedIn || (loggedIn && loaded)) {
+      const { alertGrp, geoPref, envPref } = oauthService.getPushSettings();
+      setPushGrp(alertGrp);
+      setPushGeo(geoPref);
+      setPushEnv(envPref);
+    }
+  }, [loaded]);
+
+  useEffect(() => {
+    if (pushGrp && (pushGeo || pushEnv)) {
       alertsSocket.current = new WebSocket(
-        `${environment.ALERT_SOCKET_URL}${alertGrp}/`,
+        `${environment.ALERT_SOCKET_URL}${pushGrp}/`,
       );
       alertsSocket.current.onopen = () => {
         alertsSocket.current.send(JSON.stringify({
           command: 'fetch_alerts',
-          organization_uuid: alertGrp,
+          organization_uuid: pushGrp,
           hours_range: 24,
         }));
       };
@@ -43,19 +52,18 @@ const PushNotification = ({ dispatch }) => {
         let pushAlerts;
 
         switch (true) {
-          case (pushPreference.geofence
-            && pushPreference.environmental):
+          case (pushGeo && pushEnv):
             pushAlerts = [...msg.alerts];
             break;
 
-          case pushPreference.geofence:
+          case pushGeo:
             pushAlerts = _.filter(
               [...msg.alerts],
               { severity: 'info' },
             );
             break;
 
-          case pushPreference.environmental:
+          case pushEnv:
             pushAlerts = _.filter(
               [...msg.alerts],
               (alert) => _.includes(
@@ -89,11 +97,7 @@ const PushNotification = ({ dispatch }) => {
         alertsSocket.current.close();
       }
     };
-  }, [
-    alertGrp,
-    (pushPreference && pushPreference.geofence),
-    (pushPreference && pushPreference.environmental),
-  ]);
+  }, [pushGrp, pushGeo, pushEnv]);
 
   useEffect(() => {
     if (alerts.length > 0) {
@@ -147,7 +151,7 @@ const PushNotification = ({ dispatch }) => {
 
 const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
-  ...state.shipmentReducer,
+  ...state.authReducer,
 });
 
 export default connect(mapStateToProps)(PushNotification);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import moment from 'moment-timezone';
 import {
   Button,
   TextField,
@@ -165,6 +166,7 @@ const EditProfileInfo = ({
       }),
       push_preferences: pushOptions,
       email_preferences: emailOptions,
+      user_timezone: moment.tz.guess(),
     };
     dispatch(updateUser(editUserFormValue));
     setFormModal(false);

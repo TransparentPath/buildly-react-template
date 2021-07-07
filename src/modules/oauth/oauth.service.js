@@ -78,7 +78,7 @@ const setCurrentCoreUser = (user, coreuser) => {
   );
   setPushSettings(
     currentUser[0].organization.organization_uuid,
-    currentUser[0].push_preference,
+    currentUser[0].push_preferences,
   );
 };
 
@@ -163,7 +163,13 @@ const getPushSettings = () => {
   const pushPreference = localStorage.getItem('pushPreference')
     ? JSON.parse(localStorage.getItem('pushPreference'))
     : null;
-  return { alertGrp, pushPreference };
+  const geoPref = pushPreference
+    ? (pushPreference.geofence || false)
+    : false;
+  const envPref = pushPreference
+    ? (pushPreference.environmental || false)
+    : false;
+  return { alertGrp, geoPref, envPref };
 };
 
 export const oauthService = {
