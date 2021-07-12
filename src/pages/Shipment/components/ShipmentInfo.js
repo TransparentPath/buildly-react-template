@@ -87,7 +87,6 @@ const ShipmentInfo = (props) => {
     setConfirmModal,
     setConfirmModalFor,
     timezone,
-    consortiumData,
   } = props;
   const classes = useStyles();
   const theme = useTheme();
@@ -137,9 +136,6 @@ const ShipmentInfo = (props) => {
   const [platform_name, setPlatformName] = useState(
     (editData && editData.platform_name) || 'iclp',
   );
-  const [consortium_uuid, setConsortiumUuid] = useState(
-    (editData && editData.consortium_uuid) || '',
-  );
 
   const [formError, setFormError] = useState({});
   const [fieldsMetadata, setFieldsMetaData] = useState({
@@ -154,7 +150,6 @@ const ShipmentInfo = (props) => {
     uom_distance: '',
     uom_weight,
     platform_name: '',
-    consortium_uuid: '',
   });
 
   const organization = useContext(UserContext).organization.organization_uuid;
@@ -211,10 +206,6 @@ const ShipmentInfo = (props) => {
       metadata.platform_name = setOptionsData(
         shipmentOptions.actions.POST,
         'platform_name',
-      );
-      metadata.consortium_uuid = setOptionsData(
-        shipmentOptions.actions.POST,
-        'consortium_uuid',
       );
     }
 
@@ -319,7 +310,6 @@ const ShipmentInfo = (props) => {
       uom_weight,
       organization_uuid: organization,
       platform_name,
-      consortium_uuid,
     };
 
     if (editPage && editData) {
@@ -771,50 +761,6 @@ const ShipmentInfo = (props) => {
                       />
                     )}
                   </Grid>
-                  <Grid
-                    className={classes.inputWithTooltip}
-                    item
-                    xs={12}
-                  >
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      required
-                      id="consortium"
-                      select
-                      label="Consortium"
-                      disabled={
-                        viewOnly
-                        || !!(editData && editData.consortium_uuid)
-                      }
-                      value={consortium_uuid}
-                      onChange={(e) => setConsortiumUuid(e.target.value)}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {consortiumData.length > 0
-                      && _.map(
-                        consortiumData,
-                        (data, index) => (
-                          <MenuItem
-                            key={`consortium${index}:${data.name}`}
-                            value={data.consortium_uuid}
-                          >
-                            {data.name}
-                          </MenuItem>
-                        ),
-                      )}
-                    </TextField>
-                    {fieldsMetadata.consortium_uuid
-                    && fieldsMetadata.consortium_uuid.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          fieldsMetadata.consortium_uuid.help_text
-                        }
-                      />
-                    )}
-                  </Grid>
                 </Grid>
               </Grid>
               {(shipmentFormData || editPage) && (
@@ -892,9 +838,7 @@ const mapStateToProps = (state, ownProps) => ({
     || state.itemsReducer.loading
     || state.custodianReducer.loading
     || state.optionsReducer.loading
-    || state.consortiumReducer.loading
   ),
-  consortiumData: state.consortiumReducer.data,
 });
 
 export default connect(mapStateToProps)(ShipmentInfo);
