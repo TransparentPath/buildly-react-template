@@ -79,6 +79,7 @@ const AddCustodians = ({
   custodianTypeList,
   custodianOptions,
   contactOptions,
+  allOrgs,
 }) => {
   const classes = useStyles();
   const [openFormModal, setFormModal] = useState(true);
@@ -100,7 +101,9 @@ const AddCustodians = ({
   const custodianType = useInput(editData.custodian_type || '', {
     required: true,
   });
-  const consortium = useInput('');
+  const [custodianOrg, setCustodianOrg] = useInput(
+    editData.custody_org_uuid || '', { required: true },
+  );
   const glnNumber = useInput(editData.custodian_glns || '');
   const city = useInput(contactData.city || '');
   const state = useInput(contactData.state || '', {
@@ -136,6 +139,7 @@ const AddCustodians = ({
     const dataHasChanged = (
       company.hasChanged()
       || custodianType.hasChanged()
+      || custodianOrg.hasChanged()
       || city.hasChanged()
       || state.hasChanged()
       || country.hasChanged()
@@ -189,6 +193,7 @@ const AddCustodians = ({
       ...(editPage && { url: editData.url }),
       ...(editPage && { id: editData.id }),
       organization_uuid: organization,
+      custody_org_uuid: custodianOrg.value,
     };
     if (editPage) {
       dispatch(editCustodian(
@@ -239,6 +244,7 @@ const AddCustodians = ({
       || !address_1.value
       || !state.value
       || !country.value
+      || !custodianOrg.value
     ) {
       return true;
     }
@@ -400,26 +406,34 @@ const AddCustodians = ({
                 <TextField
                   variant="filled"
                   margin="normal"
+                  required
                   fullWidth
-                  disabled
-                  id="consortium"
                   select
-                  label="Consortium"
+                  id="custodianOrg"
+                  label="Custodian Organization"
                   error={
-                    formError.consortium
-                    && formError.consortium.error
+                    formError.custodianOrg
+                    && formError.custodianOrg.error
                   }
                   helperText={
-                    formError.consortium
-                      ? formError.consortium.message
+                    formError.custodianOrg
+                      ? formError.custodianOrg.message
                       : ''
                   }
-                  onBlur={(e) => handleBlur(e, 'required', consortium, 'consortium')}
-                  {...consortium.bind}
+                  onBlur={(e) => handleBlur(e, 'required', custodianOrg)}
+                  {...custodianOrg.bind}
                 >
                   <MenuItem value="">Select</MenuItem>
-                  <MenuItem value="type1">Type 1</MenuItem>
-                  <MenuItem value="type2">Type 2</MenuItem>
+                  {allOrgs
+                  && allOrgs.length > 0
+                  && _.map(allOrgs, (org) => (
+                    <MenuItem
+                      key={`org-${org.id}-${org.name}`}
+                      value={org.organization_uuid}
+                    >
+                      {org.name}
+                    </MenuItem>
+                  ))}
                 </TextField>
               </Grid>
             </Grid>
@@ -726,9 +740,11 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.custodianReducer,
   ...state.optionsReducer,
+  ...state.authReducer,
   loading: (
     state.custodianReducer.loading
     || state.optionsReducer.loading
+    || state.authReducer.loading
   ),
 });
 
