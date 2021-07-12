@@ -1,15 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { UserContext } from '@context/User.context';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
+import {
+  loadAllOrgs,
+} from '@redux/authuser/actions/authuser.actions';
 import {
   getConsortiums,
   deleteConsortium,
 } from '@redux/consortium/actions/consortium.actions';
-import {
-  getCustodians,
-} from '@redux/custodian/actions/custodian.actions';
 import { routes } from '@routes/routesConstants';
 import { getColumns } from './ConsortiumConstant';
 import AddConsortium from './forms/AddConsortium';
@@ -21,18 +20,17 @@ const Consortium = ({
   history,
   redirectTo,
   timezone,
-  custodianData,
+  allOrgs,
 }) => {
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const { organization_uuid } = useContext(UserContext).organization;
 
   const addPath = redirectTo || `${routes.CONSORTIUM}/add`;
   const editPath = redirectTo || `${routes.CONSORTIUM}/edit`;
 
   useEffect(() => {
-    if (!custodianData) {
-      dispatch(getCustodians(organization_uuid));
+    if (!allOrgs) {
+      dispatch(loadAllOrgs());
     }
     if (!data) {
       dispatch(getConsortiums());
@@ -89,7 +87,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.consortiumReducer,
   ...state.optionsReducer,
-  ...state.custodianReducer,
+  ...state.authReducer,
 });
 
 export default connect(mapStateToProps)(Consortium);
