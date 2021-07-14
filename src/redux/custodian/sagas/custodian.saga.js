@@ -229,7 +229,7 @@ function* deleteCustodian(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Error in deleting CUstodian!',
+          message: 'Error in deleting Custodian!',
         }),
       ),
       yield put({

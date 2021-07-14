@@ -16,7 +16,7 @@ import AddConsortium from './forms/AddConsortium';
 const Consortium = ({
   dispatch,
   loading,
-  data,
+  consortiumData,
   history,
   redirectTo,
   timezone,
@@ -32,7 +32,7 @@ const Consortium = ({
     if (!allOrgs) {
       dispatch(loadAllOrgs());
     }
-    if (!data) {
+    if (!consortiumData) {
       dispatch(getConsortiums());
     }
   }, []);
@@ -65,7 +65,7 @@ const Consortium = ({
     <DataTableWrapper
       noSpace
       loading={loading}
-      rows={data || []}
+      rows={consortiumData || []}
       columns={getColumns(timezone)}
       filename="Consortiums"
       addButtonHeading="Consortium"
@@ -88,6 +88,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...state.consortiumReducer,
   ...state.optionsReducer,
   ...state.authReducer,
+  consortiumData: state.consortiumReducer.data,
 });
 
 export default connect(mapStateToProps)(Consortium);

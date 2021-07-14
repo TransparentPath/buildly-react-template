@@ -31,13 +31,13 @@ function* getConsortiums() {
     yield [
       yield put({
         type: GET_CONSORTIUMS_FAILURE,
-        error: 'Could\'nt load consortiums due to some error',
+        error: 'Couldn\'t load consortiums due to some error',
       }),
       yield put(
         showAlert({
           type: 'error',
           open: true,
-          message: 'Could\'nt load consortiums due to some error',
+          message: 'Couldn\'t load consortiums due to some error',
         }),
       ),
     ];
@@ -57,13 +57,13 @@ function* createConsortium(payload) {
     yield [
       yield put({
         type: CREATE_CONSORTIUM_FAILURE,
-        error: 'Could\'nt create consortium due to some error',
+        error: 'Couldn\'t create consortium due to some error',
       }),
       yield put(
         showAlert({
           type: 'error',
           open: true,
-          message: 'Could\'nt create consortium due to some error',
+          message: 'Couldn\'t create consortium due to some error',
         }),
       ),
     ];
@@ -83,13 +83,13 @@ function* editConsortium(payload) {
     yield [
       yield put({
         type: EDIT_CONSORTIUM_FAILURE,
-        error: 'Could\'nt edit consortium due to some error',
+        error: 'Couldn\'t edit consortium due to some error',
       }),
       yield put(
         showAlert({
           type: 'error',
           open: true,
-          message: 'Could\'nt edit consortium due to some error',
+          message: 'Couldn\'t edit consortium due to some error',
         }),
       ),
     ];
@@ -108,13 +108,13 @@ function* deleteConsortium(payload) {
     yield [
       yield put({
         type: DELETE_CONSORTIUM_FAILURE,
-        error: 'Could\'nt delete consortium due to some error',
+        error: 'Couldn\'t delete consortium due to some error',
       }),
       yield put(
         showAlert({
           type: 'error',
           open: true,
-          message: 'Could\'nt delete consortium due to some error',
+          message: 'Couldn\'t delete consortium due to some error',
         }),
       ),
     ];
