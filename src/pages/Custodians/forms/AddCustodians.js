@@ -100,7 +100,6 @@ const AddCustodians = ({
   const custodianType = useInput(editData.custodian_type || '', {
     required: true,
   });
-  const consortium = useInput('');
   const glnNumber = useInput(editData.custodian_glns || '');
   const city = useInput(contactData.city || '');
   const state = useInput(contactData.state || '', {
@@ -395,32 +394,6 @@ const AddCustodians = ({
                     }
                   />
                 )}
-              </Grid>
-              <Grid item xs={12} md={6} sm={6}>
-                <TextField
-                  variant="filled"
-                  margin="normal"
-                  fullWidth
-                  disabled
-                  id="consortium"
-                  select
-                  label="Consortium"
-                  error={
-                    formError.consortium
-                    && formError.consortium.error
-                  }
-                  helperText={
-                    formError.consortium
-                      ? formError.consortium.message
-                      : ''
-                  }
-                  onBlur={(e) => handleBlur(e, 'required', consortium, 'consortium')}
-                  {...consortium.bind}
-                >
-                  <MenuItem value="">Select</MenuItem>
-                  <MenuItem value="type1">Type 1</MenuItem>
-                  <MenuItem value="type2">Type 2</MenuItem>
-                </TextField>
               </Grid>
             </Grid>
             <Grid container spacing={isDesktop ? 2 : 0}>

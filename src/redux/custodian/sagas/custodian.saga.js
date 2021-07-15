@@ -151,6 +151,7 @@ function* editCustodian(action) {
         contact_data: [contactInfo],
         id: payload.id,
         organization_uuid: payload.organization_uuid,
+        custody_org_uuid: payload.custody_org_uuid,
       };
       const data = yield call(
         httpService.makeRequest,
@@ -227,7 +228,7 @@ function* deleteCustodian(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Error in deleting CUstodian!',
+          message: 'Error in deleting Custodian!',
         }),
       ),
       yield put({

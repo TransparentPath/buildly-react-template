@@ -12,7 +12,7 @@ import {
 import { routes } from '@routes/routesConstants';
 import Configuration from './Configuration/Configuration';
 import ImportExport from './ImportExport/ImportExport';
-import Consortium from './Consortium/Consortium';
+import ConsortiumSettings from './Consortium/ConsortiumSettings';
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -77,7 +77,7 @@ const AdminPanel = ({ history, location, organizationData }) => {
           component={ImportExport}
         />
       )}
-      <Route path={routes.CONSORTIUM} component={Consortium} />
+      <Route path={routes.CONSORTIUM} component={ConsortiumSettings} />
     </Box>
   );
 };
