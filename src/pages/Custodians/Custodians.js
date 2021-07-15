@@ -4,9 +4,6 @@ import { Route } from 'react-router-dom';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { UserContext } from '@context/User.context';
 import {
-  loadAllOrgs,
-} from '@redux/authuser/actions/authuser.actions';
-import {
   getCustodians,
   getCustodianType,
   deleteCustodian,
@@ -35,7 +32,6 @@ const Custodian = ({
   custodyData,
   custodianOptions,
   contactOptions,
-  allOrgs,
 }) => {
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState('');
@@ -52,9 +48,6 @@ const Custodian = ({
     : `${routes.CUSTODIANS}/edit`;
 
   useEffect(() => {
-    if (!allOrgs) {
-      dispatch(loadAllOrgs());
-    }
     if (custodianData === null) {
       dispatch(getCustodians(organization));
       dispatch(getCustodianType());
@@ -135,11 +128,9 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.custodianReducer,
   ...state.optionsReducer,
-  ...state.authReducer,
   loading: (
     state.custodianReducer.loading
     || state.optionsReducer.loading
-    || state.authReducer.loading
   ),
 });
 

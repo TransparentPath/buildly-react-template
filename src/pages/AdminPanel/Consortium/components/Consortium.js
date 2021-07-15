@@ -10,8 +10,8 @@ import {
   deleteConsortium,
 } from '@redux/consortium/actions/consortium.actions';
 import { routes } from '@routes/routesConstants';
-import { getColumns } from './ConsortiumConstant';
-import AddConsortium from './forms/AddConsortium';
+import { getConsortiumColumns } from '../ConsortiumConstant';
+import AddConsortium from '../forms/AddConsortium';
 
 const Consortium = ({
   dispatch,
@@ -66,7 +66,7 @@ const Consortium = ({
       noSpace
       loading={loading}
       rows={consortiumData || []}
-      columns={getColumns(timezone)}
+      columns={getConsortiumColumns(timezone)}
       filename="Consortiums"
       addButtonHeading="Consortium"
       onAddButtonClick={onAddButtonClick}

@@ -90,7 +90,6 @@ function* addCustodian(action) {
         custodian_type: payload.custodian_type,
         contact_data: [contactInfo],
         organization_uuid: payload.organization_uuid,
-        custody_org_uuid: payload.custody_org_uuid,
       };
       const data = yield call(
         httpService.makeRequest,
