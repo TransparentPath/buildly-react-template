@@ -73,7 +73,7 @@ const EditMapping = ({
 
   const custodyOrg = useInput((
     pageData && pageData.custody_org_uuid
-  ) || null);
+  ) || '');
 
   useEffect(() => {
     if (allOrgs && pageData) {
@@ -122,7 +122,7 @@ const EditMapping = ({
     event.preventDefault();
     const editData = {
       ...pageData,
-      custody_org_uuid: custodyOrg.value,
+      custody_org_uuid: custodyOrg.value || null,
       edit_date: new Date(),
     };
     dispatch(editCustodian(editData));
@@ -169,13 +169,14 @@ const EditMapping = ({
                   variant="outlined"
                   margin="normal"
                   fullWidth
+                  select
                   id="custodyOrg"
                   label="Custodian Organization"
                   name="custodyOrg"
                   autoComplete="custodyOrg"
                   {...custodyOrg.bind}
                 >
-                  <MenuItem value={null}>Select</MenuItem>
+                  <MenuItem value="">Select</MenuItem>
                   {options
                   && options.length > 0
                   && _.map(options, (option, index) => (
@@ -188,7 +189,7 @@ const EditMapping = ({
                   ))}
                 </TextField>
               </Grid>
-              <Grid container spacing={2} justify="center">
+              <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={6} sm={4}>
                   <div className={classes.loadingWrapper}>
                     <Button

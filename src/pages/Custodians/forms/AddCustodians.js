@@ -395,9 +395,13 @@ const AddCustodians = ({
                   />
                 )}
               </Grid>
-            </Grid>
-            <Grid container spacing={isDesktop ? 2 : 0}>
-              <Grid item xs={12}>
+              <Grid
+                className={classes.inputWithTooltip}
+                item
+                xs={12}
+                md={6}
+                sm={6}
+              >
                 <TextField
                   variant="filled"
                   margin="normal"
@@ -411,6 +415,7 @@ const AddCustodians = ({
                 />
               </Grid>
             </Grid>
+
             <Card variant="outlined" className={classes.addressContainer}>
               <CardContent>
                 <Typography variant="h6">Contact Info</Typography>
@@ -653,7 +658,7 @@ const AddCustodians = ({
             <Grid
               container
               spacing={isDesktop ? 3 : 0}
-              justify="center"
+              justifyContent="center"
             >
               <Grid item xs={12} sm={4}>
                 <div className={classes.loadingWrapper}>
