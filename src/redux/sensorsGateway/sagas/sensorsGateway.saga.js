@@ -68,8 +68,6 @@ function* getGatewayList(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${sensorApiEndPoint}gateway/?organization_uuid=${payload.organization_uuid}`,
-      null,
-      true,
     );
     yield put({ type: GET_GATEWAYS_SUCCESS, data: data.data });
   } catch (error) {
@@ -123,7 +121,6 @@ function* addGateway(action) {
       'post',
       `${environment.API_URL}${sensorApiEndPoint}gateway/`,
       payload,
-      true,
     );
     yield [
       yield put(
@@ -163,7 +160,6 @@ function* editGateWayItem(action) {
       'put',
       `${environment.API_URL}${sensorApiEndPoint}gateway/${payload.id}/`,
       payload,
-      true,
     );
     yield [
       yield put(getGateways(payload.organization_uuid)),
@@ -202,8 +198,6 @@ function* deleteGatewayItem(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${sensorApiEndPoint}gateway/${gatewayId}/`,
-      null,
-      true,
     );
     yield [
       yield put(
@@ -238,8 +232,6 @@ function* getGatewayTypeList() {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${sensorApiEndPoint}gateway_type/`,
-      null,
-      true,
     );
     yield put({
       type: GET_GATEWAYS_TYPE_SUCCESS,
@@ -270,7 +262,6 @@ function* addGatewayType(action) {
       'post',
       `${environment.API_URL}${sensorApiEndPoint}gateway_type/`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -312,7 +303,6 @@ function* editGatewayType(action) {
       'put',
       `${environment.API_URL}${sensorApiEndPoint}gateway_type/${payload.id}`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -352,8 +342,6 @@ function* deleteGatewayType(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${sensorApiEndPoint}gateway_type/${payload.id}`,
-      null,
-      true,
     );
     yield [
       yield put({
@@ -391,8 +379,6 @@ function* getSensorList(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${sensorApiEndPoint}sensor/?organization_uuid=${payload.organization_uuid}`,
-      null,
-      true,
     );
     yield put({ type: GET_SENSORS_SUCCESS, data: data.data });
   } catch (error) {
@@ -420,7 +406,6 @@ function* addSensor(action) {
       'post',
       `${environment.API_URL}${sensorApiEndPoint}sensor/`,
       payload,
-      true,
     );
     yield [
       yield put(
@@ -460,7 +445,6 @@ function* editSensorItem(action) {
       'put',
       `${environment.API_URL}${sensorApiEndPoint}sensor/${payload.id}/`,
       payload,
-      true,
     );
     yield [
       yield put(getSensors(payload.organization_uuid)),
@@ -499,8 +483,6 @@ function* deleteSensorItem(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${sensorApiEndPoint}sensor/${sensorId}/`,
-      null,
-      true,
     );
     yield [
       yield put(
@@ -535,8 +517,6 @@ function* getSensorTypeList() {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${sensorApiEndPoint}sensor_type/`,
-      null,
-      true,
     );
     yield put({
       type: GET_SENSORS_TYPE_SUCCESS,
@@ -567,7 +547,6 @@ function* addSensorType(action) {
       'post',
       `${environment.API_URL}${sensorApiEndPoint}sensor_type/`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -609,7 +588,6 @@ function* editSensorType(action) {
       'put',
       `${environment.API_URL}${sensorApiEndPoint}sensor_type/${payload.id}`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -649,8 +627,6 @@ function* deleteSensorType(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${sensorApiEndPoint}sensor_type/${payload.id}`,
-      null,
-      true,
     );
     yield [
       yield put({
@@ -688,8 +664,6 @@ function* getAggregateReportList(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${sensorApiEndPoint}aggregate_report/?shipment_id=${payload.partnerShipmentIds}`,
-      null,
-      true,
     );
     yield put({
       type: GET_AGGREGATE_REPORT_SUCCESS,
@@ -718,8 +692,6 @@ function* getAllSensorAlerts(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${sensorApiEndPoint}sensor_report_alert/?shipment_ids=${payload.partnerShipmentIds}`,
-      null,
-      true,
     );
     yield put({
       type: GET_ALL_SENSOR_ALERTS_SUCCESS,

@@ -73,8 +73,6 @@ function* getItemsList(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${shipmentApiEndPoint}item/?organization_uuid=${payload.organization_uuid}`,
-      null,
-      true,
     );
     yield put({ type: GET_ITEMS_SUCCESS, data: data.data });
   } catch (error) {
@@ -102,7 +100,6 @@ function* addItem(action) {
       'post',
       `${environment.API_URL}${shipmentApiEndPoint}item/`,
       payload,
-      true,
     );
     yield [
       yield put(
@@ -142,7 +139,6 @@ function* editItem(action) {
       'put',
       `${environment.API_URL}${shipmentApiEndPoint}item/${payload.id}/`,
       payload,
-      true,
     );
     yield [
       yield put(getItems(payload.organization_uuid)),
@@ -181,8 +177,6 @@ function* deleteItem(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${shipmentApiEndPoint}item/${itemId}/`,
-      null,
-      true,
     );
     yield [
       yield put(
@@ -217,8 +211,6 @@ function* getItemType(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${shipmentApiEndPoint}item_type/?organization_uuid=${payload.organization_uuid}`,
-      null,
-      true,
     );
     yield put({
       type: GET_ITEMS_TYPE_SUCCESS,
@@ -249,7 +241,6 @@ function* addItemType(action) {
       'post',
       `${environment.API_URL}${shipmentApiEndPoint}item_type/`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -291,7 +282,6 @@ function* editItemType(action) {
       'put',
       `${environment.API_URL}${shipmentApiEndPoint}item_type/${payload.id}`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -331,8 +321,6 @@ function* deleteItemType(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${shipmentApiEndPoint}item_type/${payload.id}`,
-      null,
-      true,
     );
     yield [
       yield put({
@@ -370,8 +358,6 @@ function* getProductList(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${shipmentApiEndPoint}product/?organization_uuid=${payload.organization_uuid}`,
-      null,
-      true,
     );
     yield put({ type: GET_PRODUCTS_SUCCESS, data: data.data });
   } catch (error) {
@@ -399,7 +385,6 @@ function* addProducts(action) {
       'post',
       `${environment.API_URL}${shipmentApiEndPoint}product/`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -441,7 +426,6 @@ function* editProducts(action) {
       'put',
       `${environment.API_URL}${shipmentApiEndPoint}product/${payload.id}`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -481,8 +465,6 @@ function* deleteProducts(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${shipmentApiEndPoint}product/${payload.id}`,
-      null,
-      true,
     );
     yield [
       yield put({
@@ -520,8 +502,6 @@ function* getProductTypeList(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${shipmentApiEndPoint}product_type/?organization_uuid=${payload.organization_uuid}`,
-      null,
-      true,
     );
     yield put({ type: GET_PRODUCTS_TYPE_SUCCESS, data: data.data });
   } catch (error) {
@@ -549,7 +529,6 @@ function* addProductType(action) {
       'post',
       `${environment.API_URL}${shipmentApiEndPoint}product_type/`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -591,7 +570,6 @@ function* editProductType(action) {
       'put',
       `${environment.API_URL}${shipmentApiEndPoint}product_type/${payload.id}`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -631,8 +609,6 @@ function* deleteProductType(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${shipmentApiEndPoint}product_type/${payload.id}`,
-      null,
-      true,
     );
     yield [
       yield put({
@@ -670,8 +646,6 @@ function* getUnits() {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${shipmentApiEndPoint}unit_of_measure/`,
-      null,
-      true,
     );
     yield put({
       type: GET_UNITS_OF_MEASURE_SUCCESS,
@@ -702,7 +676,6 @@ function* addUnitsOfMeasure(action) {
       'post',
       `${environment.API_URL}${shipmentApiEndPoint}unit_of_measure/`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -744,7 +717,6 @@ function* editUnitsOfMeasure(action) {
       'put',
       `${environment.API_URL}${shipmentApiEndPoint}unit_of_measure/${payload.id}`,
       payload,
-      true,
     );
     if (data && data.data) {
       yield [
@@ -784,8 +756,6 @@ function* deleteUnitsOfMeasure(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${shipmentApiEndPoint}unit_of_measure/${payload.id}`,
-      null,
-      true,
     );
     yield [
       yield put({

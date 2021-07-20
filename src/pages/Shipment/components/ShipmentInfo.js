@@ -545,54 +545,6 @@ const ShipmentInfo = (props) => {
                       />
                     )}
                   </Grid>
-                  <Grid
-                    className={classes.inputWithTooltip}
-                    item
-                    xs={12}
-                  >
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      required
-                      id="platform_name"
-                      select
-                      label="Sensor Platform"
-                      disabled={
-                        viewOnly
-                        || !!(editData && editData.platform_name)
-                      }
-                      value={platform_name}
-                      onChange={(e) => setPlatformName(e.target.value)}
-                      helperText={
-                        editData && editData.platform_name
-                          ? 'Once set, platform cannot be edited.'
-                          : 'Platform can be set just once.'
-                      }
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {SENSOR_PLATFORM
-                      && _.map(
-                        _.orderBy(SENSOR_PLATFORM, ['value'], ['asc']),
-                        (item, index) => (
-                          <MenuItem
-                            key={`sensorPlatform${index}:${item.value}`}
-                            value={item.value}
-                          >
-                            {item.label}
-                          </MenuItem>
-                        ),
-                      )}
-                    </TextField>
-                    {fieldsMetadata.platform_name.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          fieldsMetadata.platform_name.help_text
-                        }
-                      />
-                    )}
-                  </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -757,6 +709,54 @@ const ShipmentInfo = (props) => {
                       <CustomizedTooltips
                         toolTipText={
                           fieldsMetadata.uom_weight.help_text
+                        }
+                      />
+                    )}
+                  </Grid>
+                  <Grid
+                    className={classes.inputWithTooltip}
+                    item
+                    xs={12}
+                  >
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      fullWidth
+                      required
+                      id="platform_name"
+                      select
+                      label="Sensor Platform"
+                      disabled={
+                        viewOnly
+                        || !!(editData && editData.platform_name)
+                      }
+                      value={platform_name}
+                      onChange={(e) => setPlatformName(e.target.value)}
+                      helperText={
+                        editData && editData.platform_name
+                          ? 'Once set, platform cannot be edited.'
+                          : 'Platform can be set just once.'
+                      }
+                    >
+                      <MenuItem value="">Select</MenuItem>
+                      {SENSOR_PLATFORM
+                      && _.map(
+                        _.orderBy(SENSOR_PLATFORM, ['value'], ['asc']),
+                        (item, index) => (
+                          <MenuItem
+                            key={`sensorPlatform${index}:${item.value}`}
+                            value={item.value}
+                          >
+                            {item.label}
+                          </MenuItem>
+                        ),
+                      )}
+                    </TextField>
+                    {fieldsMetadata.platform_name.help_text
+                    && (
+                      <CustomizedTooltips
+                        toolTipText={
+                          fieldsMetadata.platform_name.help_text
                         }
                       />
                     )}

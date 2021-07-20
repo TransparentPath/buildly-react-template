@@ -27,9 +27,6 @@ import { UserContext } from '@context/User.context';
 import { environment } from '@environments/environment';
 import SensorReport from '@pages/Reporting/components/SensorReport';
 import {
-  getConsortiums,
-} from '@redux/consortium/actions/consortium.actions';
-import {
   getCustodians,
   getCustodianType,
   getContact,
@@ -52,6 +49,7 @@ import {
 } from '@redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
+  getDashboardItems,
   deleteShipment,
 } from '@redux/shipment/actions/shipment.actions';
 import { routes } from '@routes/routesConstants';
@@ -113,8 +111,6 @@ const Shipment = (props) => {
     shipmentOptions,
     custodyOptions,
     timezone,
-    sensorAlerts,
-    consortiumData,
   } = props;
   const classes = useStyles();
 
@@ -175,9 +171,6 @@ const Shipment = (props) => {
     }
     if (custodyOptions === null) {
       dispatch(getCustodyOptions());
-    }
-    if (!consortiumData) {
-      dispatch(getConsortiums());
     }
   }, []);
 
@@ -457,7 +450,6 @@ const Shipment = (props) => {
             setSelectedShipment={setSelectedShipment}
             tileView={tileView}
             timezone={timezone}
-            consortiumData={consortiumData}
           />
         </Grid>
         <Grid item xs={12} md={tileView ? 6 : 12}>
@@ -547,9 +539,7 @@ const mapStateToProps = (state, ownProps) => ({
     || state.itemsReducer.loading
     || state.sensorsGatewayReducer.loading
     || state.optionsReducer.loading
-    || state.consortiumReducer.loading
   ),
-  consortiumData: state.consortiumReducer.data,
 });
 
 export default connect(mapStateToProps)(Shipment);

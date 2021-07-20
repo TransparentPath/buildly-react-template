@@ -37,8 +37,6 @@ function* getShipmentList(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${shipmentApiEndPoint}shipment/?organization_uuid=${payload.organization_uuid}`,
-      null,
-      true,
     );
     if (data && data.data) {
       yield put({ type: GET_SHIPMENTS_SUCCESS, data: data.data });
@@ -84,7 +82,6 @@ function* addShipment(action) {
       'post',
       `${environment.API_URL}${shipmentApiEndPoint}shipment/`,
       payload,
-      true,
     );
     yield [
       yield put(
@@ -129,7 +126,6 @@ function* editShipment(action) {
       'put',
       `${environment.API_URL}${shipmentApiEndPoint}shipment/${payload.id}/`,
       payload,
-      true,
     );
     yield [
       yield put(
@@ -178,8 +174,6 @@ function* deleteShipment(payload) {
       httpService.makeRequest,
       'delete',
       `${environment.API_URL}${shipmentApiEndPoint}shipment/${shipmentId}/`,
-      null,
-      true,
     );
     yield [
       yield put(
@@ -218,8 +212,6 @@ function* getDashboard(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}${shipmentApiEndPoint}dashboard/?organization_uuid=${payload.organization_uuid}`,
-      null,
-      true,
     );
     yield put({
       type: GET_DASHBOARD_ITEMS_SUCCESS,
@@ -260,7 +252,6 @@ function* pdfIdentifier(action) {
         'post',
         `${environment.API_URL}${shipmentApiEndPoint}upload_file/`,
         data,
-        true,
       );
       uploaded_pdf = payload.uploaded_pdf
         ? [...payload.uploaded_pdf, filename]
@@ -351,10 +342,6 @@ function* watchDeleteShipment() {
   yield takeLatest(DELETE_SHIPMENT, deleteShipment);
 }
 
-function* watchGetDashboardItems() {
-  yield takeLatest(GET_DASHBOARD_ITEMS, getDashboard);
-}
-
 function* watchPdfIdentifier() {
   yield takeLatest(ADD_PDF_IDENTIFIER, pdfIdentifier);
 }
@@ -365,7 +352,6 @@ export default function* shipmentSaga() {
     watchAddShipment(),
     watchDeleteShipment(),
     watchEditShipment(),
-    watchGetDashboardItems(),
     watchPdfIdentifier(),
   ]);
 }

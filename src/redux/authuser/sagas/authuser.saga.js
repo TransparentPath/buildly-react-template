@@ -265,8 +265,6 @@ function* getOrganizationData(payload) {
       httpService.makeRequest,
       'get',
       `${environment.API_URL}organization/${uuid}/`,
-      null,
-      true,
     );
     yield put({ type: GET_ORGANIZATION_SUCCESS, data });
   } catch (error) {
