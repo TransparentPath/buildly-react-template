@@ -2,7 +2,6 @@ import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
 import { httpService } from '@modules/http/http.service';
-import { environment } from '@environments/environment';
 import { showAlert } from '@redux/alert/actions/alert.actions';
 import {
   getItems,
@@ -72,7 +71,7 @@ function* getItemsList(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${shipmentApiEndPoint}item/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}item/?organization_uuid=${payload.organization_uuid}`,
     );
     yield put({ type: GET_ITEMS_SUCCESS, data: data.data });
   } catch (error) {
@@ -98,7 +97,7 @@ function* addItem(action) {
     const data = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${shipmentApiEndPoint}item/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}item/`,
       payload,
     );
     yield [
@@ -137,7 +136,7 @@ function* editItem(action) {
     const data = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${shipmentApiEndPoint}item/${payload.id}/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}item/${payload.id}/`,
       payload,
     );
     yield [
@@ -176,7 +175,7 @@ function* deleteItem(payload) {
     yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}${shipmentApiEndPoint}item/${itemId}/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}item/${itemId}/`,
     );
     yield [
       yield put(
@@ -210,7 +209,7 @@ function* getItemType(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${shipmentApiEndPoint}item_type/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}item_type/?organization_uuid=${payload.organization_uuid}`,
     );
     yield put({
       type: GET_ITEMS_TYPE_SUCCESS,
@@ -239,7 +238,7 @@ function* addItemType(action) {
     const data = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${shipmentApiEndPoint}item_type/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}item_type/`,
       payload,
     );
     if (data && data.data) {
@@ -280,7 +279,7 @@ function* editItemType(action) {
     const data = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${shipmentApiEndPoint}item_type/${payload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}item_type/${payload.id}`,
       payload,
     );
     if (data && data.data) {
@@ -320,7 +319,7 @@ function* deleteItemType(payload) {
     const data = yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}${shipmentApiEndPoint}item_type/${payload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}item_type/${payload.id}`,
     );
     yield [
       yield put({
@@ -357,7 +356,7 @@ function* getProductList(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${shipmentApiEndPoint}product/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}product/?organization_uuid=${payload.organization_uuid}`,
     );
     yield put({ type: GET_PRODUCTS_SUCCESS, data: data.data });
   } catch (error) {
@@ -383,7 +382,7 @@ function* addProducts(action) {
     const data = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${shipmentApiEndPoint}product/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}product/`,
       payload,
     );
     if (data && data.data) {
@@ -424,7 +423,7 @@ function* editProducts(action) {
     const data = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${shipmentApiEndPoint}product/${payload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}product/${payload.id}`,
       payload,
     );
     if (data && data.data) {
@@ -464,7 +463,7 @@ function* deleteProducts(payload) {
     const data = yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}${shipmentApiEndPoint}product/${payload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}product/${payload.id}`,
     );
     yield [
       yield put({
@@ -501,7 +500,7 @@ function* getProductTypeList(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${shipmentApiEndPoint}product_type/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}product_type/?organization_uuid=${payload.organization_uuid}`,
     );
     yield put({ type: GET_PRODUCTS_TYPE_SUCCESS, data: data.data });
   } catch (error) {
@@ -527,7 +526,7 @@ function* addProductType(action) {
     const data = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${shipmentApiEndPoint}product_type/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}product_type/`,
       payload,
     );
     if (data && data.data) {
@@ -568,7 +567,7 @@ function* editProductType(action) {
     const data = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${shipmentApiEndPoint}product_type/${payload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}product_type/${payload.id}`,
       payload,
     );
     if (data && data.data) {
@@ -608,7 +607,7 @@ function* deleteProductType(payload) {
     const data = yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}${shipmentApiEndPoint}product_type/${payload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}product_type/${payload.id}`,
     );
     yield [
       yield put({
@@ -645,7 +644,7 @@ function* getUnits() {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${shipmentApiEndPoint}unit_of_measure/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}unit_of_measure/`,
     );
     yield put({
       type: GET_UNITS_OF_MEASURE_SUCCESS,
@@ -674,7 +673,7 @@ function* addUnitsOfMeasure(action) {
     const data = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${shipmentApiEndPoint}unit_of_measure/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}unit_of_measure/`,
       payload,
     );
     if (data && data.data) {
@@ -715,7 +714,7 @@ function* editUnitsOfMeasure(action) {
     const data = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${shipmentApiEndPoint}unit_of_measure/${payload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}unit_of_measure/${payload.id}`,
       payload,
     );
     if (data && data.data) {
@@ -755,7 +754,7 @@ function* deleteUnitsOfMeasure(payload) {
     const data = yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}${shipmentApiEndPoint}unit_of_measure/${payload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}unit_of_measure/${payload.id}`,
     );
     yield [
       yield put({

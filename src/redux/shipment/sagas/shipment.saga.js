@@ -3,7 +3,6 @@ import {
 } from 'redux-saga/effects';
 import _ from 'lodash';
 import { httpService } from '@modules/http/http.service';
-import { environment } from '@environments/environment';
 import { showAlert } from '@redux/alert/actions/alert.actions';
 import {
   getAggregateReport,
@@ -36,7 +35,7 @@ function* getShipmentList(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${shipmentApiEndPoint}shipment/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment/?organization_uuid=${payload.organization_uuid}`,
     );
     if (data && data.data) {
       yield put({ type: GET_SHIPMENTS_SUCCESS, data: data.data });
@@ -80,7 +79,7 @@ function* addShipment(action) {
     const data = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${shipmentApiEndPoint}shipment/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment/`,
       payload,
     );
     yield [
@@ -124,7 +123,7 @@ function* editShipment(action) {
     const data = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${shipmentApiEndPoint}shipment/${payload.id}/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment/${payload.id}/`,
       payload,
     );
     yield [
@@ -173,7 +172,7 @@ function* deleteShipment(payload) {
     yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}${shipmentApiEndPoint}shipment/${shipmentId}/`,
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment/${shipmentId}/`,
     );
     yield [
       yield put(
@@ -211,7 +210,7 @@ function* getDashboard(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${shipmentApiEndPoint}dashboard/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}dashboard/?organization_uuid=${payload.organization_uuid}`,
     );
     yield put({
       type: GET_DASHBOARD_ITEMS_SUCCESS,
@@ -250,7 +249,7 @@ function* pdfIdentifier(action) {
       const response = yield call(
         httpService.makeRequest,
         'post',
-        `${environment.API_URL}${shipmentApiEndPoint}upload_file/`,
+        `${window.env.API_URL}${shipmentApiEndPoint}upload_file/`,
         data,
       );
       uploaded_pdf = payload.uploaded_pdf

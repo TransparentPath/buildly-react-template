@@ -2,7 +2,6 @@ import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
 import { httpService } from '@modules/http/http.service';
-import { environment } from '@environments/environment';
 import { showAlert } from '@redux/alert/actions/alert.actions';
 import {
   GET_CUSTODIANS,
@@ -50,7 +49,7 @@ function* getCustodiansList(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${custodiansApiEndPoint}custodian/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custodian/?organization_uuid=${payload.organization_uuid}`,
     );
     yield put({ type: GET_CUSTODIANS_SUCCESS, data: data.data });
   } catch (error) {
@@ -77,7 +76,7 @@ function* addCustodian(action) {
     const contactData = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${custodiansApiEndPoint}contact/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}contact/`,
       payload.contact_obj,
     );
     if (contactData && contactData.data) {
@@ -91,7 +90,7 @@ function* addCustodian(action) {
       const data = yield call(
         httpService.makeRequest,
         'post',
-        `${environment.API_URL}${custodiansApiEndPoint}custodian/`,
+        `${window.env.API_URL}${custodiansApiEndPoint}custodian/`,
         custodianPayload,
       );
       if (data && data.data) {
@@ -135,7 +134,7 @@ function* editCustodian(action) {
     const contactData = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${custodiansApiEndPoint}contact/${payload.contact_obj.id}/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}contact/${payload.contact_obj.id}/`,
       payload.contact_obj,
     );
     if (contactData && contactData.data) {
@@ -151,7 +150,7 @@ function* editCustodian(action) {
       const data = yield call(
         httpService.makeRequest,
         'put',
-        `${environment.API_URL}${custodiansApiEndPoint}custodian/${payload.id}/`,
+        `${window.env.API_URL}${custodiansApiEndPoint}custodian/${payload.id}/`,
         custodianPayload,
       );
       if (data && data.data) {
@@ -194,12 +193,12 @@ function* deleteCustodian(payload) {
     yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}${custodiansApiEndPoint}custodian/${custodianId}/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custodian/${custodianId}/`,
     );
     yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}custodian/contact/${contactObjId}/`,
+      `${window.env.API_URL}custodian/contact/${contactObjId}/`,
     );
     yield [
       yield put(
@@ -234,7 +233,7 @@ function* getCustodyList() {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${custodiansApiEndPoint}custody/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custody/`,
     );
     yield put({ type: GET_CUSTODY_SUCCESS, data: data.data });
   } catch (error) {
@@ -261,7 +260,7 @@ function* addCustody(action) {
     const data = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${custodiansApiEndPoint}custody/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custody/`,
       payload,
     );
     if (data && data.data) {
@@ -300,7 +299,7 @@ function* editCustody(action) {
     const data = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${custodiansApiEndPoint}custody/${payload.id}`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custody/${payload.id}`,
       payload,
     );
     if (data && data.data) {
@@ -339,7 +338,7 @@ function* updateCustody(action) {
     const data = yield call(
       httpService.makeRequest,
       'patch',
-      `${environment.API_URL}${custodiansApiEndPoint}custody/${payload.id}/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custody/${payload.id}/`,
       payload,
     );
     if (data && data.data) {
@@ -377,7 +376,7 @@ function* getCustodianType() {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${custodiansApiEndPoint}custodian_type/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custodian_type/`,
     );
     yield put({
       type: GET_CUSTODIAN_TYPE_SUCCESS,
@@ -406,7 +405,7 @@ function* addCustodianType(action) {
     const data = yield call(
       httpService.makeRequest,
       'post',
-      `${environment.API_URL}${custodiansApiEndPoint}custodian_type/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custodian_type/`,
       payload,
     );
     if (data && data.data) {
@@ -448,7 +447,7 @@ function* editCustodianType(action) {
     const data = yield call(
       httpService.makeRequest,
       'put',
-      `${environment.API_URL}${custodiansApiEndPoint}custodian_type/${payload.id}`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custodian_type/${payload.id}`,
       payload,
     );
     if (data && data.data) {
@@ -489,7 +488,7 @@ function* deleteCustodianType(payload) {
     const data = yield call(
       httpService.makeRequest,
       'delete',
-      `${environment.API_URL}${custodiansApiEndPoint}custodian_type/${payload.id}`,
+      `${window.env.API_URL}${custodiansApiEndPoint}custodian_type/${payload.id}`,
     );
     yield [
       yield put({
@@ -527,7 +526,7 @@ function* getContactInfo(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${environment.API_URL}${custodiansApiEndPoint}contact/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}${custodiansApiEndPoint}contact/?organization_uuid=${payload.organization_uuid}`
     );
     yield put({ type: GET_CONTACT_SUCCESS, data: data.data });
   } catch (error) {
