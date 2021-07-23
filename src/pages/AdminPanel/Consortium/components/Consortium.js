@@ -6,7 +6,7 @@ import {
   loadAllOrgs,
 } from '@redux/authuser/actions/authuser.actions';
 import {
-  getConsortiums,
+  getAllConsortiums,
   deleteConsortium,
 } from '@redux/consortium/actions/consortium.actions';
 import { routes } from '@routes/routesConstants';
@@ -16,7 +16,7 @@ import AddConsortium from '../forms/AddConsortium';
 const Consortium = ({
   dispatch,
   loading,
-  consortiumData,
+  allConsortiums,
   history,
   redirectTo,
   timezone,
@@ -32,8 +32,8 @@ const Consortium = ({
     if (!allOrgs) {
       dispatch(loadAllOrgs());
     }
-    if (!consortiumData) {
-      dispatch(getConsortiums());
+    if (!allConsortiums) {
+      dispatch(getAllConsortiums());
     }
   }, []);
 
@@ -65,7 +65,7 @@ const Consortium = ({
     <DataTableWrapper
       noSpace
       loading={loading}
-      rows={consortiumData || []}
+      rows={allConsortiums || []}
       columns={getConsortiumColumns(timezone)}
       filename="Consortiums"
       addButtonHeading="Consortium"
@@ -88,7 +88,6 @@ const mapStateToProps = (state, ownProps) => ({
   ...state.consortiumReducer,
   ...state.optionsReducer,
   ...state.authReducer,
-  consortiumData: state.consortiumReducer.data,
 });
 
 export default connect(mapStateToProps)(Consortium);

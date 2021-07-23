@@ -4,9 +4,12 @@ import {
 import { httpService } from '@modules/http/http.service';
 import { showAlert } from '@redux/alert/actions/alert.actions';
 import {
-  GET_CONSORTIUMS,
-  GET_CONSORTIUMS_SUCCESS,
-  GET_CONSORTIUMS_FAILURE,
+  GET_ALL_CONSORTIUMS,
+  GET_ALL_CONSORTIUMS_SUCCESS,
+  GET_ALL_CONSORTIUMS_FAILURE,
+  GET_ORG_CONSORTIUMS,
+  GET_ORG_CONSORTIUMS_SUCCESS,
+  GET_ORG_CONSORTIUMS_FAILURE,
   CREATE_CONSORTIUM,
   CREATE_CONSORTIUM_SUCCESS,
   CREATE_CONSORTIUM_FAILURE,
@@ -18,18 +21,21 @@ import {
   DELETE_CONSORTIUM_FAILURE,
 } from '@redux/consortium/actions/consortium.actions';
 
-function* getConsortiums() {
+function* getAllConsortiums() {
   try {
     const response = yield call(
       httpService.makeRequest,
       'get',
       `${window.env.API_URL}consortium/`,
     );
-    yield put({ type: GET_CONSORTIUMS_SUCCESS, data: response.data });
+    yield put({
+      type: GET_ALL_CONSORTIUMS_SUCCESS,
+      data: response.data,
+    });
   } catch (error) {
     yield [
       yield put({
-        type: GET_CONSORTIUMS_FAILURE,
+        type: GET_ALL_CONSORTIUMS_FAILURE,
         error: 'Couldn\'t load consortiums due to some error',
       }),
       yield put(
@@ -37,6 +43,35 @@ function* getConsortiums() {
           type: 'error',
           open: true,
           message: 'Couldn\'t load consortiums due to some error',
+        }),
+      ),
+    ];
+  }
+}
+
+function* getOrgConsortiums(payload) {
+  const { organization_uuid } = payload;
+  try {
+    const response = yield call(
+      httpService.makeRequest,
+      'get',
+      `${window.env.API_URL}consortium/?organization_uuid=${organization_uuid}`,
+    );
+    yield put({
+      type: GET_ORG_CONSORTIUMS_SUCCESS,
+      data: response.data,
+    });
+  } catch (error) {
+    yield [
+      yield put({
+        type: GET_ORG_CONSORTIUMS_FAILURE,
+        error: 'Couldn\'t load org consortiums due to some error',
+      }),
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Couldn\'t load org consortiums due to some error',
         }),
       ),
     ];
@@ -120,8 +155,12 @@ function* deleteConsortium(payload) {
   }
 }
 
-function* watchGetConsortiums() {
-  yield takeLatest(GET_CONSORTIUMS, getConsortiums);
+function* watchGetAllConsortiums() {
+  yield takeLatest(GET_ALL_CONSORTIUMS, getAllConsortiums);
+}
+
+function* watchGetOrgConsortiums() {
+  yield takeLatest(GET_ORG_CONSORTIUMS, getOrgConsortiums);
 }
 
 function* watchCreateConsortium() {
@@ -138,7 +177,8 @@ function* watchDeleteConsortium() {
 
 export default function* consortiumSaga() {
   yield all([
-    watchGetConsortiums(),
+    watchGetAllConsortiums(),
+    watchGetOrgConsortiums(),
     watchCreateConsortium(),
     watchEditConsortium(),
     watchDeleteConsortium(),

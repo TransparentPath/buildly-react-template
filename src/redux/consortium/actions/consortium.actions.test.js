@@ -6,7 +6,20 @@ describe('get all consortiums action', () => {
     const expectedAction = {
       type: actions.GET_CONSORTIUMS,
     };
-    expect(actions.getConsortiums()).toEqual(expectedAction);
+    expect(actions.getAllConsortiums()).toEqual(expectedAction);
+  });
+});
+
+// Test Get Org Consortiums Action
+describe('get org consortiums action', () => {
+  it('should create an action to get org consortiums', () => {
+    const organization_uuid = 'feu-ewgqu-egoo248w-3289hqv';
+    const expectedAction = {
+      type: actions.GET_CONSORTIUMS,
+      organization_uuid,
+    };
+    expect(actions.getOrgConsortiums(organization_uuid))
+      .toEqual(expectedAction);
   });
 });
 
