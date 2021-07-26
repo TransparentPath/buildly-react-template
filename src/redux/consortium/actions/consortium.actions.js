@@ -23,7 +23,7 @@ export const DELETE_CONSORTIUM_FAILURE = 'CONSORTIUM/DELETE_CONSORTIUM_FAILURE';
  * Get All Consortiums action
  */
 export const getAllConsortiums = () => ({
-  type: GET_CONSORTIUMS,
+  type: GET_ALL_CONSORTIUMS,
 });
 
 /**

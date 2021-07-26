@@ -526,7 +526,7 @@ function* getContactInfo(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${window.env.API_URL}${custodiansApiEndPoint}contact/?organization_uuid=${payload.organization_uuid}`
+      `${window.env.API_URL}${custodiansApiEndPoint}contact/?organization_uuid=${payload.organization_uuid}`,
     );
     yield put({ type: GET_CONTACT_SUCCESS, data: data.data });
   } catch (error) {

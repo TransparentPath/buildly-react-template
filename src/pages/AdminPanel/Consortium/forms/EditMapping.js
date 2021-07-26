@@ -125,12 +125,9 @@ const EditMapping = ({
       custody_org_uuid: custodyOrg.value || null,
       edit_date: new Date(),
     };
-    dispatch(editCustodian(editData));
+    dispatch(editCustodian(editData, history, location.state.from));
 
     setFormModal(false);
-    if (location && location.state) {
-      history.push(location.state.from);
-    }
   };
 
   return (
