@@ -198,6 +198,7 @@ const AddCustodyForm = ({
    */
   const onAddCustodyClick = (event) => {
     event.preventDefault();
+    console.log('Shipment: ', shipment);
     const custodyFormValues = {
       start_of_custody,
       end_of_custody,
@@ -211,6 +212,7 @@ const AddCustodyForm = ({
       radius: organizationData.radius,
       load_id: load_id.value,
       ...(editItem !== null && { id: editItem.id }),
+      shipment_name: shipment_name.value,
     };
     if (editItem !== null) {
       dispatch(editCustody(custodyFormValues));
