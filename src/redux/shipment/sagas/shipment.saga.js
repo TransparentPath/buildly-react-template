@@ -38,10 +38,14 @@ function* getShipmentList(payload) {
       `${window.env.API_URL}consortium/?organization_uuid=${payload.organization_uuid}`,
     );
     const consortium_uuid = _.map(response.data, 'consortium_uuid');
+    const query_params = `?organization_uuid=${payload.organization_uuid}`;
+    if (consortium_uuid) {
+      query_params.concat(`&consortium_uuid=${consortium_uuid}`);
+    }
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${window.env.API_URL}${shipmentApiEndPoint}shipment/?organization_uuid=${payload.organization_uuid}&consortium_uuid=${consortium_uuid}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment/${query_params}`,
     );
     if (data && data.data) {
       yield put({ type: GET_SHIPMENTS_SUCCESS, data: data.data });

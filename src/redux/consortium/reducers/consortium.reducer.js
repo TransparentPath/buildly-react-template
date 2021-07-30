@@ -85,7 +85,7 @@ export default (state = initialState, action) => {
       };
 
     case CREATE_CONSORTIUM_SUCCESS: {
-      const data = state.data || [];
+      const data = state.allConsortiums || [];
       return {
         ...state,
         loading: false,
@@ -111,7 +111,7 @@ export default (state = initialState, action) => {
       };
 
     case EDIT_CONSORTIUM_SUCCESS: {
-      const edited = _.filter(state.data, (data) => (
+      const edited = _.filter(state.allConsortiums, (data) => (
         data.id !== action.data.id
       ));
       return {
@@ -139,7 +139,7 @@ export default (state = initialState, action) => {
       };
 
     case DELETE_CONSORTIUM_SUCCESS: {
-      const deleted = _.filter(state.data, (data) => (
+      const deleted = _.filter(state.allConsortiums, (data) => (
         data.consortium_uuid !== action.uuid
       ));
       return {

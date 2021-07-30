@@ -11,6 +11,8 @@ import {
   ADD_CUSTODIANS_FAILURE,
   EDIT_CUSTODIANS,
   EDIT_CUSTODIANS_FAILURE,
+  UPDATE_CUSTODIAN,
+  UPDATE_CUSTODIAN_FAILURE,
   DELETE_CUSTODIANS,
   DELETE_CUSTODIANS_FAILURE,
   getContact,
@@ -187,6 +189,51 @@ function* editCustodian(action) {
   }
 }
 
+function* updateCustodian(action) {
+  const { payload, history, redirectTo } = action;
+  try {
+    const custodianPayload = {
+      name: payload.name,
+      custody_org_uuid: payload.custody_org_uuid,
+    };
+    const data = yield call(
+      httpService.makeRequest,
+      'patch',
+      `${window.env.API_URL}${custodiansApiEndPoint}custodian/${payload.id}/`,
+      custodianPayload,
+    );
+    if (data && data.data) {
+      yield [
+        yield put(getCustodians(payload.organization_uuid)),
+        yield put(
+          showAlert({
+            type: 'success',
+            open: true,
+            message: 'Custodian successfully Edited!',
+          }),
+        ),
+      ];
+      if (history && redirectTo) {
+        yield call(history.push, redirectTo);
+      }
+    }
+  } catch (error) {
+    console.log('Error: ', error);
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Couldn\'t edit Custodian!',
+        }),
+      ),
+      yield put({
+        type: UPDATE_CUSTODIAN_FAILURE,
+        error,
+      }),
+    ];
+  }
+}
 function* deleteCustodian(payload) {
   const { custodianId, contactObjId, organization_uuid } = payload;
   try {
@@ -557,6 +604,9 @@ function* watchEditCustodian() {
   yield takeLatest(EDIT_CUSTODIANS, editCustodian);
 }
 
+function* watchUpdateCustodian() {
+  yield takeLatest(UPDATE_CUSTODIAN, updateCustodian);
+}
 function* watchDeleteCustodian() {
   yield takeLatest(DELETE_CUSTODIANS, deleteCustodian);
 }
@@ -602,6 +652,7 @@ export default function* custodianSaga() {
     watchGetCustodian(),
     watchAddCustodian(),
     watchEditCustodian(),
+    watchUpdateCustodian(),
     watchDeleteCustodian(),
     watchGetCustody(),
     watchAddCustody(),

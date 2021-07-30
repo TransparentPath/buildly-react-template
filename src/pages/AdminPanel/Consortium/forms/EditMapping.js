@@ -14,7 +14,7 @@ import {
 import FormModal from '@components/Modal/FormModal';
 import { useInput } from '@hooks/useInput';
 import {
-  editCustodian,
+  updateCustodian,
 } from '@redux/custodian/actions/custodian.actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -125,7 +125,7 @@ const EditMapping = ({
       custody_org_uuid: custodyOrg.value || null,
       edit_date: new Date(),
     };
-    dispatch(editCustodian(editData, history, location.state.from));
+    dispatch(updateCustodian(editData, history, location.state.from));
 
     setFormModal(false);
   };
