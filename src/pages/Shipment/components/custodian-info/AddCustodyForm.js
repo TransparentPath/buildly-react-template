@@ -213,6 +213,7 @@ const AddCustodyForm = ({
       load_id: load_id.value,
       ...(editItem !== null && { id: editItem.id }),
       shipment_name: shipment_name.value,
+      shipment: shipmentFormData.id,
     };
     if (editItem !== null) {
       dispatch(editCustody(custodyFormValues));

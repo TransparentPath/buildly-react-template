@@ -43,6 +43,9 @@ import {
   GET_CONTACT_SUCCESS,
   GET_CONTACT_FAILURE,
 } from '../actions/custodian.actions';
+import {
+  getShipmentDetails,
+} from '../../shipment/actions/shipment.actions';
 
 const custodiansApiEndPoint = 'custodian/';
 
@@ -218,7 +221,6 @@ function* updateCustodian(action) {
       }
     }
   } catch (error) {
-    console.log('Error: ', error);
     yield [
       yield put(
         showAlert({
@@ -234,6 +236,7 @@ function* updateCustodian(action) {
     ];
   }
 }
+
 function* deleteCustodian(payload) {
   const { custodianId, contactObjId, organization_uuid } = payload;
   try {
@@ -304,23 +307,48 @@ function* getCustodyList() {
 function* addCustody(action) {
   const { payload } = action;
   try {
-    const data = yield call(
+    const custodyResponse = yield call(
       httpService.makeRequest,
       'post',
       `${window.env.API_URL}${custodiansApiEndPoint}custody/`,
       payload,
     );
-    if (data && data.data) {
-      yield [
-        yield put(getCustody()),
-        yield put(
-          showAlert({
-            type: 'success',
-            open: true,
-            message: 'Successfully Added Custody',
-          }),
-        ),
-      ];
+    if (custodyResponse && custodyResponse.data) {
+      const consortiumData = yield call(
+        httpService.makeRequest,
+        'get',
+        `${window.env.API_URL}consortium/?name=${custodyResponse.data.shipment}`,
+      );
+      if (consortiumData && consortiumData.data) {
+        const shipmentPayload = {
+          consortium_uuid: consortiumData.data[0].consortium_uuid,
+        };
+        const data = yield call(
+          httpService.makeRequest,
+          'patch',
+          `${window.env.API_URL}shipment/shipment/${payload.shipment}/`,
+          shipmentPayload,
+        );
+        if (data && data.data) {
+          yield [
+            yield put(
+              getShipmentDetails(
+                data.data.organization_uuid,
+                data.data.id,
+                true,
+              ),
+            ),
+            yield put(getCustody()),
+            yield put(
+              showAlert({
+                type: 'success',
+                open: true,
+                message: 'Successfully Added Custody',
+              }),
+            ),
+          ];
+        }
+      }
     }
   } catch (error) {
     console.log('error', error);
