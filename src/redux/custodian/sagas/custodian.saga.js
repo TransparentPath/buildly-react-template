@@ -58,7 +58,6 @@ function* getCustodiansList(payload) {
     );
     yield put({ type: GET_CUSTODIANS_SUCCESS, data: data.data });
   } catch (error) {
-    console.log('error', error);
     yield [
       yield put(
         showAlert({
@@ -116,7 +115,6 @@ function* addCustodian(action) {
       }
     }
   } catch (error) {
-    console.log('error', error);
     yield [
       yield put(
         showAlert({
@@ -261,7 +259,6 @@ function* deleteCustodian(payload) {
       yield put(getCustodians(organization_uuid)),
     ];
   } catch (error) {
-    console.log('error', error);
     yield [
       yield put(
         showAlert({
@@ -287,7 +284,6 @@ function* getCustodyList() {
     );
     yield put({ type: GET_CUSTODY_SUCCESS, data: data.data });
   } catch (error) {
-    console.log('error', error);
     yield [
       yield put(
         showAlert({
@@ -351,7 +347,6 @@ function* addCustody(action) {
       }
     }
   } catch (error) {
-    console.log('error', error);
     yield [
       yield put(
         showAlert({
@@ -390,7 +385,6 @@ function* editCustody(action) {
       ];
     }
   } catch (error) {
-    console.log('error', error);
     yield [
       yield put(
         showAlert({
@@ -429,7 +423,6 @@ function* updateCustody(action) {
       ];
     }
   } catch (error) {
-    console.log('error', error);
     yield [
       yield put(
         showAlert({
@@ -499,7 +492,6 @@ function* addCustodianType(action) {
       ];
     }
   } catch (error) {
-    console.log(error);
     yield [
       yield put(
         showAlert({
@@ -541,7 +533,6 @@ function* editCustodianType(action) {
       ];
     }
   } catch (error) {
-    console.log(error);
     yield [
       yield put(
         showAlert({
@@ -579,7 +570,6 @@ function* deleteCustodianType(payload) {
       ),
     ];
   } catch (error) {
-    console.log(error);
     yield [
       yield put(
         showAlert({

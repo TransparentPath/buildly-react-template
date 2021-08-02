@@ -198,7 +198,6 @@ const AddCustodyForm = ({
    */
   const onAddCustodyClick = (event) => {
     event.preventDefault();
-    console.log('Shipment: ', shipment);
     const custodyFormValues = {
       start_of_custody,
       end_of_custody,

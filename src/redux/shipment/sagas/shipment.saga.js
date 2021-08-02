@@ -37,10 +37,10 @@ function* getShipmentList(payload) {
       'get',
       `${window.env.API_URL}consortium/?organization_uuid=${payload.organization_uuid}`,
     );
-    const consortium_uuid = _.map(response.data, 'consortium_uuid');
-    const query_params = `?organization_uuid=${payload.organization_uuid}`;
+    const consortium_uuid = _.join(_.map(response.data, 'consortium_uuid'), ',');
+    let query_params = `?organization_uuid=${payload.organization_uuid}`;
     if (consortium_uuid) {
-      query_params.concat(`&consortium_uuid=${consortium_uuid}`);
+      query_params = query_params.concat(`&consortium_uuid=${consortium_uuid}`);
     }
     const data = yield call(
       httpService.makeRequest,
@@ -109,6 +109,12 @@ function* addShipment(action) {
     ];
     if (history && redirectTo) {
       yield call(history.push, redirectTo);
+    } else if (history && !redirectTo) {
+      yield call(history.push, `${routes.SHIPMENT}/edit/:${data.data.id}`, {
+        type: 'edit',
+        data: data.data,
+        from: routes.SHIPMENT,
+      });
     }
   } catch (error) {
     yield [
