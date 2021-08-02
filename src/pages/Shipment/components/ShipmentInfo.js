@@ -29,7 +29,6 @@ import { routes } from '@routes/routesConstants';
 import {
   SHIPMENT_STATUS,
   TRANSPORT_MODE,
-  SENSOR_PLATFORM,
 } from '@utils/mock';
 import { setOptionsData } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
@@ -133,9 +132,6 @@ const ShipmentInfo = (props) => {
   const [uom_distance, setUomDistance] = useState(
     (editData && editData.uom_distance) || '',
   );
-  const [platform_name, setPlatformName] = useState(
-    (editData && editData.platform_name) || 'iclp',
-  );
 
   const [formError, setFormError] = useState({});
   const [fieldsMetadata, setFieldsMetaData] = useState({
@@ -149,7 +145,6 @@ const ShipmentInfo = (props) => {
     uom_temp: '',
     uom_distance: '',
     uom_weight,
-    platform_name: '',
   });
 
   const organization = useContext(UserContext).organization.organization_uuid;
@@ -202,10 +197,6 @@ const ShipmentInfo = (props) => {
       metadata.uom_weight = setOptionsData(
         shipmentOptions.actions.POST,
         'uom_weight',
-      );
-      metadata.platform_name = setOptionsData(
-        shipmentOptions.actions.POST,
-        'platform_name',
       );
     }
 
@@ -309,7 +300,7 @@ const ShipmentInfo = (props) => {
       uom_temp,
       uom_weight,
       organization_uuid: organization,
-      platform_name,
+      // platform_name,
     };
 
     if (editPage && editData) {
@@ -322,7 +313,7 @@ const ShipmentInfo = (props) => {
         ),
       );
     } else {
-      dispatch(addShipment(shipmentFormValue, history, organization));
+      dispatch(addShipment(shipmentFormValue, history, null, organization));
     }
   };
 
@@ -713,54 +704,7 @@ const ShipmentInfo = (props) => {
                       />
                     )}
                   </Grid>
-                  <Grid
-                    className={classes.inputWithTooltip}
-                    item
-                    xs={12}
-                  >
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      required
-                      id="platform_name"
-                      select
-                      label="Sensor Platform"
-                      disabled={
-                        viewOnly
-                        || !!(editData && editData.platform_name)
-                      }
-                      value={platform_name}
-                      onChange={(e) => setPlatformName(e.target.value)}
-                      helperText={
-                        editData && editData.platform_name
-                          ? 'Once set, platform cannot be edited.'
-                          : 'Platform can be set just once.'
-                      }
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {SENSOR_PLATFORM
-                      && _.map(
-                        _.orderBy(SENSOR_PLATFORM, ['value'], ['asc']),
-                        (item, index) => (
-                          <MenuItem
-                            key={`sensorPlatform${index}:${item.value}`}
-                            value={item.value}
-                          >
-                            {item.label}
-                          </MenuItem>
-                        ),
-                      )}
-                    </TextField>
-                    {fieldsMetadata.platform_name.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          fieldsMetadata.platform_name.help_text
-                        }
-                      />
-                    )}
-                  </Grid>
+
                 </Grid>
               </Grid>
               {(shipmentFormData || editPage) && (
