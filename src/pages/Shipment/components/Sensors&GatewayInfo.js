@@ -152,7 +152,7 @@ const SensorsGatewayInfo = ({
       );
       setOptions(opts);
     }
-  }, [gatewayData, gatewayTypeList, shipmentData, platform_name]);
+  }, [gatewayData, platform_name, gatewayTypeList, shipmentData]);
 
   const onInputChange = (value) => {
     switch (true) {
