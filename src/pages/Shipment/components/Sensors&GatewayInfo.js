@@ -180,12 +180,15 @@ const SensorsGatewayInfo = ({
    */
   const handleSubmit = (event) => {
     event.preventDefault();
+    const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
     const shipmentFormValue = {
       ...{
-        ...shipmentFormData, platform_name, gateway_ids: gatewayIds,
+        ...shipmentFormData,
+        platform_name,
+        gateway_ids: gatewayIds,
+        gateway_imei: updateGateway.imei_number,
       },
     };
-    const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
     dispatch(
       editShipment(
         shipmentFormValue,
@@ -275,13 +278,13 @@ const SensorsGatewayInfo = ({
                 <Autocomplete
                   multiple
                   id="combo-box-demo"
-                  disabled={
-                    viewOnly
-                    || (shipmentFormData
-                      && shipmentFormData.gateway_ids
-                      && shipmentFormData.gateway_ids.length > 0
-                    )
-                  }
+                  // disabled={
+                  //   viewOnly
+                  //   || (shipmentFormData
+                  //     && shipmentFormData.gateway_ids
+                  //     && shipmentFormData.gateway_ids.length > 0
+                  //   )
+                  // }
                   options={options}
                   getOptionLabel={(option) => (
                     option
