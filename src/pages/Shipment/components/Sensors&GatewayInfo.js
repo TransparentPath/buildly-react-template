@@ -186,7 +186,7 @@ const SensorsGatewayInfo = ({
         ...shipmentFormData,
         platform_name,
         gateway_ids: gatewayIds,
-        gateway_imei: updateGateway.imei_number,
+        gateway_imei: [updateGateway.imei_number],
       },
     };
     dispatch(
