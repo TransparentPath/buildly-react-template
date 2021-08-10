@@ -99,6 +99,9 @@ const AddGateway = ({
   const battery_level = useInput(
     editData.last_known_battery_level || '',
   );
+  const custodian_uuid = useInput(
+    editData.custodian_uuid || '',
+  );
   const mac_address = useInput(editData.mac_address || '');
   const [last_known_location, setLastLocation] = useState(
     (editData
@@ -130,6 +133,7 @@ const AddGateway = ({
       || sim_card_id.hasChanged()
       || battery_level.hasChanged()
       || mac_address.hasChanged()
+      || custodian_uuid.hasChanged()
       || gateway_status.hasChanged()
       || (moment(activation_date).format('l') !== (moment(editData.activation_date || moment()).format('l')))
       || (last_known_location !== ((editData.last_known_location && editData.last_known_location[0]) || 'null, null'))
@@ -169,6 +173,7 @@ const AddGateway = ({
       last_known_battery_level: battery_level.value,
       ...(editPage && editData && { id: editData.id }),
       mac_address: mac_address.value,
+      custodian_uuid: custodian_uuid.value,
       last_known_location: [
         last_known_location === '' ? 'null, null' : last_known_location,
       ],
