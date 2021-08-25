@@ -19,6 +19,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
     marginBottom: theme.spacing(5),
   },
+  backButton: {
+    margin: theme.spacing(3, 0),
+  },
 }));
 
 /**
@@ -26,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
  */
 const Forbidden = ({
   history,
-  location,
 }) => {
   const classes = useStyles();
 
