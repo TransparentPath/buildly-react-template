@@ -21,6 +21,8 @@ import logo from '@assets/tp-logo.png';
 import {
   logout,
   getUser,
+  loadAllOrgs,
+  updateUser,
 } from '@redux/authuser/actions/authuser.actions';
 import {
   getUserOptions,
@@ -56,6 +58,7 @@ const useStyles = makeStyles((theme) => ({
   timezone: {
     width: theme.spacing(20),
     marginTop: theme.spacing(1.5),
+    marginLeft: theme.spacing(1.5),
     '& .MuiOutlinedInput-input': {
       padding: theme.spacing(1, 3.5, 1, 2),
     },
@@ -75,21 +78,31 @@ const TopBar = ({
   userOptions,
   orgOptions,
   timezone,
+  allOrgs,
 }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [settingEl, setSettingEl] = useState(null);
+  const [organization, setOrganization] = useState(null);
 
   let user;
   let isAdmin = false;
+  let isSuperAdmin = false;
 
   if (data && data.data) {
     user = data.data;
+    if (!organization) {
+      setOrganization(user.organization.name);
+    }
     isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
+    isSuperAdmin = checkForGlobalAdmin(user);
   }
 
   useEffect(() => {
     dispatch(getUser());
+    if (!allOrgs) {
+      dispatch(loadAllOrgs());
+    }
     if (userOptions === null) {
       dispatch(getUserOptions());
     }
@@ -130,6 +143,17 @@ const TopBar = ({
     setSettingEl(null);
   };
 
+  const handleOrganizationChange = (e) => {
+    const organization_name = e.target.value;
+    setOrganization(organization_name);
+    const { organization_uuid } = _.filter(allOrgs, (org) => org.name === organization_name)[0];
+    dispatch(updateUser({
+      id: user.id,
+      organization_uuid,
+      organization_name,
+    }));
+  };
+
   return (
     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar>
@@ -167,6 +191,27 @@ const TopBar = ({
               </MenuItem>
             ))}
           </TextField>
+          {isSuperAdmin && (
+            <TextField
+              className={classes.timezone}
+              variant="outlined"
+              fullWidth
+              id="org"
+              label="Organization"
+              select
+              value={organization}
+              onChange={handleOrganizationChange}
+            >
+              {_.map(allOrgs, (org) => (
+                <MenuItem
+                  key={`organization-${org.id}`}
+                  value={org.name}
+                >
+                  {_.capitalize(org.name)}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
           {isAdmin
           && (
           <IconButton
