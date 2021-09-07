@@ -151,6 +151,7 @@ const TopBar = ({
       id: user.id,
       organization_uuid,
       organization_name,
+      reload: true,
     }));
   };
 
@@ -207,7 +208,7 @@ const TopBar = ({
                   key={`organization-${org.id}`}
                   value={org.name}
                 >
-                  {_.capitalize(org.name)}
+                  {org.name}
                 </MenuItem>
               ))}
             </TextField>
