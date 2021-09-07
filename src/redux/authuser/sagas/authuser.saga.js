@@ -205,6 +205,7 @@ function* invite(payload) {
 
 function* updateUser(payload) {
   try {
+    const { reload } = payload;
     const response = yield call(
       httpService.makeRequest,
       'patch',
@@ -229,7 +230,7 @@ function* updateUser(payload) {
       `${window.env.API_URL}coreuser/`,
     );
     yield call(oauthService.setCurrentCoreUser, coreuser, user);
-    if (payload.data.reload) {
+    if (reload) {
       window.location.reload();
     } else {
       yield [

@@ -37,6 +37,7 @@ import {
   checkForAdmin,
   checkForGlobalAdmin,
 } from '@utils/utilMethods';
+import Loader from '@components/Loader/Loader';
 import AdminMenu from './AdminMenu';
 import AccountMenu from './AccountMenu';
 
@@ -44,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
   appBar: {
     backgroundColor: '#383636',
     zIndex: theme.zIndex.drawer + 1,
+    [theme.breakpoints.down('sm')]: {
+      overflowX: 'auto',
+    },
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -56,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   timezone: {
-    width: theme.spacing(20),
+    width: theme.spacing(24),
     marginTop: theme.spacing(1.5),
     marginLeft: theme.spacing(1.5),
     '& .MuiOutlinedInput-input': {
@@ -79,6 +83,7 @@ const TopBar = ({
   orgOptions,
   timezone,
   allOrgs,
+  loading,
 }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -151,12 +156,12 @@ const TopBar = ({
       id: user.id,
       organization_uuid,
       organization_name,
-      reload: true,
-    }));
+    }, true));
   };
 
   return (
     <AppBar position="fixed" className={classes.appBar}>
+      {loading && <Loader open={loading} />}
       <Toolbar>
         <Hidden mdUp>
           <IconButton
