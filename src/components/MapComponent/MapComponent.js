@@ -9,6 +9,7 @@ import {
   Polygon,
   Circle,
 } from 'react-google-maps';
+import InfoBox from "react-google-maps/lib/components/addons/InfoBox";
 import _ from 'lodash';
 import {
   REPORT_TYPES,
@@ -89,6 +90,16 @@ export const MapComponent = (props) => {
 const RenderedMap = withScriptjs(
   withGoogleMap((props) => (
     <GoogleMap zoom={props.zoom} center={props.center}>
+      <InfoBox
+      position={new google.maps.LatLng(props.center.lat, props.center.lng)}
+      options={{ closeBoxURL: ``, enableEventPropagation: true }}
+    >
+      <div style={{ backgroundColor: `#605e5e`, opacity: 0.75, padding: `8px`, borderRadius: 10}}>
+        <div style={{ fontSize: `1rem`, color: `white` }}>
+          Please wait for new reports to aggregate
+        </div>
+      </div>
+    </InfoBox>
       {props.isMarkerShown
       && props.markers
       && _.map(
