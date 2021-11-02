@@ -32,19 +32,25 @@ const shipmentApiEndPoint = 'shipment/';
 
 function* getShipmentList(payload) {
   try {
-    const response = yield call(
-      httpService.makeRequest,
-      'get',
-      `${window.env.API_URL}consortium/?organization_uuid=${payload.organization_uuid}`,
-    );
-    const consortium_uuid = _.join(_.map(response.data, 'consortium_uuid'), ',');
-    let query_params = `?organization_uuid=${payload.organization_uuid}`;
-    if (payload.status) {
-      payload.status = encodeURIComponent(payload.status)
-      query_params = query_params.concat(`&status=${payload.status}`);
+    let query_params;
+    if (payload.id) {
+      query_params = `${payload.id}/`
     }
-    if (consortium_uuid) {
-      query_params = query_params.concat(`&consortium_uuid=${consortium_uuid}`);
+    else {
+      const response = yield call(
+        httpService.makeRequest,
+        'get',
+        `${window.env.API_URL}consortium/?organization_uuid=${payload.organization_uuid}`,
+      );
+      const consortium_uuid = _.join(_.map(response.data, 'consortium_uuid'), ',');
+      query_params = `?organization_uuid=${payload.organization_uuid}`;
+      if (payload.status) {
+        payload.status = encodeURIComponent(payload.status)
+        query_params = query_params.concat(`&status=${payload.status}`);
+      }
+      if (consortium_uuid) {
+        query_params = query_params.concat(`&consortium_uuid=${consortium_uuid}`);
+      }
     }
     const data = yield call(
       httpService.makeRequest,
@@ -53,7 +59,7 @@ function* getShipmentList(payload) {
     );
     if (data && data.data) {
       yield put({ type: GET_SHIPMENTS_SUCCESS, data: data.data });
-      if (payload.id) {
+      if (payload.id && data.data instanceof Array) {
         yield put(
           saveShipmentFormData(
             data.data.find((shipment) => shipment.id === payload.id),
@@ -213,7 +219,7 @@ function* deleteShipment(payload) {
       ),
       yield put(getShipmentDetails(
         organization_uuid,
-        null,
+        'Planned,Enroute',
         null,
         true,
       )),
