@@ -90,16 +90,19 @@ export const MapComponent = (props) => {
 const RenderedMap = withScriptjs(
   withGoogleMap((props) => (
     <GoogleMap zoom={props.zoom} center={props.center}>
-      <InfoBox
-      position={new google.maps.LatLng(props.center.lat, props.center.lng)}
-      options={{ closeBoxURL: ``, enableEventPropagation: true }}
-    >
-      <div style={{ backgroundColor: `#605e5e`, opacity: 0.75, padding: `8px`, borderRadius: 10}}>
-        <div style={{ fontSize: `1rem`, color: `white` }}>
-          Please wait for new reports to aggregate
+      {props.showPath && (
+        <InfoBox
+        position={new google.maps.LatLng(props.center.lat, props.center.lng)}
+        options={{ closeBoxURL: ``, enableEventPropagation: true }}
+      >
+        <div style={{ backgroundColor: `#605e5e`, opacity: 0.75, padding: `8px`, borderRadius: 10}}>
+          <div style={{ fontSize: `1rem`, color: `white` }}>
+            Please wait for new reports to aggregate
+          </div>
         </div>
-      </div>
-    </InfoBox>
+      </InfoBox>
+      )}
+
       {props.isMarkerShown
       && props.markers
       && _.map(

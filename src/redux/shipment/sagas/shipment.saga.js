@@ -59,12 +59,21 @@ function* getShipmentList(payload) {
     );
     if (data && data.data) {
       yield put({ type: GET_SHIPMENTS_SUCCESS, data: data.data });
-      if (payload.id && data.data instanceof Array) {
-        yield put(
-          saveShipmentFormData(
-            data.data.find((shipment) => shipment.id === payload.id),
-          ),
-        );
+      if (payload.id) {
+        if (data.data instanceof Array) {
+          yield put(
+            saveShipmentFormData(
+              data.data.find((shipment) => shipment.id === payload.id),
+            ),
+          );
+        }
+        else {
+          yield put(
+            saveShipmentFormData(
+              data.data,
+            ),
+          );
+        }
       }
 
       const IDS = _.map(data.data, 'partner_shipment_id');
@@ -166,7 +175,7 @@ function* editShipment(action) {
           payload.organization_uuid,
           null,
           payload.id,
-          true,
+          false,
         ),
       ),
       yield put(
