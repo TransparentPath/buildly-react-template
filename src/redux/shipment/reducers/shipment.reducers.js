@@ -54,8 +54,15 @@ export default (state = initialState, action) => {
       let shipmentData = [];
 
       if (!(action.data instanceof Array)) {
-        initialShipmentData[initialShipmentData.findIndex(el => el.id === action.data.id)] = action.data;
+        let shipmentIndex = initialShipmentData.findIndex(el => el.id === action.data.id);
+        if (shipmentIndex < 0) {
+          initialShipmentData.push(action.data);
+        }
+        else {
+          initialShipmentData[shipmentIndex] = action.data;
+        }
         shipmentData = initialShipmentData;
+
       }
       else {
         if (action.data.length < initialShipmentData.length) {
