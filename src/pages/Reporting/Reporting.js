@@ -146,7 +146,7 @@ const Reporting = ({
       const aggregate = !aggregateReportData;
       dispatch(getShipmentDetails(
         organization,
-        'Planned,Enroute',
+        null,
         null,
         aggregate,
       ));

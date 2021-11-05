@@ -309,7 +309,7 @@ const Shipment = (props) => {
   });
 
   useEffect(() => {
-    if (shipmentFilter && rows.length > 0) {
+    if (shipmentFilter && rows.length) {
       if (shipmentFilter === 'Cancelled') {
         setSelectedShipment(cancelledRows[0]);
       } else if (shipmentFilter === 'Completed') {
@@ -318,7 +318,7 @@ const Shipment = (props) => {
         setSelectedShipment(activeRows[0]);
       }
     }
-  }, [shipmentFilter]);
+  }, [shipmentFilter, shipmentData]);
 
   const onAddButtonClick = () => {
     history.push(`${routes.SHIPMENT}/add`, {
@@ -327,7 +327,6 @@ const Shipment = (props) => {
   };
 
   const handleEdit = (item) => {
-    // dispatch(saveShipmentFormData(item));
     history.push(`${routes.SHIPMENT}/edit/:${item.id}`, {
       type: 'edit',
       data: item,
@@ -346,8 +345,9 @@ const Shipment = (props) => {
   };
 
   const filterTabClicked = (event, filter) => {
+    setSelectedShipment(null);
+    setMarkers({});
     setShipmentFilter(filter);
-    const getUpdatedSensorData = !aggregateReportData;
     let shipmentStatus = '';
     switch (filter) {
       case 'Active':
@@ -366,7 +366,7 @@ const Shipment = (props) => {
         organization,
         shipmentStatus,
         null,
-        getUpdatedSensorData,
+        true,
       ));
     }
   };
@@ -525,8 +525,8 @@ const Shipment = (props) => {
       </Grid>
       <SensorReport
         loading={loading}
-        aggregateReport={selectedShipment?.sensor_report_info}
-        shipmentName={selectedShipment?.name}
+        aggregateReport={selectedShipment && selectedShipment?.sensor_report_info}
+        shipmentName={selectedShipment && selectedShipment?.name}
         selectedMarker={selectedShipment && selectedMarker}
       />
       <Route
