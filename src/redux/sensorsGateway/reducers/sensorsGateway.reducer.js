@@ -550,7 +550,7 @@ export default (state = initialState, action) => {
     const initialAggregateReport = state.aggregateReportData;
     let aggregateReport = action.data;
     if (initialAggregateReport){
-      let aggregateReport = Object.values([...initialAggregateReport, ...action.data].reduce((result, { id, ...rest }) => {
+      aggregateReport = Object.values([...initialAggregateReport, ...action.data].reduce((result, { id, ...rest }) => {
         // eslint-disable-next-line no-param-reassign
         result[id] = {
           ...(result[id] || {}),

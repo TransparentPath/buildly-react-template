@@ -149,6 +149,7 @@ const Reporting = ({
         null,
         null,
         aggregate,
+        'get',
       ));
     }
     if (!custodianData) {

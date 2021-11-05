@@ -141,6 +141,7 @@ const Shipment = (props) => {
         'Planned,Enroute',
         null,
         getUpdatedSensorData,
+        'get',
       ));
     }
     if (custodianData === null) {
@@ -367,6 +368,7 @@ const Shipment = (props) => {
         shipmentStatus,
         null,
         true,
+        'get',
       ));
     }
   };
@@ -508,6 +510,7 @@ const Shipment = (props) => {
             isMarkerShown={isMapLoaded}
             showPath
             markers={markers}
+            shipmentFilter={shipmentFilter}
             googleMapURL={window.env.MAP_API_URL}
             zoom={12}
             setSelectedMarker={setSelectedMarker}
