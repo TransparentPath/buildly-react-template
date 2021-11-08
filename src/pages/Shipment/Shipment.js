@@ -45,6 +45,7 @@ import {
   getGatewayType,
   getSensors,
   getSensorType,
+  getAggregateReport,
 } from '@redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
@@ -134,7 +135,7 @@ const Shipment = (props) => {
   const organization = useContext(UserContext).organization.organization_uuid;
 
   useEffect(() => {
-    if (shipmentData === null) {
+    if (!shipmentData) {
       const getUpdatedSensorData = !aggregateReportData;
       dispatch(getShipmentDetails(
         organization,
@@ -144,16 +145,24 @@ const Shipment = (props) => {
         'get',
       ));
     }
-    if (custodianData === null) {
+    else {
+      const IDS = _.map(_.filter(shipmentData, shipment => shipment.type === 'Active'),'partner_shipment_id');
+      const ids = _.toString(_.without(IDS, null));
+      const encodedIds = encodeURIComponent(ids);
+      if (encodedIds) {
+        dispatch(getAggregateReport(encodedIds));
+      }
+    }
+    if (!custodianData) {
       dispatch(getCustodians(organization));
       dispatch(getCustodianType());
       dispatch(getContact(organization));
     }
-    if (itemData === null) {
+    if (!itemData) {
       dispatch(getItems(organization));
       dispatch(getItemType(organization));
     }
-    if (gatewayData === null) {
+    if (!gatewayData) {
       dispatch(getGateways(organization));
       dispatch(getGatewayType());
     }
@@ -167,10 +176,10 @@ const Shipment = (props) => {
       dispatch(getSensors(organization));
       dispatch(getSensorType());
     }
-    if (shipmentOptions === null) {
+    if (!shipmentOptions) {
       dispatch(getShipmentOptions());
     }
-    if (custodyOptions === null) {
+    if (!custodyOptions) {
       dispatch(getCustodyOptions());
     }
   }, []);
