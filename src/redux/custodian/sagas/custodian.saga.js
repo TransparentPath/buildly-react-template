@@ -337,7 +337,7 @@ function* addCustody(action) {
                 'get',
               ),
             ),
-            // yield put(getCustody()),
+            // yield put(getCustody(payload.shipment_id)),
             yield put(
               showAlert({
                 type: 'success',
@@ -378,7 +378,7 @@ function* editCustody(action) {
     );
     if (data && data.data) {
       yield [
-        yield put(getCustody()),
+        yield put(getCustody(payload.shipment_id)),
         yield put(
           showAlert({
             type: 'success',
@@ -416,7 +416,7 @@ function* updateCustody(action) {
     );
     if (data && data.data) {
       yield [
-        yield put(getCustody()),
+        yield put(getCustody(payload.shipment_id)),
         yield put(
           showAlert({
             type: 'success',
