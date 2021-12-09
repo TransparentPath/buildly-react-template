@@ -55,8 +55,8 @@ export const getShipmentDataTableColumns = (timezone) => ([
       filter: true,
       customBodyRender: (value) => (
         value && value !== ''
-          ? _.upperCase(value)
-          : 'ICLP'
+          ? (value === 'ICLP' ? '-' : _.startCase(_.toLower(value)))
+          : 'Tive'
       ),
     },
   },
