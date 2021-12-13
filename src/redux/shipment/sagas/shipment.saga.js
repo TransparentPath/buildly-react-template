@@ -64,7 +64,7 @@ function* getShipmentList(payload) {
     if (data && data.data) {
       yield put({
         type: GET_SHIPMENTS_SUCCESS,
-        data: _.filter(data.data, (shipment) => shipment.platform_name !== 'ICLP'),
+        data: _.filter(data.data, (shipment) => _.lowerCase(shipment.platform_name) !== 'iclp'),
         shipmentAction: payload.shipmentAction,
         status: payload.status ? payload.status : 'All',
       });

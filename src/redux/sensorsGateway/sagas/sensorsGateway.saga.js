@@ -238,7 +238,7 @@ function* getGatewayTypeList() {
     );
     yield put({
       type: GET_GATEWAYS_TYPE_SUCCESS,
-      data: !_.filter(data.data, { name: 'ICLP' }),
+      data: _.filter(data.data, (gatewayType) => gatewayType.name !== 'ICLP'),
     });
   } catch (error) {
     yield [

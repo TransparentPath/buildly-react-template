@@ -145,7 +145,7 @@ const SensorsGatewayInfo = ({
       const opts = getAvailableGateways(
         gatewayData,
         platform_name
-          ? (platform_name === 'ICLP' ? '-': _.lowerCase(platform_name))
+          ?  _.lowerCase(platform_name)
           : 'tive',
         gatewayTypeList,
         shipmentData,
