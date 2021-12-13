@@ -208,15 +208,15 @@ const Shipment = (props) => {
       );
       const ACTIVE_ROWS = _.filter(
         formattedRows,
-        { type: 'Active' },
+        { type: 'Active', platform_name: 'tive' },
       );
       const COMPLETED_ROWS = _.filter(
         formattedRows,
-        { type: 'Completed' },
+        { type: 'Completed', platform_name: 'tive' },
       );
       const CANCELLED_ROWS = _.filter(
         formattedRows,
-        { type: 'Cancelled' },
+        { type: 'Cancelled', platform_name: 'tive' },
       );
 
       setRows(formattedRows);

@@ -1,6 +1,7 @@
 import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
+import _ from 'lodash';
 import { httpService } from '@modules/http/http.service';
 import { showAlert } from '@redux/alert/actions/alert.actions';
 import {
@@ -237,7 +238,7 @@ function* getGatewayTypeList() {
     );
     yield put({
       type: GET_GATEWAYS_TYPE_SUCCESS,
-      data: data.data,
+      data: !_.filter(data.data, { name: 'ICLP' }),
     });
   } catch (error) {
     yield [
