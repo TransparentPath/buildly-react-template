@@ -72,7 +72,7 @@ function* getGatewayList(payload) {
       'get',
       `${window.env.API_URL}${sensorApiEndPoint}gateway/?organization_uuid=${payload.organization_uuid}`,
     );
-    yield put({ type: GET_GATEWAYS_SUCCESS, data: data.data });
+    yield put({ type: GET_GATEWAYS_SUCCESS, data: _.filter(data.data, (gateway) => !gateway.name.includes('ICLP')) });
   } catch (error) {
     yield [
       yield put(
