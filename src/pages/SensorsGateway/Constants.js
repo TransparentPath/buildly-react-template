@@ -1,5 +1,6 @@
 import moment from 'moment-timezone';
 import _ from 'lodash';
+import { el } from 'date-fns/locale';
 
 export const gatewayColumns = (timezone) => ([
   {
@@ -102,8 +103,7 @@ export const getFormattedRow = (data, gatewayTypeList, shipmentData, custodianDa
       });
       if (shipmentData && shipmentData.length) {
         _.forEach(shipmentData, (shipment) => {
-          if (
-            element.shipment_ids
+          if (shipment.partner_shipment_id !== null
             && element.shipment_ids.includes(shipment.partner_shipment_id)
           ) {
             edited = {
