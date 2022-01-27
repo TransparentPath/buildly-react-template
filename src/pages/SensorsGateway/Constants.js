@@ -1,6 +1,5 @@
 import moment from 'moment-timezone';
 import _ from 'lodash';
-import { el } from 'date-fns/locale';
 
 export const gatewayColumns = (timezone) => ([
   {
