@@ -238,11 +238,14 @@ export const getAvailableGateways = (
   gateway_type,
   gatewayTypeList,
   shipmentData,
+  shipmentFormData,
 ) => {
+  const firstCustodian = shipmentFormData.custody_info[0].custodian_data.custodian_uuid;
   const gatewayData = getFormattedRow(data, gatewayTypeList, shipmentData);
   return (
     _.orderBy(gatewayData, ['name'], ['asc'])
     && _.filter(gatewayData, (gateway) => gateway.gateway_status === 'available'
-      && gateway.gateway_type_value.toLowerCase().includes(gateway_type))
+      && gateway.gateway_type_value.toLowerCase().includes(gateway_type)
+      && gateway.custodian_uuid === firstCustodian)
   );
 };
