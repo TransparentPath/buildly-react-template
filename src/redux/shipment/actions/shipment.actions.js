@@ -85,7 +85,7 @@ export const addShipment = (
  * @param {Object} history
  * @param {String} redirectTo path to redirect
  * @param {String} organization_uuid
- * @param {String} gateway_id
+ * @param {String} gateway
  */
 export const editShipment = (
   payload,
