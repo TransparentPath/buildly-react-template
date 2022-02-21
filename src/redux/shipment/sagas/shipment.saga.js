@@ -216,7 +216,7 @@ function* editShipment(action) {
           null,
           payload.id,
           false,
-          false,
+          true,
           'edit',
         ),
       ),
