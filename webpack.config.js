@@ -4,6 +4,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const { InjectManifest } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
   const fileCopy = env.build === 'local'
@@ -114,6 +115,11 @@ module.exports = (env, argv) => {
         hash: true,
       }),
       fileCopy,
+      new InjectManifest({
+        swSrc: './src/sw.js',
+        swDest: 'sw.js',
+        maximumFileSizeToCacheInBytes: 100000000,
+      }),
     ],
   };
 
