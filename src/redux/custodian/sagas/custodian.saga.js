@@ -150,7 +150,8 @@ function* editCustodian(action) {
         contact_data: [contactInfo],
         id: payload.id,
         organization_uuid: payload.organization_uuid,
-        custody_org_uuid: payload.custody_org_uuid,
+        custody_org_uuid: payload.custody_org_uuid
+          ? payload.custody_org_uuid : payload.organization_uuid,
       };
       const data = yield call(
         httpService.makeRequest,
@@ -456,13 +457,6 @@ function* deleteCustody(payload) {
     );
     yield [
       yield put(
-        showAlert({
-          type: 'success',
-          open: true,
-          message: 'Custody deleted successfully!',
-        }),
-      ),
-      yield put(
         getShipmentDetails(
           organization_uuid,
           null,
@@ -472,6 +466,14 @@ function* deleteCustody(payload) {
           'get',
         ),
       ),
+      yield put(
+        showAlert({
+          type: 'success',
+          open: true,
+          message: 'Custody deleted successfully!',
+        }),
+      ),
+
     ];
   } catch (error) {
     yield [
