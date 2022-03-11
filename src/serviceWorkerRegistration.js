@@ -8,7 +8,9 @@ const showRefreshUI = (registration) => {
   //
   //   registration.waiting.postMessage('force-activate');
   // });
-  console.log('Update available!');
+  if (confirm('New version available. Refresh?')) {
+    window.location.reload();
+  }
 };
 
 const onNewServiceWorker = (registration, callback) => {
