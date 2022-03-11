@@ -1,13 +1,5 @@
 const showRefreshUI = (registration) => {
-  // const container = document.querySelector('.new-sw');
-  // container.style.display = 'block';
-  //
-  // const button = document.querySelector('button');
-  // button.addEventListener('click', () => {
-  //   button.disabled = true;
-  //
   //   registration.waiting.postMessage('force-activate');
-  // });
   if (confirm('New version available. Refresh?')) {
     window.location.reload();
   }
