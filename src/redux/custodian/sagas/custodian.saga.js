@@ -105,7 +105,7 @@ function* addCustodian(action) {
             showAlert({
               type: 'success',
               open: true,
-              message: 'Successfully Added Custodian',
+              message: 'Successfully Added Custodian. Please ensure your organization admin assigns an organization to this custodian',
             }),
           ),
           yield put(getCustodians(payload.organization_uuid)),
