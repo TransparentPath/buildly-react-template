@@ -127,7 +127,8 @@ export const getFormattedRow = (
     let firstCustody = null;
 
     if (custodyRows.length > 0) {
-      const [first] = _.orderBy(custodyRows, ['created_at'], ['asc']);
+      const first = _.orderBy(_.filter(custodyRows,
+        { shipment_id: editedShipment.shipment_uuid }), 'create_date', 'asc')[0];
       firstCustody = first;
       _.forEach(custodyRows, (custody) => {
         if (custody.shipment_id === shipment.shipment_uuid) {
