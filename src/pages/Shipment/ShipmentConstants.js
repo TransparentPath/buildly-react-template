@@ -127,9 +127,16 @@ export const getFormattedRow = (
     let firstCustody = null;
 
     if (custodyRows.length > 0) {
-      const first = _.orderBy(_.filter(custodyRows,
-        { shipment_id: editedShipment.shipment_uuid }), 'create_date', 'asc')[0];
-      firstCustody = first;
+      // From list of custodians attached to the shipment find the first custody for the shipment
+      // First custody can be
+      // 1. A custody whose first_custody is set to True
+      // 2. The custody attached very first to the shipment
+      const custodies = _.orderBy(_.filter(custodyRows,
+        { shipment_id: editedShipment.shipment_uuid }), 'create_date', 'asc');
+      [firstCustody] = _.filter(custodies, { first_custody: true });
+      if (firstCustody === undefined) {
+        firstCustody = custodies[0];
+      }
       _.forEach(custodyRows, (custody) => {
         if (custody.shipment_id === shipment.shipment_uuid) {
           if (custody.custodian_data) {
