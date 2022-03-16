@@ -79,6 +79,15 @@ export const getShipmentDataTableColumns = (timezone) => ([
     },
   },
   {
+    name: 'custodian_name',
+    label: 'CUSTODIAN',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
     name: 'had_alert',
     label: 'Alerts?',
     options: {
@@ -125,6 +134,7 @@ export const getFormattedRow = (
     let custodianName = '';
     let aggregateReportInfo = [];
     let firstCustody = null;
+    const custodyList = [];
 
     if (custodyRows.length > 0) {
       // From list of custodians attached to the shipment find the first custody for the shipment
@@ -139,14 +149,14 @@ export const getFormattedRow = (
       }
       _.forEach(custodyRows, (custody) => {
         if (custody.shipment_id === shipment.shipment_uuid) {
-          if (custody.custodian_data) {
-            custodianName = custodianName
-              ? `${custodianName}, ${custody.custodian_data.name}`
-              : custody.custodian_data.name;
+          if (custody.custodian_data && custodyList.indexOf(custody.custodian_data.name) === -1) {
+            custodyList.push(custody.custodian_data.name);
           }
           custodyInfo = [...custodyInfo, custody];
         }
       });
+
+      custodianName = custodyList.join(',').toString();
     }
     editedShipment.custodian_name = custodianName;
     editedShipment.custody_info = custodyInfo;
