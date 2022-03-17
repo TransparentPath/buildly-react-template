@@ -251,7 +251,7 @@ export const getAvailableGateways = (
     && shipmentFormData.first_custody !== null) {
     const firstCustodian = shipmentFormData.first_custody.custodian_data.custodian_uuid;
     filteredGateways = _.filter(
-      gatewayData, (gateway) => gateway.custodian_uuid === firstCustodian,
+      filteredGateways, (gateway) => gateway.custodian_uuid === firstCustodian,
     );
   }
   return filteredGateways;
