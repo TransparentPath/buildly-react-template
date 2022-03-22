@@ -162,6 +162,8 @@ export const getFormattedRow = (
     editedShipment.custody_info = custodyInfo;
     editedShipment.first_custody = firstCustody;
 
+    console.log('custody: ', editedShipment.name, editedShipment.first_custody);
+
     switch (_.lowerCase(shipment.status)) {
       case 'planned':
       case 'enroute':

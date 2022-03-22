@@ -44,6 +44,7 @@ function* processShipments(payload, data) {
   } else {
     uuids = data.shipment_uuid;
   }
+  console.log('Shipment data: ', data);
   if (payload.id && data.length > 0) {
     yield put(
       saveShipmentFormData(
@@ -59,6 +60,7 @@ function* processShipments(payload, data) {
   }
   // Fetch updated custody
   const encodedUUIDs = encodeURIComponent(uuids);
+  console.log('Custody UUIDs: ', encodedUUIDs);
   if (payload.getUpdatedCustody && encodedUUIDs) {
     yield [
       yield put(getCustody(encodedUUIDs)),
