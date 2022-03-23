@@ -1,3 +1,5 @@
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-unused-expressions */
 import _ from 'lodash';
 import {
   GET_CUSTODIANS,
@@ -79,7 +81,6 @@ export default (state = initialState, action) => {
       };
 
     case GET_CUSTODIANS_SUCCESS:
-      console.log('Get custodian: ', state.custodianData, action.data);
       return {
         ...state,
         loading: false,
@@ -263,8 +264,8 @@ export default (state = initialState, action) => {
       };
 
     case EDIT_CUSTODY_SUCCESS:
-      const edited = _.filter(state.custodyData, (data) => (
-        data.id !== action.data.id
+      const edited = _.filter(state.custodyData, (custody) => (
+        custody.id !== action.data.id
       ));
       return {
         ...state,
@@ -290,8 +291,8 @@ export default (state = initialState, action) => {
       };
 
     case UPDATE_CUSTODY_SUCCESS:
-      const updated = _.filter(state.custodyData, (data) => (
-        data.id !== action.data.id
+      const updated = _.filter(state.custodyData, (custody) => (
+        custody.id !== action.data.id
       ));
 
       return {
@@ -318,8 +319,8 @@ export default (state = initialState, action) => {
       };
 
     case DELETE_CUSTODY_SUCCESS:
-      const deleted = _.filter(state.custodyData, (data) => (
-        data.id !== action.id
+      const deleted = _.filter(state.custodyData, (custody) => (
+        custody.id !== action.id
       ));
       return {
         ...state,
