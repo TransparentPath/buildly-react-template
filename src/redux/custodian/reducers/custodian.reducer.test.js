@@ -65,7 +65,7 @@ describe('Add Custodian reducer', () => {
       ...initialState,
       loaded: true,
       loading: false,
-      custodianData: undefined,
+      custodianData: [undefined],
     });
   });
 
@@ -101,7 +101,7 @@ describe('Edit Custodian reducer', () => {
       ...initialState,
       loaded: true,
       loading: false,
-      custodianData: undefined,
+      custodianData: [undefined],
     });
   });
 
@@ -137,7 +137,7 @@ describe('Delete Custodian reducer', () => {
       ...initialState,
       loaded: true,
       loading: false,
-      custodianData: undefined,
+      custodianData: [undefined],
     });
   });
 
@@ -209,7 +209,7 @@ describe('Add custody reducer', () => {
       ...initialState,
       loaded: true,
       loading: false,
-      custodyData: undefined,
+      custodyData: [undefined],
     });
   });
 
@@ -245,7 +245,7 @@ describe('Edit custody reducer', () => {
       ...initialState,
       loaded: true,
       loading: false,
-      custodyData: undefined,
+      custodyData: [undefined],
     });
   });
 
