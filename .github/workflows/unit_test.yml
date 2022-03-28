@@ -1,0 +1,14 @@
+name: Buildly React Template Unit Test
+
+on: [push]
+
+jobs:
+  unit_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: yarn install and test
+      run: |
+          yarn install
+          yarn test:prod
