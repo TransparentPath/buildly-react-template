@@ -208,7 +208,7 @@ describe('Add custody reducer', () => {
     )).toEqual({
       ...initialState,
       loaded: true,
-      loading: false,
+      loading: true,
       custodyData: [undefined],
     });
   });
