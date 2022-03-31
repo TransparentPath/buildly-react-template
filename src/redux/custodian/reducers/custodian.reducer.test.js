@@ -226,6 +226,78 @@ describe('Add custody reducer', () => {
   });
 });
 
+describe('Update custody reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.UPDATE_CUSTODY },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Update custody success Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.UPDATE_CUSTODY_SUCCESS },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      custodyData: [undefined],
+    });
+  });
+
+  it('Update custody fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.UPDATE_CUSTODY_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Delete custody reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.DELETE_CUSTODY },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Delete custody success Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.DELETE_CUSTODY_SUCCESS },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      custodyData: [],
+    });
+  });
+
+  it('Delete custody fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.DELETE_CUSTODY_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
 describe('Edit custody reducer', () => {
   it('Empty Reducer', () => {
     expect(reducer.default(
@@ -328,6 +400,46 @@ describe('Add Custodian type reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.ADD_CUSTODIAN_TYPE_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Update Custodian reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.UPDATE_CUSTODIAN },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Update Custodian success Reducer', () => {
+    expect(reducer.default(
+      {
+        ...initialState,
+        custodianTypeList: [],
+      },
+      { type: actions.UPDATE_CUSTODIAN_SUCCESS },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      custodianTypeList: [],
+      custodianData: [undefined],
+    });
+  });
+
+  it('Update Custodian fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.UPDATE_CUSTODIAN_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,

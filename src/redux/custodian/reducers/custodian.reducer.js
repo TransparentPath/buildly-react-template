@@ -240,6 +240,8 @@ export default (state = initialState, action) => {
 
     case ADD_CUSTODY_SUCCESS:
       const data = state.custodyData || [];
+      // loading: true, the change is done so that even after custody data is loaded
+      // subsequent data be also loaded
       return {
         ...state,
         loading: true,
