@@ -1,6 +1,9 @@
 name: Buildly React Template Unit Test
 
-on: [push]
+on:
+  push:
+    branches:
+      - prod
 
 jobs:
   unit_test:
