@@ -242,7 +242,7 @@ export default (state = initialState, action) => {
       const data = state.custodyData || [];
       return {
         ...state,
-        loading: false,
+        loading: true,
         loaded: true,
         custodyData: [...data, action.data],
       };
