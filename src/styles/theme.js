@@ -385,6 +385,25 @@ const theme = createTheme({
         },
       },
     },
+    MuiCalendarPicker: {
+      styleOverrides: {
+        root: {
+          '& > .MuiButtonBase-root.MuiPickersDay-root:hover': {
+            backgroundColor: '#000 !important',
+            color: '#fff !important',
+          },
+        },
+      },
+    },
+    MuiClockPicker: {
+      styleOverrides: {
+        arrowSwitcher: {
+          '& .css-eziifo': {
+            backgroundColor: 'rgb(255 255 255 / 33%) !important',
+          },
+        },
+      },
+    },
   },
 });
 
