@@ -215,11 +215,12 @@ export default (state = initialState, action) => {
       };
 
     case GET_CUSTODY_SUCCESS:
+      const custodyData = _.filter(action.data, (custody) => custody.custodian.length > 0);
       return {
         ...state,
         loading: false,
         loaded: true,
-        custodyData: action.data,
+        custodyData,
       };
 
     case GET_CUSTODY_FAILURE:
@@ -264,6 +265,7 @@ export default (state = initialState, action) => {
       };
 
     case EDIT_CUSTODY_SUCCESS:
+    case UPDATE_CUSTODY_SUCCESS:
       const edited = _.filter(state.custodyData, (custody) => (
         custody.id !== action.data.id
       ));
@@ -288,18 +290,6 @@ export default (state = initialState, action) => {
         loading: true,
         loaded: false,
         error: null,
-      };
-
-    case UPDATE_CUSTODY_SUCCESS:
-      const updated = _.filter(state.custodyData, (custody) => (
-        custody.id !== action.data.id
-      ));
-
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        custodyData: [...updated, action.data],
       };
 
     case UPDATE_CUSTODY_FAILURE:
