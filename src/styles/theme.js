@@ -183,6 +183,9 @@ const theme = createTheme({
         root: {
           backgroundColor: '#424242',
           color: '#fff',
+          '&.MuiDialog-paper': {
+            overflowY: 'hidden',
+          },
         },
         outlined: {
           borderColor: 'rgba(255, 255, 255, 0.12)',
