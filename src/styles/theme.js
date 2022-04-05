@@ -228,6 +228,7 @@ const theme = createTheme({
           },
           '&.MuiTableRow-hover:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.08)',
+            cursor: 'pointer',
           },
         },
       },
@@ -314,6 +315,15 @@ const theme = createTheme({
         '& .Mui-disabled': {
           color: 'rgba(255, 255, 255, 0.3) !important',
           backgroundColor: 'rgba(255, 255, 255, 0.12) !important',
+        },
+      },
+    },
+    MuiButtonGroup: {
+      styleOverrides: {
+        root: {
+          '& > .MuiButton-root.MuiButton-contained.Mui-disabled': {
+            color: 'rgba(255, 255, 255, 0.4)',
+          },
         },
       },
     },
