@@ -140,7 +140,7 @@ describe('Update Custodian reducer', () => {
   it('Empty reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.UPDATE_CUSTODIANS },
+      { type: actions.UPDATE_CUSTODIAN },
     )).toEqual({
       ...initialState,
       loading: true,
