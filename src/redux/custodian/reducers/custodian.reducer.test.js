@@ -5,9 +5,9 @@ const initialState = {
   loading: false,
   loaded: false,
   error: null,
-  custodianData: null,
-  custodianTypeList: null,
-  contactInfo: null,
+  custodianData: [],
+  custodianTypeList: [],
+  contactInfo: [],
 };
 
 describe('Get custodian reducer', () => {
@@ -22,14 +22,19 @@ describe('Get custodian reducer', () => {
   });
 
   it('get custodian success Reducer', () => {
+    const data = [{
+      id: 1,
+      name: 'Test Custodian',
+    }];
+
     expect(reducer.default(
       initialState,
-      { type: actions.GET_CUSTODIANS_SUCCESS },
+      { type: actions.GET_CUSTODIANS_SUCCESS, data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodianData: undefined,
+      custodianData: data,
     });
   });
 
@@ -58,14 +63,19 @@ describe('Add Custodian reducer', () => {
   });
 
   it('Add Custodian success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test custodian',
+    };
+
     expect(reducer.default(
       initialState,
-      { type: actions.ADD_CUSTODIANS_SUCCESS },
+      { type: actions.ADD_CUSTODIANS_SUCCESS, data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodianData: [undefined],
+      custodianData: [data],
     });
   });
 
@@ -94,21 +104,74 @@ describe('Edit Custodian reducer', () => {
   });
 
   it('Edit Custodian success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test custodian',
+    };
+    const editedData = {
+      id: 1,
+      name: 'Test custodian edited',
+    };
     expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_CUSTODIANS_SUCCESS },
+      { ...initialState, custodianData: [data] },
+      { type: actions.EDIT_CUSTODIANS_SUCCESS, data: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodianData: [undefined],
+      custodianData: [editedData],
     });
   });
 
-  it('Edit Custodianr fail Reducer', () => {
+  it('Edit Custodian fail Reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.EDIT_CUSTODIANS_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Update Custodian reducer', () => {
+  it('Empty reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.UPDATE_CUSTODIANS },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Update Custodian success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test custodian',
+    };
+    const updatedData = {
+      id: 1,
+      name: 'Test custodian updateed',
+    };
+
+    expect(reducer.default(
+      { ...initialState, custodianData: [data] },
+      { type: actions.UPDATE_CUSTODIAN_SUCCESS, data: updatedData },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      custodianData: [updatedData],
+    });
+  });
+
+  it('Update Custodian fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.UPDATE_CUSTODIAN_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,
@@ -130,14 +193,18 @@ describe('Delete Custodian reducer', () => {
   });
 
   it('Delete Custodian success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test custodian',
+    };
     expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_CUSTODIANS_SUCCESS },
+      { ...initialState, custodianData: [data] },
+      { type: actions.DELETE_CUSTODIANS_SUCCESS, data: { id: data.id } },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodianData: [undefined],
+      custodianData: [],
     });
   });
 
@@ -166,14 +233,19 @@ describe('Get custody reducer', () => {
   });
 
   it('Get custody success Reducer', () => {
+    const data = [{
+      id: 1,
+      name: 'Test Custody',
+    }];
+
     expect(reducer.default(
       initialState,
-      { type: actions.GET_CUSTODY_SUCCESS },
+      { type: actions.GET_CUSTODY_SUCCESS, data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodyData: undefined,
+      custodyData: data,
     });
   });
 
@@ -202,14 +274,19 @@ describe('Add custody reducer', () => {
   });
 
   it('Add custody success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test Custody',
+    };
+
     expect(reducer.default(
       initialState,
-      { type: actions.ADD_CUSTODY_SUCCESS },
+      { type: actions.ADD_CUSTODY_SUCCESS, data },
     )).toEqual({
       ...initialState,
       loaded: true,
-      loading: true,
-      custodyData: [undefined],
+      loading: false,
+      custodyData: [data],
     });
   });
 
@@ -238,14 +315,23 @@ describe('Update custody reducer', () => {
   });
 
   it('Update custody success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test Custody',
+    };
+    const editedData = {
+      id: 1,
+      name: 'Test Custody Edited',
+    };
+
     expect(reducer.default(
-      initialState,
-      { type: actions.UPDATE_CUSTODY_SUCCESS },
+      { ...initialState, custodyData: [data] },
+      { type: actions.UPDATE_CUSTODY_SUCCESS, data: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodyData: [undefined],
+      custodyData: [editedData],
     });
   });
 
@@ -274,9 +360,14 @@ describe('Delete custody reducer', () => {
   });
 
   it('Delete custody success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test Custody',
+    };
+
     expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_CUSTODY_SUCCESS },
+      { ...initialState, custodyData: [data] },
+      { type: actions.DELETE_CUSTODY_SUCCESS, data: { id: data.id } },
     )).toEqual({
       ...initialState,
       loaded: true,
@@ -310,14 +401,23 @@ describe('Edit custody reducer', () => {
   });
 
   it('Edit custody success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test Custody',
+    };
+    const editedData = {
+      id: 1,
+      name: 'Test Custody Edited',
+    };
+
     expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_CUSTODY_SUCCESS },
+      { ...initialState, custodyData: [data] },
+      { type: actions.UPDATE_CUSTODY_SUCCESS, data: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodyData: [undefined],
+      custodyData: [editedData],
     });
   });
 
@@ -345,15 +445,19 @@ describe('Get Custodian type reducer', () => {
     });
   });
 
-  it('Get Custodian typen success Reducer', () => {
+  it('Get Custodian type success Reducer', () => {
+    const data = [{
+      id: 1,
+      name: 'Test Custodian Type',
+    }];
     expect(reducer.default(
       initialState,
-      { type: actions.GET_CUSTODIAN_TYPE_SUCCESS },
+      { type: actions.GET_CUSTODIAN_TYPE_SUCCESS, data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodianTypeList: [],
+      custodianTypeList: data,
     });
   });
 
@@ -382,17 +486,18 @@ describe('Add Custodian type reducer', () => {
   });
 
   it('Add Custodian type success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test Custodian Type',
+    };
     expect(reducer.default(
-      {
-        ...initialState,
-        custodianTypeList: [],
-      },
-      { type: actions.ADD_CUSTODIAN_TYPE_SUCCESS },
+      initialState,
+      { type: actions.ADD_CUSTODIAN_TYPE_SUCCESS, data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodianTypeList: [undefined],
+      custodianTypeList: [data],
     });
   });
 
@@ -400,46 +505,6 @@ describe('Add Custodian type reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.ADD_CUSTODIAN_TYPE_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Update Custodian reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.UPDATE_CUSTODIAN },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Update Custodian success Reducer', () => {
-    expect(reducer.default(
-      {
-        ...initialState,
-        custodianTypeList: [],
-      },
-      { type: actions.UPDATE_CUSTODIAN_SUCCESS },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      custodianTypeList: [],
-      custodianData: [undefined],
-    });
-  });
-
-  it('Update Custodian fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.UPDATE_CUSTODIAN_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,
@@ -461,17 +526,26 @@ describe('Edit Custodian type reducer', () => {
   });
 
   it('Edit Custodian type success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test Custodian Type',
+    };
+    const editedData = {
+      id: 1,
+      name: 'Test Custodian Type Edited',
+    };
+
     expect(reducer.default(
       {
         ...initialState,
-        custodianTypeList: [],
+        custodianTypeList: [data],
       },
-      { type: actions.EDIT_CUSTODIAN_TYPE_SUCCESS },
+      { type: actions.EDIT_CUSTODIAN_TYPE_SUCCESS, data: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodianTypeList: [],
+      custodianTypeList: [editedData],
     });
   });
 
@@ -500,14 +574,19 @@ describe('Delete Custodian type reducer', () => {
   });
 
   it('Delete Custodian type success Reducer', () => {
+    const data = {
+      id: 1,
+      name: 'Test custodian type',
+    };
+
     expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_CUSTODIAN_TYPE_SUCCESS },
+      { ...initialState, custodianTypeList: [data] },
+      { type: actions.DELETE_CUSTODIAN_TYPE_SUCCESS, data: { id: data.id } },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      custodianTypeList: undefined,
+      custodianTypeList: [],
     });
   });
 
@@ -536,14 +615,19 @@ describe('Get contact info reducer', () => {
   });
 
   it('Get contact info success Reducer', () => {
+    const data = [{
+      id: 1,
+      name: 'Test Contact',
+    }];
+
     expect(reducer.default(
       initialState,
-      { type: actions.GET_CONTACT_SUCCESS },
+      { type: actions.GET_CONTACT_SUCCESS, data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      contactInfo: undefined,
+      contactInfo: data,
     });
   });
 
