@@ -70,6 +70,7 @@ function* processShipments(payload, data) {
       data: [],
     });
   }
+
   // Fetch new aggregate reports
   const IDS = _.map(data, 'partner_shipment_id');
   const ids = _.toString(_.without(IDS, null));
@@ -163,10 +164,10 @@ function* addShipment(action) {
       yield put(
         getShipmentDetails(
           payload.organization_uuid,
+          'Planned,Enroute',
           null,
-          data.data.id,
-          false,
-          false,
+          true,
+          true,
           'add',
         ),
       ),
@@ -221,8 +222,8 @@ function* editShipment(action) {
       yield put(
         getShipmentDetails(
           payload.organization_uuid,
+          'Planned,Enroute',
           null,
-          payload.id,
           false,
           true,
           'edit',
