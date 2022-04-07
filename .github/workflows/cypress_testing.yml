@@ -20,6 +20,6 @@ jobs:
           browser: chrome
           config-file: cypress.json
         env:
-          USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-          EMAIL: ${{ secrets.CYPRESS_EMAIL }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_EMAIL: ${{ secrets.CYPRESS_EMAIL }}
