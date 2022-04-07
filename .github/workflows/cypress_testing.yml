@@ -9,6 +9,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Package Updates
+      - uses: actions/setup-node@v3
+      - run: yarn install
+
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
