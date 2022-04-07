@@ -12,7 +12,6 @@
     "projectId": "m5syof",
     "key":"-24e1473a-2c09-42ba-8f64-744afe91b9a2",
     "env": {
-        "EMAIL": "yasmin@ajackus.com",
         "RESET_PASSWORD": "/reset-password",
         "HOME": "/app/shipment",
         "LOGIN": "/login",
