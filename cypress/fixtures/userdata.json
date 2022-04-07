@@ -1,0 +1,54 @@
+{
+    "id": 1,
+    "core_user_uuid": "be2f4e41-0f3d-454d-bbfd-09e49b8a10ea",
+    "first_name": "Dev New",
+    "last_name": "Admin",
+    "email": "admin@example.com",
+    "username": "67OAI8DD5I1O",
+    "is_active": true,
+    "title": null,
+    "contact_info": null,
+    "privacy_disclaimer_accepted": false,
+    "organization": {
+      "organization_uuid": "e3a9a47d-f995-4fda-9c07-566b88357b8e",
+      "name": "Dev Test",
+      "description": "This is test organization used by dev users",
+      "organization_url": null,
+      "create_date": "2021-05-03T07:59:14.297000+02:00",
+      "edit_date": "2022-03-30T13:24:26.243199+02:00",
+      "oauth_domains": [],
+      "date_format": "DD.MM.YYYY",
+      "phone": null,
+      "allow_import_export": true,
+      "radius": 12,
+      "organization_type": null,
+      "industries": []
+    },
+    "core_groups": [
+      {
+        "id": 1,
+        "uuid": "ffb29b96-f4ff-44c8-a3bf-2100f3db25f5",
+        "name": "Global Admin",
+        "is_global": true,
+        "is_org_level": false,
+        "permissions": {
+          "create": true,
+          "read": true,
+          "update": true,
+          "delete": true
+        },
+        "organization": null,
+        "workflowlevel1s": [],
+        "workflowlevel2s": []
+      }
+    ],
+    "email_preferences": {
+      "geofence": true,
+      "environmental": true
+    },
+    "push_preferences": {
+      "geofence": true,
+      "environmental": true
+    },
+    "user_timezone": "Asia/Calcutta"
+  }

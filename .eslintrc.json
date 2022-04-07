@@ -6,9 +6,13 @@
         "mocha": true,
         "jest": true
     },
+    "globals": {
+        "cy":true
+    },
     "extends": [
         "airbnb",
-        "airbnb/hooks"
+        "airbnb/hooks",
+        "plugin:cypress/recommended"
     ],
     "parserOptions": {
         "ecmaFeatures": {
