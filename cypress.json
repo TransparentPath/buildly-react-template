@@ -9,8 +9,7 @@
         "html": false,
         "json": true
     },
-    "projectId": "m5syof",
-    "key":"-24e1473a-2c09-42ba-8f64-744afe91b9a2",
+    "projectId": "cdut55",
     "env": {
         "RESET_PASSWORD": "/reset-password",
         "HOME": "/app/shipment",
