@@ -1,5 +1,5 @@
 {
-    "baseUrl" : "https://tp-dev.buildly.io",
+    "baseUrl" : "docker.host",
     "pageLoadTimeout" : 120000,
     "chromeWebSecurity": false,
     "reporter": "mochawesome",
