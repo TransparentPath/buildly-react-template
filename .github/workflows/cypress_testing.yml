@@ -20,6 +20,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          start: yarn serve
           browser: chrome
           config-file: cypress.json
           record: true
