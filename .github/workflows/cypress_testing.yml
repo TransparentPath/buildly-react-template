@@ -18,7 +18,7 @@ jobs:
         run: docker build -t transparent-path/react-ui .
 
       - name: Docker run
-        run: docker run
+        run: docker run transparent-path/react-ui:latest
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
