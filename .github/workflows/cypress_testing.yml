@@ -9,17 +9,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Build the docker-compose stack
-        run: docker-compose build
+      - name: Yarn install and build.
+        run: |
+          yarn install
+          yarn run build:prod
 
-      - name: Setup docker containers
-        run: docker-compose up -d
-
-      - name: Check running containers
-        run: docker ps -a
-
-      - name: Yarn install and build
-        run: docker-compose run --rm --entrypoint 'yarn install && yarn run build:prod' buildly-react-template
+      - name: Docker Build
+        run: docker build -t $DOCKER_REPO .
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
@@ -34,5 +30,3 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Stop docker container
-        run: docker-compose down
