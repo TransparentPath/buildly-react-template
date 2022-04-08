@@ -17,8 +17,8 @@ jobs:
       - name: Docker build and run
         run: docker build -t transparent-path/react-ui .
 
-      - name: Yarn run
-        run: yarn https:local
+      - name: Yarn serve
+        run: yarn serve
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
