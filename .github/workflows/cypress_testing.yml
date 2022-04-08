@@ -14,8 +14,13 @@ jobs:
           yarn install
           yarn run build:prod
 
-      - name: Docker Build
-        run: docker build -t transparent-path/react-ui .
+      - name: Docker build and run
+        run: |
+          docker build -t transparent-path/react-ui .
+          docker up
+
+      - name: Yarn install and build.
+        run: yarn https:local
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
@@ -30,3 +35,5 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Docker down
+        run: docker down
