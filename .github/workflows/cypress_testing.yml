@@ -3,38 +3,22 @@ name: Cypress Tests
 on: [push]
 
 jobs:
-  docker-build:
-    runs-on: ubuntu-latest
-    steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-
-        - name: Docker build and run
-          run: docker build -t transparent-path/react-ui .
-
-  yarn-serve:
-    needs: [docker-build]
-    runs-on: ubuntu-latest
-    steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Yarn install and build
-          run: |
-            yarn install
-            yarn run build:prod
-        - name: Yarn serve
-          run: yarn serve
-
   cypress-run:
-    needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Sleep for 300 seconds
-        run: sleep 300s
-        shell: bash
+      - name: Yarn install and build
+        run: |
+          yarn install
+          yarn run build:prod
+
+      - name: Docker build
+        run: docker build -t transparent-path/react-ui .
+
+      - name: Docker run
+        run: docker run
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
