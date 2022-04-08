@@ -15,7 +15,7 @@ jobs:
           yarn run build:prod
 
       - name: Docker Build
-        run: docker build -t $DOCKER_REPO .
+        run: docker build -t transparent-path/react-ui .
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
