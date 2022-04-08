@@ -9,11 +9,6 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
 
-        - name: Yarn install and build
-          run: |
-            yarn install
-            yarn run build:prod
-
         - name: Docker build and run
           run: docker build -t transparent-path/react-ui .
 
@@ -21,6 +16,10 @@ jobs:
     needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
+        - name: Yarn install and build
+          run: |
+            yarn install
+            yarn run build:prod
         - name: Yarn serve
           run: yarn serve
 
