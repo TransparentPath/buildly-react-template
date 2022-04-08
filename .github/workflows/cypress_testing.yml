@@ -27,8 +27,8 @@ jobs:
     needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
-      - name: Sleep for 60 seconds
-        run: sleep 60s
+      - name: Sleep for 180 seconds
+        run: sleep 180s
         shell: bash
 
       - name: Cypress run
