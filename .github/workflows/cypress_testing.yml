@@ -9,17 +9,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Yarn install and build.
+      - name: Yarn install and build
         run: |
           yarn install
           yarn run build:prod
 
       - name: Docker build and run
-        run: |
-          docker build -t transparent-path/react-ui .
-          docker up
+        run: docker build -t transparent-path/react-ui .
 
-      - name: Yarn install and build.
+      - name: Yarn run
         run: yarn https:local
 
       - name: Cypress run
@@ -34,6 +32,3 @@ jobs:
           CYPRESS_EMAIL: ${{ secrets.CYPRESS_EMAIL }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Docker down
-        run: docker down
