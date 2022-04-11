@@ -46,6 +46,8 @@ jobs:
           browser: chrome
           config-file: cypress.json
           record: true
+          wait-on: 'https://localhost:3000'
+          wait-on-timeout: 300
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
