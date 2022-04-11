@@ -45,11 +45,11 @@ jobs:
           config-file: cypress.json
           record: true
           wait-on: 'https://127.0.0.1:8080'
-          wait-on-timeout: 20
+          wait-on-timeout: 10
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_EMAIL: ${{ secrets.CYPRESS_EMAIL }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEBUG: @cypress/github-action
+          DEBUG: '@cypress/github-action'
