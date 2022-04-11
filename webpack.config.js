@@ -7,7 +7,20 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
-  let pluginsArray = null;
+  let pluginsArray = [
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebPackPlugin({
+      template: './src/index.html',
+      filename: './index.html',
+      favicon: './src/assets/favicon.ico',
+      hash: true,
+    }),
+    new GenerateSW({
+      maximumFileSizeToCacheInBytes: 2000000,
+      clientsClaim: true,
+      skipWaiting: true,
+    }),
+  ];
 
   if (env.build !== 'cypress') {
     const fileCopy = env.build === 'local'
@@ -19,19 +32,8 @@ module.exports = (env, argv) => {
       ]);
 
     pluginsArray = [
-      new webpack.HotModuleReplacementPlugin(),
-      new HtmlWebPackPlugin({
-        template: './src/index.html',
-        filename: './index.html',
-        favicon: './src/assets/favicon.ico',
-        hash: true,
-      }),
+      ...pluginsArray,
       fileCopy,
-      new GenerateSW({
-        maximumFileSizeToCacheInBytes: 2000000,
-        clientsClaim: true,
-        skipWaiting: true,
-      }),
     ];
   }
 
