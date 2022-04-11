@@ -41,13 +41,14 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: sudo yarn https:cypress && echo "The API key is:${{secrets.API_URL}}"
+          start: sudo yarn https:cypress
           browser: chrome
           config-file: cypress.json
           record: true
           wait-on: 'https://localhost:3000'
           wait-on-timeout: 300
           spec: cypress/integration/01-Login.spec.js
+
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
