@@ -1,5 +1,5 @@
 {
-    "baseUrl" : "https://127.0.0.1:8080",
+    "baseUrl" : "https://localhost:3000",
     "pageLoadTimeout" : 120000,
     "chromeWebSecurity": false,
     "reporter": "mochawesome",
