@@ -7,13 +7,34 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
-  const fileCopy = env?.build === 'local'
-    ? new CopyPlugin([
-      { from: '.env.development.local', to: 'environment.js' },
-    ])
-    : new CopyPlugin([
-      { from: 'window.environment.js', to: 'environment.js' },
-    ]);
+  let plugins = null;
+
+  if (env.build !== 'cypress') {
+    const fileCopy = env.build === 'local'
+      ? new CopyPlugin([
+        { from: '.env.development.local', to: 'environment.js' },
+      ])
+      : new CopyPlugin([
+        { from: 'window.environment.js', to: 'environment.js' },
+      ]);
+
+    plugins = [
+      new webpack.HotModuleReplacementPlugin(),
+      new HtmlWebPackPlugin({
+        template: './src/index.html',
+        filename: './index.html',
+        favicon: './src/assets/favicon.ico',
+        hash: true,
+      }),
+      fileCopy,
+      new GenerateSW({
+        maximumFileSizeToCacheInBytes: 2000000,
+        clientsClaim: true,
+        skipWaiting: true,
+      }),
+    ];
+  }
+
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
     module: {
@@ -106,21 +127,7 @@ module.exports = (env, argv) => {
       historyApiFallback: true,
       hotOnly: true,
     },
-    plugins: [
-      new webpack.HotModuleReplacementPlugin(),
-      new HtmlWebPackPlugin({
-        template: './src/index.html',
-        filename: './index.html',
-        favicon: './src/assets/favicon.ico',
-        hash: true,
-      }),
-      fileCopy,
-      new GenerateSW({
-        maximumFileSizeToCacheInBytes: 2000000,
-        clientsClaim: true,
-        skipWaiting: true,
-      }),
-    ],
+    plugins,
   };
 
   if (env && env.build === 'prod') {

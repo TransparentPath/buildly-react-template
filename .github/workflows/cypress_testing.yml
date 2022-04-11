@@ -22,9 +22,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Yarn install and build
-        run: |
-          yarn install
-          yarn run build:prod
+        run: yarn install
 
       - name: Generate certificates for next step
         uses: kofemann/action-create-certificate@v0.0.4
