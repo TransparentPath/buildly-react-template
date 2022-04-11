@@ -27,6 +27,17 @@ jobs:
 
 #      - name: Docker build
 #        run: docker build -t transparent-path/react-ui .
+      - name: Generate certificates for next step
+        uses: kofemann/action-create-certificate@v0.0.4
+
+        with:
+          hostcert: 'hostcert.pem'
+          hostkey: 'hostkey.pem'
+          cachain: 'ca-chain.pem'
+
+      - name: Use generated certificates
+        run: |
+          openssl x509 -in hostcert.pem -noout -text
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
