@@ -25,6 +25,10 @@ jobs:
           yarn install
           yarn run build:prod
 
+      - name: Http-Server
+        run: |
+          yarn add http-server -W
+
       - name: Generate certificates for next step
         uses: kofemann/action-create-certificate@v0.0.4
 
