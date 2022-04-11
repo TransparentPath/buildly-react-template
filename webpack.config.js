@@ -7,7 +7,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
-  let plugins = null;
+  let pluginsArray = null;
 
   if (env.build !== 'cypress') {
     const fileCopy = env.build === 'local'
@@ -18,7 +18,7 @@ module.exports = (env, argv) => {
         { from: 'window.environment.js', to: 'environment.js' },
       ]);
 
-    plugins = [
+    pluginsArray = [
       new webpack.HotModuleReplacementPlugin(),
       new HtmlWebPackPlugin({
         template: './src/index.html',
@@ -127,7 +127,7 @@ module.exports = (env, argv) => {
       historyApiFallback: true,
       hotOnly: true,
     },
-    plugins,
+    plugins: pluginsArray,
   };
 
   if (env && env.build === 'prod') {
