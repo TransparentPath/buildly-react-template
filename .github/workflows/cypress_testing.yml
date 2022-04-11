@@ -24,7 +24,7 @@ jobs:
       - name: Yarn install and build
         run: |
           yarn install
-          yarn run build:prod
+          yarn run build:dev
 
       - name: Generate certificates for next step
         uses: kofemann/action-create-certificate@v0.0.4
