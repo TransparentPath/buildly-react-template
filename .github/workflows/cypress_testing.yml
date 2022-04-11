@@ -25,7 +25,6 @@ jobs:
         run: |
           yarn install
           yarn run build:prod
-          echo "The API key is:${{secrets.API_URL}}"  
 
       - name: Generate certificates for next step
         uses: kofemann/action-create-certificate@v0.0.4
@@ -42,14 +41,13 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: sudo yarn https:cypress
+          start: sudo yarn https:cypress && echo "The API key is:${{secrets.API_URL}}"
           browser: chrome
           config-file: cypress.json
           record: true
           wait-on: 'https://localhost:3000'
           wait-on-timeout: 300
           spec: cypress/integration/01-Login.spec.js
-        run: echo "The API key is:${{secrets.API_URL}}"
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
