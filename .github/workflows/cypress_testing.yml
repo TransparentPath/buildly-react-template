@@ -42,12 +42,10 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: sudo yarn https:cypress
+          start: sudo yarn serve:cypress
           browser: chrome
           config-file: cypress.json
           record: true
-          wait-on: 'https://localhost:3000'
-          wait-on-timeout: 300
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
