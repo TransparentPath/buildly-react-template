@@ -7,7 +7,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
-  const fileCopy = env.build === 'local'
+  const fileCopy = env?.build === 'local'
     ? new CopyPlugin([
       { from: '.env.development.local', to: 'environment.js' },
     ])
