@@ -35,6 +35,24 @@ module.exports = (env, argv) => {
       ...pluginsArray,
       fileCopy,
     ];
+  } else {
+    pluginsArray = [
+      ...pluginsArray,
+      new webpack.DefinePlugin({
+        'window.env': {
+          API_URL: JSON.stringify(process.env.API_URL),
+          OAUTH_TOKEN_URL: JSON.stringify(process.env.OAUTH_TOKEN_URL),
+          OAUTH_CLIENT_ID: JSON.stringify(process.env.OAUTH_CLIENT_ID),
+          MAP_API_URL: JSON.stringify(process.env.MAP_API_URL),
+          GEO_CODE_API_URL: JSON.stringify(process.env.GEO_CODE_API_URL),
+          ALERT_SOCKET_URL: JSON.stringify(process.env.ALERT_SOCKET_URL),
+          SESSION_TIMEOUT: JSON.stringify(process.env.SESSION_TIMEOUT),
+          HIDE_NOTIFICATIONS: JSON.stringify(process.env.HIDE_NOTIFICATIONS),
+          PRODUCTION: JSON.stringify(process.env.PRODUCTION),
+          NODE_TLS_REJECT_UNAUTHORIZED: 0,
+        },
+      }),
+    ];
   }
 
   const webpackConfig = {
