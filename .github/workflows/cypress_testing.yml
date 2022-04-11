@@ -25,10 +25,6 @@ jobs:
           yarn install
           yarn run build:prod
 
-      - name: Http-Server
-        run: |
-          yarn add http-server -W
-
       - name: Generate certificates for next step
         uses: kofemann/action-create-certificate@v0.0.4
 
@@ -44,7 +40,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: http-server dist -S -C hostcert.pem -K hostkey.pem
+          start: "bash http-server dist -S -C hostcert.pem -K hostkey.pem"
           browser: chrome
           config-file: cypress.json
           record: true
