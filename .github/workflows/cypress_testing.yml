@@ -10,7 +10,7 @@ env:
   GEO_CODE_API_URL: ${{ secrets.GEO_CODE_API }}
   ALERT_SOCKET_URL: ${{ secrets.ALERT_SOCKET_URL }}
   SESSION_TIMEOUT: ${{ secrets.SESSION_TIMEOUT }}
-  HIDE_NOTIFICATIONS: ${{ secrets.HIDE_NOTIFICATION }}
+  HIDE_NOTIFICATIONS: ${{ secrets.HIDE_NOTIFICATIONS }}
   PRODUCTION: ${{ secrets.PRODUCTION }}
 
 jobs:
@@ -40,12 +40,12 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: sudo yarn https:cypress
+          start: http-server dist -S -C hostcert.pem -K hostkey.pem
           browser: chrome
           config-file: cypress.json
           record: true
-          wait-on: 'https://localhost:3000'
-          wait-on-timeout: 180
+          wait-on: 'https://127.0.0.1:8080'
+          wait-on-timeout: 20
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
