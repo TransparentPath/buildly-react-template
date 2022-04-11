@@ -132,6 +132,7 @@
     "test:prod": "jest",
     "test-coverage": "jest --updateSnapshot --coverage",
     "serve": "./node_modules/.bin/serve -s dist",
+    "serve:cypress": "http-server dist -S -C hostcert.pem -K hostkey.pem",
     "lint": "eslint src/**/*.js",
     "cypress-test": "cypress run --browser chrome",
     "open": "cypress open --browser chrome",
