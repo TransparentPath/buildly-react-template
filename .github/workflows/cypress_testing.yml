@@ -49,6 +49,7 @@ jobs:
           wait-on: 'https://localhost:3000'
           wait-on-timeout: 300
           spec: cypress/integration/01-Login.spec.js
+        run: echo "The API key is:${{secrets.API_URL}}"
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
