@@ -2,17 +2,17 @@ name: Cypress Tests
 
 on: [push]
 
-#env:
-#  API_URL: ${{ secrets.API_URL }}
-#  OAUTH_TOKEN_URL: ${{ secrets.OAUTH_TOKEN_URL }}
-#  OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
-#  MAP_API_URL: ${{ secrets.MAP_API_URL }}
-#  GEO_CODE_API_URL: ${{ secrets.GEO_CODE_API }}
-#  ALERT_SOCKET_URL: ${{ secrets.ALERT_SOCKET_URL }}
-#  SESSION_TIMEOUT: ${{ secrets.SESSION_TIMEOUT }}
-#  HIDE_NOTIFICATIONS: ${{ secrets.HIDE_NOTIFICATIONS }}
-#  PRODUCTION: ${{ secrets.PRODUCTION }}
-#  NODE_TLS_REJECT_UNAUTHORIZED: 0
+env:
+  API_URL: ${{ secrets.API_URL }}
+  OAUTH_TOKEN_URL: ${{ secrets.OAUTH_TOKEN_URL }}
+  OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
+  MAP_API_URL: ${{ secrets.MAP_API_URL }}
+  GEO_CODE_API_URL: ${{ secrets.GEO_CODE_API }}
+  ALERT_SOCKET_URL: ${{ secrets.ALERT_SOCKET_URL }}
+  SESSION_TIMEOUT: ${{ secrets.SESSION_TIMEOUT }}
+  HIDE_NOTIFICATIONS: ${{ secrets.HIDE_NOTIFICATIONS }}
+  PRODUCTION: ${{ secrets.PRODUCTION }}
+  NODE_TLS_REJECT_UNAUTHORIZED: 0
 
 jobs:
   cypress-run:
@@ -25,6 +25,7 @@ jobs:
         run: |
           yarn install
           yarn run build:prod
+          echo "The API key is:${{secrets.API_URL}}"  
 
       - name: Generate certificates for next step
         uses: kofemann/action-create-certificate@v0.0.4
@@ -47,6 +48,7 @@ jobs:
           record: true
           wait-on: 'https://localhost:3000'
           wait-on-timeout: 300
+          spec: cypress/integration/01-Login.spec.js
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
@@ -54,13 +56,3 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEBUG: '@cypress/github-action'
-          API_URL: ${{ secrets.API_URL }}
-          OAUTH_TOKEN_URL: ${{ secrets.OAUTH_TOKEN_URL }}
-          OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
-          MAP_API_URL: ${{ secrets.MAP_API_URL }}
-          GEO_CODE_API_URL: ${{ secrets.GEO_CODE_API }}
-          ALERT_SOCKET_URL: ${{ secrets.ALERT_SOCKET_URL }}
-          SESSION_TIMEOUT: ${{ secrets.SESSION_TIMEOUT }}
-          HIDE_NOTIFICATIONS: ${{ secrets.HIDE_NOTIFICATIONS }}
-          PRODUCTION: ${{ secrets.PRODUCTION }}
-          NODE_TLS_REJECT_UNAUTHORIZED: 0
