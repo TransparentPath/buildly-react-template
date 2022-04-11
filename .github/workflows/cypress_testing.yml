@@ -12,6 +12,7 @@ env:
   SESSION_TIMEOUT: ${{ secrets.SESSION_TIMEOUT }}
   HIDE_NOTIFICATIONS: ${{ secrets.HIDE_NOTIFICATIONS }}
   PRODUCTION: ${{ secrets.PRODUCTION }}
+  NODE_TLS_REJECT_UNAUTHORIZED: 0
 
 jobs:
   cypress-run:
