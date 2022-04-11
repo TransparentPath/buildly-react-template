@@ -42,7 +42,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: sudo yarn serve:cypress
+          start: sudo http-server dist -S -C hostcert.pem -K hostkey.pem
           browser: chrome
           config-file: cypress.json
           record: true
