@@ -2,6 +2,9 @@ name: Cypress Tests
 
 on: [push]
 
+env:
+  NODE_TLS_REJECT_UNAUTHORIZED: 0
+
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
