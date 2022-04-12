@@ -7,13 +7,53 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
-  const fileCopy = env.build === 'local'
-    ? new CopyPlugin([
-      { from: '.env.development.local', to: 'environment.js' },
-    ])
-    : new CopyPlugin([
-      { from: 'window.environment.js', to: 'environment.js' },
-    ]);
+  let pluginsList = [
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebPackPlugin({
+      template: './src/index.html',
+      filename: './index.html',
+      favicon: './src/assets/favicon.ico',
+      hash: true,
+    }),
+    new GenerateSW({
+      maximumFileSizeToCacheInBytes: 2000000,
+      clientsClaim: true,
+      skipWaiting: true,
+    }),
+  ];
+
+  if (env.build !== 'cypress') {
+    const fileCopy = env.build === 'local'
+      ? new CopyPlugin([
+        { from: '.env.development.local', to: 'environment.js' },
+      ])
+      : new CopyPlugin([
+        { from: 'window.environment.js', to: 'environment.js' },
+      ]);
+
+    pluginsList = [
+      ...pluginsList,
+      fileCopy,
+    ];
+  } else {
+    pluginsList = [
+      ...pluginsList,
+      new webpack.DefinePlugin({
+        'window.env': {
+          API_URL: JSON.stringify(process.env.API_URL),
+          OAUTH_TOKEN_URL: JSON.stringify(process.env.OAUTH_TOKEN_URL),
+          OAUTH_CLIENT_ID: JSON.stringify(process.env.OAUTH_CLIENT_ID),
+          MAP_API_URL: JSON.stringify(process.env.MAP_API_URL),
+          GEO_CODE_API_URL: JSON.stringify(process.env.GEO_CODE_API_URL),
+          ALERT_SOCKET_URL: JSON.stringify(process.env.ALERT_SOCKET_URL),
+          SESSION_TIMEOUT: JSON.stringify(process.env.SESSION_TIMEOUT),
+          HIDE_NOTIFICATIONS: JSON.stringify(process.env.HIDE_NOTIFICATIONS),
+          PRODUCTION: JSON.stringify(process.env.PRODUCTION),
+          NODE_TLS_REJECT_UNAUTHORIZED: 0,
+        },
+      }),
+    ];
+  }
 
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
@@ -107,21 +147,7 @@ module.exports = (env, argv) => {
       historyApiFallback: true,
       hotOnly: true,
     },
-    plugins: [
-      new webpack.HotModuleReplacementPlugin(),
-      new HtmlWebPackPlugin({
-        template: './src/index.html',
-        filename: './index.html',
-        favicon: './src/assets/favicon.ico',
-        hash: true,
-      }),
-      fileCopy,
-      new GenerateSW({
-        maximumFileSizeToCacheInBytes: 2000000,
-        clientsClaim: true,
-        skipWaiting: true,
-      }),
-    ],
+    plugins: pluginsList,
   };
 
   if (env && env.build === 'prod') {
