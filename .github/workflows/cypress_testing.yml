@@ -28,7 +28,7 @@ jobs:
           touch .env.development.local
           echo window.env = ${{ secrets.DEV_ENV }} >> .env.development.local
           cat .env.development.local
-          ls pwd
+          pwd
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
