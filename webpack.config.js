@@ -39,8 +39,8 @@ module.exports = (env, argv) => {
     pluginsList = [
       ...pluginsList,
       new webpack.DefinePlugin({
-        'process.env': {
-          API_URL: JSON.stringify(process.env.API_URL),
+        'window.env': {
+          API_URL: $API_URL,
           OAUTH_TOKEN_URL: JSON.stringify(process.env.OAUTH_TOKEN_URL),
           OAUTH_CLIENT_ID: JSON.stringify(process.env.OAUTH_CLIENT_ID),
           MAP_API_URL: JSON.stringify(process.env.MAP_API_URL),

@@ -35,6 +35,13 @@ jobs:
       - name: Use generated certificates
         run: openssl x509 -in hostcert.pem -noout -text
 
+      - name: Create env file
+        run: |
+          cd /home/runner/work/buildly-react-template/buildly-react-template
+          touch .env.development.local
+          echo API_URL=${{ secrets.API_URL }} >> .env.development.local
+          cat .env.development.local
+
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
