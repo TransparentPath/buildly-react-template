@@ -47,8 +47,6 @@ module.exports = (env, argv) => {
     ];
   }
 
-  console.log(window.env);
-
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
     module: {
