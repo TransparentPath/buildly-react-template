@@ -40,7 +40,7 @@ module.exports = (env, argv) => {
       ...pluginsList,
       new webpack.DefinePlugin({
         'window.env': {
-          API_URL: JSON.stringify(process.env.API_URL),
+          API_URL: 'https://tp-dev-api.buildly.io/',
           OAUTH_TOKEN_URL: JSON.stringify(process.env.OAUTH_TOKEN_URL),
           OAUTH_CLIENT_ID: JSON.stringify(process.env.OAUTH_CLIENT_ID),
           MAP_API_URL: JSON.stringify(process.env.MAP_API_URL),
@@ -49,7 +49,6 @@ module.exports = (env, argv) => {
           SESSION_TIMEOUT: JSON.stringify(process.env.SESSION_TIMEOUT),
           HIDE_NOTIFICATIONS: JSON.stringify(process.env.HIDE_NOTIFICATIONS),
           PRODUCTION: JSON.stringify(process.env.PRODUCTION),
-          NODE_TLS_REJECT_UNAUTHORIZED: 0,
         },
       }),
     ];
