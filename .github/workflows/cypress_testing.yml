@@ -38,6 +38,8 @@ jobs:
           browser: chrome
           config-file: cypress.json
           record: true
+          wait-on: 'https://localhost:3000'
+          wait-on-timeout: 300
           spec: cypress/integration/01-Login.spec.js
 
         env:
