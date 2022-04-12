@@ -37,14 +37,10 @@ module.exports = (env, argv) => {
       fileCopy,
     ];
   } else {
-    // dotenv.config({ path: './.env.development.local' });
-    //
-    // pluginsList = [
-    //   ...pluginsList,
-    //   new webpack.DefinePlugin({
-    //     'window.env': JSON.stringify(process.env),
-    //   }),
-    // ];
+    const envVars = dotenv.config({ path: './.env.development.local' });
+
+    console.log(envVars.parsed);
+    console.log(envVars.parsed.API_URL);
 
     pluginsList = [
       ...pluginsList,

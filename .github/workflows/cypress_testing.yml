@@ -36,9 +36,9 @@ jobs:
 
       - name: Create env file
         run: |
-          touch environment_backup.js
-          echo ${{ secrets.DEV_ENV }} >> environment_backup.js
-          cat environment_backup.js
+          touch .env.development.local
+          echo ${{ secrets.DEV_ENV }} >> .env.development.local
+          cat .env.development.local
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
