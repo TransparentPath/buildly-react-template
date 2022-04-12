@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Yarn install and build
+      - name: Yarn install
         run: yarn install
 
       - name: Generate certificates for next step

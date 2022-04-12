@@ -7,7 +7,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
-  let pluginsArray = [
+  let pluginsList = [
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebPackPlugin({
       template: './src/index.html',
@@ -31,13 +31,13 @@ module.exports = (env, argv) => {
         { from: 'window.environment.js', to: 'environment.js' },
       ]);
 
-    pluginsArray = [
-      ...pluginsArray,
+    pluginsList = [
+      ...pluginsList,
       fileCopy,
     ];
   } else {
-    pluginsArray = [
-      ...pluginsArray,
+    pluginsList = [
+      ...pluginsList,
       new webpack.DefinePlugin({
         'window.env': {
           API_URL: JSON.stringify(process.env.API_URL),
@@ -54,6 +54,8 @@ module.exports = (env, argv) => {
       }),
     ];
   }
+
+  console.log(pluginsList);
 
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
@@ -147,7 +149,7 @@ module.exports = (env, argv) => {
       historyApiFallback: true,
       hotOnly: true,
     },
-    plugins: pluginsArray,
+    plugins: pluginsList,
   };
 
   if (env && env.build === 'prod') {
