@@ -40,7 +40,7 @@ module.exports = (env, argv) => {
       ...pluginsList,
       new webpack.DefinePlugin({
         'window.env': {
-          API_URL: JSON.stringify(process.env.REACT_API_URL),
+          API_URL: JSON.stringify(process.env.API_URL),
           OAUTH_TOKEN_URL: JSON.stringify(process.env.OAUTH_TOKEN_URL),
           OAUTH_CLIENT_ID: JSON.stringify(process.env.OAUTH_CLIENT_ID),
           MAP_API_URL: JSON.stringify(process.env.MAP_API_URL),
@@ -56,7 +56,7 @@ module.exports = (env, argv) => {
   }
 
   console.log('start');
-  console.log(process.env.REACT_API_URL);
+  console.log(process.env.API_URL);
   console.log(process.env.OAUTH_TOKEN_URL);
   console.log('end');
 
