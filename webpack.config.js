@@ -39,8 +39,10 @@ module.exports = (env, argv) => {
   } else {
     const envVars = dotenv.config({ path: './.env.development.local' });
 
+    console.log('start');
     console.log(envVars.parsed);
-    console.log(envVars.parsed.API_URL);
+    console.log(envVars);
+    console.log('end');
 
     pluginsList = [
       ...pluginsList,
