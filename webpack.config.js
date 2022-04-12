@@ -37,10 +37,10 @@ module.exports = (env, argv) => {
       fileCopy,
     ];
   } else {
-    const envVars = dotenv.config({ path: '.env.development.local' });
+    const envVars = dotenv.config({ path: '.env.development.local', debug: true });
 
     console.log('start');
-    console.log(dotenv.config({ path: '.env.development.local' }));
+    console.log(dotenv.config({ path: '.env.development.local', debug: true }));
     console.log(envVars.parsed);
     console.log(envVars);
     console.log('end');
