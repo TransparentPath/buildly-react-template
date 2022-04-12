@@ -368,9 +368,10 @@ export const SENSOR_REPORT_COLUMNS = [
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => (
+        // eslint-disable-next-line no-nested-ternary
         _.isNumber(value)
           ? _.round(value, 2).toFixed(2)
-          : '-'
+          : value === '*' ? value : '-'
       ),
     },
   },
@@ -382,9 +383,10 @@ export const SENSOR_REPORT_COLUMNS = [
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => (
+        // eslint-disable-next-line no-nested-ternary
         _.isNumber(value)
           ? _.round(value, 2).toFixed(2)
-          : '-'
+          : value === '*' ? value : '-'
       ),
     },
   },

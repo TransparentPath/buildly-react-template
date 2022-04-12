@@ -247,11 +247,12 @@ const Shipment = (props) => {
         unitsOfMeasure,
         { supported_class: 'Temperature' },
       )[0].name.toLowerCase();
-
+      let counter = 0;
       _.forEach(selectedShipment.sensor_report, (report) => {
         if (report.report_entries.length > 0) {
           _.forEach(report.report_entries, (report_entry) => {
             try {
+              counter += 1;
               const temperature = report_entry.report_temp;
               let dateTime;
               if ('report_timestamp' in report_entry) {
@@ -266,20 +267,54 @@ const Shipment = (props) => {
               }
 
               // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
-              const latitude = report_entry.report_latitude
+              if (report_entry.report_location !== null
+                && report_entry.report_latitude !== null
+                && report_entry.report_longitude !== null) {
+                const latitude = report_entry.report_latitude
                 || report_entry.report_location.latitude;
-              const longitude = report_entry.report_longitude
+                const longitude = report_entry.report_longitude
                 || report_entry.report_location.longitude;
-              if (
-                (latitude >= -90
+                if (
+                  (latitude >= -90
                   && latitude <= 90)
                 && (longitude >= -180
                   && longitude <= 180)
                 && dateTime !== ''
-              ) {
+                ) {
+                  const marker = {
+                    lat: latitude,
+                    lng: longitude,
+                    label: 'Clustered',
+                    temperature,
+                    light: report_entry.report_light,
+                    shock: report_entry.report_shock,
+                    tilt: report_entry.report_tilt,
+                    humidity: report_entry.report_humidity,
+                    battery: report_entry.report_battery,
+                    pressure: report_entry.report_pressure,
+                    color: 'green',
+                    timestamp: dateTime,
+                  };
+                  // Considered use case: If a shipment stays at some
+                  // position for long, other value changes can be
+                  // critical
+                  const markerFound = _.find(markersToSet, {
+                    lat: marker.lat,
+                    lng: marker.lng,
+                  });
+
+                  if (!markerFound) {
+                    markersToSet = [...markersToSet, marker];
+                  }
+                  aggregateReportInfo = [
+                    ...aggregateReportInfo,
+                    marker,
+                  ];
+                }
+              } else {
                 const marker = {
-                  lat: latitude,
-                  lng: longitude,
+                  lat: '*',
+                  lng: '*',
                   label: 'Clustered',
                   temperature,
                   light: report_entry.report_light,
@@ -291,17 +326,6 @@ const Shipment = (props) => {
                   color: 'green',
                   timestamp: dateTime,
                 };
-                // Considered use case: If a shipment stays at some
-                // position for long, other value changes can be
-                // critical
-                const markerFound = _.find(markersToSet, {
-                  lat: marker.lat,
-                  lng: marker.lng,
-                });
-
-                if (!markerFound) {
-                  markersToSet = [...markersToSet, marker];
-                }
                 aggregateReportInfo = [
                   ...aggregateReportInfo,
                   marker,
@@ -320,6 +344,7 @@ const Shipment = (props) => {
         ['asc'],
       ));
       selectedShipment.sensor_report_info = aggregateReportInfo;
+      console.log('Shipment records: ', counter);
     }
   }, [selectedShipment, timezone]);
 

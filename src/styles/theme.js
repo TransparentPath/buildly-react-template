@@ -199,6 +199,11 @@ const theme = createTheme({
         },
       },
     },
+    MUIDataTableSelectCell: {
+      expandDisabled: {
+        visibility: 'hidden',
+      },
+    },
     MuiTableCell: {
       styleOverrides: {
         root: {
