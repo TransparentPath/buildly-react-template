@@ -37,7 +37,15 @@ jobs:
       - name: Create env file
         run: |
           touch .env.development.local
-          echo ${{ secrets.DEV_ENV }} >> .env.development.local
+          echo ${{ secrets.API_URL }} >> .env.development.local
+          echo ${{ secrets.OAUTH_TOKEN_URL }} >> .env.development.local
+          echo ${{ secrets.OAUTH_CLIENT_ID }} >> .env.development.local
+          echo ${{ secrets.MAP_API_URL }} >> .env.development.local
+          echo ${{ secrets.GEO_CODE_API_URL }} >> .env.development.local
+          echo ${{ secrets.ALERT_SOCKET_URL }} >> .env.development.local
+          echo ${{ secrets.SESSION_TIMEOUT }} >> .env.development.local
+          echo ${{ secrets.HIDE_NOTIFICATIONS }} >> .env.development.local
+          echo ${{ secrets.PRODUCTION }} >> .env.development.local
           cat .env.development.local
 
       - name: Cypress run
