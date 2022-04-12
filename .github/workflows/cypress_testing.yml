@@ -34,7 +34,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: sudo yarn https:cypress
+          start: sudo yarn build:local
           browser: chrome
           config-file: cypress.json
           record: true
