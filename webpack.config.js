@@ -45,6 +45,15 @@ module.exports = (env, argv) => {
     //     'window.env': JSON.stringify(process.env),
     //   }),
     // ];
+
+    const fileCopy = new CopyPlugin([
+      { from: 'environment_backup.js', to: 'environment.js' },
+    ]);
+
+    pluginsList = [
+      ...pluginsList,
+      fileCopy,
+    ];
   }
 
   const webpackConfig = {
