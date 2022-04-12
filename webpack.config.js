@@ -56,6 +56,8 @@ module.exports = (env, argv) => {
   }
 
   console.log('start');
+  console.log(process.env.API_URL);
+  console.log(process.env.OAUTH_TOKEN_URL);
   console.log(JSON.stringify(process.env.API_URL));
   console.log('end');
 

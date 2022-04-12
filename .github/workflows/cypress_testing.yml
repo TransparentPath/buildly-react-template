@@ -3,6 +3,7 @@ name: Cypress Tests
 on: [push]
 
 env:
+  API_URL: ${{ secrets.API_URL }}
   OAUTH_TOKEN_URL: ${{ secrets.OAUTH_TOKEN_URL }}
   OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
   MAP_API_URL: ${{ secrets.MAP_API_URL }}
@@ -37,6 +38,7 @@ jobs:
 
       - name: Create env file
         run: |
+          cd /home/runner/work/buildly-react-template/buildly-react-template
           touch .env.development.local
           echo API_URL=${{ secrets.API_URL }} >> .env.development.local
           cat .env.development.local
