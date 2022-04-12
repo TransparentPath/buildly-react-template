@@ -35,6 +35,12 @@ jobs:
         run: |
           openssl x509 -in hostcert.pem -noout -text
 
+      - name: Create env file
+        run: |
+          touch .env.development.local
+          echo API_URL=${{ secrets.API_URL }} >> .env.development.local
+          cat .env.development.local
+
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
@@ -53,4 +59,3 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEBUG: '@cypress/github-action'
-          API_URL: ${{ secrets.API_URL }}

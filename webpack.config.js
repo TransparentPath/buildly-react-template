@@ -57,7 +57,6 @@ module.exports = (env, argv) => {
 
   console.log('start');
   console.log(JSON.stringify(process.env.API_URL));
-  console.log(JSON.stringify(process.env.CYPRESS_USERNAME));
   console.log('end');
 
   const webpackConfig = {
