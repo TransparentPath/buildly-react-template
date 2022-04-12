@@ -38,7 +38,6 @@ module.exports = (env, argv) => {
     ];
   } else {
     dotenv.config({ path: './.env.development.local' });
-    console.log(process.env);
 
     pluginsList = [
       ...pluginsList,
@@ -47,8 +46,6 @@ module.exports = (env, argv) => {
       }),
     ];
   }
-
-  console.log(process.env);
 
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
