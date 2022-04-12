@@ -55,11 +55,6 @@ module.exports = (env, argv) => {
     ];
   }
 
-  console.log('start');
-  console.log(process.env.API_URL);
-  console.log(process.env.OAUTH_TOKEN_URL);
-  console.log('end');
-
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
     module: {
