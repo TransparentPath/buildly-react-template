@@ -8,10 +8,6 @@ const { GenerateSW } = require('workbox-webpack-plugin');
 const dotenv = require('dotenv');
 
 module.exports = (env, argv) => {
-  console.log('start');
-  console.log(dotenv.config({ path: './.env.development.local' }));
-  console.log('end');
-
   let pluginsList = [
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebPackPlugin({
@@ -41,23 +37,18 @@ module.exports = (env, argv) => {
       fileCopy,
     ];
   } else {
+    dotenv.config({ path: './.env.development.local' });
+    console.log(process.env);
+
     pluginsList = [
       ...pluginsList,
       new webpack.DefinePlugin({
-        'window.env': {
-          API_URL: JSON.stringify('https://tp-dev-api.buildly.io/'),
-          OAUTH_TOKEN_URL: JSON.stringify(process.env.OAUTH_TOKEN_URL),
-          OAUTH_CLIENT_ID: JSON.stringify(process.env.OAUTH_CLIENT_ID),
-          MAP_API_URL: JSON.stringify(process.env.MAP_API_URL),
-          GEO_CODE_API_URL: JSON.stringify(process.env.GEO_CODE_API_URL),
-          ALERT_SOCKET_URL: JSON.stringify(process.env.ALERT_SOCKET_URL),
-          SESSION_TIMEOUT: JSON.stringify(process.env.SESSION_TIMEOUT),
-          HIDE_NOTIFICATIONS: JSON.stringify(process.env.HIDE_NOTIFICATIONS),
-          PRODUCTION: JSON.stringify(process.env.PRODUCTION),
-        },
+        'window.env': JSON.stringify(process.env),
       }),
     ];
   }
+
+  console.log(process.env);
 
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
