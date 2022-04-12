@@ -37,7 +37,7 @@ module.exports = (env, argv) => {
       fileCopy,
     ];
   } else {
-    const { parsedEnv } = dotenv.config({ path: '.env.development.local', debug: true });
+    const { parsed: parsedEnv } = dotenv.config({ path: '.env.development.local', debug: true });
 
     console.log('start');
     console.log(parsedEnv);
