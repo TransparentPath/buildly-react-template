@@ -37,12 +37,7 @@ module.exports = (env, argv) => {
       fileCopy,
     ];
   } else {
-    const { parsed: parsedEnv } = dotenv.config({ path: '.env.development.local', debug: true });
-
-    console.log('start');
-    console.log(parsedEnv);
-    console.log(parsedEnv.API_URL);
-    console.log('end');
+    const { parsed: parsedEnv } = dotenv.config({ path: '.env.development.cypress' });
 
     pluginsList = [
       ...pluginsList,
