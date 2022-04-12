@@ -7,6 +7,9 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
+  if (env.build === 'local') {
+    console.log('yes yes');
+  }
   const fileCopy = env.build === 'local'
     ? new CopyPlugin([
       { from: '.env.development.local', to: 'environment.js' },
@@ -14,6 +17,7 @@ module.exports = (env, argv) => {
     : new CopyPlugin([
       { from: 'window.environment.js', to: 'environment.js' },
     ]);
+  console.log(window.env);
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
     module: {
