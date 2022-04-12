@@ -41,7 +41,7 @@ jobs:
           echo OAUTH_TOKEN_URL="${{ secrets.OAUTH_TOKEN_URL }}" >> .env.development.local
           echo OAUTH_CLIENT_ID="${{ secrets.OAUTH_CLIENT_ID }}" >> .env.development.local
           echo MAP_API_URL="${{ secrets.MAP_API_URL }}" >> .env.development.local
-          echo GEO_CODE_API_URL="${{ secrets.GEO_CODE_API_URL }}" >> .env.development.local
+          echo GEO_CODE_API="${{ secrets.GEO_CODE_API }}" >> .env.development.local
           echo ALERT_SOCKET_URL="${{ secrets.ALERT_SOCKET_URL }}" >> .env.development.local
           echo SESSION_TIMEOUT="${{ secrets.SESSION_TIMEOUT }}" >> .env.development.local
           echo HIDE_NOTIFICATIONS="${{ secrets.HIDE_NOTIFICATIONS }}" >> .env.development.local

@@ -37,11 +37,29 @@ module.exports = (env, argv) => {
       fileCopy,
     ];
   } else {
-    const envVars = dotenv.config({ path: '.env.development.local', debug: true });
+    const { parsedEnv } = dotenv.config({ path: '.env.development.local', debug: true });
 
     console.log('start');
-    console.log(envVars.parsed);
+    console.log(parsedEnv);
+    console.log(parsedEnv.API_URL);
     console.log('end');
+
+    pluginsList = [
+      ...pluginsList,
+      new webpack.DefinePlugin({
+        'window.env': {
+          API_URL: JSON.stringify(parsedEnv.API_URL),
+          OAUTH_TOKEN_URL: JSON.stringify(parsedEnv.OAUTH_TOKEN_URL),
+          OAUTH_CLIENT_ID: JSON.stringify(parsedEnv.OAUTH_CLIENT_ID),
+          MAP_API_URL: JSON.stringify(parsedEnv.MAP_API_URL),
+          GEO_CODE_API_URL: JSON.stringify(parsedEnv.GEO_CODE_API_URL),
+          ALERT_SOCKET_URL: JSON.stringify(parsedEnv.ALERT_SOCKET_URL),
+          SESSION_TIMEOUT: JSON.stringify(parsedEnv.SESSION_TIMEOUT),
+          HIDE_NOTIFICATIONS: JSON.stringify(parsedEnv.HIDE_NOTIFICATIONS),
+          PRODUCTION: JSON.stringify(parsedEnv.PRODUCTION),
+        },
+      }),
+    ];
   }
 
   const webpackConfig = {
