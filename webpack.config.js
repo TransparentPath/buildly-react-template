@@ -5,8 +5,13 @@ const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
+const dotenv = require('dotenv');
 
 module.exports = (env, argv) => {
+  console.log('start');
+  console.log(dotenv.config({ path: './.env.development.local' }));
+  console.log('end');
+
   let pluginsList = [
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebPackPlugin({
@@ -36,7 +41,6 @@ module.exports = (env, argv) => {
       fileCopy,
     ];
   } else {
-    console.log('https://tp-dev-api.buildly.io/');
     pluginsList = [
       ...pluginsList,
       new webpack.DefinePlugin({
