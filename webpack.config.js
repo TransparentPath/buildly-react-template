@@ -36,12 +36,12 @@ module.exports = (env, argv) => {
       fileCopy,
     ];
   } else {
-    console.log(process.env.API_URL);
+    console.log('https://tp-dev-api.buildly.io/');
     pluginsList = [
       ...pluginsList,
       new webpack.DefinePlugin({
         'window.env': {
-          API_URL: JSON.stringify(process.env.API_URL),
+          API_URL: JSON.stringify('https://tp-dev-api.buildly.io/'),
           OAUTH_TOKEN_URL: JSON.stringify(process.env.OAUTH_TOKEN_URL),
           OAUTH_CLIENT_ID: JSON.stringify(process.env.OAUTH_CLIENT_ID),
           MAP_API_URL: JSON.stringify(process.env.MAP_API_URL),
