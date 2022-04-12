@@ -40,9 +40,7 @@ module.exports = (env, argv) => {
     const envVars = dotenv.config({ path: '.env.development.local', debug: true });
 
     console.log('start');
-    console.log(dotenv.config({ path: '.env.development.local', debug: true }));
     console.log(envVars.parsed);
-    console.log(envVars);
     console.log('end');
   }
 
