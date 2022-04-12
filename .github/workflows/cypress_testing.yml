@@ -13,6 +13,12 @@ env:
   HIDE_NOTIFICATIONS: ${{ secrets.HIDE_NOTIFICATIONS }}
   PRODUCTION: ${{ secrets.PRODUCTION }}
   NODE_TLS_REJECT_UNAUTHORIZED: 0
+  CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+  CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+  CYPRESS_EMAIL: ${{ secrets.CYPRESS_EMAIL }}
+  CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  DEBUG: '@cypress/github-action'
 
 jobs:
   cypress-run:
@@ -46,12 +52,3 @@ jobs:
           wait-on: 'https://localhost:3000'
           wait-on-timeout: 300
           spec: cypress/integration/01-Login.spec.js
-
-        env:
-          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-          CYPRESS_EMAIL: ${{ secrets.CYPRESS_EMAIL }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEBUG: '@cypress/github-action'
-          API_URL: ${{ secrets.API_URL }}
