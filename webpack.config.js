@@ -55,8 +55,9 @@ module.exports = (env, argv) => {
     ];
   }
 
-  console.log(pluginsList);
-  console.log(JSON.stringify(process.env));
+  console.log('start');
+  console.log(JSON.stringify(process.env.API_URL));
+  console.log('end');
 
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
