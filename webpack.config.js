@@ -46,14 +46,31 @@ module.exports = (env, argv) => {
     //   }),
     // ];
 
-    const fileCopy = new CopyPlugin([
-      { from: 'environment_backup.js', to: 'environment.js' },
-    ]);
-
     pluginsList = [
       ...pluginsList,
-      fileCopy,
+      new webpack.DefinePlugin({
+        'window.env': {
+          API_URL: JSON.stringify('https://tp-dev-api.buildly.io/'),
+          OAUTH_TOKEN_URL: JSON.stringify('https://tp-dev-api.buildly.io/oauth/token/'),
+          OAUTH_CLIENT_ID: JSON.stringify('pljxXjxQbtzLbh8pPQG3xLLrW6tC6XghOp2OGCUS'),
+          MAP_API_URL: JSON.stringify('https://maps.googleapis.com/maps/api/js?key=AIzaSyC95TcB_eTARGYYduIqDf-7u4O6JEjNIgQ&v=3.exp&libraries=geometry,drawing,places'),
+          GEO_CODE_API_URL: JSON.stringify('AIzaSyDw-lNn69CSWKBGz97HeVuJQKIhiVLcFyE'),
+          ALERT_SOCKET_URL: JSON.stringify('wss://tp-dev-pushnotification.buildly.io/ws/alert/'),
+          SESSION_TIMEOUT: JSON.stringify('1000'),
+          HIDE_NOTIFICATIONS: JSON.stringify('600000'),
+          PRODUCTION: JSON.stringify('false'),
+        },
+      }),
     ];
+
+    // const fileCopy = new CopyPlugin([
+    //   { from: 'environment_backup.js', to: 'environment.js' },
+    // ]);
+    //
+    // pluginsList = [
+    //   ...pluginsList,
+    //   fileCopy,
+    // ];
   }
 
   const webpackConfig = {
