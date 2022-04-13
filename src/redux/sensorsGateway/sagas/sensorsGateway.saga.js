@@ -722,7 +722,7 @@ function* getAllSensorAlerts(payload) {
     const response = yield call(
       httpService.makeRequest,
       'get',
-      `${window.env.API_URL}${sensorApiEndPoint}sensor_report_alert/?shipment_ids=TP-Tive-b1220001-99a5-4ea7-acce-7dcd00b1d7dd`, // ${payload.partnerShipmentIds}
+      `${window.env.API_URL}${sensorApiEndPoint}sensor_report_alert/?shipment_ids=${payload.partnerShipmentIds}`,
     );
     yield put({
       type: GET_ALL_SENSOR_ALERTS_SUCCESS,
