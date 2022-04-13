@@ -227,6 +227,7 @@ export const getShipmentOverview = (
                   pressure: report_entry.report_pressure,
                   color: 'green',
                   timestamp: dateTime,
+                  report_id: report.id,
                 };
                 // Considered use case: If a shipment stays at some
                 // position for long, other value changes can be
@@ -368,10 +369,9 @@ export const SENSOR_REPORT_COLUMNS = [
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => (
-        // eslint-disable-next-line no-nested-ternary
         _.isNumber(value)
           ? _.round(value, 2).toFixed(2)
-          : value === '*' ? value : '-'
+          : '-'
       ),
     },
   },
@@ -383,10 +383,9 @@ export const SENSOR_REPORT_COLUMNS = [
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => (
-        // eslint-disable-next-line no-nested-ternary
         _.isNumber(value)
           ? _.round(value, 2).toFixed(2)
-          : value === '*' ? value : '-'
+          : '-'
       ),
     },
   },

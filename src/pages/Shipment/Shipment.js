@@ -344,7 +344,6 @@ const Shipment = (props) => {
         ['asc'],
       ));
       selectedShipment.sensor_report_info = aggregateReportInfo;
-      console.log('Shipment records: ', counter);
     }
   }, [selectedShipment, timezone]);
 

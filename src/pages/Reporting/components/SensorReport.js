@@ -40,12 +40,14 @@ const useStyles = makeStyles((theme) => ({
 const SensorReport = ({
   loading,
   aggregateReport,
+  alerts,
   shipmentName,
   selectedMarker,
 }) => {
   const classes = useStyles();
   const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState([]);
+  const [alertRows, setAlertRows] = useState([]);
 
   const columns = _.map(
     SENSOR_REPORT_COLUMNS,
@@ -61,6 +63,18 @@ const SensorReport = ({
   );
 
   useEffect(() => {
+    if (alerts) {
+      const filteredData = _.filter(
+        alerts,
+        (alert) => alert.parameter_type !== 'location',
+      );
+      const sortedData = _.orderBy(
+        filteredData,
+        (item) => moment(item.create_date),
+        ['desc'],
+      );
+      setAlertRows(sortedData);
+    }
     if (aggregateReport) {
       const sortedData = _.orderBy(
         aggregateReport,
@@ -68,10 +82,12 @@ const SensorReport = ({
         ['desc'],
       );
       setRows(sortedData);
+      // const found = aggregateReport.some((r) => alerts.includes(r));
+      // console.log('Common: ', found);
     } else {
       setRows([]);
     }
-  }, [aggregateReport]);
+  }, [aggregateReport, alerts]);
 
   useEffect(() => {
     if (selectedMarker) {

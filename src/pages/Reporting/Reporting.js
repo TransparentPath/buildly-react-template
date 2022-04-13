@@ -477,6 +477,10 @@ const Reporting = ({
       <SensorReport
         loading={loading}
         aggregateReport={selectedShipment?.sensor_report}
+        alerts={_.filter(
+          allAlerts,
+          { shipment_id: selectedShipment?.partner_shipment_id },
+        )}
         shipmentName={selectedShipment?.name}
         selectedMarker={selectedShipment && selectedMarker}
       />
