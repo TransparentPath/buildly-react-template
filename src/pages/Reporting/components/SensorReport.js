@@ -40,7 +40,6 @@ const useStyles = makeStyles((theme) => ({
 const SensorReport = ({
   loading,
   aggregateReport,
-  alerts,
   shipmentName,
   selectedMarker,
 }) => {
@@ -72,7 +71,7 @@ const SensorReport = ({
     } else {
       setRows([]);
     }
-  }, [aggregateReport, alerts]);
+  }, [aggregateReport]);
 
   useEffect(() => {
     if (selectedMarker) {

@@ -694,7 +694,7 @@ function* getAggregateReportList(payload) {
     const data = yield call(
       httpService.makeRequest,
       'get',
-      `${window.env.API_URL}${sensorApiEndPoint}aggregate_report/?shipment_id=TP-Tive-b1220001-99a5-4ea7-acce-7dcd00b1d7dd`, // ${payload.partnerShipmentIds}
+      `${window.env.API_URL}${sensorApiEndPoint}aggregate_report/?shipment_id=${payload.partnerShipmentIds}`,
     );
     yield put({
       type: GET_AGGREGATE_REPORT_SUCCESS,
