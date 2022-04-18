@@ -185,9 +185,6 @@ const Shipment = (props) => {
     if (!unitsOfMeasure) {
       dispatch(getUnitsOfMeasure());
     }
-    // if (!custodyData) {
-    //   dispatch(getCustody());
-    // }
     if (!sensorData) {
       dispatch(getSensors(organization));
       dispatch(getSensorType());
@@ -206,6 +203,8 @@ const Shipment = (props) => {
       && custodianData
       && custodyData
       && aggregateReportData
+      && allAlerts
+      && contactInfo
     ) {
       const formattedRows = getFormattedRow(
         shipmentData,
@@ -252,6 +251,13 @@ const Shipment = (props) => {
         } else {
           setSelectedShipment(ACTIVE_ROWS[0]);
         }
+      }
+    }
+    if (shipmentData && shipmentData.length) {
+      const ids = _.toString(_.map(shipmentData, 'partner_shipment_id'));
+      const encodedIds = encodeURIComponent(ids);
+      if (encodedIds) {
+        dispatch(getAllSensorAlerts(encodedIds));
       }
     }
   }, [shipmentData, custodianData, custodyData, aggregateReportData, timezone]);

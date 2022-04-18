@@ -406,7 +406,7 @@ export const SENSOR_REPORT_COLUMNS = [
       customBodyRender: (value) => (
         _.isNumber(value)
           ? _.round(value, 2).toFixed(2)
-          : '-'
+          : '*'
       ),
     },
   },
@@ -420,7 +420,7 @@ export const SENSOR_REPORT_COLUMNS = [
       customBodyRender: (value) => (
         _.isNumber(value)
           ? _.round(value, 2).toFixed(2)
-          : '-'
+          : '*'
       ),
     },
   },
