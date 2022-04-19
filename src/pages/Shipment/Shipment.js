@@ -166,7 +166,6 @@ const Shipment = (props) => {
       const encodedIds = encodeURIComponent(ids);
       if (encodedIds) {
         dispatch(getAggregateReport(encodedIds));
-        dispatch(getAllSensorAlerts(encodedIds));
       }
     }
     if (!custodianData) {
@@ -253,7 +252,7 @@ const Shipment = (props) => {
         }
       }
     }
-    if (shipmentData && shipmentData.length) {
+    if (shipmentData && shipmentData.length && !allAlerts) {
       const ids = _.toString(_.map(shipmentData, 'partner_shipment_id'));
       const encodedIds = encodeURIComponent(ids);
       if (encodedIds) {

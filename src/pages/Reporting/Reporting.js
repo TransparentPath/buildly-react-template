@@ -187,7 +187,6 @@ const Reporting = ({
       const encodedIds = encodeURIComponent(ids);
       if (encodedIds) {
         dispatch(getAggregateReport(encodedIds));
-        dispatch(getAllSensorAlerts(encodedIds));
       }
     }
     if (!custodianData) {
