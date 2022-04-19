@@ -130,7 +130,6 @@ function* getShipmentList(payload) {
       yield processShipments(payload, shipment_data);
     }
   } catch (error) {
-    console.log('Error: ', error);
     yield [
       yield put(
         showAlert({

@@ -252,7 +252,7 @@ const Shipment = (props) => {
         }
       }
     }
-    if (shipmentData && shipmentData.length && !allAlerts) {
+    if (shipmentData && shipmentData.length) {
       const ids = _.toString(_.map(shipmentData, 'partner_shipment_id'));
       const encodedIds = encodeURIComponent(ids);
       if (encodedIds) {
