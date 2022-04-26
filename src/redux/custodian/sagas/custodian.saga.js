@@ -54,6 +54,7 @@ import {
 import {
   getShipmentDetails,
 } from '../../shipment/actions/shipment.actions';
+import { loadAllOrgs } from '@redux/authuser/actions/authuser.actions';
 
 const custodiansApiEndPoint = 'custodian/';
 
@@ -117,6 +118,7 @@ function* addCustodian(action) {
             }),
           ),
           yield put(getContact(payload.organization_uuid)),
+          yield put(loadAllOrgs()),
         ];
         if (history && redirectTo) {
           yield call(history.push, redirectTo);
@@ -170,6 +172,7 @@ function* editCustodian(action) {
         yield [
           yield put({ type: EDIT_CUSTODIANS_SUCCESS, data: data.data }),
           yield put(getContact(payload.organization_uuid)),
+          yield put(loadAllOrgs()),
           yield put(
             showAlert({
               type: 'success',
