@@ -98,6 +98,7 @@ function* addCustodian(action) {
         custodian_type: payload.custodian_type,
         contact_data: [contactInfo],
         organization_uuid: payload.organization_uuid,
+        custody_org_uuid: payload.custody_org_uuid,
       };
       const data = yield call(
         httpService.makeRequest,
@@ -255,12 +256,12 @@ function* deleteCustodian(payload) {
     yield call(
       httpService.makeRequest,
       'delete',
-      `${window.env.API_URL}custodian/contact/${contactObjId}/`,
+      `${window.env.API_URL}${custodiansApiEndPoint}contact/${contactObjId}/`,
     );
     yield [
       yield put({
         type: DELETE_CUSTODIANS_SUCCESS,
-        data: { id: payload.id },
+        data: { custodianId: payload.custodianId, contactId: payload.contactObjId },
       }),
       yield put(
         showAlert({
@@ -476,7 +477,7 @@ function* deleteCustody(payload) {
       `${window.env.API_URL}${custodiansApiEndPoint}custody/${custodyId}/`,
     );
     yield [
-      yield put({ type: DELETE_CUSTODY_SUCCESS, data: { id: payload.id } }),
+      yield put({ type: DELETE_CUSTODY_SUCCESS, data: { id: payload.custodyId } }),
       yield put(
         getShipmentDetails(
           organization_uuid,
