@@ -11,6 +11,9 @@
     },
     "projectId": "cdut55",
     "env": {
+        "USERNAME": "67OAI8DD5I1O",
+        "PASSWORD": "zGtkgLvmNiKm",
+        "EMAIL": "yasmin@ajackus.com",
         "RESET_PASSWORD": "/reset-password",
         "HOME": "/app/shipment",
         "LOGIN": "/login",

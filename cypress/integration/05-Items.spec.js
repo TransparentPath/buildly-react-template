@@ -74,7 +74,7 @@ context('Items', () => {
           .eq(0)
           .find("tr[class*='MUIDataTableBodyRow-root']")
           .its('length')
-          .should('eq', rowCount); // Assert row length
+          .should('be.lte', rowCount); // Assert row length
       });
     cy.wait(15000);
   });
