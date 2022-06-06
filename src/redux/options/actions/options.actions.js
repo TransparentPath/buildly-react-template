@@ -1,5 +1,7 @@
 import { httpService } from '../../../modules/http/http.service';
-
+import {
+  logout,
+} from '../../authuser/actions/authuser.actions';
 // Options Actions Types
 export const SET_TIMEZONE = 'OPTIONS/SET_TIMEZONE';
 
@@ -60,8 +62,7 @@ export const getUserOptions = () => (dispatch) => {
     )
     .then((response) => {
       if (response.status === 403) {
-        localStorage.clear();
-        window.location.href = '/login';
+        dispatch(logout());
       }
       return response.json();
     })
