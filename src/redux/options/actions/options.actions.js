@@ -58,7 +58,13 @@ export const getUserOptions = () => (dispatch) => {
       `${window.env.API_URL}coreuser/`,
       true,
     )
-    .then((response) => response.json())
+    .then((response) => {
+      if (response.status === 403) {
+        localStorage.clear();
+        window.location.href = '/login';
+      }
+      return response.json();
+    })
     .then((data) => {
       dispatch({ type: GET_USER_OPTIONS_SUCCESS, data });
     })
