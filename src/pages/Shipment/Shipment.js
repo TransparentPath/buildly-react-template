@@ -56,8 +56,8 @@ import {
   MAP_TOOLTIP,
 } from './ShipmentConstants';
 import ShipmentDataTable from './components/ShipmentDataTable';
-import AddShipment from './forms/AddShipment';
 import { getShipmentOverview } from '../Reporting/ReportingConstants';
+import CreateShipment from './CreateShipment';
 
 const useStyles = makeStyles((theme) => ({
   dashboardHeading: {
@@ -70,11 +70,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     display: 'flex',
     alignItems: 'center',
-  },
-  addButton: {
-    [theme.breakpoints.down('xs')]: {
-      marginTop: theme.spacing(2),
-    },
   },
   switchViewSection: {
     background: '#383636',
@@ -279,12 +274,6 @@ const Shipment = (props) => {
     }
   }, [shipmentFilter, shipmentData]);
 
-  const onAddButtonClick = () => {
-    history.push(`${routes.SHIPMENT}/add`, {
-      from: routes.SHIPMENT,
-    });
-  };
-
   const handleEdit = (item) => {
     history.push(`${routes.SHIPMENT}/edit/:${item.id}`, {
       type: 'edit',
@@ -356,7 +345,7 @@ const Shipment = (props) => {
       items: item.items,
     };
 
-    history.push(`${routes.SHIPMENT}/add`, {
+    history.push(routes.CREATE_SHIPMENT, {
       type: 'copy',
       data: copyData,
       from: routes.SHIPMENT,
@@ -373,17 +362,6 @@ const Shipment = (props) => {
         >
           Shipments
         </Typography>
-        <Button
-          type="button"
-          variant="contained"
-          color="primary"
-          className={classes.addButton}
-          onClick={onAddButtonClick}
-        >
-          <AddIcon />
-          {' '}
-          Add Shipment
-        </Button>
       </Box>
       <Grid container spacing={2}>
         <Grid item xs={12} md={tileView ? 6 : 12}>
@@ -494,12 +472,8 @@ const Shipment = (props) => {
         selectedMarker={selectedShipment && selectedMarker}
       />
       <Route
-        path={`${routes.SHIPMENT}/add`}
-        component={AddShipment}
-      />
-      <Route
         path={`${routes.SHIPMENT}/edit/:id`}
-        component={AddShipment}
+        component={CreateShipment}
       />
       <ConfirmModal
         open={openConfirmModal}
