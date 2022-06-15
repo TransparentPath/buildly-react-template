@@ -61,17 +61,28 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
   },
+  dashboardHeading: {
+    fontWeight: 'bold',
+    marginBottom: '0.5em',
+  },
   formTitle: {
     fontWeight: 'bold',
     marginTop: '1em',
     textAlign: 'center',
   },
-  step: {
-    cursor: 'pointer',
+  fieldset: {
+    border: '1px solid #EBC645',
+    padding: '2rem',
+    borderRadius: '1rem',
+    width: '80%',
+    marginTop: '1rem',
+  },
+  legend: {
+    fontSize: '0.8rem',
   },
   form: {
     width: '100%',
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
   },
   submit: {
     borderRadius: '1rem',
@@ -851,18 +862,11 @@ const CreateShipment = (props) => {
               component="fieldset"
               variant="outlined"
               color="primary"
-              style={{
-                border: '1px solid #EBC645',
-                padding: '2rem',
-                borderRadius: '1rem',
-                width: '80%',
-              }}
+              className={classes.fieldset}
             >
               <FormLabel
                 component="legend"
-                style={{
-                  fontSize: '0.8rem',
-                }}
+                className={classes.legend}
               >
                 Shipment details
               </FormLabel>
@@ -1030,12 +1034,11 @@ const CreateShipment = (props) => {
                 <Grid
                   item
                   xs={12}
-                  sm={6}
+                  sm={8}
                   sx={{ padding: '8px' }}
                 >
                   <Grid container spacing={isDesktop ? 2 : 0}>
                     <Grid
-                      className={classes.inputWithTooltip}
                       item
                       xs={12}
                     >
@@ -1074,7 +1077,6 @@ const CreateShipment = (props) => {
                     )}
                     </Grid>
                     <Grid
-                      className={classes.inputWithTooltip}
                       item
                       xs={12}
                     >
@@ -1086,6 +1088,7 @@ const CreateShipment = (props) => {
                         fullWidth
                         style={{
                           marginTop: '0px',
+                          width: '100%',
                         }}
                         options={
                     (
@@ -1150,12 +1153,15 @@ const CreateShipment = (props) => {
                 <Grid
                   item
                   xs={12}
-                  sm={6}
+                  sm={4}
                   sx={{ padding: '8px' }}
                 >
                   <Grid container spacing={isDesktop ? 2 : 0}>
                     <Grid item xs={6}>
-                      <div className={classes.inputWithTooltip}>
+                      <Grid
+                        item
+                        xs={12}
+                      >
                         <TextField
                           variant="outlined"
                           margin="normal"
@@ -1171,8 +1177,14 @@ const CreateShipment = (props) => {
                             endAdornment: <InputAdornment position="end"><TempIcon color="white" name="Max Temperature" /></InputAdornment>,
                           }}
                         />
-                      </div>
-                      <div className={classes.inputWithTooltip}>
+                      </Grid>
+                      <Grid
+                        item
+                        xs={12}
+                        style={{
+                          margin: '1.2rem 0px',
+                        }}
+                      >
                         <TextField
                           variant="outlined"
                           margin="normal"
@@ -1188,10 +1200,13 @@ const CreateShipment = (props) => {
                             endAdornment: <InputAdornment position="end"><TempIcon color="white" name="Min Temperature" /></InputAdornment>,
                           }}
                         />
-                      </div>
+                      </Grid>
                     </Grid>
                     <Grid item xs={6}>
-                      <div className={classes.inputWithTooltip}>
+                      <Grid
+                        item
+                        xs={12}
+                      >
                         <TextField
                           variant="outlined"
                           margin="normal"
@@ -1208,8 +1223,14 @@ const CreateShipment = (props) => {
                           }}
                         />
 
-                      </div>
-                      <div className={classes.inputWithTooltip}>
+                      </Grid>
+                      <Grid
+                        item
+                        xs={12}
+                        style={{
+                          margin: '1.2rem 0px',
+                        }}
+                      >
                         <TextField
                           variant="outlined"
                           margin="normal"
@@ -1226,21 +1247,281 @@ const CreateShipment = (props) => {
                           }}
                         />
 
-                      </div>
+                      </Grid>
                     </Grid>
                   </Grid>
 
                 </Grid>
-                <Grid item xs={10} />
-                <Grid item xs={2} display="flex" alignItems="flex-end" justifyContent="flex-end">
+                <Grid item xs={10} sm={8} />
+                <Grid item xs={2} sm={4} display="flex" alignItems="flex-end" justifyContent="flex-end">
                   <Button
                     variant="contained"
                     color="primary"
                     fullWidth
                     className={classes.submit}
+                    size="small"
+                    style={{
+                      borderRadius: '18px',
+                    }}
                   >
                     Save as Template
                   </Button>
+                </Grid>
+              </Grid>
+            </FormControl>
+
+            <FormControl
+              component="fieldset"
+              variant="outlined"
+              color="primary"
+              className={classes.fieldset}
+            >
+              <FormLabel
+                component="legend"
+                className={classes.legend}
+              >
+                Additional information
+              </FormLabel>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6} sx={{ padding: '8px' }}>
+                  <Grid container spacing={isDesktop ? 2 : 0} display="flex" justifyItems="space-between" flexDirection="row">
+                    <Grid item xs={2} sm={4}>
+                      <TextField
+                        variant="outlined"
+                        margin="normal"
+                        id="organization"
+                        label="Organization"
+                        name="organization"
+                        autoComplete="organization"
+                        disabled={viewOnly}
+                        {...organization.bind}
+                      />
+
+                    </Grid>
+                    <Grid item xs={10} sm={8}>
+                      <TextField
+                        variant="outlined"
+                        required
+                        margin="normal"
+                        fullWidth
+                        id="load_no"
+                        label="Order Number"
+                        name="load_no"
+                        autoComplete="load_no"
+                        disabled={viewOnly}
+                        {...load_no.bind}
+                      />
+                    </Grid>
+
+                  </Grid>
+
+                </Grid>
+              </Grid>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6} sx={{ padding: '8px' }}>
+                  <Grid container spacing={isDesktop ? 2 : 0}>
+                    <Grid item xs={12}>
+                      <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        id="lading_bill"
+                        label="Bill of lading"
+                        name="lading_bill"
+                        autoComplete="lading_bill"
+                        disabled={viewOnly}
+                        {...lading_bill.bind}
+                      />
+                      <DatePickerComponent
+                        label="Pickup Date/Time"
+                        fullWidth
+                        required
+                        selectedDate={
+                        moment(scheduled_departure).tz(timezone)
+                          .format('MMMM DD, YYYY HH:mm:ss')
+                      }
+                        hasTime
+                      // handleDateChange={handleDepartureDateChange}
+                        disabled={viewOnly}
+                        helpText={
+                        fieldsMetadata.scheduled_departure
+                        && fieldsMetadata.scheduled_departure.help_text
+                          ? fieldsMetadata.scheduled_departure.help_text
+                          : ''
+                      }
+                      />
+                    </Grid>
+
+                  </Grid>
+                </Grid>
+                <Grid item xs={12} sm={6} sx={{ padding: '8px' }}>
+                  <Grid
+                    container
+                    spacing={isDesktop ? 2 : 0}
+                  >
+                    <Grid item xs={12}>
+                      <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        id="lading_bill"
+                        label="Shipper Number"
+                        name="lading_bill"
+                        autoComplete="lading_bill"
+                        disabled={viewOnly}
+                        {...lading_bill.bind}
+                      />
+                      <DatePickerComponent
+                        label="Dropoff Date/Time"
+                        fullWidth
+                        required
+                        selectedDate={
+                        moment(scheduled_arrival).tz(timezone)
+                          .format('MMMM DD, YYYY HH:mm:ss')
+                      }
+                        hasTime
+                      // handleDateChange={handleScheduledDateChange}
+                        disabled={viewOnly}
+                        helpText={
+                        fieldsMetadata.scheduled_arrival
+                        && fieldsMetadata.scheduled_arrival.help_text
+                          ? fieldsMetadata.scheduled_arrival.help_text
+                          : ''
+                      }
+                      />
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        className={classes.submit}
+                        size="small"
+                        style={{
+                          borderRadius: '18px',
+                        }}
+                      >
+                        <AddIcon />
+                        {' '}
+                        Add Additional Carrier
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </FormControl>
+
+            <FormControl
+              component="fieldset"
+              variant="outlined"
+              color="primary"
+              className={classes.fieldset}
+            >
+              <FormLabel
+                component="legend"
+                className={classes.legend}
+              >
+                Gateway
+              </FormLabel>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    required
+                    id="platform_name"
+                    select
+                    label="Sensor Platform"
+                    disabled={
+                        viewOnly
+                        || !!(shipmentFormData && shipmentFormData.platform_name)
+                      }
+                    // value={platform_name}
+                    // onChange={(e) => setPlatformName(e.target.value)}
+                    helperText={
+                        shipmentFormData && shipmentFormData.platform_name
+                          ? 'Once set, platform cannot be edited.'
+                          : 'Platform can be set just once.'
+                      }
+                  >
+                    <MenuItem value="">Select</MenuItem>
+                    {/* {SENSOR_PLATFORM
+                      && _.map(
+                        _.orderBy(SENSOR_PLATFORM, ['value'], ['asc']),
+                        (item, index) => (
+                          <MenuItem
+                            key={`sensorPlatform${index}:${item.value}`}
+                            value={item.value}
+                          >
+                            {item.label}
+                          </MenuItem>
+                        ),
+                      )} */}
+                  </TextField>
+                </Grid>
+                <Grid item xs={6}>
+                  <Autocomplete
+                    multiple
+                    id="combo-box-demo"
+                  // disabled={
+                  //   viewOnly
+                  //   || (shipmentFormData
+                  //     && shipmentFormData.gateway_ids
+                  //     && shipmentFormData.gateway_ids.length > 0
+                  //   )
+                  // }
+                    // options={options}
+                    getOptionLabel={(option) => (
+                      option
+                    && option.name
+                    )}
+                    isOptionEqualToValue={(option, value) => (
+                      option.gateway_uuid === value
+                    )}
+                    filterSelectedOptions
+                    // value={gatewayIds}
+                    onChange={(event, newValue) => onInputChange(newValue)}
+                    renderTags={(value, getTagProps) => (
+                      _.map(value, (option, index) => (
+                        <Chip
+                          variant="default"
+                          label={
+                          gatewayData
+                            ? _.find(gatewayData, { gateway_uuid: option })?.name
+                            : ''
+                        }
+                          {...getTagProps({ index })}
+                        />
+                      ))
+                    )}
+                    // eslint-disable-next-line no-shadow
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox
+                          icon={icon}
+                          checkedIcon={checkedIcon}
+                          style={{ marginRight: 8, color: '#fff' }}
+                          checked={selected}
+                        />
+                        {option.name}
+                      </li>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        disabled={viewOnly}
+                        label="Associate to Gateway"
+                        variant="outlined"
+                        placeholder="Select a Gateway"
+                        helperText={
+                        shipmentFormData
+                        && shipmentFormData.gateway_ids
+                        && shipmentFormData.gateway_ids.length === 0
+                          ? '**You can attach gateway/sensor only once per shipment.'
+                          : '**In case you want to change the gateway/sensor, please cancel this shipment and create a new one.'
+                      }
+                      />
+                    )}
+                  />
                 </Grid>
               </Grid>
             </FormControl>
