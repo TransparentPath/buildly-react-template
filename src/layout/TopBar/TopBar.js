@@ -72,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('xs')]: {
       marginTop: theme.spacing(2),
     },
-    borderRadius: theme.spacing(1),
+    borderRadius: '18px',
   },
 }));
 
