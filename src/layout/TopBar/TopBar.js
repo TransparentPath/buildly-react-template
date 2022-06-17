@@ -44,7 +44,7 @@ import AccountMenu from './AccountMenu';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    backgroundColor: '#383636',
+    backgroundColor: theme.palette.background.dark,
     zIndex: theme.zIndex.drawer + 1,
     [theme.breakpoints.down('sm')]: {
       overflowX: 'auto',
@@ -71,8 +71,10 @@ const useStyles = makeStyles((theme) => ({
   addButton: {
     [theme.breakpoints.down('xs')]: {
       marginTop: theme.spacing(2),
+      padding: 0,
     },
     borderRadius: '18px',
+    fontSize: '0.8rem',
   },
 }));
 

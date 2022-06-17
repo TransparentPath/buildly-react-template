@@ -14,10 +14,6 @@ import {
   Typography,
   Box,
   MenuItem,
-  CircularProgress,
-  InputLabel,
-  FormHelperText,
-  FormGroup,
   FormControl,
   FormLabel,
   Divider,
@@ -25,6 +21,7 @@ import {
   Chip,
   Checkbox,
   InputAdornment,
+  CircularProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -37,7 +34,6 @@ import {
 } from '../../components/Icons/Icons';
 import { makeStyles } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
-import FormModal from '../../components/Modal/FormModal';
 import { UserContext } from '../../context/User.context';
 import { routes } from '../../routes/routesConstants';
 import { checkForGlobalAdmin } from '../../utils/utilMethods';
@@ -55,7 +51,11 @@ import {
 } from '../../utils/mock';
 import { setOptionsData } from '../../utils/utilMethods';
 import { validators } from '../../utils/validators';
-import ShipmentRouteInfo from './components/ShipmentRouteInfo';
+import {
+  getFormattedRow,
+  getFormattedSensorRow,
+  getAvailableGateways,
+} from '../../pages/SensorsGateway/Constants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -85,13 +85,12 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
   submit: {
-    borderRadius: '1rem',
+    borderRadius: '18px',
     fontSize: '14px',
   },
   buttonContainer: {
-    margin: theme.spacing(8, 0),
-    textAlign: 'center',
-    justifyContent: 'center',
+    width: '80%',
+    margin: theme.spacing(2, 0),
   },
   buttonProgress: {
     position: 'absolute',
@@ -106,6 +105,27 @@ const useStyles = makeStyles((theme) => ({
   inputWithTooltip: {
     display: 'flex',
     alignItems: 'center',
+  },
+  divider: {
+    width: '100%',
+    marginTop: '10px',
+    borderWidth: '1px',
+    borderColor: theme.palette.primary.main,
+  },
+  autoComplete: {
+    marginTop: '0px',
+    width: '100%',
+  },
+  envInput: {
+    margin: '1.2rem 0px',
+  },
+  flexContainer: {
+    display: 'flex', justifyContent: 'space-around', flexDirection: 'row',
+  },
+  smallInput: {
+    width: '20%',
+    marginLeft: '16px',
+    flex: '1',
   },
 }));
 
@@ -122,6 +142,10 @@ const CreateShipment = (props) => {
     gatewayData,
     itemData,
     itemTypeList,
+    gatewayTypeList,
+    shipmentData,
+    sensorData,
+    sensorTypeList,
 
   } = props;
   const classes = useStyles();
@@ -141,10 +165,6 @@ const CreateShipment = (props) => {
     && editData
     && editData.status
     && _.lowerCase(editData.status) !== 'planned';
-
-  const [openFormModal, setFormModal] = useState(true);
-  const [openConfirmModal, setConfirmModal] = useState(false);
-  const [confirmModalFor, setConfirmModalFor] = useState('');
 
   const shipment_name = useInput(
     (editData && editData.name) || '',
@@ -237,6 +257,7 @@ const CreateShipment = (props) => {
     uom_temp: '',
     uom_distance: '',
     uom_weight,
+    platform_name: '',
   });
 
   const organization = useContext(UserContext).organization.organization_uuid;
@@ -332,35 +353,6 @@ const CreateShipment = (props) => {
       });
     }
   }, [unitsOfMeasure]);
-
-  const closeModal = () => {
-    if (checkIfFormEdited()) {
-      setConfirmModalFor('close');
-      setConfirmModal(true);
-    } else {
-      setFormModal(false);
-      dispatch(saveShipmentFormData(null));
-      history.push(routes.SHIPMENT);
-    }
-  };
-
-  const handleCancel = () => {
-    if (checkIfFormEdited()) {
-      setConfirmModalFor('close');
-      setConfirmModal(true);
-    } else {
-      dispatch(saveShipmentFormData(null));
-      history.push(routes.SHIPMENT);
-    }
-  };
-
-  const handleConfirmModal = () => {
-    setConfirmModal(false);
-    if (confirmModalFor === 'close') {
-      dispatch(saveShipmentFormData(null));
-      history.push(routes.SHIPMENT);
-    }
-  };
 
   const checkIfFormEdited = () => {
     console.log('In form edited');
@@ -687,7 +679,6 @@ const CreateShipment = (props) => {
   // );
 
   const [shipmentMetaData, setShipmentMetaData] = useState({});
-  // const organization = useContext(UserContext).organization.organization_uuid;
 
   useEffect(() => {
     if (shipmentOptions && shipmentOptions.actions) {
@@ -838,6 +829,122 @@ const CreateShipment = (props) => {
   //   } else {
   //     handleCancel();
   //   }
+  // };
+
+  const [gatewayIds, setGatewayIds] = useState(
+    (shipmentFormData && shipmentFormData.gateway_ids) || [],
+  );
+  const [platform_name, setPlatformName] = useState(
+    (shipmentFormData && shipmentFormData.platform_name) || 'tive',
+  );
+  const [options, setOptions] = useState([]);
+
+  let rows = [];
+  let sensorsRow = [];
+
+  if (gatewayData && gatewayData.length) {
+    let selectedRows = [];
+    let selectedSensors = [];
+    _.forEach(gatewayData, (element) => {
+      if (_.indexOf(gatewayIds, element.gateway_uuid) !== -1) {
+        selectedRows = [...selectedRows, element];
+        if (sensorData && sensorData.length) {
+          _.forEach(sensorData, (sensor) => {
+            if (element.url === sensor.gateway) {
+              selectedSensors = [...selectedSensors, sensor];
+            }
+          });
+        }
+      }
+    });
+    rows = getFormattedRow(selectedRows, gatewayTypeList, shipmentData);
+    sensorsRow = getFormattedSensorRow(selectedSensors, sensorTypeList);
+  }
+
+  useEffect(() => {
+    const metadata = { ...fieldsMetadata };
+    if (shipmentOptions && shipmentOptions.actions) {
+      metadata.platform_name = setOptionsData(
+        shipmentOptions.actions.POST,
+        'platform_name',
+      );
+    }
+    if (
+      gatewayData
+      && gatewayData.length
+      && gatewayTypeList
+      && gatewayTypeList.length
+      && shipmentData
+      && shipmentData.length
+      && shipmentFormData
+    ) {
+      const opts = getAvailableGateways(
+        gatewayData,
+        platform_name
+          ? _.lowerCase(platform_name)
+          : 'tive',
+        gatewayTypeList,
+        shipmentData,
+        shipmentFormData,
+      );
+      setOptions(opts);
+    }
+  }, [gatewayData, platform_name, gatewayTypeList, shipmentData]);
+
+  // const onInputChange = (value) => {
+  //   switch (true) {
+  //     case (value.length > gatewayIds.length):
+  //       setGatewayIds([...gatewayIds, _.last(value).gateway_uuid]);
+  //       break;
+
+  //     case (value.length < gatewayIds.length):
+  //       setGatewayIds(value);
+  //       break;
+
+  //     default:
+  //       break;
+  //   }
+  // };
+
+  // const submitDisabled = () => !gatewayIds.length || gatewayData === null;
+
+  // eslint-disable-next-line max-len
+  // checkIfSensorGatewayEdited = () => {
+  //   if (gatewayIds.length) {
+  //     return shipmentFormData.gateway_ids
+  //       ? !!(gatewayIds.length !== shipmentFormData.gateway_ids.length) : true;
+  //   }
+  //   return false;
+  // };
+
+  // /**
+  //  * Submit The form and add/edit custodian
+  //  * @param {Event} event the default submit event
+  //  */
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
+  //   const shipmentFormValue = {
+  //     ...{
+  //       ...shipmentFormData,
+  //       platform_name,
+  //       gateway_ids: gatewayIds,
+  //       gateway_imei: [updateGateway.imei_number],
+  //     },
+  //   };
+  //   dispatch(
+  //     editShipment(
+  //       shipmentFormValue,
+  //       history,
+  //       `${routes.SHIPMENT}/edit/:${shipmentFormData.id}`,
+  //       organization,
+  //     ),
+  //   );
+  //   dispatch(editGateway({
+  //     ...updateGateway,
+  //     gateway_status: 'assigned',
+  //     shipment_ids: [shipmentFormData.id],
+  //   }));
   // };
 
   return (
@@ -1022,12 +1129,7 @@ const CreateShipment = (props) => {
                 <Divider
                   orientation="horizontal"
                   light
-                  style={{
-                    width: '100%',
-                    marginTop: '10px',
-                    borderWidth: '1px',
-                    borderColor: '#EBC645',
-                  }}
+                  className={classes.divider}
                 />
               </Grid>
               <Grid container spacing={2}>
@@ -1086,10 +1188,7 @@ const CreateShipment = (props) => {
                         disabled={viewOnly}
                         disableCloseOnSelect
                         fullWidth
-                        style={{
-                          marginTop: '0px',
-                          width: '100%',
-                        }}
+                        className={classes.autoComplete}
                         options={
                     (
                       itemData
@@ -1181,9 +1280,7 @@ const CreateShipment = (props) => {
                       <Grid
                         item
                         xs={12}
-                        style={{
-                          margin: '1.2rem 0px',
-                        }}
+                        className={classes.envInput}
                       >
                         <TextField
                           variant="outlined"
@@ -1227,9 +1324,7 @@ const CreateShipment = (props) => {
                       <Grid
                         item
                         xs={12}
-                        style={{
-                          margin: '1.2rem 0px',
-                        }}
+                        classname={classes.envinput}
                       >
                         <TextField
                           variant="outlined"
@@ -1256,13 +1351,10 @@ const CreateShipment = (props) => {
                 <Grid item xs={2} sm={4} display="flex" alignItems="flex-end" justifyContent="flex-end">
                   <Button
                     variant="contained"
-                    color="primary"
+                    color="secondary"
                     fullWidth
                     className={classes.submit}
                     size="small"
-                    style={{
-                      borderRadius: '18px',
-                    }}
                   >
                     Save as Template
                   </Button>
@@ -1391,12 +1483,12 @@ const CreateShipment = (props) => {
                       />
                       <Button
                         variant="contained"
-                        color="primary"
+                        color="secondary"
                         fullWidth
                         className={classes.submit}
                         size="small"
                         style={{
-                          borderRadius: '18px',
+                          marginTop: '2rem',
                         }}
                       >
                         <AddIcon />
@@ -1430,7 +1522,7 @@ const CreateShipment = (props) => {
                     required
                     id="platform_name"
                     select
-                    label="Sensor Platform"
+                    label="Gateway Platform"
                     disabled={
                         viewOnly
                         || !!(shipmentFormData && shipmentFormData.platform_name)
@@ -1462,14 +1554,14 @@ const CreateShipment = (props) => {
                   <Autocomplete
                     multiple
                     id="combo-box-demo"
-                  // disabled={
-                  //   viewOnly
-                  //   || (shipmentFormData
-                  //     && shipmentFormData.gateway_ids
-                  //     && shipmentFormData.gateway_ids.length > 0
-                  //   )
-                  // }
-                    // options={options}
+                    disabled={
+                    viewOnly
+                    || (shipmentFormData
+                      && shipmentFormData.gateway_ids
+                      && shipmentFormData.gateway_ids.length > 0
+                    )
+                  }
+                    options={options}
                     getOptionLabel={(option) => (
                       option
                     && option.name
@@ -1478,7 +1570,7 @@ const CreateShipment = (props) => {
                       option.gateway_uuid === value
                     )}
                     filterSelectedOptions
-                    // value={gatewayIds}
+                    value={gatewayIds}
                     onChange={(event, newValue) => onInputChange(newValue)}
                     renderTags={(value, getTagProps) => (
                       _.map(value, (option, index) => (
@@ -1509,7 +1601,7 @@ const CreateShipment = (props) => {
                       <TextField
                         {...params}
                         disabled={viewOnly}
-                        label="Associate to Gateway"
+                        label="Gateway Label"
                         variant="outlined"
                         placeholder="Select a Gateway"
                         helperText={
@@ -1525,38 +1617,121 @@ const CreateShipment = (props) => {
                 </Grid>
               </Grid>
             </FormControl>
-          </Grid>
 
+            <Grid container spacing={2} marginTop="0.5rem">
+              <Grid item xs={2} sm={5} />
+              <Grid item xs={10} sm={4} className={classes.flexContainer}>
+                <TextField
+                  variant="outlined"
+                  required
+                  margin="normal"
+                  id="load_no_1"
+                  label="Org"
+                  name="load_no"
+                  autoComplete="load_no"
+                  disabled={viewOnly}
+                  {...load_no.bind}
+                  style={{
+                    width: '20%',
+                  }}
+                />
+                <TextField
+                  variant="outlined"
+                  required
+                  margin="normal"
+                  id="load_no_2"
+                  label="Order No."
+                  name="load_no"
+                  autoComplete="load_no"
+                  disabled={viewOnly}
+                  {...load_no.bind}
+                  style={{
+                    flex: '2',
+                    width: '20%',
+                    marginLeft: '16px',
+                  }}
+                  className={classes.smallInput}
+                />
+                <TextField
+                  variant="outlined"
+                  required
+                  margin="normal"
+                  id="load_no_3"
+                  label="Origin"
+                  name="load_no"
+                  autoComplete="load_no"
+                  disabled={viewOnly}
+                  {...load_no.bind}
+                  className={classes.smallInput}
+                />
+                <TextField
+                  variant="outlined"
+                  required
+                  margin="normal"
+                  id="load_no_4"
+                  label="Dest."
+                  name="load_no"
+                  autoComplete="load_no"
+                  disabled={viewOnly}
+                  {...load_no.bind}
+                  className={classes.smallInput}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid
+            container
+            spacing={2}
+            className={classes.buttonContainer}
+          >
+            <Grid item xs={12} sm={6}>
+              <Button
+                type="button"
+                fullWidth
+                variant="outlined"
+                color="primary"
+                className={classes.submit}
+              >
+                Cancel
+              </Button>
+
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              {viewOnly ? (
+                <Button
+                  type="button"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  // onClick={onCancelClick}
+                >
+                  Done
+                </Button>
+              ) : (
+                <div className={classes.loadingWrapper}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    disabled={loading || submitDisabled()}
+                  >
+                    Save Shipment
+                  </Button>
+                  {loading && (
+                  <CircularProgress
+                    size={24}
+                    className={classes.buttonProgress}
+                  />
+                  )}
+                </div>
+              )}
+            </Grid>
+          </Grid>
         </Box>
 
-        <Grid
-          container
-          spacing={3}
-          className={classes.buttonContainer}
-        >
-          <Grid item xs={6} sm={2}>
-            <Button
-              type="button"
-              fullWidth
-              variant="outlined"
-              color="primary"
-              className={classes.submit}
-            >
-              Cancel
-            </Button>
-
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              className={classes.submit}
-            >
-              Save Shipment
-            </Button>
-          </Grid>
-        </Grid>
       </form>
     </Box>
   );

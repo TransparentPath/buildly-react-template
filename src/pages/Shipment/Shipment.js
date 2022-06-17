@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   switchViewSection: {
-    background: '#383636',
+    background: theme.palette.background.dark,
     width: '100%',
     display: 'flex',
     minHeight: '40px',
@@ -84,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
     zIndex: '5',
   },
   tabContainer: {
-    backgroundColor: '#222222',
+    backgroundColor: theme.palette.common.tab,
     margin: '0',
     display: 'flex',
     justifyContent: 'space-between',
