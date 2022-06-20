@@ -100,7 +100,7 @@ export const getShipmentDataTableColumns = (timezone) => ([
       customBodyRender: (value) => (value
         ? (
           <Typography sx={{
-            color: theme.palette.primary.main,
+            color: '#EBC645',
           }}
           >
             YES
@@ -112,7 +112,7 @@ export const getShipmentDataTableColumns = (timezone) => ([
   },
 ]);
 
-export const getFormattedRow = (
+export const getShipmentFormattedRow = (
   shipmentData,
   custodianData,
   custodyData,

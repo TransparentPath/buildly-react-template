@@ -53,7 +53,7 @@ import {
 } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
 import {
-  getFormattedRow,
+  getShipmentFormattedRow,
   MAP_TOOLTIP,
 } from './ShipmentConstants';
 import ShipmentDataTable from './components/ShipmentDataTable';
@@ -201,7 +201,7 @@ const Shipment = (props) => {
       && allAlerts
       && contactInfo
     ) {
-      const formattedRows = getFormattedRow(
+      const formattedRows = getShipmentFormattedRow(
         shipmentData,
         custodianData,
         custodyData,

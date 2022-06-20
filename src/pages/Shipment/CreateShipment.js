@@ -1,9 +1,9 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import Geocode from 'react-geocode';
 import _ from 'lodash';
 import moment from 'moment-timezone';
+import { routes } from '../../routes/routesConstants';
 import { MapComponent } from '../../components/MapComponent/MapComponent';
 import {
   Button,
@@ -35,27 +35,46 @@ import {
 import { makeStyles } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
 import { UserContext } from '../../context/User.context';
-import { routes } from '../../routes/routesConstants';
 import { checkForGlobalAdmin } from '../../utils/utilMethods';
 import DatePickerComponent from '../../components/DatePicker/DatePicker';
-import CustomizedTooltips from '../../components/ToolTip/ToolTip';
 import { useInput } from '../../hooks/useInput';
 import {
+  getCustodians,
+  getCustodianType,
+  getContact,
+  addCustody,
+  editCustody,
+} from '../../redux/custodian/actions/custodian.actions';
+import {
+  getItems,
+  getItemType,
+  getUnitsOfMeasure,
+} from '../../redux/items/actions/items.actions';
+import {
+  getGateways,
+  getGatewayType,
+  getSensors,
+  getSensorType,
+  editGateway,
+} from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
+import {
+  getShipmentDetails,
   editShipment,
   addShipment,
   saveShipmentFormData,
 } from '../../redux/shipment/actions/shipment.actions';
 import {
-  SHIPMENT_STATUS,
+  SENSOR_PLATFORM,
   TRANSPORT_MODE,
 } from '../../utils/mock';
-import { setOptionsData } from '../../utils/utilMethods';
 import { validators } from '../../utils/validators';
 import {
-  getFormattedRow,
-  getFormattedSensorRow,
+  getGatewayFormattedRow,
+  getSensorFormattedRow,
   getAvailableGateways,
 } from '../../pages/SensorsGateway/Constants';
+import { getItemFormattedRow } from '../../pages/Items/ItemsConstants';
+import { getCustodianFormattedRow } from '../../pages/Custodians/CustodianConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -137,16 +156,18 @@ const CreateShipment = (props) => {
     dispatch,
     location,
     unitsOfMeasure,
-    shipmentOptions,
     timezone,
     gatewayData,
     itemData,
+    custodianData,
+    contactInfo,
     itemTypeList,
     gatewayTypeList,
-    shipmentData,
     sensorData,
     sensorTypeList,
-
+    shipmentData,
+    custodyData,
+    aggregateReportData,
   } = props;
   const classes = useStyles();
   const user = useContext(UserContext);
@@ -166,25 +187,28 @@ const CreateShipment = (props) => {
     && editData.status
     && _.lowerCase(editData.status) !== 'planned';
 
-  const shipment_name = useInput(
+  const { organization } = useContext(UserContext);
+  const { organization_uuid } = organization;
+
+  const [shipment_name, setShipmentName] = useState(
     (editData && editData.name) || '',
+  );
+  const purchase_order_number = useInput(
+    (editData && editData.purchase_order_number) || '',
+  );
+  const order_number = useInput(
+    (editData && editData.order_number) || '',
+  );
+  const shipper_number = useInput(
+    (editData && editData.shipper_number) || '',
+  );
+  const carrier = useInput(
+    (editData && editData.carrier) || '',
     { required: true },
-  );
-  const lading_bill = useInput(
-    (editData && editData.bol_order_id) || '',
-  );
-  const load_no = useInput('');
-  const shipment_status = useInput(
-    (editData && editData.status) || '',
-    { required: true },
-  );
-  const route_desc = useInput(
-    (editData && editData.route_description) || '',
   );
   const mode_type = useInput(
     (editData && editData.transport_mode) || '',
   );
-  const route_dist = useInput('');
   const [scheduled_departure, handleDepartureDateChange] = useState(
     (editData && editData.estimated_time_of_departure)
     || new Date(),
@@ -193,16 +217,6 @@ const CreateShipment = (props) => {
     (editData && editData.estimated_time_of_arrival)
     || new Date(),
   );
-  const [uom_temp, setUomTemp] = useState(
-    (editData && editData.uom_temp) || '',
-  );
-  const [uom_weight, setUomWeight] = useState(
-    (editData && editData.uom_weight) || '',
-  );
-  const [uom_distance, setUomDistance] = useState(
-    (editData && editData.uom_distance) || '',
-  );
-
   const [min_temp_val, changeMinTempVal] = useState(
     (shipmentFormData && shipmentFormData.min_excursion_temp) || 0,
   );
@@ -212,16 +226,8 @@ const CreateShipment = (props) => {
   const [minMaxTempValue, setMinMaxTempValue] = useState(
     shipmentFormData && [
       shipmentFormData.min_excursion_temp || 0,
-      shipmentFormData.min_warning_temp || 35,
-      shipmentFormData.max_warning_temp || 75,
       shipmentFormData.max_excursion_temp || 100,
     ],
-  );
-  const [low_temp_val, changeLowTempVal] = useState(
-    (shipmentFormData && shipmentFormData.min_warning_temp) || 35,
-  );
-  const [high_temp_val, changeHighTempVal] = useState(
-    (shipmentFormData && shipmentFormData.max_warning_temp) || 75,
   );
 
   const [min_humid_val, changeMinHumidVal] = useState(
@@ -233,237 +239,18 @@ const CreateShipment = (props) => {
   const [minMaxHumidValue, setMinMaxHumidValue] = useState(
     shipmentFormData && [
       shipmentFormData.min_excursion_humidity || 0,
-      shipmentFormData.min_warning_humidity || 35,
-      shipmentFormData.max_warning_humidity || 75,
       shipmentFormData.max_excursion_humidity || 100,
     ],
   );
-  const [low_humid_val, changeLowHumidVal] = useState(
-    (shipmentFormData && shipmentFormData.min_warning_humidity) || 35,
-  );
-  const [high_humid_val, changeHighHumidVal] = useState(
-    (shipmentFormData && shipmentFormData.max_warning_humidity) || 75,
-  );
-
-  const [formError, setFormError] = useState({});
-  const [fieldsMetadata, setFieldsMetaData] = useState({
-    shipment_name: '',
-    shipment_status: '',
-    lading_bill: '',
-    route_desc: '',
-    mode_type: '',
-    scheduled_departure: '',
-    scheduled_arrival: '',
-    uom_temp: '',
-    uom_distance: '',
-    uom_weight,
-    platform_name: '',
-  });
-
-  const organization = useContext(UserContext).organization.organization_uuid;
-
-  let formTitle;
-  if (!editPage) {
-    formTitle = 'Create Shipment';
-  } else if (viewOnly) {
-    formTitle = 'View Shipment';
-  } else {
-    formTitle = 'Edit Shipment';
-  }
-
-  useEffect(() => {
-    if (editPage || shipmentFormData === null) {
-      dispatch(saveShipmentFormData(editData));
-    }
-  }, []);
-
-  useEffect(() => {
-    const metadata = { ...fieldsMetadata };
-    if (shipmentOptions && shipmentOptions.actions) {
-      metadata.shipment_name = setOptionsData(
-        shipmentOptions.actions.POST,
-        'name',
-      );
-      metadata.shipment_status = setOptionsData(
-        shipmentOptions.actions.POST,
-        'status',
-      );
-      metadata.route_desc = setOptionsData(
-        shipmentOptions.actions.POST,
-        'route_description',
-      );
-      metadata.lading_bill = setOptionsData(
-        shipmentOptions.actions.POST,
-        'bol_order_id',
-      );
-      metadata.mode_type = setOptionsData(
-        shipmentOptions.actions.POST,
-        'transport_mode',
-      );
-      metadata.scheduled_departure = setOptionsData(
-        shipmentOptions.actions.POST,
-        'estimated_time_of_departure',
-      );
-      metadata.scheduled_arrival = setOptionsData(
-        shipmentOptions.actions.POST,
-        'estimated_time_of_arrival',
-      );
-      metadata.uom_temp = setOptionsData(
-        shipmentOptions.actions.POST,
-        'uom_temp',
-      );
-      metadata.uom_distance = setOptionsData(
-        shipmentOptions.actions.POST,
-        'uom_distance',
-      );
-      metadata.uom_weight = setOptionsData(
-        shipmentOptions.actions.POST,
-        'uom_weight',
-      );
-    }
-
-    setFieldsMetaData(metadata);
-  }, [shipmentOptions]);
-
-  useEffect(() => {
-    if (unitsOfMeasure && unitsOfMeasure.length) {
-      _.forEach(unitsOfMeasure, (unit) => {
-        if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'temp',
-          ) && unit.is_default_for_class
-        ) {
-          setUomTemp(unit.url);
-        } else if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'distance',
-          ) && unit.is_default_for_class
-        ) {
-          setUomDistance(unit.url);
-        } else if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'weight',
-          ) && unit.is_default_for_class
-        ) {
-          setUomWeight(unit.url);
-        }
-      });
-    }
-  }, [unitsOfMeasure]);
-
-  const checkIfFormEdited = () => {
-    console.log('In form edited');
-  };
-
-  const handleBlur = (e, validation, input, parentId) => {
-    const validateObj = validators(validation, input);
-    const prevState = { ...formError };
-    if (validateObj && validateObj.error) {
-      setFormError({
-        ...prevState,
-        [e.target.id || parentId]: validateObj,
-      });
-    } else {
-      setFormError({
-        ...prevState,
-        [e.target.id || parentId]: {
-          error: false,
-          message: '',
-        },
-      });
-    }
-  };
-
-  const submitDisabled = () => {
-    const errorKeys = Object.keys(formError);
-    if (!shipment_name.value) {
-      return true;
-    }
-    let errorExists = false;
-    _.forEach(errorKeys, (key) => {
-      if (formError[key].error) {
-        errorExists = true;
-      }
-    });
-    return errorExists;
-  };
-
-  /**
-   * Submit The form and add/edit custodian
-   * @param {Event} event the default submit event
-   */
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const shipmentFormValue = {
-      ...copyData,
-      name: shipment_name.value,
-      status: shipment_status.value ? shipment_status.value : 'Planned',
-      bol_order_id: lading_bill.value,
-      route_description: route_desc.value,
-      transport_mode: mode_type.value,
-      estimated_time_of_arrival: scheduled_arrival,
-      estimated_time_of_departure: scheduled_departure,
-      ...(editData && { id: editData.id }),
-      items: (editData && editData.items) || [],
-      gateway_ids: (editData && editData.gateway_ids) || [],
-      sensor_report_ids: (
-        editData
-        && editData.sensor_report_ids
-      ) || [],
-      wallet_ids: (editData && editData.wallet_ids) || [],
-      custodian_ids: (editData && editData.custodian_ids) || [],
-      uom_distance,
-      uom_temp,
-      uom_weight,
-      organization_uuid: organization,
-      // platform_name,
-    };
-
-    if (editPage && editData) {
-      if (shipmentFormData.gateway_ids.length > 0) {
-        let attachedGateway = null;
-        attachedGateway = _.filter(
-          gatewayData, (gateway) => gateway.gateway_uuid === shipmentFormData.gateway_ids[0],
-        );
-        dispatch(
-          editShipment(
-            shipmentFormValue,
-            history,
-            `${routes.SHIPMENT}/edit/:${editData.id}`,
-            organization,
-            attachedGateway[0],
-          ),
-        );
-      } else {
-        dispatch(
-          editShipment(
-            shipmentFormValue,
-            history,
-            `${routes.SHIPMENT}/edit/:${editData.id}`,
-            organization,
-            null,
-          ),
-        );
-      }
-    } else {
-      dispatch(addShipment(shipmentFormValue, history, null, organization));
-    }
-  };
 
   let latLongChanged = false;
 
-  const [custodianURL, setCustodianURL] = useState(
-    (editData && editData.custodian_data && editData.custodian_data.url) || '',
-  );
   const [custodianList, setCustodianList] = useState([]);
-  const [start_of_custody, handleStartChange] = useState(
-    (editData && editData.start_of_custody) || new Date(),
+  const [start_of_custody, setStartCustody] = useState(
+    (editData && editData.start_of_custody) || '',
   );
-  const [end_of_custody, handleEndChange] = useState(
-    (editData && editData.end_of_custody) || new Date(),
+  const [end_of_custody, setEndCustody] = useState(
+    (editData && editData.end_of_custody) || '',
   );
   const [start_of_custody_location, setStartLocation] = useState(
     (editData && editData.start_of_custody_location) || '',
@@ -478,127 +265,189 @@ const CreateShipment = (props) => {
     (editData && editData.end_of_custody_location) || '',
   );
 
-  // const load_id = useInput((editData && editData.load_id) || rows.length + 1);
-
-  const shipment = useInput(
-    shipmentFormData && shipmentFormData.shipment_uuid,
-    '',
-    { required: true },
+  const [itemIds, setItemIds] = useState(
+    (shipmentFormData && shipmentFormData.items) || [],
   );
-  // const shipment_name = useInput(shipmentFormData && shipmentFormData.name, '');
-  const has_current_custody = useInput(
-    (editData && editData.has_current_custody) || false,
+
+  const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+  const checkedIcon = <CheckBoxIcon fontSize="small" />;
+
+  const [gatewayIds, setGatewayIds] = useState(
+    (shipmentFormData && shipmentFormData.gateway_ids) || [],
   );
-  const first_custody = useInput((editData && editData.first_custody) || false);
-  const last_custody = useInput((editData && editData.last_custody) || false);
-  // const [formError, setFormError] = useState({});
+  const [platform_name, setPlatformName] = useState(
+    (shipmentFormData && shipmentFormData.platform_name) || 'tive',
+  );
+  const [formError, setFormError] = useState({});
 
-  const [custodyMetaData, setCustodyMetaData] = useState({});
+  const shipmentFormMinMaxHumid = [
+    (shipmentFormData && shipmentFormData.min_excursion_humidity) || 0,
+    (shipmentFormData && shipmentFormData.max_excursion_humidity) || 100,
+  ];
 
-  // useEffect(() => {
-  //   if (custodyOptions && custodyOptions.actions) {
-  //     setCustodyMetaData(custodyOptions.actions.POST);
-  //   }
-  // }, [custodyOptions]);
+  const shipmentFormMinMaxTemp = [
+    (shipmentFormData && shipmentFormData.min_excursion_temp) || 0,
+    (shipmentFormData && shipmentFormData.max_excursion_temp) || 100,
+  ];
 
-  // useEffect(() => {
-  //   if (
-  //     custodianData
-  //     && contactInfo
-  //     && custodianData.length
-  //   ) {
-  //     setCustodianList(getFormattedRow(
-  //       custodianData,
-  //       contactInfo,
-  //     ));
-  //   }
-  // }, [custodianData, contactInfo]);
+  const [gatewayOptions, setGatewayOptions] = useState([]);
 
-  // useEffect(() => {
-  //   if (editData && editData.start_of_custody_location) {
-  //     getAddress(
-  //       editData.start_of_custody_location,
-  //       'start',
-  //     );
-  //   }
-  //   if (editData && editData.end_of_custody_location) {
-  //     getAddress(
-  //       editData.end_of_custody_location,
-  //       'end',
-  //     );
-  //   }
-  // }, [editData]);
+  let formTitle;
+  if (!editPage) {
+    formTitle = 'Create Shipment';
+  } else if (viewOnly) {
+    formTitle = 'View Shipment';
+  } else {
+    formTitle = 'Edit Shipment';
+  }
 
-  // const submitDisabled = () => !custodianURL;
-
-  const onInputChange = (e) => {
-    const { value } = e.target;
-    if (value) {
-      setCustodianURL(value);
-      if (custodianList.length > 0) {
-        let selectedCustodian = '';
-        _.forEach(custodianList, (list) => {
-          if (list.url === value) {
-            selectedCustodian = list;
-          }
-        });
-        getLatLong(selectedCustodian.location, 'start');
-        getLatLong(selectedCustodian.location, 'end');
-      }
-    } else {
-      setCustodianURL(value);
+  useEffect(() => {
+    if (!shipmentData) {
+      const getUpdatedSensorData = !aggregateReportData;
+      const getUpdatedCustody = !custodyData;
+      dispatch(getShipmentDetails(
+        organization_uuid,
+        'Planned,Enroute',
+        null,
+        getUpdatedSensorData,
+        getUpdatedCustody,
+        'get',
+      ));
     }
-  };
+    if (!custodianData) {
+      dispatch(getCustodians(organization_uuid));
+      dispatch(getCustodianType());
+      dispatch(getContact(organization_uuid));
+    }
+    if (!itemData) {
+      dispatch(getItems(organization_uuid));
+      dispatch(getItemType(organization_uuid));
+    }
+    if (!gatewayData) {
+      dispatch(getGateways(organization_uuid));
+      dispatch(getGatewayType());
+    }
+    if (!unitsOfMeasure) {
+      dispatch(getUnitsOfMeasure());
+    }
+    if (!sensorData) {
+      dispatch(getSensors(organization_uuid));
+      dispatch(getSensorType());
+    }
+  }, []);
 
-  // const handleBlur = (e, validation, input, parentId) => {
-  //   const validateObj = validators(validation, input);
-  //   const prevState = { ...formError };
-  //   if (validateObj && validateObj.error) {
-  //     setFormError({
-  //       ...prevState,
-  //       [e.target.id || parentId]: validateObj,
-  //     });
-  //   } else {
-  //     setFormError({
-  //       ...prevState,
-  //       [e.target.id || parentId]: {
-  //         error: false,
-  //         message: '',
-  //       },
-  //     });
-  //   }
-  // };
+  useEffect(() => {
+    if (editPage || shipmentFormData === null) {
+      dispatch(saveShipmentFormData(editData));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (editData && editData.start_of_custody_location) {
+      getAddress(
+        editData.start_of_custody_location,
+        'start',
+      );
+    }
+    if (editData && editData.end_of_custody_location) {
+      getAddress(
+        editData.end_of_custody_location,
+        'end',
+      );
+    }
+  }, [editData]);
+
+  useEffect(() => {
+    if (
+      custodianData
+      && contactInfo
+      && custodianData.length
+    ) {
+      setCustodianList(getCustodianFormattedRow(
+        custodianData,
+        contactInfo,
+      ));
+    }
+    let item_rows;
+    if (itemData && itemData.length) {
+      let selectedRows = [];
+      _.forEach(itemData, (item) => {
+        if (_.indexOf(itemIds, item.url) !== -1) {
+          selectedRows = [...selectedRows, item];
+        }
+      });
+      item_rows = getItemFormattedRow(selectedRows, itemTypeList, unitsOfMeasure);
+    }
+
+    let gatewayRows = [];
+    let sensorsRow = [];
+
+    if (gatewayData && gatewayData.length) {
+      let selectedRows = [];
+      let selectedSensors = [];
+      _.forEach(gatewayData, (element) => {
+        if (_.indexOf(gatewayIds, element.gateway_uuid) !== -1) {
+          selectedRows = [...selectedRows, element];
+          if (sensorData && sensorData.length) {
+            _.forEach(sensorData, (sensor) => {
+              if (element.url === sensor.gateway) {
+                selectedSensors = [...selectedSensors, sensor];
+              }
+            });
+          }
+        }
+      });
+      gatewayRows = getGatewayFormattedRow(selectedRows, gatewayTypeList);
+      sensorsRow = getSensorFormattedRow(selectedSensors, sensorTypeList);
+    }
+    if (
+      gatewayData
+      && gatewayData.length
+      && gatewayTypeList
+      && gatewayTypeList.length
+      && shipmentData
+      && shipmentData.length
+      && shipmentFormData
+    ) {
+      const opts = getAvailableGateways(
+        gatewayData,
+        platform_name
+          ? _.lowerCase(platform_name)
+          : 'tive',
+        gatewayTypeList,
+        shipmentData,
+        shipmentFormData,
+      );
+      setGatewayOptions(opts);
+    }
+  // eslint-disable-next-line max-len
+  }, [custodianData, contactInfo, gatewayData, itemData, platform_name, gatewayTypeList, shipmentData]);
 
   /**
    * Submit The form and add/edit custodian
    * @param {Event} event the default submit event
    */
-  // const onAddCustodyClick = (event) => {
-  //   event.preventDefault();
-  //   const custodyFormValues = {
-  //     start_of_custody,
-  //     end_of_custody,
-  //     custodian: [custodianURL],
-  //     start_of_custody_location: start_of_custody_location || null,
-  //     end_of_custody_location: end_of_custody_location || null,
-  //     shipment_id: shipment.value,
-  //     has_current_custody: has_current_custody.value,
-  //     first_custody: first_custody.value,
-  //     last_custody: last_custody.value,
-  //     radius: organizationData.radius,
-  //     load_id: load_id.value,
-  //     ...(editData !== null && { id: editData.id }),
-  //     shipment_name: shipment_name.value,
-  //     shipment: shipmentFormData.id,
-  //   };
-  //   if (editData !== null) {
-  //     dispatch(editCustody(custodyFormValues));
-  //   } else {
-  //     dispatch(addCustody(custodyFormValues));
-  //   }
-  //   checkIfCustodianInfoEdited = () => false;
-  //   setOpenModal();
-  // };
+  const onAddCustodyClick = (event) => {
+    event.preventDefault();
+    const custodyFormValues = {
+      custodian: [custodianURL],
+      start_of_custody_location: start_of_custody_location || null,
+      end_of_custody_location: end_of_custody_location || null,
+      // shipment_id: shipment.value,
+      // has_current_custody: has_current_custody.value,
+      // first_custody: first_custody.value,
+      // last_custody: last_custody.value,
+      radius: organization.radius,
+      ...(editData !== null && { id: editData.id }),
+      shipment_name: shipment_name.value,
+      shipment: shipmentFormData.id,
+    };
+    if (editData !== null) {
+      dispatch(editCustody(custodyFormValues));
+    } else {
+      dispatch(addCustody(custodyFormValues));
+    }
+  };
 
   const getLatLong = (address, pointer) => {
     if (pointer === 'start') {
@@ -665,85 +514,157 @@ const CreateShipment = (props) => {
     );
   };
 
-  // checkIfCustodianInfoEdited = () => (
-  //   custodianURL !== (
-  //     (editData && editData.custodian_data && editData.custodian_data.url)
-  //     || '')
-  //   || load_id.hasChanged()
-  //   || (editData && (start_of_custody !== editData.start_of_custody))
-  //   || (editData && (end_of_custody !== editData.end_of_custody))
-  //   || latLongChanged
-  //   || has_current_custody.hasChanged()
-  //   || first_custody.hasChanged()
-  //   || last_custody.hasChanged()
-  // );
-
-  const [shipmentMetaData, setShipmentMetaData] = useState({});
-
-  useEffect(() => {
-    if (shipmentOptions && shipmentOptions.actions) {
-      setShipmentMetaData(shipmentOptions.actions.POST);
+  const handleBlur = (e, validation, input, parentId) => {
+    const validateObj = validators(validation, input);
+    const prevState = { ...formError };
+    if (validateObj && validateObj.error) {
+      setFormError({
+        ...prevState,
+        [e.target.id || parentId]: validateObj,
+      });
+    } else {
+      setFormError({
+        ...prevState,
+        [e.target.id || parentId]: {
+          error: false,
+          message: '',
+        },
+      });
     }
-  }, [shipmentOptions]);
+  };
+
+  const onInputChange = (value, type, custody) => {
+    switch (type) {
+      case 'item':
+        if (value.length > itemIds.length) {
+          setItemIds([...itemIds, _.last(value).url]);
+        } else if (value.length < itemIds.length) { setItemIds(value); }
+        break;
+      case 'custodian':
+        if (value) {
+          if (custodianList.length > 0) {
+            let selectedCustodian = '';
+            _.forEach(custodianList, (list) => {
+              if (list.url === value) {
+                selectedCustodian = list;
+              }
+            });
+            if (custody === 'start') {
+              setStartCustody(value);
+              getLatLong(selectedCustodian.location, 'start');
+            } else if (custody === 'end') {
+              setEndCustody(value);
+              getLatLong(selectedCustodian.location, 'end');
+            }
+          }
+        }
+        break;
+      case 'gateway':
+        if (value.length > gatewayIds.length) {
+          setGatewayIds([...gatewayIds, _.last(value).gateway_uuid]);
+        } else if (value.length < gatewayIds.length) { setGatewayIds(value); }
+        break;
+      default:
+        break;
+    }
+  };
+
+  const submitDisabled = () => {
+    const errorKeys = Object.keys(formError);
+    if (!shipment_name.value
+      && (itemIds.length === 0 || itemData === null)
+      && (!gatewayIds.length || gatewayData === null)) {
+      return true;
+    }
+    let errorExists = false;
+    _.forEach(errorKeys, (key) => {
+      if (formError[key].error) {
+        errorExists = true;
+      }
+    });
+    return errorExists;
+  };
+
+  /**
+   * Submit The form
+   * @param {Event} event the default submit event
+   */
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
+    const shipmentFormValue = {
+      ...copyData,
+      name: shipment_name.value,
+      purchase_order_number: purchase_order_number.value,
+      order_number: order_number.value,
+      shipper_number: shipper_number.value,
+      carrier,
+      transport_mode: mode_type.value,
+      status: (editData && editData.status) || 'Planned',
+      estimated_time_of_arrival: scheduled_arrival,
+      estimated_time_of_departure: scheduled_departure,
+      ...(editData && { id: editData.id }),
+      items: (editData && editData.items) || itemIds,
+      gateway_ids: (editData && editData.gateway_ids) || gatewayIds,
+      gateway_imei: (editData && editData.gateway_imei) || [updateGateway.imei_number],
+      uom_distance: 'Miles',
+      uom_temp: 'Fahrenheit',
+      uom_weight: 'Pounds',
+      organization_uuid,
+      platform_name,
+      max_excursion_temp: max_temp_val,
+      min_excursion_temp: min_temp_val,
+      max_excursion_humidity: max_humid_val,
+      min_excursion_humidity: min_humid_val,
+    };
+
+    if (editPage && editData) {
+      if (shipmentFormData.gateway_ids.length > 0) {
+        let attachedGateway = null;
+        attachedGateway = _.filter(
+          gatewayData, (gateway) => gateway.gateway_uuid === shipmentFormData.gateway_ids[0],
+        );
+        dispatch(
+          editShipment(
+            shipmentFormValue,
+            history,
+            `${routes.SHIPMENT}/edit/:${editData.id}`,
+            organization_uuid,
+            attachedGateway[0],
+          ),
+        );
+      } else {
+        dispatch(
+          editShipment(
+            shipmentFormValue,
+            history,
+            `${routes.SHIPMENT}/edit/:${editData.id}`,
+            organization_uuid,
+            null,
+          ),
+        );
+      }
+    } else {
+      dispatch(addShipment(shipmentFormValue, history, null, organization_uuid));
+    }
+    dispatch(editGateway({
+      ...updateGateway,
+      gateway_status: 'assigned',
+      shipment_ids: [shipmentFormData.id],
+    }));
+  };
 
   const handleTempMinMaxChange = (e, value) => {
     setMinMaxTempValue(value);
     changeMinTempVal(value[0]);
-    changeMaxTempVal(value[3]);
-    changeHighTempVal(value[2]);
-    changeLowTempVal(value[1]);
+    changeMaxTempVal(value[1]);
   };
 
   const handleHumidMinMaxChange = (e, value) => {
     setMinMaxHumidValue(value);
     changeMinHumidVal(value[0]);
-    changeMaxHumidVal(value[3]);
-    changeHighHumidVal(value[2]);
-    changeLowHumidVal(value[1]);
+    changeMaxHumidVal(value[1]);
   };
-
-  // /**
-  //  * Submit The form and add/edit custodian
-  //  * @param {Event} event the default submit event
-  //  */
-  //  const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const shipmentFormValue = {
-  //     ...{
-  //       ...shipmentFormData,
-  //       max_warning_temp: high_temp_val,
-  //       min_warning_temp: low_temp_val,
-  //       max_excursion_temp: max_temp_val,
-  //       min_excursion_temp: min_temp_val,
-  //       max_warning_humidity: high_humid_val,
-  //       min_warning_humidity: low_humid_val,
-  //       max_excursion_humidity: max_humid_val,
-  //       min_excursion_humidity: min_humid_val,
-  //     },
-  //   };
-  //   dispatch(
-  //     editShipment(
-  //       shipmentFormValue,
-  //       history,
-  //       `${routes.SHIPMENT}/edit/:${shipmentFormData.id}`,
-  //       organization,
-  //     ),
-  //   );
-  // };
-
-  // const shipmentFormMinMaxHumid = [
-  //   shipmentFormData.min_excursion_humidity || 0,
-  //   shipmentFormData.min_warning_humidity || 35,
-  //   shipmentFormData.max_warning_humidity || 75,
-  //   shipmentFormData.max_excursion_humidity || 100,
-  // ];
-
-  // const shipmentFormMinMaxTemp = [
-  //   shipmentFormData.min_excursion_temp || 0,
-  //   shipmentFormData.min_warning_temp || 35,
-  //   shipmentFormData.max_warning_temp || 75,
-  //   shipmentFormData.max_excursion_temp || 100,
-  // ];
 
   // const checkIfEnvironmentLimitsEdited = () => !(
   //   minMaxTempValue.length === shipmentFormMinMaxTemp.length
@@ -757,159 +678,21 @@ const CreateShipment = (props) => {
   //     (item) => _.indexOf(minMaxHumidValue, item) > -1,
   //   ));
 
-  const [itemIds, setItemIds] = useState(
-    (shipmentFormData && shipmentFormData.items) || [],
-  );
-
-  const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-  const checkedIcon = <CheckBoxIcon fontSize="small" />;
-  // let rows = [];
-
-  if (itemData && itemData.length) {
-    let selectedRows = [];
-    _.forEach(itemData, (item) => {
-      if (_.indexOf(itemIds, item.url) !== -1) {
-        selectedRows = [...selectedRows, item];
-      }
-    });
-    // rows = getFormattedRow(selectedRows, itemTypeList, unitsOfMeasure);
-  }
-
-  // const onInputChange = (value) => {
-  //   switch (true) {
-  //     case (value.length > itemIds.length):
-  //       setItemIds([...itemIds, _.last(value).url]);
-  //       break;
-
-  //     case (value.length < itemIds.length):
-  //       setItemIds(value);
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-  // };
-
-  // const submitDisabled = () => (
-  //   itemIds.length === 0
-  //   || itemData === null
+  // const checkIfCustodianInfoEdited = () => (
+  //   custodianURL !== (
+  //     (editData && editData.custodian_data && editData.custodian_data.url)
+  //       || '')
+  //     // || (editData && (start_of_custody !== editData.start_of_custody))
+  //     // || (editData && (end_of_custody !== editData.end_of_custody))
+  //     || latLongChanged
+  //     // || has_current_custody.hasChanged()
+  //     // || first_custody.hasChanged()
+  //     // || last_custody.hasChanged()
   // );
 
-  // checkIfItemInfoEdited = () => !!(itemIds.length !== shipmentFormData.items.length);
-  /**
-   * Submit The form and add/edit custodian
-   * @param {Event} event the default submit event
-   */
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const shipmentFormValue = {
-  //     ...{ ...shipmentFormData, items: itemIds },
-  //   };
-  //   dispatch(
-  //     editShipment(
-  //       shipmentFormValue,
-  //       history,
-  //       `${routes.SHIPMENT}/edit/:${shipmentFormData.id}`,
-  //       organization,
-  //     ),
-  //   );
-  // };
+  // const checkIfItemInfoEdited = () => !!(itemIds.length !== shipmentFormData.items.length);
 
-  // const onNextClick = (event) => {
-  //   if (checkIfItemInfoEdited()) {
-  //     handleSubmit(event);
-  //   }
-  //   handleNext();
-  // };
-
-  // const onCancelClick = () => {
-  //   if (checkIfItemInfoEdited()) {
-  //     setConfirmModalFor('close');
-  //     setConfirmModal(true);
-  //   } else {
-  //     handleCancel();
-  //   }
-  // };
-
-  const [gatewayIds, setGatewayIds] = useState(
-    (shipmentFormData && shipmentFormData.gateway_ids) || [],
-  );
-  const [platform_name, setPlatformName] = useState(
-    (shipmentFormData && shipmentFormData.platform_name) || 'tive',
-  );
-  const [options, setOptions] = useState([]);
-
-  let rows = [];
-  let sensorsRow = [];
-
-  if (gatewayData && gatewayData.length) {
-    let selectedRows = [];
-    let selectedSensors = [];
-    _.forEach(gatewayData, (element) => {
-      if (_.indexOf(gatewayIds, element.gateway_uuid) !== -1) {
-        selectedRows = [...selectedRows, element];
-        if (sensorData && sensorData.length) {
-          _.forEach(sensorData, (sensor) => {
-            if (element.url === sensor.gateway) {
-              selectedSensors = [...selectedSensors, sensor];
-            }
-          });
-        }
-      }
-    });
-    rows = getFormattedRow(selectedRows, gatewayTypeList, shipmentData);
-    sensorsRow = getFormattedSensorRow(selectedSensors, sensorTypeList);
-  }
-
-  useEffect(() => {
-    const metadata = { ...fieldsMetadata };
-    if (shipmentOptions && shipmentOptions.actions) {
-      metadata.platform_name = setOptionsData(
-        shipmentOptions.actions.POST,
-        'platform_name',
-      );
-    }
-    if (
-      gatewayData
-      && gatewayData.length
-      && gatewayTypeList
-      && gatewayTypeList.length
-      && shipmentData
-      && shipmentData.length
-      && shipmentFormData
-    ) {
-      const opts = getAvailableGateways(
-        gatewayData,
-        platform_name
-          ? _.lowerCase(platform_name)
-          : 'tive',
-        gatewayTypeList,
-        shipmentData,
-        shipmentFormData,
-      );
-      setOptions(opts);
-    }
-  }, [gatewayData, platform_name, gatewayTypeList, shipmentData]);
-
-  // const onInputChange = (value) => {
-  //   switch (true) {
-  //     case (value.length > gatewayIds.length):
-  //       setGatewayIds([...gatewayIds, _.last(value).gateway_uuid]);
-  //       break;
-
-  //     case (value.length < gatewayIds.length):
-  //       setGatewayIds(value);
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-  // };
-
-  // const submitDisabled = () => !gatewayIds.length || gatewayData === null;
-
-  // eslint-disable-next-line max-len
-  // checkIfSensorGatewayEdited = () => {
+  // const checkIfSensorGatewayEdited = () => {
   //   if (gatewayIds.length) {
   //     return shipmentFormData.gateway_ids
   //       ? !!(gatewayIds.length !== shipmentFormData.gateway_ids.length) : true;
@@ -917,34 +700,9 @@ const CreateShipment = (props) => {
   //   return false;
   // };
 
-  // /**
-  //  * Submit The form and add/edit custodian
-  //  * @param {Event} event the default submit event
-  //  */
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
-  //   const shipmentFormValue = {
-  //     ...{
-  //       ...shipmentFormData,
-  //       platform_name,
-  //       gateway_ids: gatewayIds,
-  //       gateway_imei: [updateGateway.imei_number],
-  //     },
-  //   };
-  //   dispatch(
-  //     editShipment(
-  //       shipmentFormValue,
-  //       history,
-  //       `${routes.SHIPMENT}/edit/:${shipmentFormData.id}`,
-  //       organization,
-  //     ),
-  //   );
-  //   dispatch(editGateway({
-  //     ...updateGateway,
-  //     gateway_status: 'assigned',
-  //     shipment_ids: [shipmentFormData.id],
-  //   }));
+  // const checkIfFormEdited = () => {
+  //   console.log('In form edited');
+
   // };
 
   return (
@@ -955,7 +713,7 @@ const CreateShipment = (props) => {
           className={classes.dashboardHeading}
           variant="h4"
         >
-          Create Shipment
+          {formTitle}
         </Typography>
       </Box>
       <form
@@ -1004,11 +762,28 @@ const CreateShipment = (props) => {
                         margin="normal"
                         fullWidth
                         required
-                        id="start_custody_name"
+                        select
+                        disabled={viewOnly}
+                        id="start_of_custody"
                         label="Origin Company"
-                        name="first_custody"
-                        autoComplete="origin_company"
-                      />
+                        onBlur={(e) => handleBlur(e, 'required', start_of_custody, 'start_of_custody')}
+                        value={start_of_custody}
+                        onChange={(event) => onInputChange(event.target.value, 'custodian', 'start')}
+                      >
+                        <MenuItem value="">Select</MenuItem>
+                        {custodianList
+                    && _.map(
+                      _.orderBy(custodianList, ['name'], ['asc']),
+                      (item, index) => (
+                        <MenuItem
+                          key={`custodian${index}:${item.id}`}
+                          value={item.url}
+                        >
+                          {item.name}
+                        </MenuItem>
+                      ),
+                    )}
+                      </TextField>
                       <TextField
                         variant="outlined"
                         margin="normal"
@@ -1040,7 +815,7 @@ const CreateShipment = (props) => {
                       && parseFloat(start_of_custody_location.split(',')[0]),
                             lng: start_of_custody_location
                       && parseFloat(start_of_custody_location.split(',')[1]),
-                            radius: 10,
+                            radius: organization.radius,
                           },
                         ]}
                         geofence={
@@ -1079,22 +854,40 @@ const CreateShipment = (props) => {
                         margin="normal"
                         fullWidth
                         required
-                        id="start_custody_name"
+                        disabled={viewOnly}
+                        select
+                        id="end_of_custody"
                         label="Destination Company"
-                        name="first_custody"
-                        autoComplete="origin_company"
-                      />
+                        onBlur={(e) => handleBlur(e, 'required', end_of_custody, 'end_of_custody')}
+                        value={end_of_custody}
+                        onChange={(event) => onInputChange(event.target.value, 'custodian', 'end')}
+                      >
+                        <MenuItem value="">Select</MenuItem>
+                        {custodianList
+                    && _.map(
+                      _.orderBy(custodianList, ['name'], ['asc']),
+                      (item, index) => (
+                        <MenuItem
+                          key={`custodian${index}:${item.id}`}
+                          value={item.url}
+                        >
+                          {item.name}
+                        </MenuItem>
+                      ),
+                    )}
+                      </TextField>
+
                       <TextField
                         variant="outlined"
                         margin="normal"
                         fullWidth
                         required
-                        id="start_of_custody_address"
+                        id="end_of_custody_address"
                         label="Destination Address"
-                        name="start_of_custody_address"
-                        autoComplete="start_of_custody_address"
-                        value={start_of_custody_address}
-                        onChange={(e) => getLatLong(e.target.value, 'start')}
+                        name="end_of_custody_address"
+                        autoComplete="end_of_custody_address"
+                        value={end_of_custody_address}
+                        onChange={(e) => getLatLong(e.target.value, 'end')}
                       />
                       <MapComponent
                         isMarkerShown
@@ -1111,16 +904,16 @@ const CreateShipment = (props) => {
                   }
                         markers={[
                           {
-                            lat: start_of_custody_location
-                      && parseFloat(start_of_custody_location.split(',')[0]),
-                            lng: start_of_custody_location
-                      && parseFloat(start_of_custody_location.split(',')[1]),
-                            radius: 10,
+                            lat: end_of_custody_location
+                      && parseFloat(end_of_custody_location.split(',')[0]),
+                            lng: end_of_custody_location
+                      && parseFloat(end_of_custody_location.split(',')[1]),
+                            radius: organization.radius,
                           },
                         ]}
                         geofence={
                     editData
-                    && editData.start_of_custody_location_geofence
+                    && editData.end_of_custody_location_geofence
                   }
                       />
                     </Grid>
@@ -1169,14 +962,6 @@ const CreateShipment = (props) => {
                         ),
                       )}
                       </TextField>
-                      {fieldsMetadata.mode_type.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          fieldsMetadata.mode_type.help_text
-                        }
-                      />
-                    )}
                     </Grid>
                     <Grid
                       item
@@ -1184,7 +969,7 @@ const CreateShipment = (props) => {
                     >
                       <Autocomplete
                         multiple
-                        id="tags-outlined"
+                        id="items-outlined"
                         disabled={viewOnly}
                         disableCloseOnSelect
                         fullWidth
@@ -1208,11 +993,12 @@ const CreateShipment = (props) => {
                         )}
                         filterSelectedOptions
                         value={itemIds}
-                        onChange={(event, newValue) => onInputChange(newValue)}
+                        onChange={(event, newValue) => onInputChange(newValue, 'item', null)}
                         renderTags={(value, getTagProps) => (
                           _.map(value, (option, index) => (
                             <Chip
                               variant="default"
+                              key={`item-${index}:${option}`}
                               label={
                           itemData
                             ? _.find(itemData, { url: option })?.name
@@ -1224,7 +1010,7 @@ const CreateShipment = (props) => {
                         )}
                         // eslint-disable-next-line no-shadow
                         renderOption={(props, option, { selected }) => (
-                          <li {...props}>
+                          <li {...props} key={`item-${option}`}>
                             <Checkbox
                               icon={icon}
                               checkedIcon={checkedIcon}
@@ -1240,7 +1026,7 @@ const CreateShipment = (props) => {
                             disabled={viewOnly}
                             variant="outlined"
                             label="Product to be shipped"
-                            placeholder="Select an item"
+                            placeholder="Select a product"
                           />
                         )}
                       />
@@ -1324,7 +1110,7 @@ const CreateShipment = (props) => {
                       <Grid
                         item
                         xs={12}
-                        classname={classes.envinput}
+                        className={classes.envInput}
                       >
                         <TextField
                           variant="outlined"
@@ -1337,6 +1123,7 @@ const CreateShipment = (props) => {
                           autoComplete="min_humid_val"
                           value={min_humid_val}
                           disabled={viewOnly}
+                          className={classes.envInput}
                           InputProps={{
                             endAdornment: <InputAdornment position="end"><HumidIcon color="white" name="Min Humidity" /></InputAdornment>,
                           }}
@@ -1381,12 +1168,12 @@ const CreateShipment = (props) => {
                       <TextField
                         variant="outlined"
                         margin="normal"
-                        id="organization"
-                        label="Organization"
-                        name="organization"
-                        autoComplete="organization"
+                        id="organization_uuid"
+                        label="Org"
+                        name="organization_uuid"
+                        autoComplete="organization_uuid"
                         disabled={viewOnly}
-                        {...organization.bind}
+                        {...organization_uuid.bind}
                       />
 
                     </Grid>
@@ -1396,12 +1183,12 @@ const CreateShipment = (props) => {
                         required
                         margin="normal"
                         fullWidth
-                        id="load_no"
+                        id="order_number"
                         label="Order Number"
-                        name="load_no"
-                        autoComplete="load_no"
+                        name="order_number"
+                        autoComplete="order_number"
                         disabled={viewOnly}
-                        {...load_no.bind}
+                        {...order_number.bind}
                       />
                     </Grid>
 
@@ -1417,12 +1204,12 @@ const CreateShipment = (props) => {
                         variant="outlined"
                         margin="normal"
                         fullWidth
-                        id="lading_bill"
-                        label="Bill of lading"
-                        name="lading_bill"
-                        autoComplete="lading_bill"
+                        id="purchase_order_number"
+                        label="Purchase Order Number"
+                        name="purchase_order_number"
+                        autoComplete="purchase_order_number"
                         disabled={viewOnly}
-                        {...lading_bill.bind}
+                        {...purchase_order_number.bind}
                       />
                       <DatePickerComponent
                         label="Pickup Date/Time"
@@ -1433,15 +1220,34 @@ const CreateShipment = (props) => {
                           .format('MMMM DD, YYYY HH:mm:ss')
                       }
                         hasTime
-                      // handleDateChange={handleDepartureDateChange}
+                        handleDateChange={handleDepartureDateChange}
                         disabled={viewOnly}
-                        helpText={
-                        fieldsMetadata.scheduled_departure
-                        && fieldsMetadata.scheduled_departure.help_text
-                          ? fieldsMetadata.scheduled_departure.help_text
-                          : ''
-                      }
                       />
+                      <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        required
+                        id="carrier"
+                        select
+                        label="Carrier"
+                        disabled={viewOnly}
+                        {...mode_type.bind}
+                      >
+                        <MenuItem value="">Select</MenuItem>
+                        {TRANSPORT_MODE
+                      && _.map(
+                        _.orderBy(TRANSPORT_MODE, ['value'], ['asc']),
+                        (item, index) => (
+                          <MenuItem
+                            key={`transportMode${index}:${item.value}`}
+                            value={item.value}
+                          >
+                            {item.label}
+                          </MenuItem>
+                        ),
+                      )}
+                      </TextField>
                     </Grid>
 
                   </Grid>
@@ -1456,12 +1262,12 @@ const CreateShipment = (props) => {
                         variant="outlined"
                         margin="normal"
                         fullWidth
-                        id="lading_bill"
+                        id="shipper_number"
                         label="Shipper Number"
-                        name="lading_bill"
-                        autoComplete="lading_bill"
+                        name="shipper_number"
+                        autoComplete="shipper_number"
                         disabled={viewOnly}
-                        {...lading_bill.bind}
+                        {...shipper_number.bind}
                       />
                       <DatePickerComponent
                         label="Dropoff Date/Time"
@@ -1472,14 +1278,8 @@ const CreateShipment = (props) => {
                           .format('MMMM DD, YYYY HH:mm:ss')
                       }
                         hasTime
-                      // handleDateChange={handleScheduledDateChange}
+                        handleDateChange={handleScheduledDateChange}
                         disabled={viewOnly}
-                        helpText={
-                        fieldsMetadata.scheduled_arrival
-                        && fieldsMetadata.scheduled_arrival.help_text
-                          ? fieldsMetadata.scheduled_arrival.help_text
-                          : ''
-                      }
                       />
                       <Button
                         variant="contained"
@@ -1536,7 +1336,7 @@ const CreateShipment = (props) => {
                       }
                   >
                     <MenuItem value="">Select</MenuItem>
-                    {/* {SENSOR_PLATFORM
+                    {SENSOR_PLATFORM
                       && _.map(
                         _.orderBy(SENSOR_PLATFORM, ['value'], ['asc']),
                         (item, index) => (
@@ -1547,21 +1347,22 @@ const CreateShipment = (props) => {
                             {item.label}
                           </MenuItem>
                         ),
-                      )} */}
+                      )}
                   </TextField>
                 </Grid>
                 <Grid item xs={6}>
                   <Autocomplete
                     multiple
-                    id="combo-box-demo"
-                    disabled={
-                    viewOnly
-                    || (shipmentFormData
-                      && shipmentFormData.gateway_ids
-                      && shipmentFormData.gateway_ids.length > 0
-                    )
-                  }
-                    options={options}
+                    id="gateways-outlined"
+                  //   disabled={
+                  //   viewOnly
+                  //   || (shipmentFormData
+                  //     && shipmentFormData.gateway_ids
+                  //     && shipmentFormData.gateway_ids.length > 0
+                  //   )
+                  // }
+                    disableCloseOnSelect
+                    options={gatewayOptions}
                     getOptionLabel={(option) => (
                       option
                     && option.name
@@ -1571,7 +1372,7 @@ const CreateShipment = (props) => {
                     )}
                     filterSelectedOptions
                     value={gatewayIds}
-                    onChange={(event, newValue) => onInputChange(newValue)}
+                    onChange={(event, newValue) => onInputChange(newValue, 'gateway', null)}
                     renderTags={(value, getTagProps) => (
                       _.map(value, (option, index) => (
                         <Chip
@@ -1587,7 +1388,7 @@ const CreateShipment = (props) => {
                     )}
                     // eslint-disable-next-line no-shadow
                     renderOption={(props, option, { selected }) => (
-                      <li {...props}>
+                      <li {...props} key={`gateway-${option}`}>
                         <Checkbox
                           icon={icon}
                           checkedIcon={checkedIcon}
@@ -1625,12 +1426,12 @@ const CreateShipment = (props) => {
                   variant="outlined"
                   required
                   margin="normal"
-                  id="load_no_1"
+                  // id="load_no_1"
                   label="Org"
                   name="load_no"
-                  autoComplete="load_no"
+                  // autoComplete="load_no"
                   disabled={viewOnly}
-                  {...load_no.bind}
+                  // {...load_no.bind}
                   style={{
                     width: '20%',
                   }}
@@ -1639,12 +1440,12 @@ const CreateShipment = (props) => {
                   variant="outlined"
                   required
                   margin="normal"
-                  id="load_no_2"
+                  // id="load_no_2"
                   label="Order No."
-                  name="load_no"
-                  autoComplete="load_no"
+                  // name="load_no"
+                  // autoComplete="load_no"
                   disabled={viewOnly}
-                  {...load_no.bind}
+                  // {...load_no.bind}
                   style={{
                     flex: '2',
                     width: '20%',
@@ -1656,24 +1457,24 @@ const CreateShipment = (props) => {
                   variant="outlined"
                   required
                   margin="normal"
-                  id="load_no_3"
+                  // id="load_no_3"
                   label="Origin"
-                  name="load_no"
-                  autoComplete="load_no"
+                  // name="load_no"
+                  // autoComplete="load_no"
                   disabled={viewOnly}
-                  {...load_no.bind}
+                  // {...load_no.bind}
                   className={classes.smallInput}
                 />
                 <TextField
                   variant="outlined"
                   required
                   margin="normal"
-                  id="load_no_4"
+                  // id="load_no_4"
                   label="Dest."
-                  name="load_no"
-                  autoComplete="load_no"
+                  // name="load_no"
+                  // autoComplete="load_no"
                   disabled={viewOnly}
-                  {...load_no.bind}
+                  // {...load_no.bind}
                   className={classes.smallInput}
                 />
               </Grid>
@@ -1740,7 +1541,17 @@ const CreateShipment = (props) => {
 const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.shipmentReducer,
+  ...state.itemsReducer,
+  ...state.custodianReducer,
   ...state.optionsReducer,
+  ...state.sensorsGatewayReducer,
+  loading: (
+    state.shipmentReducer.loading
+    || state.itemsReducer.loading
+    || state.custodianReducer.loading
+    || state.optionsReducer.loading
+    || state.sensorsGatewayReducer.loading
+  ),
 });
 
 export default connect(mapStateToProps)(CreateShipment);
