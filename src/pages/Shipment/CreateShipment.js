@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import Geocode from 'react-geocode';
-import _, { update } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment-timezone';
 import { routes } from '../../routes/routesConstants';
 import { MapComponent } from '../../components/MapComponent/MapComponent';
@@ -42,8 +42,6 @@ import {
   getCustodians,
   getCustodianType,
   getContact,
-  addCustody,
-  editCustody,
 } from '../../redux/custodian/actions/custodian.actions';
 import {
   getItems,
@@ -69,12 +67,10 @@ import {
 } from '../../utils/mock';
 import { validators } from '../../utils/validators';
 import {
-  getGatewayFormattedRow,
-  getSensorFormattedRow,
   getAvailableGateways,
 } from '../../pages/SensorsGateway/Constants';
-import { getItemFormattedRow } from '../../pages/Items/ItemsConstants';
 import { getCustodianFormattedRow } from '../../pages/Custodians/CustodianConstants';
+import { desaturate } from 'polished';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -161,10 +157,8 @@ const CreateShipment = (props) => {
     itemData,
     custodianData,
     contactInfo,
-    itemTypeList,
     gatewayTypeList,
     sensorData,
-    sensorTypeList,
     shipmentData,
     custodyData,
     aggregateReportData,
@@ -205,8 +199,8 @@ const CreateShipment = (props) => {
   const origin = useInput(
     (editData && editData.shipment_origin) || '',
   );
-  const destination = useInput(
-    (editData && editData.shipment_destination) || '',
+  const dest = useInput(
+    (editData && editData.shipment_dest) || '',
   );
   const order_number = useInput(
     (editData && editData.order_number) || '',
@@ -298,6 +292,9 @@ const CreateShipment = (props) => {
     (editData && editData.uom_distance) || '',
   );
 
+  const [show_start_custody, setShowStartCustody] = useState(false);
+  const [show_end_custody, setShowEndCustody] = useState(false);
+
   let formTitle;
   if (!editPage) {
     formTitle = 'Create Shipment';
@@ -342,9 +339,9 @@ const CreateShipment = (props) => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   updateShipmentFormData();
-  // }, [start_of_custody, end_of_custody, itemIds, gatewayIds]);
+  useEffect(() => {
+    updateShipmentFormData();
+  }, [start_of_custody, end_of_custody, itemIds, gatewayIds]);
 
   useEffect(() => {
     if (editData && editData.start_of_custody_location) {
@@ -373,39 +370,7 @@ const CreateShipment = (props) => {
         custodyData,
       ));
     }
-    let item_rows;
-    if (itemData && itemData.length) {
-      let selectedRows = [];
-      _.forEach(itemData, (item) => {
-        if (_.indexOf(itemIds, item.url) !== -1) {
-          selectedRows = [...selectedRows, item];
-        }
-      });
-      item_rows = getItemFormattedRow(selectedRows, itemTypeList, unitsOfMeasure);
-    }
 
-    let gatewayRows = [];
-    let sensorsRow = [];
-
-    if (gatewayData && gatewayData.length) {
-      let selectedRows = [];
-      let selectedSensors = [];
-      _.forEach(gatewayData, (element) => {
-        if (_.indexOf(gatewayIds, element.gateway_uuid) !== -1) {
-          selectedRows = [...selectedRows, element];
-          if (sensorData && sensorData.length) {
-            _.forEach(sensorData, (sensor) => {
-              if (element.url === sensor.gateway) {
-                selectedSensors = [...selectedSensors, sensor];
-              }
-            });
-          }
-        }
-      });
-      // eslint-disable-next-line max-len
-      gatewayRows = getGatewayFormattedRow(selectedRows, gatewayTypeList, shipmentData, custodianData);
-      sensorsRow = getSensorFormattedRow(selectedSensors, sensorTypeList);
-    }
     if (
       gatewayData
       && gatewayData.length
@@ -426,8 +391,9 @@ const CreateShipment = (props) => {
       );
       setGatewayOptions(opts);
     }
-  // eslint-disable-next-line max-len
-  }, [custodianData, contactInfo, gatewayData, itemData, platform_name, gatewayTypeList, shipmentData]);
+  }, [custodianData, contactInfo, gatewayData,
+    itemData, platform_name, gatewayTypeList,
+    shipmentData, start_of_custody]);
 
   useEffect(() => {
     if (unitsOfMeasure && unitsOfMeasure.length) {
@@ -460,7 +426,7 @@ const CreateShipment = (props) => {
 
   const updateShipmentFormData = () => {
     const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
-    setShipmentName(`${org_name.value}-${order_number.value}-${origin.value}-${destination.value} `);
+    setShipmentName(`${org_name.value}-${order_number.value}-${origin.value}-${dest.value} `);
     const shipmentFormValue = {
       ...copyData,
       name: shipment_name,
@@ -489,6 +455,7 @@ const CreateShipment = (props) => {
     };
     dispatch(saveShipmentFormData(shipmentFormValue));
   };
+
   const getLatLong = (address, pointer) => {
     if (pointer === 'start') {
       latLongChanged = true;
@@ -555,7 +522,6 @@ const CreateShipment = (props) => {
   };
 
   const handleBlur = (e, validation, input, parentId) => {
-    updateShipmentFormData();
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
     if (validateObj && validateObj.error) {
@@ -572,10 +538,10 @@ const CreateShipment = (props) => {
         },
       });
     }
+    updateShipmentFormData();
   };
 
   const onInputChange = (value, type, custody) => {
-    updateShipmentFormData();
     switch (type) {
       case 'item':
         if (value.length > itemIds.length) {
@@ -614,7 +580,7 @@ const CreateShipment = (props) => {
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (!shipment_name.value
-      && (itemIds.length === 0 || itemData === null)
+      && (!itemIds.length || itemData === null)
       && (!gatewayIds.length || gatewayData === null)) {
       return true;
     }
@@ -633,8 +599,33 @@ const CreateShipment = (props) => {
    */
   const handleSubmit = (event) => {
     event.preventDefault();
-    updateShipmentFormData();
     const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
+    const shipmentFormValue = {
+      ...copyData,
+      name: `${org_name.value}-${order_number.value}-${origin.value}-${dest.value}`,
+      purchase_order_number: purchase_order_number.value,
+      order_number: order_number.value,
+      shipper_number: shipper_number.value,
+      carrier: [carrier.value],
+      transport_mode: mode_type.value,
+      status: (editData && editData.status) || 'Planned',
+      estimated_time_of_arrival: scheduled_arrival,
+      estimated_time_of_departure: scheduled_departure,
+      ...(editData && { id: editData.id }),
+      items: (editData && editData.items) || itemIds,
+      gateway_ids: (editData && editData.gateway_ids) || gatewayIds,
+      gateway_imei: (editData && editData.gateway_imei) || [
+        gatewayIds.length > 0 && updateGateway.imei_number] || null,
+      uom_distance,
+      uom_temp,
+      uom_weight,
+      organization_uuid,
+      platform_name,
+      max_excursion_temp: max_excursion_temp.value,
+      min_excursion_temp: min_excursion_temp.value,
+      max_excursion_humidity: max_excursion_humidity.value,
+      min_excursion_humidity: min_excursion_humidity.value,
+    };
     const startCustodyForm = {
       // start_of_custody: new Date(),
       // end_of_custody: new Date(),
@@ -661,26 +652,26 @@ const CreateShipment = (props) => {
     };
 
     const shipment_payload = {
-      shipment: shipmentFormData,
+      shipment: shipmentFormValue,
       start_custody: startCustodyForm,
       end_custody: endCustodyForm,
       gateway: updateGateway,
     };
     if (editPage && editData) {
-      if (shipmentFormData.gateway_ids.length > 0) {
+      if (shipmentFormValue.gateway_ids.length > 0) {
         let gateway_status = null;
         let shipment_ids = [];
 
         let attachedGateway = null;
         attachedGateway = _.filter(
-          gatewayData, (gateway) => gateway.gateway_uuid === shipmentFormData.gateway_ids[0],
+          gatewayData, (gateway) => gateway.gateway_uuid === shipmentFormValue.gateway_ids[0],
         );
 
-        if (shipmentFormData.status === 'Completed' || shipmentFormData.status === 'Cancelled') {
+        if (shipmentFormValue.status === 'Completed' || shipmentFormValue.status === 'Cancelled') {
           gateway_status = 'available';
-        } else if (shipmentFormData.status === 'Enroute' && shipmentFormData.gateway_ids.length > 0) {
+        } else if (shipmentFormValue.status === 'Enroute' && shipmentFormValue.gateway_ids.length > 0) {
           gateway_status = 'assigned';
-          shipment_ids = [shipmentFormData.id];
+          shipment_ids = [shipmentFormValue.id];
         }
 
         if (gateway_status === null) {
@@ -718,45 +709,6 @@ const CreateShipment = (props) => {
       dispatch(addShipment(shipment_payload, history, null, organization_uuid));
     }
   };
-
-  // const checkIfEnvironmentLimitsEdited = () => !(
-  //   minMaxTempValue.length === shipmentFormMinMaxTemp.length
-  //   && _.every(
-  //     shipmentFormMinMaxTemp,
-  //     (item) => _.indexOf(minMaxTempValue, item) > -1,
-  //   )) || !(
-  //   minMaxHumidValue.length === shipmentFormMinMaxHumid.length
-  //   && _.every(
-  //     shipmentFormMinMaxHumid,
-  //     (item) => _.indexOf(minMaxHumidValue, item) > -1,
-  //   ));
-
-  // const checkIfCustodianInfoEdited = () => (
-  //   custodianURL !== (
-  //     (editData && editData.custodian_data && editData.custodian_data.url)
-  //       || '')
-  //     // || (editData && (start_of_custody !== editData.start_of_custody))
-  //     // || (editData && (end_of_custody !== editData.end_of_custody))
-  //     || latLongChanged
-  //     // || has_current_custody.hasChanged()
-  //     // || first_custody.hasChanged()
-  //     // || last_custody.hasChanged()
-  // );
-
-  // const checkIfItemInfoEdited = () => !!(itemIds.length !== shipmentFormData.items.length);
-
-  // const checkIfSensorGatewayEdited = () => {
-  //   if (gatewayIds.length) {
-  //     return shipmentFormData.gateway_ids
-  //       ? !!(gatewayIds.length !== shipmentFormData.gateway_ids.length) : true;
-  //   }
-  //   return false;
-  // };
-
-  // const checkIfFormEdited = () => {
-  //   console.log('In form edited');
-
-  // };
 
   return (
     <Box mt={5} mb={5}>
@@ -803,12 +755,15 @@ const CreateShipment = (props) => {
                         color="primary"
                         fullWidth
                         className={classes.submit}
+                        disabled={show_start_custody}
+                        onClick={() => setShowStartCustody(true)}
                       >
                         <AddIcon />
                         {' '}
                         Add Shipment Origin
                       </Button>
                     </Grid>
+                    { show_start_custody && (
                     <Grid item xs={12}>
                       <TextField
                         variant="outlined"
@@ -879,6 +834,7 @@ const CreateShipment = (props) => {
                   }
                       />
                     </Grid>
+                    ) }
                   </Grid>
                 </Grid>
 
@@ -897,12 +853,15 @@ const CreateShipment = (props) => {
                         fullWidth
                         className={classes.submit}
                         required
+                        disabled={show_end_custody}
+                        onClick={() => setShowEndCustody(true)}
                       >
                         <AddIcon />
                         {' '}
                         Add Shipment Destination
                       </Button>
                     </Grid>
+                    {show_end_custody && (
                     <Grid item xs={12}>
                       <TextField
                         variant="outlined"
@@ -945,7 +904,6 @@ const CreateShipment = (props) => {
                         value={end_of_custody_address}
                         onChange={(e) => getLatLong(e.target.value, 'end')}
                         onBlur={(e) => handleBlur(e, 'required', end_of_custody_address, 'end_of_custody_address')}
-
                       />
                       <MapComponent
                         isMarkerShown
@@ -975,6 +933,7 @@ const CreateShipment = (props) => {
                   }
                       />
                     </Grid>
+                    ) }
                   </Grid>
                 </Grid>
                 <Divider
@@ -1397,14 +1356,15 @@ const CreateShipment = (props) => {
                     label="Gateway Platform"
                     disabled={
                         viewOnly
-                        || !!(shipmentFormData && shipmentFormData.platform_name)
+                        // || !!(shipmentFormData && shipmentFormData.platform_name)
                       }
                     value={platform_name}
                     onChange={(e) => setPlatformName(e.target.value)}
                     helperText={
-                        shipmentFormData && shipmentFormData.platform_name
-                          ? 'Once set, platform cannot be edited.'
-                          : 'Platform can be set just once.'
+                        // shipmentFormData && shipmentFormData.platform_name
+                          // ? 'Once set, platform cannot be edited.'
+                          // :
+                          'Platform can be set just once.'
                       }
                   >
                     <MenuItem value="">Select</MenuItem>
@@ -1544,13 +1504,13 @@ const CreateShipment = (props) => {
                   variant="outlined"
                   required
                   margin="normal"
-                  id="destination"
+                  id="dest"
                   label="Dest."
-                  name="destination"
-                  autoComplete="destination"
+                  name="dest"
+                  autoComplete="dest"
                   disabled={viewOnly}
-                  onBlur={(e) => handleBlur(e, 'required', destination, 'destination')}
-                  {...destination.bind}
+                  onBlur={(e) => handleBlur(e, 'required', dest, 'dest')}
+                  {...dest.bind}
                   className={classes.smallInput}
                 />
               </Grid>
