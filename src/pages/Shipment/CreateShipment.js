@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import Geocode from 'react-geocode';
-import _ from 'lodash';
+import _, { update } from 'lodash';
 import moment from 'moment-timezone';
 import { routes } from '../../routes/routesConstants';
 import { MapComponent } from '../../components/MapComponent/MapComponent';
@@ -188,19 +188,33 @@ const CreateShipment = (props) => {
     && _.lowerCase(editData.status) !== 'planned';
 
   const { organization } = useContext(UserContext);
-  const { organization_uuid } = organization;
+  const { organization_uuid, name } = organization;
 
   const [shipment_name, setShipmentName] = useState(
     (editData && editData.name) || '',
   );
+
+  const org_name = useInput(
+    name.replace(/[^A-Z0-9]/g, ''),
+    { required: true },
+  );
   const purchase_order_number = useInput(
     (editData && editData.purchase_order_number) || '',
+    { required: true },
+  );
+  const origin = useInput(
+    (editData && editData.shipment_origin) || '',
+  );
+  const destination = useInput(
+    (editData && editData.shipment_destination) || '',
   );
   const order_number = useInput(
     (editData && editData.order_number) || '',
+    { required: true },
   );
   const shipper_number = useInput(
     (editData && editData.shipper_number) || '',
+    { required: true },
   );
   const carrier = useInput(
     (editData && editData.carrier) || '',
@@ -208,6 +222,7 @@ const CreateShipment = (props) => {
   );
   const mode_type = useInput(
     (editData && editData.transport_mode) || '',
+    { required: true },
   );
   const [scheduled_departure, handleDepartureDateChange] = useState(
     (editData && editData.estimated_time_of_departure)
@@ -217,30 +232,21 @@ const CreateShipment = (props) => {
     (editData && editData.estimated_time_of_arrival)
     || new Date(),
   );
-  const [min_temp_val, changeMinTempVal] = useState(
-    (shipmentFormData && shipmentFormData.min_excursion_temp) || 0,
+  const min_excursion_temp = useInput(
+    (editData && editData.min_excursion_temp) || 0,
+    { required: true },
   );
-  const [max_temp_val, changeMaxTempVal] = useState(
-    (shipmentFormData && shipmentFormData.max_excursion_temp) || 100,
+  const max_excursion_temp = useInput(
+    (editData && editData.max_excursion_temp) || 100,
+    { required: true },
   );
-  const [minMaxTempValue, setMinMaxTempValue] = useState(
-    shipmentFormData && [
-      shipmentFormData.min_excursion_temp || 0,
-      shipmentFormData.max_excursion_temp || 100,
-    ],
+  const min_excursion_humidity = useInput(
+    (editData && editData.min_excursion_humidity) || 0,
+    { required: true },
   );
-
-  const [min_humid_val, changeMinHumidVal] = useState(
-    (shipmentFormData && shipmentFormData.min_excursion_humidity) || 0,
-  );
-  const [max_humid_val, changeMaxHumidVal] = useState(
-    (shipmentFormData && shipmentFormData.max_excursion_humidity) || 100,
-  );
-  const [minMaxHumidValue, setMinMaxHumidValue] = useState(
-    shipmentFormData && [
-      shipmentFormData.min_excursion_humidity || 0,
-      shipmentFormData.max_excursion_humidity || 100,
-    ],
+  const max_excursion_humidity = useInput(
+    (editData && editData.max_excursion_humidity) || 100,
+    { required: true },
   );
 
   let latLongChanged = false;
@@ -266,31 +272,31 @@ const CreateShipment = (props) => {
   );
 
   const [itemIds, setItemIds] = useState(
-    (shipmentFormData && shipmentFormData.items) || [],
+    (editData && editData.items) || [],
   );
 
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
   const [gatewayIds, setGatewayIds] = useState(
-    (shipmentFormData && shipmentFormData.gateway_ids) || [],
+    (editData && editData.gateway_ids) || [],
   );
   const [platform_name, setPlatformName] = useState(
-    (shipmentFormData && shipmentFormData.platform_name) || 'tive',
+    (editData && editData.platform_name) || '',
   );
   const [formError, setFormError] = useState({});
 
-  const shipmentFormMinMaxHumid = [
-    (shipmentFormData && shipmentFormData.min_excursion_humidity) || 0,
-    (shipmentFormData && shipmentFormData.max_excursion_humidity) || 100,
-  ];
-
-  const shipmentFormMinMaxTemp = [
-    (shipmentFormData && shipmentFormData.min_excursion_temp) || 0,
-    (shipmentFormData && shipmentFormData.max_excursion_temp) || 100,
-  ];
-
   const [gatewayOptions, setGatewayOptions] = useState([]);
+
+  const [uom_temp, setUomTemp] = useState(
+    (editData && editData.uom_temp) || '',
+  );
+  const [uom_weight, setUomWeight] = useState(
+    (editData && editData.uom_weight) || '',
+  );
+  const [uom_distance, setUomDistance] = useState(
+    (editData && editData.uom_distance) || '',
+  );
 
   let formTitle;
   if (!editPage) {
@@ -336,11 +342,9 @@ const CreateShipment = (props) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (editPage || shipmentFormData === null) {
-      dispatch(saveShipmentFormData(editData));
-    }
-  }, []);
+  // useEffect(() => {
+  //   updateShipmentFormData();
+  // }, [start_of_custody, end_of_custody, itemIds, gatewayIds]);
 
   useEffect(() => {
     if (editData && editData.start_of_custody_location) {
@@ -366,6 +370,7 @@ const CreateShipment = (props) => {
       setCustodianList(getCustodianFormattedRow(
         custodianData,
         contactInfo,
+        custodyData,
       ));
     }
     let item_rows;
@@ -397,7 +402,8 @@ const CreateShipment = (props) => {
           }
         }
       });
-      gatewayRows = getGatewayFormattedRow(selectedRows, gatewayTypeList);
+      // eslint-disable-next-line max-len
+      gatewayRows = getGatewayFormattedRow(selectedRows, gatewayTypeList, shipmentData, custodianData);
       sensorsRow = getSensorFormattedRow(selectedSensors, sensorTypeList);
     }
     if (
@@ -423,32 +429,66 @@ const CreateShipment = (props) => {
   // eslint-disable-next-line max-len
   }, [custodianData, contactInfo, gatewayData, itemData, platform_name, gatewayTypeList, shipmentData]);
 
-  /**
-   * Submit The form and add/edit custodian
-   * @param {Event} event the default submit event
-   */
-  const onAddCustodyClick = (event) => {
-    event.preventDefault();
-    const custodyFormValues = {
-      custodian: [custodianURL],
-      start_of_custody_location: start_of_custody_location || null,
-      end_of_custody_location: end_of_custody_location || null,
-      // shipment_id: shipment.value,
-      // has_current_custody: has_current_custody.value,
-      // first_custody: first_custody.value,
-      // last_custody: last_custody.value,
-      radius: organization.radius,
-      ...(editData !== null && { id: editData.id }),
-      shipment_name: shipment_name.value,
-      shipment: shipmentFormData.id,
-    };
-    if (editData !== null) {
-      dispatch(editCustody(custodyFormValues));
-    } else {
-      dispatch(addCustody(custodyFormValues));
+  useEffect(() => {
+    if (unitsOfMeasure && unitsOfMeasure.length) {
+      _.forEach(unitsOfMeasure, (unit) => {
+        if (
+          _.includes(
+            _.lowerCase(unit.supported_class),
+            'temp',
+          ) && unit.is_default_for_class
+        ) {
+          setUomTemp(unit.url);
+        } else if (
+          _.includes(
+            _.lowerCase(unit.supported_class),
+            'distance',
+          ) && unit.is_default_for_class
+        ) {
+          setUomDistance(unit.url);
+        } else if (
+          _.includes(
+            _.lowerCase(unit.supported_class),
+            'weight',
+          ) && unit.is_default_for_class
+        ) {
+          setUomWeight(unit.url);
+        }
+      });
     }
-  };
+  }, [unitsOfMeasure]);
 
+  const updateShipmentFormData = () => {
+    const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
+    setShipmentName(`${org_name.value}-${order_number.value}-${origin.value}-${destination.value} `);
+    const shipmentFormValue = {
+      ...copyData,
+      name: shipment_name,
+      purchase_order_number: purchase_order_number.value,
+      order_number: order_number.value,
+      shipper_number: shipper_number.value,
+      carrier: [carrier.value],
+      transport_mode: mode_type.value,
+      status: (editData && editData.status) || 'Planned',
+      estimated_time_of_arrival: scheduled_arrival,
+      estimated_time_of_departure: scheduled_departure,
+      ...(editData && { id: editData.id }),
+      items: (editData && editData.items) || itemIds,
+      gateway_ids: (editData && editData.gateway_ids) || gatewayIds,
+      gateway_imei: (editData && editData.gateway_imei) || [
+        gatewayIds.length > 0 && updateGateway.imei_number] || null,
+      uom_distance,
+      uom_temp,
+      uom_weight,
+      organization_uuid,
+      platform_name,
+      max_excursion_temp: max_excursion_temp.value,
+      min_excursion_temp: min_excursion_temp.value,
+      max_excursion_humidity: max_excursion_humidity.value,
+      min_excursion_humidity: min_excursion_humidity.value,
+    };
+    dispatch(saveShipmentFormData(shipmentFormValue));
+  };
   const getLatLong = (address, pointer) => {
     if (pointer === 'start') {
       latLongChanged = true;
@@ -515,6 +555,7 @@ const CreateShipment = (props) => {
   };
 
   const handleBlur = (e, validation, input, parentId) => {
+    updateShipmentFormData();
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
     if (validateObj && validateObj.error) {
@@ -534,6 +575,7 @@ const CreateShipment = (props) => {
   };
 
   const onInputChange = (value, type, custody) => {
+    updateShipmentFormData();
     switch (type) {
       case 'item':
         if (value.length > itemIds.length) {
@@ -591,52 +633,80 @@ const CreateShipment = (props) => {
    */
   const handleSubmit = (event) => {
     event.preventDefault();
+    updateShipmentFormData();
     const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
-    const shipmentFormValue = {
-      ...copyData,
-      name: shipment_name.value,
-      purchase_order_number: purchase_order_number.value,
-      order_number: order_number.value,
-      shipper_number: shipper_number.value,
-      carrier,
-      transport_mode: mode_type.value,
-      status: (editData && editData.status) || 'Planned',
-      estimated_time_of_arrival: scheduled_arrival,
-      estimated_time_of_departure: scheduled_departure,
-      ...(editData && { id: editData.id }),
-      items: (editData && editData.items) || itemIds,
-      gateway_ids: (editData && editData.gateway_ids) || gatewayIds,
-      gateway_imei: (editData && editData.gateway_imei) || [updateGateway.imei_number],
-      uom_distance: 'Miles',
-      uom_temp: 'Fahrenheit',
-      uom_weight: 'Pounds',
-      organization_uuid,
-      platform_name,
-      max_excursion_temp: max_temp_val,
-      min_excursion_temp: min_temp_val,
-      max_excursion_humidity: max_humid_val,
-      min_excursion_humidity: min_humid_val,
+    const startCustodyForm = {
+      // start_of_custody: new Date(),
+      // end_of_custody: new Date(),
+      custodian: [start_of_custody],
+      start_of_custody_location: start_of_custody_location || null,
+      end_of_custody_location: start_of_custody_location || null,
+      has_current_custody: true,
+      first_custody: true,
+      last_custody: false,
+      radius: organization.radius || 10,
+      shipment_name,
+    };
+    const endCustodyForm = {
+      // start_of_custody: new Date(),
+      // end_of_custody: new Date(),
+      custodian: [end_of_custody],
+      start_of_custody_location: end_of_custody_location || null,
+      end_of_custody_location: end_of_custody_location || null,
+      has_current_custody: false,
+      first_custody: false,
+      last_custody: true,
+      radius: organization.radius || 10,
+      shipment_name,
     };
 
+    const shipment_payload = {
+      shipment: shipmentFormData,
+      start_custody: startCustodyForm,
+      end_custody: endCustodyForm,
+      gateway: updateGateway,
+    };
     if (editPage && editData) {
       if (shipmentFormData.gateway_ids.length > 0) {
+        let gateway_status = null;
+        let shipment_ids = [];
+
         let attachedGateway = null;
         attachedGateway = _.filter(
           gatewayData, (gateway) => gateway.gateway_uuid === shipmentFormData.gateway_ids[0],
         );
+
+        if (shipmentFormData.status === 'Completed' || shipmentFormData.status === 'Cancelled') {
+          gateway_status = 'available';
+        } else if (shipmentFormData.status === 'Enroute' && shipmentFormData.gateway_ids.length > 0) {
+          gateway_status = 'assigned';
+          shipment_ids = [shipmentFormData.id];
+        }
+
+        if (gateway_status === null) {
+          gateway_status = attachedGateway[0].gateway_status;
+        }
+
         dispatch(
           editShipment(
-            shipmentFormValue,
+            shipment_payload,
             history,
             `${routes.SHIPMENT}/edit/:${editData.id}`,
             organization_uuid,
             attachedGateway[0],
           ),
         );
+        dispatch(
+          editGateway({
+            ...attachedGateway[0],
+            gateway_status,
+            shipment_ids,
+          }),
+        );
       } else {
         dispatch(
           editShipment(
-            shipmentFormValue,
+            shipment_payload,
             history,
             `${routes.SHIPMENT}/edit/:${editData.id}`,
             organization_uuid,
@@ -645,25 +715,8 @@ const CreateShipment = (props) => {
         );
       }
     } else {
-      dispatch(addShipment(shipmentFormValue, history, null, organization_uuid));
+      dispatch(addShipment(shipment_payload, history, null, organization_uuid));
     }
-    dispatch(editGateway({
-      ...updateGateway,
-      gateway_status: 'assigned',
-      shipment_ids: [shipmentFormData.id],
-    }));
-  };
-
-  const handleTempMinMaxChange = (e, value) => {
-    setMinMaxTempValue(value);
-    changeMinTempVal(value[0]);
-    changeMaxTempVal(value[1]);
-  };
-
-  const handleHumidMinMaxChange = (e, value) => {
-    setMinMaxHumidValue(value);
-    changeMinHumidVal(value[0]);
-    changeMaxHumidVal(value[1]);
   };
 
   // const checkIfEnvironmentLimitsEdited = () => !(
@@ -789,11 +842,13 @@ const CreateShipment = (props) => {
                         margin="normal"
                         fullWidth
                         required
+                        disabled={viewOnly}
                         id="start_of_custody_address"
                         label="Origin Address"
                         name="start_of_custody_address"
                         autoComplete="start_of_custody_address"
                         value={start_of_custody_address}
+                        onBlur={(e) => handleBlur(e, 'required', start_of_custody_address, 'start_of_custody_address')}
                         onChange={(e) => getLatLong(e.target.value, 'start')}
                       />
                       <MapComponent
@@ -885,9 +940,12 @@ const CreateShipment = (props) => {
                         id="end_of_custody_address"
                         label="Destination Address"
                         name="end_of_custody_address"
+                        disabled={viewOnly}
                         autoComplete="end_of_custody_address"
                         value={end_of_custody_address}
                         onChange={(e) => getLatLong(e.target.value, 'end')}
+                        onBlur={(e) => handleBlur(e, 'required', end_of_custody_address, 'end_of_custody_address')}
+
                       />
                       <MapComponent
                         isMarkerShown
@@ -946,6 +1004,7 @@ const CreateShipment = (props) => {
                         select
                         label="Transportation type"
                         disabled={viewOnly}
+                        onBlur={(e) => handleBlur(e, 'required', mode_type, 'mode_type')}
                         {...mode_type.bind}
                       >
                         <MenuItem value="">Select</MenuItem>
@@ -991,7 +1050,6 @@ const CreateShipment = (props) => {
                         isOptionEqualToValue={(option, value) => (
                           option.url === value
                         )}
-                        filterSelectedOptions
                         value={itemIds}
                         onChange={(event, newValue) => onInputChange(newValue, 'item', null)}
                         renderTags={(value, getTagProps) => (
@@ -1010,7 +1068,7 @@ const CreateShipment = (props) => {
                         )}
                         // eslint-disable-next-line no-shadow
                         renderOption={(props, option, { selected }) => (
-                          <li {...props} key={`item-${option}`}>
+                          <li {...props} key={`item-${option.id}-${option.name}`}>
                             <Checkbox
                               icon={icon}
                               checkedIcon={checkedIcon}
@@ -1052,15 +1110,17 @@ const CreateShipment = (props) => {
                           margin="normal"
                           fullWidth
                           required
-                          id="max_temp_val"
+                          id="max_excursion_temp"
                           label="Max"
-                          name="max_temp_val"
-                          autoComplete="max_temp_val"
-                          value={max_temp_val}
+                          name="max_excursion_temp"
+                          autoComplete="max_excursion_temp"
+                          value={max_excursion_temp}
                           disabled={viewOnly}
+                          onBlur={(e) => handleBlur(e, 'required', max_excursion_temp, 'max_excursion_temp')}
                           InputProps={{
                             endAdornment: <InputAdornment position="end"><TempIcon color="white" name="Max Temperature" /></InputAdornment>,
                           }}
+                          {...max_excursion_temp.bind}
                         />
                       </Grid>
                       <Grid
@@ -1072,16 +1132,18 @@ const CreateShipment = (props) => {
                           variant="outlined"
                           margin="normal"
                           fullWidth
-                          id="min_temp_val"
+                          id="min_excursion_temp"
                           label="Min"
                           required
-                          name="min_temp_val"
-                          autoComplete="min_temp_val"
-                          value={min_temp_val}
+                          name="min_excursion_temp"
+                          autoComplete="min_excursion_temp"
+                          value={min_excursion_temp}
                           disabled={viewOnly}
+                          onBlur={(e) => handleBlur(e, 'required', min_excursion_temp, 'min_excursion_temp')}
                           InputProps={{
                             endAdornment: <InputAdornment position="end"><TempIcon color="white" name="Min Temperature" /></InputAdornment>,
                           }}
+                          {...min_excursion_temp.bind}
                         />
                       </Grid>
                     </Grid>
@@ -1094,16 +1156,18 @@ const CreateShipment = (props) => {
                           variant="outlined"
                           margin="normal"
                           fullWidth
-                          id="max_humid_val"
+                          id="max_excursion_humidity"
                           label="Max"
                           required
-                          name="max_humid_val"
-                          autoComplete="max_humid_val"
-                          value={max_humid_val}
+                          name="max_excursion_humidity"
+                          autoComplete="max_excursion_humidity"
+                          value={max_excursion_humidity}
                           disabled={viewOnly}
+                          onBlur={(e) => handleBlur(e, 'required', max_excursion_humidity, 'max_excursion_humidity')}
                           InputProps={{
                             endAdornment: <InputAdornment position="end"><HumidIcon color="white" name="Max Humidity" /></InputAdornment>,
                           }}
+                          {...max_excursion_humidity.bind}
                         />
 
                       </Grid>
@@ -1117,16 +1181,18 @@ const CreateShipment = (props) => {
                           margin="normal"
                           fullWidth
                           required
-                          id="min_humid_val"
+                          id="min_excursion_humidity"
                           label="Min"
-                          name="min_humid_val"
-                          autoComplete="min_humid_val"
-                          value={min_humid_val}
+                          name="min_excursion_humidity"
+                          autoComplete="min_excursion_humidity"
+                          value={min_excursion_humidity}
                           disabled={viewOnly}
                           className={classes.envInput}
+                          onBlur={(e) => handleBlur(e, 'required', min_excursion_humidity, 'min_excursion_humidity')}
                           InputProps={{
                             endAdornment: <InputAdornment position="end"><HumidIcon color="white" name="Min Humidity" /></InputAdornment>,
                           }}
+                          {...min_excursion_humidity.bind}
                         />
 
                       </Grid>
@@ -1134,8 +1200,9 @@ const CreateShipment = (props) => {
                   </Grid>
 
                 </Grid>
-                <Grid item xs={10} sm={8} />
-                <Grid item xs={2} sm={4} display="flex" alignItems="flex-end" justifyContent="flex-end">
+                {/* <Grid item xs={10} sm={8} />
+                <Grid item xs={2} sm={4} display="flex"
+                 alignItems="flex-end" justifyContent="flex-end">
                   <Button
                     variant="contained"
                     color="secondary"
@@ -1145,7 +1212,7 @@ const CreateShipment = (props) => {
                   >
                     Save as Template
                   </Button>
-                </Grid>
+                </Grid> */}
               </Grid>
             </FormControl>
 
@@ -1168,12 +1235,13 @@ const CreateShipment = (props) => {
                       <TextField
                         variant="outlined"
                         margin="normal"
-                        id="organization_uuid"
+                        id="org_name"
                         label="Org"
-                        name="organization_uuid"
-                        autoComplete="organization_uuid"
+                        name="org_name"
+                        autoComplete="org_name"
                         disabled={viewOnly}
-                        {...organization_uuid.bind}
+                        onBlur={(e) => handleBlur(e, 'required', org_name, 'org_name')}
+                        {...org_name.bind}
                       />
 
                     </Grid>
@@ -1188,6 +1256,7 @@ const CreateShipment = (props) => {
                         name="order_number"
                         autoComplete="order_number"
                         disabled={viewOnly}
+                        onBlur={(e) => handleBlur(e, 'required', order_number, 'order_number')}
                         {...order_number.bind}
                       />
                     </Grid>
@@ -1209,6 +1278,7 @@ const CreateShipment = (props) => {
                         name="purchase_order_number"
                         autoComplete="purchase_order_number"
                         disabled={viewOnly}
+                        onBlur={(e) => handleBlur(e, 'required', purchase_order_number, 'purchase_order_number')}
                         {...purchase_order_number.bind}
                       />
                       <DatePickerComponent
@@ -1229,12 +1299,13 @@ const CreateShipment = (props) => {
                         fullWidth
                         required
                         id="carrier"
-                        select
+                        // select
                         label="Carrier"
                         disabled={viewOnly}
-                        {...mode_type.bind}
+                        onBlur={(e) => handleBlur(e, 'required', carrier, 'carrier')}
+                        {...carrier.bind}
                       >
-                        <MenuItem value="">Select</MenuItem>
+                        {/* <MenuItem value="">Select</MenuItem>
                         {TRANSPORT_MODE
                       && _.map(
                         _.orderBy(TRANSPORT_MODE, ['value'], ['asc']),
@@ -1246,7 +1317,7 @@ const CreateShipment = (props) => {
                             {item.label}
                           </MenuItem>
                         ),
-                      )}
+                      )} */}
                       </TextField>
                     </Grid>
 
@@ -1267,6 +1338,7 @@ const CreateShipment = (props) => {
                         name="shipper_number"
                         autoComplete="shipper_number"
                         disabled={viewOnly}
+                        onBlur={(e) => handleBlur(e, 'required', shipper_number, 'shipper_number')}
                         {...shipper_number.bind}
                       />
                       <DatePickerComponent
@@ -1281,7 +1353,7 @@ const CreateShipment = (props) => {
                         handleDateChange={handleScheduledDateChange}
                         disabled={viewOnly}
                       />
-                      <Button
+                      {/* <Button
                         variant="contained"
                         color="secondary"
                         fullWidth
@@ -1294,7 +1366,7 @@ const CreateShipment = (props) => {
                         <AddIcon />
                         {' '}
                         Add Additional Carrier
-                      </Button>
+                      </Button> */}
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1327,8 +1399,8 @@ const CreateShipment = (props) => {
                         viewOnly
                         || !!(shipmentFormData && shipmentFormData.platform_name)
                       }
-                    // value={platform_name}
-                    // onChange={(e) => setPlatformName(e.target.value)}
+                    value={platform_name}
+                    onChange={(e) => setPlatformName(e.target.value)}
                     helperText={
                         shipmentFormData && shipmentFormData.platform_name
                           ? 'Once set, platform cannot be edited.'
@@ -1388,7 +1460,7 @@ const CreateShipment = (props) => {
                     )}
                     // eslint-disable-next-line no-shadow
                     renderOption={(props, option, { selected }) => (
-                      <li {...props} key={`gateway-${option}`}>
+                      <li {...props} key={`gateway-${option.id}-${option.name}`}>
                         <Checkbox
                           icon={icon}
                           checkedIcon={checkedIcon}
@@ -1420,18 +1492,19 @@ const CreateShipment = (props) => {
             </FormControl>
 
             <Grid container spacing={2} marginTop="0.5rem">
-              <Grid item xs={2} sm={5} />
-              <Grid item xs={10} sm={4} className={classes.flexContainer}>
+              <Grid item xs={0} sm={5} />
+              <Grid item xs={12} sm={4} className={classes.flexContainer}>
                 <TextField
                   variant="outlined"
                   required
                   margin="normal"
-                  // id="load_no_1"
+                  id="org_name"
                   label="Org"
-                  name="load_no"
-                  // autoComplete="load_no"
+                  name="org_name"
+                  autoComplete="org_name"
                   disabled={viewOnly}
-                  // {...load_no.bind}
+                  onBlur={(e) => handleBlur(e, 'required', org_name, 'org_name')}
+                  {...org_name.bind}
                   style={{
                     width: '20%',
                   }}
@@ -1440,12 +1513,13 @@ const CreateShipment = (props) => {
                   variant="outlined"
                   required
                   margin="normal"
-                  // id="load_no_2"
+                  id="order_number"
                   label="Order No."
-                  // name="load_no"
-                  // autoComplete="load_no"
+                  name="order_number"
+                  autoComplete="order_number"
                   disabled={viewOnly}
-                  // {...load_no.bind}
+                  onBlur={(e) => handleBlur(e, 'required', order_number, 'order_number')}
+                  {...order_number.bind}
                   style={{
                     flex: '2',
                     width: '20%',
@@ -1457,24 +1531,26 @@ const CreateShipment = (props) => {
                   variant="outlined"
                   required
                   margin="normal"
-                  // id="load_no_3"
+                  id="origin"
                   label="Origin"
-                  // name="load_no"
-                  // autoComplete="load_no"
+                  name="origin"
+                  autoComplete="origin"
                   disabled={viewOnly}
-                  // {...load_no.bind}
+                  onBlur={(e) => handleBlur(e, 'required', origin, 'origin')}
+                  {...origin.bind}
                   className={classes.smallInput}
                 />
                 <TextField
                   variant="outlined"
                   required
                   margin="normal"
-                  // id="load_no_4"
+                  id="destination"
                   label="Dest."
-                  // name="load_no"
-                  // autoComplete="load_no"
+                  name="destination"
+                  autoComplete="destination"
                   disabled={viewOnly}
-                  // {...load_no.bind}
+                  onBlur={(e) => handleBlur(e, 'required', destination, 'destination')}
+                  {...destination.bind}
                   className={classes.smallInput}
                 />
               </Grid>
@@ -1505,7 +1581,6 @@ const CreateShipment = (props) => {
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  // onClick={onCancelClick}
                 >
                   Done
                 </Button>

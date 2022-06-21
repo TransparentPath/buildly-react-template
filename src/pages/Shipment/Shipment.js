@@ -58,7 +58,7 @@ import {
 } from './ShipmentConstants';
 import ShipmentDataTable from './components/ShipmentDataTable';
 import { getShipmentOverview } from '../Reporting/ReportingConstants';
-import CreateShipment from './CreateShipment';
+import AddShipment from './forms/AddShipment';
 
 const useStyles = makeStyles((theme) => ({
   dashboardHeading: {
@@ -487,7 +487,7 @@ const Shipment = (props) => {
       />
       <Route
         path={`${routes.SHIPMENT}/edit/:id`}
-        component={CreateShipment}
+        component={AddShipment}
       />
       <ConfirmModal
         open={openConfirmModal}
