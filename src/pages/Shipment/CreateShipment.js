@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import Geocode from 'react-geocode';
@@ -70,7 +71,6 @@ import {
   getAvailableGateways,
 } from '../../pages/SensorsGateway/Constants';
 import { getCustodianFormattedRow } from '../../pages/Custodians/CustodianConstants';
-import { desaturate } from 'polished';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -196,6 +196,7 @@ const CreateShipment = (props) => {
     (editData && editData.purchase_order_number) || '',
     { required: true },
   );
+
   const origin = useInput(
     (editData && editData.shipment_origin) || '',
   );
@@ -340,10 +341,6 @@ const CreateShipment = (props) => {
   }, []);
 
   useEffect(() => {
-    updateShipmentFormData();
-  }, [start_of_custody, end_of_custody, itemIds, gatewayIds]);
-
-  useEffect(() => {
     if (editData && editData.start_of_custody_location) {
       getAddress(
         editData.start_of_custody_location,
@@ -426,6 +423,7 @@ const CreateShipment = (props) => {
 
   const updateShipmentFormData = () => {
     const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
+    const imei_number = updateGateway ? [updateGateway.imei_number] : [];
     setShipmentName(`${org_name.value}-${order_number.value}-${origin.value}-${dest.value} `);
     const shipmentFormValue = {
       ...copyData,
@@ -441,8 +439,8 @@ const CreateShipment = (props) => {
       ...(editData && { id: editData.id }),
       items: (editData && editData.items) || itemIds,
       gateway_ids: (editData && editData.gateway_ids) || gatewayIds,
-      gateway_imei: (editData && editData.gateway_imei) || [
-        gatewayIds.length > 0 && updateGateway.imei_number] || null,
+      gateway_imei: (editData && editData.gateway_imei)
+        || imei_number,
       uom_distance,
       uom_temp,
       uom_weight,
@@ -580,6 +578,7 @@ const CreateShipment = (props) => {
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (!shipment_name.value
+      && !start_of_custody.value && !end_of_custody.value
       && (!itemIds.length || itemData === null)
       && (!gatewayIds.length || gatewayData === null)) {
       return true;
@@ -600,9 +599,11 @@ const CreateShipment = (props) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
+    const imei_number = updateGateway ? [updateGateway.imei_number] : [];
+    setShipmentName(`${org_name.value}-${order_number.value}-${origin.value}-${dest.value} `);
     const shipmentFormValue = {
       ...copyData,
-      name: `${org_name.value}-${order_number.value}-${origin.value}-${dest.value}`,
+      name: shipment_name,
       purchase_order_number: purchase_order_number.value,
       order_number: order_number.value,
       shipper_number: shipper_number.value,
@@ -614,8 +615,8 @@ const CreateShipment = (props) => {
       ...(editData && { id: editData.id }),
       items: (editData && editData.items) || itemIds,
       gateway_ids: (editData && editData.gateway_ids) || gatewayIds,
-      gateway_imei: (editData && editData.gateway_imei) || [
-        gatewayIds.length > 0 && updateGateway.imei_number] || null,
+      gateway_imei: (editData && editData.gateway_imei)
+        || imei_number,
       uom_distance,
       uom_temp,
       uom_weight,
@@ -1350,7 +1351,7 @@ const CreateShipment = (props) => {
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    required
+                    // required
                     id="platform_name"
                     select
                     label="Gateway Platform"
