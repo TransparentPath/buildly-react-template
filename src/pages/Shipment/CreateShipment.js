@@ -25,19 +25,18 @@ import {
   CircularProgress,
 } from '@mui/material';
 import {
-  Add as AddIcon,
   CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
   CheckBox as CheckBoxIcon,
+  Thermostat as TempIcon,
+  Opacity as HumidIcon,
+  LocationOn as LocationIcon,
 } from '@mui/icons-material';
-import {
-  TempIcon,
-  HumidIcon,
-} from '../../components/Icons/Icons';
 import { makeStyles } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
 import { UserContext } from '../../context/User.context';
 import { checkForGlobalAdmin } from '../../utils/utilMethods';
 import DatePickerComponent from '../../components/DatePicker/DatePicker';
+import TimePickerComponent from '../../components/TimePicker/TimePicker';
 import { useInput } from '../../hooks/useInput';
 import {
   getCustodians,
@@ -121,6 +120,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
   },
+  asterisk: {
+    fontSize: '1.5rem',
+    color: theme.palette.primary.main,
+    marginLeft: theme.spacing(1),
+    marginTop: theme.spacing(1),
+  },
   divider: {
     width: '100%',
     marginTop: '10px',
@@ -132,7 +137,9 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   envInput: {
-    margin: '1.2rem 0px',
+    margin: '1rem 0 0 0',
+    display: 'flex',
+    alignItems: 'center',
   },
   flexContainer: {
     display: 'flex', justifyContent: 'space-around', flexDirection: 'row',
@@ -181,6 +188,7 @@ const CreateShipment = (props) => {
     && editData.status
     && _.lowerCase(editData.status) !== 'planned';
 
+  const today = new Date();
   const { organization } = useContext(UserContext);
   const { organization_uuid, name } = organization;
 
@@ -190,58 +198,44 @@ const CreateShipment = (props) => {
 
   const org_name = useInput(
     name.replace(/[^A-Z0-9]/g, ''),
-    { required: true },
   );
   const purchase_order_number = useInput(
     (editData && editData.purchase_order_number) || '',
-    { required: true },
   );
+  const [origin, setOrigin] = useState('');
+  const [dest, setDestination] = useState('');
 
-  const origin = useInput(
-    (editData && editData.shipment_origin) || '',
-  );
-  const dest = useInput(
-    (editData && editData.shipment_dest) || '',
-  );
   const order_number = useInput(
     (editData && editData.order_number) || '',
-    { required: true },
   );
   const shipper_number = useInput(
     (editData && editData.shipper_number) || '',
-    { required: true },
   );
   const carrier = useInput(
     (editData && editData.carrier) || '',
-    { required: true },
   );
   const mode_type = useInput(
     (editData && editData.transport_mode) || '',
-    { required: true },
   );
   const [scheduled_departure, handleDepartureDateChange] = useState(
     (editData && editData.estimated_time_of_departure)
-    || new Date(),
+    || new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0),
   );
-  const [scheduled_arrival, handleScheduledDateChange] = useState(
+  const [scheduled_arrival, handleArrivalDateChange] = useState(
     (editData && editData.estimated_time_of_arrival)
-    || new Date(),
+    || new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0),
   );
   const min_excursion_temp = useInput(
     (editData && editData.min_excursion_temp) || 0,
-    { required: true },
   );
   const max_excursion_temp = useInput(
     (editData && editData.max_excursion_temp) || 100,
-    { required: true },
   );
   const min_excursion_humidity = useInput(
     (editData && editData.min_excursion_humidity) || 0,
-    { required: true },
   );
   const max_excursion_humidity = useInput(
     (editData && editData.max_excursion_humidity) || 100,
-    { required: true },
   );
 
   let latLongChanged = false;
@@ -292,9 +286,6 @@ const CreateShipment = (props) => {
   const [uom_distance, setUomDistance] = useState(
     (editData && editData.uom_distance) || '',
   );
-
-  const [show_start_custody, setShowStartCustody] = useState(false);
-  const [show_end_custody, setShowEndCustody] = useState(false);
 
   let formTitle;
   if (!editPage) {
@@ -375,7 +366,6 @@ const CreateShipment = (props) => {
       && gatewayTypeList.length
       && shipmentData
       && shipmentData.length
-      && shipmentFormData
     ) {
       const opts = getAvailableGateways(
         gatewayData,
@@ -384,7 +374,7 @@ const CreateShipment = (props) => {
           : 'tive',
         gatewayTypeList,
         shipmentData,
-        shipmentFormData,
+        null,
       );
       setGatewayOptions(opts);
     }
@@ -424,7 +414,7 @@ const CreateShipment = (props) => {
   const updateShipmentFormData = () => {
     const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
     const imei_number = updateGateway ? [updateGateway.imei_number] : [];
-    setShipmentName(`${org_name.value}-${order_number.value}-${origin.value}-${dest.value} `);
+    setShipmentName(`${org_name.value}-${order_number.value}-${origin}-${dest}`);
     const shipmentFormValue = {
       ...copyData,
       name: shipment_name,
@@ -557,9 +547,11 @@ const CreateShipment = (props) => {
             });
             if (custody === 'start') {
               setStartCustody(value);
+              setOrigin(selectedCustodian.name.replace(/[^A-Z0-9]/g, ''));
               getLatLong(selectedCustodian.location, 'start');
             } else if (custody === 'end') {
               setEndCustody(value);
+              setDestination(selectedCustodian.name.replace(/[^A-Z0-9]/g, ''));
               getLatLong(selectedCustodian.location, 'end');
             }
           }
@@ -577,12 +569,15 @@ const CreateShipment = (props) => {
 
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
-    if (!shipment_name.value
-      && !start_of_custody.value && !end_of_custody.value
+    if (!mode_type.value && !order_number.value && !platform_name
+      && !min_excursion_temp.value && !max_excursion_temp.value
+      && !min_excursion_humidity.value && !max_excursion_humidity.value
+      && !start_of_custody && !end_of_custody
       && (!itemIds.length || itemData === null)
       && (!gatewayIds.length || gatewayData === null)) {
       return true;
     }
+
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
@@ -600,7 +595,7 @@ const CreateShipment = (props) => {
     event.preventDefault();
     const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });
     const imei_number = updateGateway ? [updateGateway.imei_number] : [];
-    setShipmentName(`${org_name.value}-${order_number.value}-${origin.value}-${dest.value} `);
+    setShipmentName(`${org_name.value}-${order_number.value}-${origin}-${dest}`);
     const shipmentFormValue = {
       ...copyData,
       name: shipment_name,
@@ -749,7 +744,7 @@ const CreateShipment = (props) => {
                   sx={{ padding: '8px' }}
                 >
                   <Grid container spacing={isDesktop ? 2 : 0}>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                       <Button
                         type="button"
                         variant="contained"
@@ -763,16 +758,16 @@ const CreateShipment = (props) => {
                         {' '}
                         Add Shipment Origin
                       </Button>
-                    </Grid>
-                    { show_start_custody && (
-                    <Grid item xs={12}>
+                    </Grid> */}
+                    {/* { show_start_custody && ( */}
+                    <Grid item xs={12} className={classes.inputWithTooltip}>
                       <TextField
                         variant="outlined"
                         margin="normal"
                         fullWidth
                         required
-                        select
                         disabled={viewOnly}
+                        select
                         id="start_of_custody"
                         label="Origin Company"
                         onBlur={(e) => handleBlur(e, 'required', start_of_custody, 'start_of_custody')}
@@ -793,19 +788,24 @@ const CreateShipment = (props) => {
                       ),
                     )}
                       </TextField>
+                      <span className={classes.asterisk}>*</span>
+                    </Grid>
+                    <Grid item xs={12}>
                       <TextField
                         variant="outlined"
                         margin="normal"
                         fullWidth
                         required
-                        disabled={viewOnly}
+                        disabled
                         id="start_of_custody_address"
                         label="Origin Address"
                         name="start_of_custody_address"
                         autoComplete="start_of_custody_address"
                         value={start_of_custody_address}
-                        onBlur={(e) => handleBlur(e, 'required', start_of_custody_address, 'start_of_custody_address')}
                         onChange={(e) => getLatLong(e.target.value, 'start')}
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end"><LocationIcon style={{ color: '#fff' }} /></InputAdornment>,
+                        }}
                       />
                       <MapComponent
                         isMarkerShown
@@ -835,7 +835,7 @@ const CreateShipment = (props) => {
                   }
                       />
                     </Grid>
-                    ) }
+                    {/* ) } */}
                   </Grid>
                 </Grid>
 
@@ -846,7 +846,7 @@ const CreateShipment = (props) => {
                   sx={{ padding: '8px' }}
                 >
                   <Grid container spacing={isDesktop ? 2 : 0}>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                       <Button
                         type="button"
                         variant="contained"
@@ -862,8 +862,8 @@ const CreateShipment = (props) => {
                         Add Shipment Destination
                       </Button>
                     </Grid>
-                    {show_end_custody && (
-                    <Grid item xs={12}>
+                    {show_end_custody && ( */}
+                    <Grid item xs={12} className={classes.inputWithTooltip}>
                       <TextField
                         variant="outlined"
                         margin="normal"
@@ -891,7 +891,9 @@ const CreateShipment = (props) => {
                       ),
                     )}
                       </TextField>
-
+                      <span className={classes.asterisk}>*</span>
+                    </Grid>
+                    <Grid item xs={12}>
                       <TextField
                         variant="outlined"
                         margin="normal"
@@ -900,11 +902,13 @@ const CreateShipment = (props) => {
                         id="end_of_custody_address"
                         label="Destination Address"
                         name="end_of_custody_address"
-                        disabled={viewOnly}
+                        disabled
                         autoComplete="end_of_custody_address"
                         value={end_of_custody_address}
                         onChange={(e) => getLatLong(e.target.value, 'end')}
-                        onBlur={(e) => handleBlur(e, 'required', end_of_custody_address, 'end_of_custody_address')}
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end"><LocationIcon style={{ color: '#fff' }} /></InputAdornment>,
+                        }}
                       />
                       <MapComponent
                         isMarkerShown
@@ -934,7 +938,7 @@ const CreateShipment = (props) => {
                   }
                       />
                     </Grid>
-                    ) }
+                    {/* ) } */}
                   </Grid>
                 </Grid>
                 <Divider
@@ -947,13 +951,14 @@ const CreateShipment = (props) => {
                 <Grid
                   item
                   xs={12}
-                  sm={8}
+                  sm={6}
                   sx={{ padding: '8px' }}
                 >
                   <Grid container spacing={isDesktop ? 2 : 0}>
                     <Grid
                       item
                       xs={12}
+                      className={classes.inputWithTooltip}
                     >
                       <TextField
                         variant="outlined"
@@ -981,10 +986,12 @@ const CreateShipment = (props) => {
                         ),
                       )}
                       </TextField>
+                      <span className={classes.asterisk}>*</span>
                     </Grid>
                     <Grid
                       item
                       xs={12}
+                      className={classes.inputWithTooltip}
                     >
                       <Autocomplete
                         multiple
@@ -1048,6 +1055,7 @@ const CreateShipment = (props) => {
                           />
                         )}
                       />
+                      <span className={classes.asterisk}>*</span>
                     </Grid>
 
                   </Grid>
@@ -1056,7 +1064,7 @@ const CreateShipment = (props) => {
                 <Grid
                   item
                   xs={12}
-                  sm={4}
+                  sm={6}
                   sx={{ padding: '8px' }}
                 >
                   <Grid container spacing={isDesktop ? 2 : 0}>
@@ -1064,6 +1072,7 @@ const CreateShipment = (props) => {
                       <Grid
                         item
                         xs={12}
+                        className={classes.inputWithTooltip}
                       >
                         <TextField
                           variant="outlined"
@@ -1071,17 +1080,18 @@ const CreateShipment = (props) => {
                           fullWidth
                           required
                           id="max_excursion_temp"
-                          label="Max"
+                          label="Temp warning: HIGH"
                           name="max_excursion_temp"
                           autoComplete="max_excursion_temp"
                           value={max_excursion_temp}
                           disabled={viewOnly}
                           onBlur={(e) => handleBlur(e, 'required', max_excursion_temp, 'max_excursion_temp')}
                           InputProps={{
-                            endAdornment: <InputAdornment position="end"><TempIcon color="white" name="Max Temperature" /></InputAdornment>,
+                            endAdornment: <InputAdornment position="end"><TempIcon style={{ color: '#fff' }} /></InputAdornment>,
                           }}
                           {...max_excursion_temp.bind}
                         />
+                        <span className={classes.asterisk}>*</span>
                       </Grid>
                       <Grid
                         item
@@ -1093,7 +1103,7 @@ const CreateShipment = (props) => {
                           margin="normal"
                           fullWidth
                           id="min_excursion_temp"
-                          label="Min"
+                          label="Temp warning: LOW"
                           required
                           name="min_excursion_temp"
                           autoComplete="min_excursion_temp"
@@ -1101,23 +1111,25 @@ const CreateShipment = (props) => {
                           disabled={viewOnly}
                           onBlur={(e) => handleBlur(e, 'required', min_excursion_temp, 'min_excursion_temp')}
                           InputProps={{
-                            endAdornment: <InputAdornment position="end"><TempIcon color="white" name="Min Temperature" /></InputAdornment>,
+                            endAdornment: <InputAdornment position="end"><TempIcon style={{ color: '#fff' }} /></InputAdornment>,
                           }}
                           {...min_excursion_temp.bind}
                         />
+                        <span className={classes.asterisk}>*</span>
                       </Grid>
                     </Grid>
                     <Grid item xs={6}>
                       <Grid
                         item
                         xs={12}
+                        className={classes.inputWithTooltip}
                       >
                         <TextField
                           variant="outlined"
                           margin="normal"
                           fullWidth
                           id="max_excursion_humidity"
-                          label="Max"
+                          label="Humidity warning: HIGH"
                           required
                           name="max_excursion_humidity"
                           autoComplete="max_excursion_humidity"
@@ -1125,11 +1137,11 @@ const CreateShipment = (props) => {
                           disabled={viewOnly}
                           onBlur={(e) => handleBlur(e, 'required', max_excursion_humidity, 'max_excursion_humidity')}
                           InputProps={{
-                            endAdornment: <InputAdornment position="end"><HumidIcon color="white" name="Max Humidity" /></InputAdornment>,
+                            endAdornment: <InputAdornment position="end"><HumidIcon style={{ color: '#fff' }} /></InputAdornment>,
                           }}
                           {...max_excursion_humidity.bind}
                         />
-
+                        <span className={classes.asterisk}>*</span>
                       </Grid>
                       <Grid
                         item
@@ -1142,19 +1154,18 @@ const CreateShipment = (props) => {
                           fullWidth
                           required
                           id="min_excursion_humidity"
-                          label="Min"
+                          label="Humidity warning: LOW"
                           name="min_excursion_humidity"
                           autoComplete="min_excursion_humidity"
                           value={min_excursion_humidity}
                           disabled={viewOnly}
-                          className={classes.envInput}
                           onBlur={(e) => handleBlur(e, 'required', min_excursion_humidity, 'min_excursion_humidity')}
                           InputProps={{
-                            endAdornment: <InputAdornment position="end"><HumidIcon color="white" name="Min Humidity" /></InputAdornment>,
+                            endAdornment: <InputAdornment position="end"><HumidIcon style={{ color: '#fff' }} /></InputAdornment>,
                           }}
                           {...min_excursion_humidity.bind}
                         />
-
+                        <span className={classes.asterisk}>*</span>
                       </Grid>
                     </Grid>
                   </Grid>
@@ -1196,16 +1207,15 @@ const CreateShipment = (props) => {
                         variant="outlined"
                         margin="normal"
                         id="org_name"
-                        label="Org"
                         name="org_name"
                         autoComplete="org_name"
-                        disabled={viewOnly}
+                        disabled
                         onBlur={(e) => handleBlur(e, 'required', org_name, 'org_name')}
                         {...org_name.bind}
                       />
 
                     </Grid>
-                    <Grid item xs={10} sm={8}>
+                    <Grid item xs={10} sm={8} className={classes.inputWithTooltip}>
                       <TextField
                         variant="outlined"
                         required
@@ -1219,6 +1229,7 @@ const CreateShipment = (props) => {
                         onBlur={(e) => handleBlur(e, 'required', order_number, 'order_number')}
                         {...order_number.bind}
                       />
+                      <span className={classes.asterisk}>*</span>
                     </Grid>
 
                   </Grid>
@@ -1238,21 +1249,33 @@ const CreateShipment = (props) => {
                         name="purchase_order_number"
                         autoComplete="purchase_order_number"
                         disabled={viewOnly}
-                        onBlur={(e) => handleBlur(e, 'required', purchase_order_number, 'purchase_order_number')}
                         {...purchase_order_number.bind}
                       />
-                      <DatePickerComponent
-                        label="Pickup Date/Time"
-                        fullWidth
-                        required
-                        selectedDate={
+                      <Grid item xs={12} display="flex" justifyContent="space-between">
+                        <DatePickerComponent
+                          label="Pickup Date"
+                          fullWidth
+                          required
+                          selectedDate={
                         moment(scheduled_departure).tz(timezone)
                           .format('MMMM DD, YYYY HH:mm:ss')
                       }
-                        hasTime
-                        handleDateChange={handleDepartureDateChange}
-                        disabled={viewOnly}
-                      />
+                          handleDateChange={handleDepartureDateChange}
+                          disabled={viewOnly}
+                        />
+                        <TimePickerComponent
+                          label="Pickup Time"
+                          fullWidth
+                          required
+                          selectedTime={
+                        moment(scheduled_departure).tz(timezone)
+                          .format('MMMM DD, YYYY HH:mm:ss')
+                      }
+                          handleTimeChange={handleDepartureDateChange}
+                          disabled={viewOnly}
+                        />
+                      </Grid>
+
                       <TextField
                         variant="outlined"
                         margin="normal"
@@ -1298,21 +1321,32 @@ const CreateShipment = (props) => {
                         name="shipper_number"
                         autoComplete="shipper_number"
                         disabled={viewOnly}
-                        onBlur={(e) => handleBlur(e, 'required', shipper_number, 'shipper_number')}
                         {...shipper_number.bind}
                       />
-                      <DatePickerComponent
-                        label="Dropoff Date/Time"
-                        fullWidth
-                        required
-                        selectedDate={
+                      <Grid item xs={12} display="flex" justifyContent="space-between">
+                        <DatePickerComponent
+                          label="Dropoff Date"
+                          fullWidth
+                          required
+                          selectedDate={
                         moment(scheduled_arrival).tz(timezone)
                           .format('MMMM DD, YYYY HH:mm:ss')
                       }
-                        hasTime
-                        handleDateChange={handleScheduledDateChange}
-                        disabled={viewOnly}
-                      />
+                          handleDateChange={handleArrivalDateChange}
+                          disabled={viewOnly}
+                        />
+                        <TimePickerComponent
+                          label="Dropoff Time"
+                          fullWidth
+                          required
+                          selectedTime={
+                        moment(scheduled_arrival).tz(timezone)
+                          .format('MMMM DD, YYYY HH:mm:ss')
+                      }
+                          handleTimeChange={handleArrivalDateChange}
+                          disabled={viewOnly}
+                        />
+                      </Grid>
                       {/* <Button
                         variant="contained"
                         color="secondary"
@@ -1346,27 +1380,19 @@ const CreateShipment = (props) => {
                 Gateway
               </FormLabel>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid item xs={6} className={classes.inputWithTooltip}>
                   <TextField
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    // required
                     id="platform_name"
                     select
                     label="Gateway Platform"
                     disabled={
                         viewOnly
-                        // || !!(shipmentFormData && shipmentFormData.platform_name)
                       }
                     value={platform_name}
                     onChange={(e) => setPlatformName(e.target.value)}
-                    helperText={
-                        // shipmentFormData && shipmentFormData.platform_name
-                          // ? 'Once set, platform cannot be edited.'
-                          // :
-                          'Platform can be set just once.'
-                      }
                   >
                     <MenuItem value="">Select</MenuItem>
                     {SENSOR_PLATFORM
@@ -1382,18 +1408,13 @@ const CreateShipment = (props) => {
                         ),
                       )}
                   </TextField>
+                  <span className={classes.asterisk}>*</span>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={6} className={classes.inputWithTooltip}>
                   <Autocomplete
                     multiple
                     id="gateways-outlined"
-                  //   disabled={
-                  //   viewOnly
-                  //   || (shipmentFormData
-                  //     && shipmentFormData.gateway_ids
-                  //     && shipmentFormData.gateway_ids.length > 0
-                  //   )
-                  // }
+                    fullWidth
                     disableCloseOnSelect
                     options={gatewayOptions}
                     getOptionLabel={(option) => (
@@ -1438,16 +1459,10 @@ const CreateShipment = (props) => {
                         label="Gateway Label"
                         variant="outlined"
                         placeholder="Select a Gateway"
-                        helperText={
-                        shipmentFormData
-                        && shipmentFormData.gateway_ids
-                        && shipmentFormData.gateway_ids.length === 0
-                          ? '**You can attach gateway/sensor only once per shipment.'
-                          : '**In case you want to change the gateway/sensor, please cancel this shipment and create a new one.'
-                      }
                       />
                     )}
                   />
+                  <span className={classes.asterisk}>*</span>
                 </Grid>
               </Grid>
             </FormControl>
@@ -1460,10 +1475,9 @@ const CreateShipment = (props) => {
                   required
                   margin="normal"
                   id="org_name"
-                  label="Org"
                   name="org_name"
                   autoComplete="org_name"
-                  disabled={viewOnly}
+                  disabled
                   onBlur={(e) => handleBlur(e, 'required', org_name, 'org_name')}
                   {...org_name.bind}
                   style={{
@@ -1472,13 +1486,12 @@ const CreateShipment = (props) => {
                 />
                 <TextField
                   variant="outlined"
-                  required
                   margin="normal"
                   id="order_number"
-                  label="Order No."
+                  label="ORDER #"
                   name="order_number"
                   autoComplete="order_number"
-                  disabled={viewOnly}
+                  disabled
                   onBlur={(e) => handleBlur(e, 'required', order_number, 'order_number')}
                   {...order_number.bind}
                   style={{
@@ -1493,12 +1506,10 @@ const CreateShipment = (props) => {
                   required
                   margin="normal"
                   id="origin"
-                  label="Origin"
+                  label="ORIG"
                   name="origin"
-                  autoComplete="origin"
-                  disabled={viewOnly}
-                  onBlur={(e) => handleBlur(e, 'required', origin, 'origin')}
-                  {...origin.bind}
+                  disabled
+                  value={origin}
                   className={classes.smallInput}
                 />
                 <TextField
@@ -1506,12 +1517,10 @@ const CreateShipment = (props) => {
                   required
                   margin="normal"
                   id="dest"
-                  label="Dest."
+                  label="DEST"
                   name="dest"
-                  autoComplete="dest"
-                  disabled={viewOnly}
-                  onBlur={(e) => handleBlur(e, 'required', dest, 'dest')}
-                  {...dest.bind}
+                  disabled
+                  value={dest}
                   className={classes.smallInput}
                 />
               </Grid>
