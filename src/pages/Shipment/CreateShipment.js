@@ -226,16 +226,16 @@ const CreateShipment = (props) => {
     || new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0),
   );
   const min_excursion_temp = useInput(
-    (editData && editData.min_excursion_temp) || 0,
+    (editData && editData.min_excursion_temp) || '0',
   );
   const max_excursion_temp = useInput(
-    (editData && editData.max_excursion_temp) || 100,
+    (editData && editData.max_excursion_temp) || '100',
   );
   const min_excursion_humidity = useInput(
-    (editData && editData.min_excursion_humidity) || 0,
+    (editData && editData.min_excursion_humidity) || '0',
   );
   const max_excursion_humidity = useInput(
-    (editData && editData.max_excursion_humidity) || 100,
+    (editData && editData.max_excursion_humidity) || '100',
   );
 
   let latLongChanged = false;
@@ -421,7 +421,7 @@ const CreateShipment = (props) => {
       purchase_order_number: purchase_order_number.value,
       order_number: order_number.value,
       shipper_number: shipper_number.value,
-      carrier: [carrier.value],
+      carrier: carrier.value ? [carrier.value] : [],
       transport_mode: mode_type.value,
       status: (editData && editData.status) || 'Planned',
       estimated_time_of_arrival: scheduled_arrival,
@@ -436,10 +436,10 @@ const CreateShipment = (props) => {
       uom_weight,
       organization_uuid,
       platform_name,
-      max_excursion_temp: max_excursion_temp.value,
-      min_excursion_temp: min_excursion_temp.value,
-      max_excursion_humidity: max_excursion_humidity.value,
-      min_excursion_humidity: min_excursion_humidity.value,
+      max_excursion_temp: parseInt(max_excursion_temp.value, 10),
+      min_excursion_temp: parseInt(min_excursion_temp.value, 10),
+      max_excursion_humidity: parseInt(max_excursion_humidity.value, 10),
+      min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
     };
     dispatch(saveShipmentFormData(shipmentFormValue));
   };
@@ -569,12 +569,12 @@ const CreateShipment = (props) => {
 
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
-    if (!mode_type.value && !order_number.value && !platform_name
-      && !min_excursion_temp.value && !max_excursion_temp.value
-      && !min_excursion_humidity.value && !max_excursion_humidity.value
-      && !start_of_custody && !end_of_custody
-      && (!itemIds.length || itemData === null)
-      && (!gatewayIds.length || gatewayData === null)) {
+    if (!shipment_name || !mode_type.value || !order_number.value || !platform_name
+      || !min_excursion_temp.value || !max_excursion_temp.value
+      || !min_excursion_humidity.value || !max_excursion_humidity.value
+      || !start_of_custody || !end_of_custody
+      || (!itemIds.length || itemData === null)
+      || (!gatewayIds.length || gatewayData === null)) {
       return true;
     }
 
@@ -602,7 +602,7 @@ const CreateShipment = (props) => {
       purchase_order_number: purchase_order_number.value,
       order_number: order_number.value,
       shipper_number: shipper_number.value,
-      carrier: [carrier.value],
+      carrier: carrier.value ? [carrier.value] : [],
       transport_mode: mode_type.value,
       status: (editData && editData.status) || 'Planned',
       estimated_time_of_arrival: scheduled_arrival,
@@ -617,10 +617,10 @@ const CreateShipment = (props) => {
       uom_weight,
       organization_uuid,
       platform_name,
-      max_excursion_temp: max_excursion_temp.value,
-      min_excursion_temp: min_excursion_temp.value,
-      max_excursion_humidity: max_excursion_humidity.value,
-      min_excursion_humidity: min_excursion_humidity.value,
+      max_excursion_temp: parseInt(max_excursion_temp.value, 10),
+      min_excursion_temp: parseInt(min_excursion_temp.value, 10),
+      max_excursion_humidity: parseInt(max_excursion_humidity.value, 10),
+      min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
     };
     const startCustodyForm = {
       // start_of_custody: new Date(),
