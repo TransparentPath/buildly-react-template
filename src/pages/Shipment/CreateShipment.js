@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
+import { Route } from 'react-router-dom';
 import Geocode from 'react-geocode';
 import _ from 'lodash';
 import moment from 'moment-timezone';
@@ -30,6 +31,7 @@ import {
   Thermostat as TempIcon,
   Opacity as HumidIcon,
   LocationOn as LocationIcon,
+  Add as AddIcon,
 } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
@@ -64,12 +66,14 @@ import {
 import {
   SENSOR_PLATFORM,
   TRANSPORT_MODE,
+  CARRIER,
 } from '../../utils/mock';
 import { validators } from '../../utils/validators';
 import {
   getAvailableGateways,
 } from '../../pages/SensorsGateway/Constants';
 import { getCustodianFormattedRow } from '../../pages/Custodians/CustodianConstants';
+import AddCustodians from '../Custodians/forms/AddCustodians';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -101,6 +105,13 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     borderRadius: '18px',
     fontSize: '14px',
+  },
+  addButton: {
+    marginTop: '1rem',
+    color: '#EBC645',
+    background: '#3B3A3A',
+    borderRadius: '0',
+    padding: '1rem 0',
   },
   buttonContainer: {
     width: '80%',
@@ -192,6 +203,8 @@ const CreateShipment = (props) => {
   const { organization } = useContext(UserContext);
   const { organization_uuid, name } = organization;
 
+  const addCustodianPath = `${routes.CUSTODIANS}/add`;
+
   const [shipment_name, setShipmentName] = useState(
     (editData && editData.name) || '',
   );
@@ -271,7 +284,7 @@ const CreateShipment = (props) => {
     (editData && editData.gateway_ids) || [],
   );
   const [platform_name, setPlatformName] = useState(
-    (editData && editData.platform_name) || '',
+    (editData && editData.platform_name) || 'tive',
   );
   const [formError, setFormError] = useState({});
 
@@ -1171,19 +1184,25 @@ const CreateShipment = (props) => {
                   </Grid>
 
                 </Grid>
-                {/* <Grid item xs={10} sm={8} />
-                <Grid item xs={2} sm={4} display="flex"
-                 alignItems="flex-end" justifyContent="flex-end">
+                <Grid item xs={10} sm={8} />
+                <Grid
+                  item
+                  xs={2}
+                  sm={4}
+                  display="flex"
+                  alignItems="flex-end"
+                  justifyContent="flex-end"
+                >
                   <Button
                     variant="contained"
-                    color="secondary"
+                    className={classes.addButton}
+                    size="medium"
                     fullWidth
-                    className={classes.submit}
-                    size="small"
+                    disableElevation
                   >
                     Save as Template
                   </Button>
-                </Grid> */}
+                </Grid>
               </Grid>
             </FormControl>
 
@@ -1253,7 +1272,7 @@ const CreateShipment = (props) => {
                       />
                       <Grid item xs={12} display="flex" justifyContent="space-between">
                         <DatePickerComponent
-                          label="Pickup Date"
+                          label="Pick-up Date"
                           fullWidth
                           required
                           selectedDate={
@@ -1264,7 +1283,7 @@ const CreateShipment = (props) => {
                           disabled={viewOnly}
                         />
                         <TimePickerComponent
-                          label="Pickup Time"
+                          label="Pick-up Time"
                           fullWidth
                           required
                           selectedTime={
@@ -1282,25 +1301,25 @@ const CreateShipment = (props) => {
                         fullWidth
                         required
                         id="carrier"
-                        // select
+                        select
                         label="Carrier"
                         disabled={viewOnly}
                         onBlur={(e) => handleBlur(e, 'required', carrier, 'carrier')}
                         {...carrier.bind}
                       >
-                        {/* <MenuItem value="">Select</MenuItem>
-                        {TRANSPORT_MODE
+                        <MenuItem value="">Select</MenuItem>
+                        {CARRIER
                       && _.map(
-                        _.orderBy(TRANSPORT_MODE, ['value'], ['asc']),
+                        _.orderBy(CARRIER, ['value'], ['asc']),
                         (item, index) => (
                           <MenuItem
-                            key={`transportMode${index}:${item.value}`}
+                            key={`carrier${index}:${item.value}`}
                             value={item.value}
                           >
                             {item.label}
                           </MenuItem>
                         ),
-                      )} */}
+                      )}
                       </TextField>
                     </Grid>
 
@@ -1325,7 +1344,7 @@ const CreateShipment = (props) => {
                       />
                       <Grid item xs={12} display="flex" justifyContent="space-between">
                         <DatePickerComponent
-                          label="Dropoff Date"
+                          label="Drop-off Date"
                           fullWidth
                           required
                           selectedDate={
@@ -1336,7 +1355,7 @@ const CreateShipment = (props) => {
                           disabled={viewOnly}
                         />
                         <TimePickerComponent
-                          label="Dropoff Time"
+                          label="Drop-off Time"
                           fullWidth
                           required
                           selectedTime={
@@ -1347,20 +1366,22 @@ const CreateShipment = (props) => {
                           disabled={viewOnly}
                         />
                       </Grid>
-                      {/* <Button
+                      <Button
                         variant="contained"
-                        color="secondary"
                         fullWidth
-                        className={classes.submit}
-                        size="small"
-                        style={{
-                          marginTop: '2rem',
+                        className={classes.addButton}
+                        size="large"
+                        disableElevation
+                        onClick={() => {
+                          history.push(addCustodianPath, {
+                            from: routes.CREATE_SHIPMENT,
+                          });
                         }}
                       >
                         <AddIcon />
                         {' '}
-                        Add Additional Carrier
-                      </Button> */}
+                        Add Custodian
+                      </Button>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1579,7 +1600,10 @@ const CreateShipment = (props) => {
         </Box>
 
       </form>
+      <Route path={addCustodianPath} component={AddCustodians} />
+
     </Box>
+
   );
 };
 
