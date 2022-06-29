@@ -1185,7 +1185,7 @@ const CreateShipment = (props) => {
 
                 </Grid>
                 <Grid item xs={10} sm={8} />
-                <Grid
+                {/* <Grid
                   item
                   xs={2}
                   sm={4}
@@ -1202,7 +1202,7 @@ const CreateShipment = (props) => {
                   >
                     Save as Template
                   </Button>
-                </Grid>
+                </Grid> */}
               </Grid>
             </FormControl>
 
