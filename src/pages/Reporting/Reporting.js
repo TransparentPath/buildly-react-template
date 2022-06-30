@@ -11,6 +11,10 @@ import {
   TextField,
   IconButton,
   MenuItem,
+  ToggleButton,
+  ToggleButtonGroup,
+  CardContent,
+  Card,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
@@ -113,6 +117,7 @@ const Reporting = ({
   const classes = useStyles();
   const organization = useContext(UserContext).organization.organization_uuid;
   const [tileView, setTileView] = useState(true);
+  const [shipmentFilter, setShipmentFilter] = useState('Active');
   const [selectedGraph, setSelectedGraph] = useState('temperature');
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [shipmentOverview, setShipmentOverview] = useState([]);
@@ -142,7 +147,7 @@ const Reporting = ({
   };
 
   useEffect(() => {
-    if (!shipmentData) {
+    if (!shipmentData || shipmentFilter === 'Active') {
       const aggregate = !aggregateReportData;
       const custody = !custodyData;
       dispatch(getShipmentDetails(
@@ -155,9 +160,10 @@ const Reporting = ({
       ));
     } else {
       const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
-      const cancelledShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Cancelled');
+      // const cancelledShipments =
+      // _.filter(shipmentData, (shipment) => shipment.type === 'Cancelled');
 
-      if (!completedShipments.length) {
+      if (!completedShipments.length || shipmentFilter === 'Completed') {
         dispatch(getShipmentDetails(
           organization,
           'Completed',
@@ -167,16 +173,16 @@ const Reporting = ({
           'get',
         ));
       }
-      if (!cancelledShipments.length) {
-        dispatch(getShipmentDetails(
-          organization,
-          'Cancelled',
-          null,
-          true,
-          true,
-          'get',
-        ));
-      }
+      // if (!cancelledShipments.length) {
+      //   dispatch(getShipmentDetails(
+      //     organization,
+      //     'Cancelled',
+      //     null,
+      //     true,
+      //     true,
+      //     'get',
+      //   ));
+      // }
       const UUIDS = _.map(shipmentData, 'shipment_uuid');
       const encodedUUIDs = encodeURIComponent(UUIDS);
       if (encodedUUIDs) {
@@ -204,7 +210,7 @@ const Reporting = ({
     if (!unitsOfMeasure) {
       dispatch(getUnitsOfMeasure());
     }
-  }, []);
+  }, [shipmentFilter]);
 
   useEffect(() => {
     if (
@@ -301,6 +307,33 @@ const Reporting = ({
         </Grid>
         <Grid item xs={12} md={tileView ? 6 : 12}>
           <div className={classes.switchViewSection}>
+            <ToggleButtonGroup
+              color="primary"
+              value={shipmentFilter}
+              exclusive
+              fullWidth
+            >
+              <ToggleButton
+                selected={shipmentFilter === 'Active'}
+                size="medium"
+                value="Active"
+                onClick={(event, value) => setShipmentFilter(value)}
+              >
+                Active
+
+              </ToggleButton>
+              <ToggleButton
+                value="Completed"
+                size="medium"
+                selected={shipmentFilter === 'Completed'}
+                onClick={(event, value) => setShipmentFilter(value)}
+              >
+                Completed
+
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </div>
+          <div className={classes.switchViewSection}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -355,60 +388,64 @@ const Reporting = ({
             </IconButton>
           </div>
           <div className={classes.infoContainer}>
-            <Grid container>
-              {selectedShipment
-                ? (_.map(
-                  SHIPMENT_OVERVIEW_COLUMNS,
-                  (column, index) => (
-                    <Grid
-                      item
-                      className={classes.infoSection}
-                      xs={10}
-                      md={6}
-                      key={`col${index}:${column.name}`}
-                    >
-                      <Typography variant="h6">
-                        {column.label}
-                      </Typography>
-                      {column.name === 'custody_info'
-                      && selectedShipment[column.name]
-                        ? _.map(
-                          selectedShipment[column.name],
-                          (value, idx) => (
-                            <div
-                              key={`custody_info_${idx}`}
-                              style={{
-                                marginBottom: 10,
-                                color: value.custody_type === 'Current'
-                                  ? '#EBC645'
-                                  : '#ffffff',
-                              }}
-                            >
-                              <Typography variant="body1">
-                                {`Custody Type: ${value.custody_type}`}
-                              </Typography>
-                              <Typography variant="body1">
-                                {`Custodian Address: ${selectedShipment.contact_info[idx].address}`}
-                              </Typography>
-                            </div>
-                          ),
-                        ) : (
-                          <Typography variant="body1">
-                            {getShipmentValue(column.name)}
+            <Card>
+              <CardContent>
+                <Grid container>
+                  {selectedShipment
+                    ? (_.map(
+                      SHIPMENT_OVERVIEW_COLUMNS,
+                      (column, index) => (
+                        <Grid
+                          item
+                          className={classes.infoSection}
+                          xs={10}
+                          md={6}
+                          key={`col${index}:${column.name}`}
+                        >
+                          <Typography variant="h6">
+                            {column.label}
                           </Typography>
-                        )}
-                    </Grid>
-                  ),
-                ))
-                : (
-                  <Typography
-                    variant="h6"
-                    align="center"
-                  >
-                    {SHIPMENT_OVERVIEW_TOOL_TIP}
-                  </Typography>
-                )}
-            </Grid>
+                          {column.name === 'custody_info'
+                      && selectedShipment[column.name]
+                            ? _.map(
+                              selectedShipment[column.name],
+                              (value, idx) => (
+                                <div
+                                  key={`custody_info_${idx}`}
+                                  style={{
+                                    marginBottom: 10,
+                                    color: value.custody_type === 'Current'
+                                      ? '#EBC645'
+                                      : '#ffffff',
+                                  }}
+                                >
+                                  <Typography variant="body1">
+                                    {`Custody Type: ${value.custody_type}`}
+                                  </Typography>
+                                  <Typography variant="body1">
+                                    {`Custodian Address: ${selectedShipment.contact_info[idx].address}`}
+                                  </Typography>
+                                </div>
+                              ),
+                            ) : (
+                              <Typography variant="body1">
+                                {getShipmentValue(column.name)}
+                              </Typography>
+                            )}
+                        </Grid>
+                      ),
+                    ))
+                    : (
+                      <Typography
+                        variant="h6"
+                        align="center"
+                      >
+                        {SHIPMENT_OVERVIEW_TOOL_TIP}
+                      </Typography>
+                    )}
+                </Grid>
+              </CardContent>
+            </Card>
           </div>
         </Grid>
       </Grid>

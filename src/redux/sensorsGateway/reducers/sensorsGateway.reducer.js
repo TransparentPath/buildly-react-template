@@ -561,6 +561,7 @@ export default (state = initialState, action) => {
           }, {}),
         );
       }
+      console.log('Len: ', aggregateReport.length);
       return {
         ...state,
         loading: false,
