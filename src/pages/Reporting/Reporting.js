@@ -35,10 +35,10 @@ import {
 import {
   getSensors,
   getSensorType,
-  getAggregateReport,
 } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
+  getReportAndAlerts,
 } from '../../redux/shipment/actions/shipment.actions';
 import {
   getUnitsOfMeasure,
@@ -123,6 +123,7 @@ const Reporting = ({
   const [isMapLoaded, setMapLoaded] = useState(true);
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
+  const [formattedShipmentData, setFormattedShipmentData] = useState([]);
 
   const getShipmentValue = (value) => {
     let returnValue;
@@ -143,6 +144,19 @@ const Reporting = ({
       returnValue = 'NA';
     }
     return returnValue;
+  };
+
+  const handleShipmentSelection = (shipment) => {
+    setSelectedShipment(shipment);
+    if (shipment.partner_shipment_id) {
+      dispatch(getReportAndAlerts(shipment.partner_shipment_id));
+    }
+  };
+
+  const makeFilterSelection = (value) => {
+    setShipmentFilter(value);
+    setSelectedShipment(null);
+    setMarkers([]);
   };
 
   useEffect(() => {
@@ -187,12 +201,6 @@ const Reporting = ({
       if (encodedUUIDs) {
         dispatch(getCustody(encodedUUIDs));
       }
-      const IDS = _.map(shipmentData, 'partner_shipment_id');
-      const ids = _.toString(_.without(IDS, null));
-      const encodedIds = encodeURIComponent(ids);
-      if (encodedIds) {
-        dispatch(getAggregateReport(encodedIds));
-      }
     }
     if (!custodianData) {
       dispatch(getCustodians(organization));
@@ -212,14 +220,24 @@ const Reporting = ({
   }, [shipmentFilter]);
 
   useEffect(() => {
-    if (
-      shipmentData
+    if (selectedShipment && selectedShipment.markers_to_set) {
+      setMarkers(selectedShipment.markers_to_set);
+    }
+  }, [selectedShipment, shipmentOverview]);
+
+  useEffect(() => {
+    if (markers && markers.length > 0) {
+      setTimeout(() => setMapLoaded(true), 1000);
+    }
+  });
+
+  useEffect(() => {
+    if (aggregateReportData
+      && shipmentData
+      && allAlerts
       && custodianData
       && custodyData
-      && aggregateReportData
-      && allAlerts
-      && contactInfo
-    ) {
+      && contactInfo) {
       const overview = getShipmentOverview(
         shipmentData,
         custodianData,
@@ -231,24 +249,45 @@ const Reporting = ({
       );
       if (overview.length > 0) {
         setShipmentOverview(overview);
-      }
-      if (!selectedShipment && overview.length > 0) {
-        setSelectedShipment(overview[0]);
+        if (selectedShipment) {
+          const selected = _.find(overview, { id: selectedShipment.id });
+          setSelectedShipment(selected);
+        }
       }
     }
-  }, [shipmentData, custodianData, custodyData, aggregateReportData, timezone]);
+  }, [aggregateReportData, allAlerts]);
 
   useEffect(() => {
-    if (selectedShipment) {
-      setMarkers(selectedShipment.markers_to_set);
-    }
-  }, [selectedShipment]);
+    if (shipmentData) {
+      let shipmentList = [];
+      _.forEach(shipmentData, (shipment) => {
+        const editedShipment = shipment;
 
-  useEffect(() => {
-    if (markers && markers.length > 0) {
-      setTimeout(() => setMapLoaded(true), 1000);
+        switch (_.lowerCase(shipment.status)) {
+          case 'planned':
+          case 'enroute':
+            editedShipment.type = 'Active';
+            break;
+
+          case 'completed':
+            editedShipment.type = 'Completed';
+            break;
+
+          case 'cancelled':
+            editedShipment.type = 'Cancelled';
+            break;
+
+          default:
+            break;
+        }
+        shipmentList = [...shipmentList, editedShipment];
+      });
+      setFormattedShipmentData(shipmentList,
+        (shipment) => moment(shipment.estimated_time_of_departure)
+          && moment(shipment.create_date),
+        ['desc']);
     }
-  });
+  }, [shipmentData]);
 
   return (
     <Box mt={5} mb={5}>
@@ -316,7 +355,7 @@ const Reporting = ({
                 selected={shipmentFilter === 'Active'}
                 size="medium"
                 value="Active"
-                onClick={(event, value) => setShipmentFilter(value)}
+                onClick={(event, value) => makeFilterSelection(value)}
               >
                 Active
 
@@ -325,7 +364,7 @@ const Reporting = ({
                 value="Completed"
                 size="medium"
                 selected={shipmentFilter === 'Completed'}
-                onClick={(event, value) => setShipmentFilter(value)}
+                onClick={(event, value) => makeFilterSelection(value)}
               >
                 Completed
 
@@ -348,15 +387,15 @@ const Reporting = ({
                   : ''
               }
               onChange={(e) => {
-                const selected = _.find(shipmentOverview, { id: e.target.value });
-                setSelectedShipment(selected);
+                const selected = _.find(formattedShipmentData, { id: e.target.value });
+                handleShipmentSelection(selected);
               }}
             >
               <MenuItem value="">Select</MenuItem>
-              {shipmentData
-              && shipmentData.length > 0
+              {formattedShipmentData
+              && formattedShipmentData.length > 0
               && _.map(
-                shipmentData,
+                _.filter(formattedShipmentData, { type: shipmentFilter }),
                 (shipment, index) => (
                   <MenuItem
                     key={index}

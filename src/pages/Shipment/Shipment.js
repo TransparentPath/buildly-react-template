@@ -282,8 +282,10 @@ const Shipment = (props) => {
       );
       if (overview.length > 0) {
         setShipmentOverview(overview);
-        const newShipment = _.filter(overview, (shipment) => shipment.id === selectedShipment.id);
-        setSelectedShipment(newShipment[0]);
+        if (selectedShipment) {
+          const selected = _.find(overview, { id: selectedShipment.id });
+          setSelectedShipment(selected);
+        }
       }
     }
   }, [aggregateReportData, allAlerts]);
@@ -385,7 +387,7 @@ const Shipment = (props) => {
 
   const handleShipmentSelection = (shipment) => {
     setSelectedShipment(shipment);
-    if (shipment.partner_shipment_id) {
+    if (shipment && shipment.partner_shipment_id) {
       dispatch(getReportAndAlerts(shipment.partner_shipment_id));
     }
   };
