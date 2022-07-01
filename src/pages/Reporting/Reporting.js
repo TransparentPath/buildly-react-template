@@ -35,7 +35,6 @@ import {
 import {
   getSensors,
   getSensorType,
-  getAllSensorAlerts,
   getAggregateReport,
 } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {

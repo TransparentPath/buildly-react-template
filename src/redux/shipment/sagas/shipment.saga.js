@@ -167,7 +167,6 @@ function* getReportAndAlerts(payload) {
       ];
     }
   } catch (error) {
-    console.log('Error: ', error);
     yield put(
       showAlert({
         type: 'error',
@@ -177,6 +176,7 @@ function* getReportAndAlerts(payload) {
     );
   }
 }
+
 function* getShipmentList(payload) {
   try {
     let query_params;
@@ -220,7 +220,6 @@ function* getShipmentList(payload) {
     }
   } catch (error) {
     yield [
-      console.log('Err: ', error),
       yield put(
         showAlert({
           type: 'error',

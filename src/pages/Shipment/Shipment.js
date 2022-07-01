@@ -198,8 +198,6 @@ const Shipment = (props) => {
       shipmentData
       && custodianData
       && custodyData
-      && aggregateReportData
-      && allAlerts
       && contactInfo
     ) {
       const formattedRows = getShipmentFormattedRow(
@@ -222,19 +220,6 @@ const Shipment = (props) => {
         formattedRows,
         { type: 'Cancelled' },
       );
-      const overview = getShipmentOverview(
-        shipmentData,
-        custodianData,
-        custodyData,
-        aggregateReportData,
-        allAlerts,
-        contactInfo,
-        timezone,
-      );
-      if (overview.length > 0) {
-        setShipmentOverview(overview);
-      }
-
       setRows(formattedRows);
       setActiveRows(ACTIVE_ROWS);
       // setCompletedRows(COMPLETED_ROWS);
@@ -251,14 +236,13 @@ const Shipment = (props) => {
         }
       }
     }
-  }, [shipmentData, custodianData, custodyData, aggregateReportData,
-    allAlerts, contactInfo, timezone]);
+  }, [shipmentData, custodianData, custodyData, contactInfo, timezone]);
 
   useEffect(() => {
-    if (selectedShipment) {
+    if (selectedShipment && selectedShipment.markers_to_set) {
       setMarkers(selectedShipment.markers_to_set);
     }
-  }, [selectedShipment, timezone]);
+  }, [selectedShipment, timezone, shipmentOverview]);
 
   useEffect(() => {
     if (markers && markers.length > 0) {
@@ -279,6 +263,30 @@ const Shipment = (props) => {
       }
     }
   }, [shipmentFilter, shipmentData]);
+
+  useEffect(() => {
+    if (aggregateReportData
+      && shipmentData
+      && allAlerts
+      && custodianData
+      && custodyData
+      && contactInfo) {
+      const overview = getShipmentOverview(
+        shipmentData,
+        custodianData,
+        custodyData,
+        aggregateReportData,
+        allAlerts,
+        contactInfo,
+        timezone,
+      );
+      if (overview.length > 0) {
+        setShipmentOverview(overview);
+        const newShipment = _.filter(overview, (shipment) => shipment.id === selectedShipment.id);
+        setSelectedShipment(newShipment[0]);
+      }
+    }
+  }, [aggregateReportData, allAlerts]);
 
   const handleEdit = (item) => {
     history.push(`${routes.SHIPMENT}/edit/:${item.id}`, {
