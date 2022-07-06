@@ -238,11 +238,17 @@ function* getShipmentList(payload) {
 function* addShipment(action) {
   const { history, payload, redirectTo } = action;
   try {
+    let shipment_payload;
+    if ('shipment' in payload) {
+      shipment_payload = payload.shipment;
+    } else {
+      shipment_payload = payload;
+    }
     const data = yield call(
       httpService.makeRequest,
       'post',
       `${window.env.API_URL}${shipmentApiEndPoint}shipment/`,
-      payload.shipment,
+      shipment_payload,
     );
     yield [
       yield configureGatewayCustody(data.data, payload, false, null),
@@ -255,7 +261,7 @@ function* addShipment(action) {
       ),
       yield put(
         getShipmentDetails(
-          payload.shipment.organization_uuid,
+          shipment_payload.organization_uuid,
           'Planned,Enroute',
           null,
           true,
@@ -275,6 +281,7 @@ function* addShipment(action) {
     }
   } catch (error) {
     yield [
+      console.log('Error: ', error),
       yield put(
         showAlert({
           type: 'error',
