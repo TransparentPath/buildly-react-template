@@ -281,7 +281,6 @@ function* addShipment(action) {
     }
   } catch (error) {
     yield [
-      console.log('Error: ', error),
       yield put(
         showAlert({
           type: 'error',
