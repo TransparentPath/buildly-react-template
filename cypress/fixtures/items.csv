@@ -1,0 +1,2 @@
+name,item_uuid,item_type,product_weight,product_weight_unit_of_measure,product_value,gtin,upc,ean,paper_tag_number,batch_run_id,bin_id,production_date,producer_best_by,inbound_batch_iot_id,producer_batch_id,processor_batch_id,inbound_bin_id,producer_bin_id,processor_bin_id,excursion_flag,recall_flag,number_of_units,gross_weight,unit_of_measure,value,product,pallet_tag_id,organization_uuid
+Test Item - 5,77063374-74c6-49bd-9a1e-ff47d7d5235c,6,640.0,1,96.0,,,,,,,,,,,,,,,,,60,38400.0,1,5760.0,4,,98b28d6e-27f4-4f28-bb3a-9649beae8d88

@@ -1,0 +1,33 @@
+{
+    "baseUrl" : "https://localhost:3000",
+    "pageLoadTimeout" : 120000,
+    "chromeWebSecurity": false,
+    "reporter": "mochawesome",
+    "reporterOptions": {
+        "reportDir": "cypress/results",
+        "overwrite": false,
+        "html": false,
+        "json": true
+    },
+    "projectId": "cdut55",
+    "env": {
+        "USERNAME": "67OAI8DD5I1O",
+        "PASSWORD": "zGtkgLvmNiKm",
+        "EMAIL": "yasmin@ajackus.com",
+        "RESET_PASSWORD": "/reset-password",
+        "HOME": "/app/shipment",
+        "LOGIN": "/login",
+        "REGISTER":"/register",
+        "PROFILE":"/app/account",
+        "ITEM": "/app/items",
+        "CUSTODIAN":"/app/custodians",
+        "CUSTODIAN_API": "https://tp-dev-custodian.buildly.io",
+        "GATEWAY_SENSOR":"/app/sensors-gateway",
+        "REPORTING": "/app/reporting",
+        "USER_MANAGEMENT_CURRENT_USER": "/app/profile/users/current-users",
+        "USER_MANAGEMENT_USER_GROUP": "/app/profile/users/groups",
+        "ADMIN_PANEL_CONFIGURATION": "/app/admin-panel/configuration",
+        "ADMIN_PANEL_IMPORT_EXPORT": "/app/admin-panel/import-export",
+        "ADMIN_PANEL_CONSORTIUM": "/app/admin-panel/consortium"
+    }
+}

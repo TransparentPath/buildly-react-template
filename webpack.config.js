@@ -5,15 +5,58 @@ const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
+const dotenv = require('dotenv');
 
 module.exports = (env, argv) => {
-  const fileCopy = env.build === 'local'
-    ? new CopyPlugin([
-      { from: '.env.development.local', to: 'environment.js' },
-    ])
-    : new CopyPlugin([
-      { from: 'window.environment.js', to: 'environment.js' },
-    ]);
+  let pluginsList = [
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebPackPlugin({
+      template: './src/index.html',
+      filename: './index.html',
+      favicon: './src/assets/favicon.ico',
+      hash: true,
+    }),
+    new GenerateSW({
+      maximumFileSizeToCacheInBytes: 2000000,
+      clientsClaim: true,
+      skipWaiting: true,
+    }),
+  ];
+
+  if (env.build !== 'cypress') {
+    const fileCopy = env.build === 'local'
+      ? new CopyPlugin([
+        { from: '.env.development.local', to: 'environment.js' },
+      ])
+      : new CopyPlugin([
+        { from: 'window.environment.js', to: 'environment.js' },
+      ]);
+
+    pluginsList = [
+      ...pluginsList,
+      fileCopy,
+    ];
+  } else {
+    const { parsed: parsedEnv } = dotenv.config({ path: '.env.development.cypress' });
+
+    pluginsList = [
+      ...pluginsList,
+      new webpack.DefinePlugin({
+        'window.env': {
+          API_URL: JSON.stringify(parsedEnv.API_URL),
+          OAUTH_TOKEN_URL: JSON.stringify(parsedEnv.OAUTH_TOKEN_URL),
+          OAUTH_CLIENT_ID: JSON.stringify(parsedEnv.OAUTH_CLIENT_ID),
+          MAP_API_URL: JSON.stringify(parsedEnv.MAP_API_URL),
+          GEO_CODE_API_URL: JSON.stringify(parsedEnv.GEO_CODE_API_URL),
+          ALERT_SOCKET_URL: JSON.stringify(parsedEnv.ALERT_SOCKET_URL),
+          SESSION_TIMEOUT: JSON.stringify(parsedEnv.SESSION_TIMEOUT),
+          HIDE_NOTIFICATIONS: JSON.stringify(parsedEnv.HIDE_NOTIFICATIONS),
+          PRODUCTION: JSON.stringify(parsedEnv.PRODUCTION),
+        },
+      }),
+    ];
+  }
+
   const webpackConfig = {
     entry: ['babel-polyfill', './src/index.js'],
     module: {
@@ -106,21 +149,7 @@ module.exports = (env, argv) => {
       historyApiFallback: true,
       hotOnly: true,
     },
-    plugins: [
-      new webpack.HotModuleReplacementPlugin(),
-      new HtmlWebPackPlugin({
-        template: './src/index.html',
-        filename: './index.html',
-        favicon: './src/assets/favicon.ico',
-        hash: true,
-      }),
-      fileCopy,
-      new GenerateSW({
-        maximumFileSizeToCacheInBytes: 2000000,
-        clientsClaim: true,
-        skipWaiting: true,
-      }),
-    ],
+    plugins: pluginsList,
   };
 
   if (env && env.build === 'prod') {
