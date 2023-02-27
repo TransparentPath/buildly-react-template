@@ -6,7 +6,8 @@ import addNotification from 'react-push-notification';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import { AppContext } from '@context/App.context';
-import { saveSocket, showAlert } from '@redux/alert/actions/alert.actions';
+import { showAlert } from '@redux/alert/actions/alert.actions';
+import { getShipmentDetails } from '@redux/shipment/actions/shipment.actions';
 
 const PushNotification = ({ dispatch, loaded, user }) => {
   const [alerts, setAlerts] = useState([]);
@@ -29,8 +30,8 @@ const PushNotification = ({ dispatch, loaded, user }) => {
       alertsSocket.current = new WebSocket(
         `${window.env.ALERT_SOCKET_URL}${pushGrp}/`,
       );
+
       alertsSocket.current.onopen = () => {
-        dispatch(saveSocket(alertsSocket.current));
         const fetch_payload = { command: 'fetch_alerts', organization_uuid: pushGrp, hours_range: 24 };
         alertsSocket.current.send(JSON.stringify(fetch_payload));
       };
@@ -82,6 +83,17 @@ const PushNotification = ({ dispatch, loaded, user }) => {
         }
         if (msg.command === 'new_alert') {
           setAlerts([...alerts, ...pushAlerts]);
+        }
+        if (msg.command === 'reload_data') {
+          console.log('Reloading data');
+          dispatch(getShipmentDetails(
+            user.organization.organization_uuid,
+            'Planned,Enroute',
+            null,
+            true,
+            true,
+            'get',
+          ));
         }
       };
     }
