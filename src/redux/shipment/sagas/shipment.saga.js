@@ -217,6 +217,27 @@ function* getShipmentList(payload) {
       });
       // Splitting code to take care of once the response is back
       yield processShipments(payload, shipment_data);
+
+      const { shipmentAction } = payload;
+      const { history, redirectTo, shipment } = payload.addEdit;
+      if (shipmentAction && shipmentAction === 'add' && history) {
+        if (redirectTo) {
+          yield call(history.push, redirectTo);
+        } else {
+          yield call(history.push, `${routes.SHIPMENT}/edit/:${shipment.id}`, {
+            type: 'edit',
+            data: shipment,
+            from: routes.SHIPMENT,
+          });
+        }
+      }
+      if (shipmentAction && shipmentAction === 'edit' && history && redirectTo) {
+        yield call(history.push, redirectTo, {
+          type: 'edit',
+          data: shipment,
+          from: routes.SHIPMENT,
+        });
+      }
     }
   } catch (error) {
     yield [
@@ -267,18 +288,10 @@ function* addShipment(action) {
           true,
           true,
           'add',
+          { history, redirectTo, shipment: data.data },
         ),
       ),
     ];
-    if (history && redirectTo) {
-      yield call(history.push, redirectTo);
-    } else if (history && !redirectTo) {
-      yield call(history.push, `${routes.SHIPMENT}/edit/:${data.data.id}`, {
-        type: 'edit',
-        data: data.data,
-        from: routes.SHIPMENT,
-      });
-    }
   } catch (error) {
     yield [
       yield put(
@@ -327,6 +340,7 @@ function* editShipment(action) {
           false,
           true,
           'edit',
+          { history, redirectTo, shipment: data.data },
         ),
       ),
       yield put(
@@ -337,13 +351,6 @@ function* editShipment(action) {
         }),
       ),
     ];
-    if (history && redirectTo) {
-      yield call(history.push, redirectTo, {
-        type: 'edit',
-        data: data.data,
-        from: routes.SHIPMENT,
-      });
-    }
   } catch (error) {
     yield [
       yield put(
