@@ -426,20 +426,6 @@ export const SENSOR_REPORT_COLUMNS = [
     },
   },
   {
-    name: 'battery',
-    label: 'BATTERY',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-      customBodyRender: (value) => (
-        _.isNumber(value)
-          ? _.round(value, 2).toFixed(2)
-          : '-'
-      ),
-    },
-  },
-  {
     name: 'temperature',
     label: 'TEMP (\u00b0F)',
     options: {
@@ -469,7 +455,7 @@ export const SENSOR_REPORT_COLUMNS = [
   },
   {
     name: 'light',
-    label: 'LIGHT (lux)',
+    label: 'LIGHT (LUX)',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -483,12 +469,11 @@ export const SENSOR_REPORT_COLUMNS = [
   },
   {
     name: 'shock',
-    label: 'SHOCK (mg)',
+    label: 'SHOCK (G)',
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      display: false,
       customBodyRender: (value) => (
         _.isNumber(value)
           ? _.round(value, 2).toFixed(2)
@@ -507,13 +492,28 @@ export const SENSOR_REPORT_COLUMNS = [
       customBodyRender: (value) => (
         _.isNumber(value)
           ? _.round(value, 2).toFixed(2)
-          : '-'
+          : 'N/A'
       ),
     },
   },
   {
     name: 'pressure',
     label: 'PRESS (Pa)',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      display: false,
+      customBodyRender: (value) => (
+        _.isNumber(value)
+          ? _.round(value, 2).toFixed(2)
+          : '-'
+      ),
+    },
+  },
+  {
+    name: 'battery',
+    label: 'BATTERY',
     options: {
       sort: true,
       sortThirdClickReset: true,
