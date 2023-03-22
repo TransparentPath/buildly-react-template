@@ -190,7 +190,9 @@ function* getShipmentList(payload) {
       }
 
       yield [
-        yield put(getGateways(shipment_data.organization_uuid)),
+        yield put(getGateways(
+          payload.id ? shipment_data.organization_uuid : payload.organization_uuid,
+        )),
         yield put({
           type: GET_SHIPMENTS_SUCCESS,
           data: shipment_data,
