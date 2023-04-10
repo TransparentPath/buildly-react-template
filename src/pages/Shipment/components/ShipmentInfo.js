@@ -106,14 +106,14 @@ const ShipmentInfo = (props) => {
   );
   // const load_no = useInput('');
   const shipment_status = useInput(
-    (editData && editData.status) || '',
+    (editData && editData.status) || _.find(SHIPMENT_STATUS, { label: 'Planned' }).value,
     { required: true },
   );
   const route_desc = useInput(
     (editData && editData.route_description) || '',
   );
   const mode_type = useInput(
-    (editData && editData.transport_mode) || '',
+    (editData && editData.transport_mode) || _.find(TRANSPORT_MODE, { label: 'Land Road' }).value,
   );
   const route_dist = useInput('');
   const [scheduled_departure, handleDepartureDateChange] = useState(
