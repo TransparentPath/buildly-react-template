@@ -29,7 +29,6 @@ import {
 import {
   getItems,
   getItemType,
-  getUnitsOfMeasure,
 } from '../../redux/items/actions/items.actions';
 import {
   getGateways,
@@ -93,7 +92,6 @@ const Dashboard = (props) => {
     dispatch,
     itemData,
     gatewayData,
-    unitsOfMeasure,
     custodyData,
     sensorData,
     aggregateReportData,
@@ -133,9 +131,6 @@ const Dashboard = (props) => {
     if (gatewayData === null) {
       dispatch(getGateways(organization));
       dispatch(getGatewayType());
-    }
-    if (!unitsOfMeasure) {
-      dispatch(getUnitsOfMeasure());
     }
     // if (!custodyData) {
     //   dispatch(getCustody());

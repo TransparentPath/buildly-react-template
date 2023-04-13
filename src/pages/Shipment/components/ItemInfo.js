@@ -69,7 +69,7 @@ const ItemsInfo = ({
   handleCancel,
   shipmentFormData,
   dispatch,
-  unitsOfMeasure,
+  unitOfMeasure,
   viewOnly,
   setConfirmModal,
   setConfirmModalFor,
@@ -91,7 +91,7 @@ const ItemsInfo = ({
         selectedRows = [...selectedRows, item];
       }
     });
-    rows = getItemFormattedRow(selectedRows, itemTypeList, unitsOfMeasure);
+    rows = getItemFormattedRow(selectedRows, itemTypeList, unitOfMeasure);
   }
 
   const onInputChange = (value) => {

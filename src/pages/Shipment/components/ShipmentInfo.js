@@ -80,7 +80,6 @@ const ShipmentInfo = (props) => {
     dispatch,
     handleCancel,
     location,
-    unitsOfMeasure,
     shipmentOptions,
     viewOnly,
     setConfirmModal,
@@ -203,35 +202,6 @@ const ShipmentInfo = (props) => {
 
     setFieldsMetaData(metadata);
   }, [shipmentOptions]);
-
-  useEffect(() => {
-    if (unitsOfMeasure && unitsOfMeasure.length) {
-      _.forEach(unitsOfMeasure, (unit) => {
-        if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'temp',
-          ) && unit.is_default_for_class
-        ) {
-          setUomTemp(unit.url);
-        } else if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'distance',
-          ) && unit.is_default_for_class
-        ) {
-          setUomDistance(unit.url);
-        } else if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'weight',
-          ) && unit.is_default_for_class
-        ) {
-          setUomWeight(unit.url);
-        }
-      });
-    }
-  }, [unitsOfMeasure]);
 
   /**
    * Handle input field blur event
@@ -538,50 +508,6 @@ const ShipmentInfo = (props) => {
                       />
                     )}
                   </Grid>
-                  <Grid
-                    className={classes.inputWithTooltip}
-                    item
-                    xs={12}
-                  >
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      required
-                      id="uom_temp"
-                      select
-                      label="Unit of measure temperature"
-                      disabled={viewOnly}
-                      value={uom_temp}
-                      onChange={(e) => setUomTemp(e.target.value)}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {unitsOfMeasure
-                      && _.map(
-                        _.orderBy(
-                          _.filter(unitsOfMeasure, { supported_class: 'Temperature' }),
-                          ['name'],
-                          ['asc'],
-                        ),
-                        (item, index) => (
-                          <MenuItem
-                            key={`temperature${index}:${item.id}`}
-                            value={item.url}
-                          >
-                            {item.name}
-                          </MenuItem>
-                        ),
-                      )}
-                    </TextField>
-                    {fieldsMetadata.uom_temp.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          fieldsMetadata.uom_temp.help_text
-                        }
-                      />
-                    )}
-                  </Grid>
                 </Grid>
               </Grid>
               <Grid
@@ -668,94 +594,6 @@ const ShipmentInfo = (props) => {
                           : ''
                       }
                     />
-                  </Grid>
-                  <Grid
-                    className={classes.inputWithTooltip}
-                    item
-                    xs={12}
-                  >
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      required
-                      id="uom_distance"
-                      select
-                      label="Unit of measure distance"
-                      value={uom_distance}
-                      disabled={viewOnly}
-                      onChange={(e) => setUomDistance(e.target.value)}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {unitsOfMeasure
-                      && _.map(
-                        _.orderBy(
-                          _.filter(unitsOfMeasure, { supported_class: 'Distance and Length' }),
-                          ['name'],
-                          ['asc'],
-                        ),
-                        (item, index) => (
-                          <MenuItem
-                            key={`lengthUnit${index}:${item.id}`}
-                            value={item.url}
-                          >
-                            {item.name}
-                          </MenuItem>
-                        ),
-                      )}
-                    </TextField>
-                    {fieldsMetadata.uom_distance.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          fieldsMetadata.uom_distance.help_text
-                        }
-                      />
-                    )}
-                  </Grid>
-                  <Grid
-                    className={classes.inputWithTooltip}
-                    item
-                    xs={12}
-                  >
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      required
-                      id="uom_weight"
-                      select
-                      label="Unit of measure mass/weight"
-                      value={uom_weight}
-                      disabled={viewOnly}
-                      onChange={(e) => setUomWeight(e.target.value)}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {unitsOfMeasure
-                      && _.map(
-                        _.orderBy(
-                          _.filter(unitsOfMeasure, { supported_class: 'Mass and Weight' }),
-                          ['name'],
-                          ['asc'],
-                        ),
-                        (item, index) => (
-                          <MenuItem
-                            key={`weightUnit${index}:${item.id}`}
-                            value={item.url}
-                          >
-                            {item.name}
-                          </MenuItem>
-                        ),
-                      )}
-                    </TextField>
-                    {fieldsMetadata.uom_weight.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          fieldsMetadata.uom_weight.help_text
-                        }
-                      />
-                    )}
                   </Grid>
 
                 </Grid>

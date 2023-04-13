@@ -41,7 +41,7 @@ import {
   getReportAndAlerts,
 } from '../../redux/shipment/actions/shipment.actions';
 import {
-  getUnitsOfMeasure,
+  getUnitOfMeasure,
 } from '../../redux/items/actions/items.actions';
 import AlertsReport from './components/AlertsReport';
 import SensorReport from './components/SensorReport';
@@ -109,7 +109,7 @@ const Reporting = ({
   custodyData,
   sensorData,
   contactInfo,
-  unitsOfMeasure,
+  unitOfMeasure,
   timezone,
   allAlerts,
 }) => {
@@ -214,8 +214,8 @@ const Reporting = ({
       dispatch(getSensors(organization));
       dispatch(getSensorType());
     }
-    if (!unitsOfMeasure) {
-      dispatch(getUnitsOfMeasure());
+    if (!unitOfMeasure) {
+      dispatch(getUnitOfMeasure(organization));
     }
   }, [shipmentFilter]);
 
@@ -507,7 +507,7 @@ const Reporting = ({
             aria-label="main graph-type"
             className={classes.iconBar}
           >
-            {_.map(REPORT_TYPES, (item, index) => (
+            {_.map(REPORT_TYPES(unitOfMeasure), (item, index) => (
               <React.Fragment
                 key={`iconItem${index}${item.id}`}
               >

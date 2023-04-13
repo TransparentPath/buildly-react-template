@@ -48,18 +48,18 @@ import {
   DELETE_PRODUCTS_TYPE,
   DELETE_PRODUCTS_TYPE_SUCCESS,
   DELETE_PRODUCTS_TYPE_FAILURE,
-  GET_UNITS_OF_MEASURE,
-  GET_UNITS_OF_MEASURE_SUCCESS,
-  GET_UNITS_OF_MEASURE_FAILURE,
-  ADD_UNITS_OF_MEASURE,
-  ADD_UNITS_OF_MEASURE_SUCCESS,
-  ADD_UNITS_OF_MEASURE_FAILURE,
-  EDIT_UNITS_OF_MEASURE,
-  EDIT_UNITS_OF_MEASURE_SUCCESS,
-  EDIT_UNITS_OF_MEASURE_FAILURE,
-  DELETE_UNITS_OF_MEASURE,
-  DELETE_UNITS_OF_MEASURE_SUCCESS,
-  DELETE_UNITS_OF_MEASURE_FAILURE,
+  GET_UNIT_OF_MEASURE,
+  GET_UNIT_OF_MEASURE_SUCCESS,
+  GET_UNIT_OF_MEASURE_FAILURE,
+  ADD_UNIT_OF_MEASURE,
+  ADD_UNIT_OF_MEASURE_SUCCESS,
+  ADD_UNIT_OF_MEASURE_FAILURE,
+  EDIT_UNIT_OF_MEASURE,
+  EDIT_UNIT_OF_MEASURE_SUCCESS,
+  EDIT_UNIT_OF_MEASURE_FAILURE,
+  DELETE_UNIT_OF_MEASURE,
+  DELETE_UNIT_OF_MEASURE_SUCCESS,
+  DELETE_UNIT_OF_MEASURE_FAILURE,
 } from '../actions/items.actions';
 
 const initialState = {
@@ -70,7 +70,7 @@ const initialState = {
   itemTypeList: null,
   products: null,
   productType: null,
-  unitsOfMeasure: null,
+  unitOfMeasure: null,
 };
 
 // Reducer
@@ -503,7 +503,7 @@ export default (state = initialState, action) => {
         error: action.error,
       };
 
-    case GET_UNITS_OF_MEASURE:
+    case GET_UNIT_OF_MEASURE:
       return {
         ...state,
         loading: true,
@@ -511,15 +511,15 @@ export default (state = initialState, action) => {
         error: null,
       };
 
-    case GET_UNITS_OF_MEASURE_SUCCESS:
+    case GET_UNIT_OF_MEASURE_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
-        unitsOfMeasure: action.data,
+        unitOfMeasure: action.data,
       };
 
-    case GET_UNITS_OF_MEASURE_FAILURE:
+    case GET_UNIT_OF_MEASURE_FAILURE:
       return {
         ...state,
         loading: false,
@@ -527,7 +527,7 @@ export default (state = initialState, action) => {
         error: action.error,
       };
 
-    case ADD_UNITS_OF_MEASURE:
+    case ADD_UNIT_OF_MEASURE:
       return {
         ...state,
         loading: true,
@@ -535,17 +535,17 @@ export default (state = initialState, action) => {
         error: null,
       };
 
-    case ADD_UNITS_OF_MEASURE_SUCCESS:
+    case ADD_UNIT_OF_MEASURE_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
-        unitsOfMeasure: [
-          ...state.unitsOfMeasure, action.unitsOfMeasure,
+        unitOfMeasure: [
+          ...state.unitOfMeasure, action.unitOfMeasure,
         ],
       };
 
-    case ADD_UNITS_OF_MEASURE_FAILURE:
+    case ADD_UNIT_OF_MEASURE_FAILURE:
       return {
         ...state,
         loading: false,
@@ -553,7 +553,7 @@ export default (state = initialState, action) => {
         error: action.error,
       };
 
-    case EDIT_UNITS_OF_MEASURE:
+    case EDIT_UNIT_OF_MEASURE:
       return {
         ...state,
         loading: true,
@@ -561,10 +561,10 @@ export default (state = initialState, action) => {
         error: null,
       };
 
-    case EDIT_UNITS_OF_MEASURE_SUCCESS: {
-      const uoms = _.map(state.unitsOfMeasure, (uom) => (
-        action.unitsOfMeasure && (uom.id === action.unitsOfMeasure.id)
-          ? action.unitsOfMeasure
+    case EDIT_UNIT_OF_MEASURE_SUCCESS: {
+      const uoms = _.map(state.unitOfMeasure, (uom) => (
+        action.unitOfMeasure && (uom.id === action.unitOfMeasure.id)
+          ? action.unitOfMeasure
           : uom
       ));
 
@@ -572,11 +572,11 @@ export default (state = initialState, action) => {
         ...state,
         loading: false,
         loaded: true,
-        unitsOfMeasure: uoms,
+        unitOfMeasure: uoms,
       };
     }
 
-    case EDIT_UNITS_OF_MEASURE_FAILURE:
+    case EDIT_UNIT_OF_MEASURE_FAILURE:
       return {
         ...state,
         loading: false,
@@ -584,7 +584,7 @@ export default (state = initialState, action) => {
         error: action.error,
       };
 
-    case DELETE_UNITS_OF_MEASURE:
+    case DELETE_UNIT_OF_MEASURE:
       return {
         ...state,
         loading: true,
@@ -592,20 +592,20 @@ export default (state = initialState, action) => {
         error: null,
       };
 
-    case DELETE_UNITS_OF_MEASURE_SUCCESS: {
-      const uoms = _.filter(state.unitsOfMeasure, (uom) => (
-        action.unitsOfMeasure && (uom.id !== action.unitsOfMeasure.id)
+    case DELETE_UNIT_OF_MEASURE_SUCCESS: {
+      const uoms = _.filter(state.unitOfMeasure, (uom) => (
+        action.unitOfMeasure && (uom.id !== action.unitOfMeasure.id)
       ));
 
       return {
         ...state,
         loading: false,
         loaded: true,
-        unitsOfMeasure: uoms,
+        unitOfMeasure: uoms,
       };
     }
 
-    case DELETE_UNITS_OF_MEASURE_FAILURE:
+    case DELETE_UNIT_OF_MEASURE_FAILURE:
       return {
         ...state,
         loading: false,

@@ -385,8 +385,8 @@ export const itemColumns = [
     },
   },
   {
-    name: 'unitsMeasure',
-    label: 'Units of Measure',
+    name: 'unitMeasure',
+    label: 'Unit of Measure',
     options: {
       sort: true,
       sortThirdClickReset: true,

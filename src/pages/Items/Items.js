@@ -7,7 +7,7 @@ import {
   getItems,
   deleteItem,
   getItemType,
-  getUnitsOfMeasure,
+  getUnitOfMeasure,
   getProducts,
   getProductType,
 } from '../../redux/items/actions/items.actions';
@@ -26,7 +26,7 @@ const Items = ({
   loading,
   itemTypeList,
   redirectTo,
-  unitsOfMeasure,
+  unitOfMeasure,
   products,
   itemOptions,
   productOptions,
@@ -49,8 +49,8 @@ const Items = ({
       dispatch(getItems(organization));
       dispatch(getItemType(organization));
     }
-    if (!unitsOfMeasure) {
-      dispatch(getUnitsOfMeasure());
+    if (!unitOfMeasure) {
+      dispatch(getUnitOfMeasure());
     }
     if (products === null) {
       dispatch(getProducts(organization));
@@ -70,16 +70,16 @@ const Items = ({
       && itemData.length
       && itemTypeList
       && itemTypeList.length
-      && unitsOfMeasure
-      && unitsOfMeasure.length
+      && unitOfMeasure
+      && unitOfMeasure.length
     ) {
       setRows(getItemFormattedRow(
         itemData,
         itemTypeList,
-        unitsOfMeasure,
+        unitOfMeasure,
       ));
     }
-  }, [itemData, itemTypeList, unitsOfMeasure]);
+  }, [itemData, itemTypeList, unitOfMeasure]);
 
   const editItems = (item) => {
     history.push(`${editItemPath}/:${item.id}`, {

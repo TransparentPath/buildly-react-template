@@ -48,7 +48,6 @@ import {
 import {
   getItems,
   getItemType,
-  getUnitsOfMeasure,
 } from '../../redux/items/actions/items.actions';
 import {
   getGateways,
@@ -169,7 +168,6 @@ const CreateShipment = (props) => {
     loading,
     dispatch,
     location,
-    unitsOfMeasure,
     timezone,
     gatewayData,
     itemData,
@@ -335,9 +333,6 @@ const CreateShipment = (props) => {
       dispatch(getGateways(organization_uuid));
       dispatch(getGatewayType());
     }
-    if (!unitsOfMeasure) {
-      dispatch(getUnitsOfMeasure());
-    }
     if (!sensorData) {
       dispatch(getSensors(organization_uuid));
       dispatch(getSensorType());
@@ -394,35 +389,6 @@ const CreateShipment = (props) => {
   }, [custodianData, contactInfo, gatewayData,
     itemData, platform_name, gatewayTypeList,
     shipmentData, start_of_custody]);
-
-  useEffect(() => {
-    if (unitsOfMeasure && unitsOfMeasure.length) {
-      _.forEach(unitsOfMeasure, (unit) => {
-        if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'temp',
-          ) && unit.is_default_for_class
-        ) {
-          setUomTemp(unit.url);
-        } else if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'distance',
-          ) && unit.is_default_for_class
-        ) {
-          setUomDistance(unit.url);
-        } else if (
-          _.includes(
-            _.lowerCase(unit.supported_class),
-            'weight',
-          ) && unit.is_default_for_class
-        ) {
-          setUomWeight(unit.url);
-        }
-      });
-    }
-  }, [unitsOfMeasure]);
 
   const updateShipmentFormData = () => {
     const updateGateway = _.find(gatewayData, { gateway_uuid: gatewayIds[0] });

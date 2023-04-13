@@ -381,16 +381,29 @@ export const getShipmentOverview = (
   );
 };
 
-export const REPORT_TYPES = [
-  { id: 'temperature', name: 'Temperature', unit: '\u00b0F' },
+export const tempUnit = (uomt) => {
+  let unit = '';
+  if (uomt) {
+    if (_.toLower(uomt.unit_of_measure) === 'fahrenheit') {
+      unit = '\u00b0F';
+    } else if (_.toLower(uomt.unit_of_measure) === 'celsius') {
+      unit = '\u00b0C';
+    }
+  }
+
+  return unit;
+};
+
+export const REPORT_TYPES = (unitOfMeasure) => ([
+  { id: 'temperature', name: 'Temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
   { id: 'light', name: 'Light', unit: 'LUX' },
   { id: 'shock', name: 'Shock', unit: 'G' },
   { id: 'tilt', name: 'Tilt', unit: 'deg' },
   { id: 'humidity', name: 'Humidity', unit: '%' },
   { id: 'battery', name: 'Battery', unit: '%' },
   { id: 'pressure', name: 'Pressure', unit: 'Pa' },
-  { id: 'probe', name: 'Probe Temperature', unit: '\u00b0F' },
-];
+  { id: 'probe', name: 'Probe Temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
+]);
 
 export const SENSOR_REPORT_COLUMNS = [
   {

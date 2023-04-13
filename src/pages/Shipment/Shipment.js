@@ -32,7 +32,6 @@ import {
 import {
   getItems,
   getItemType,
-  getUnitsOfMeasure,
 } from '../../redux/items/actions/items.actions';
 import {
   getCustodyOptions,
@@ -103,7 +102,6 @@ const Shipment = (props) => {
     dispatch,
     itemData,
     gatewayData,
-    unitsOfMeasure,
     custodyData,
     sensorData,
     aggregateReportData,
@@ -180,9 +178,6 @@ const Shipment = (props) => {
     if (_.isEmpty(gatewayData)) {
       dispatch(getGateways(organization));
       dispatch(getGatewayType());
-    }
-    if (_.isEmpty(unitsOfMeasure)) {
-      dispatch(getUnitsOfMeasure());
     }
     if (_.isEmpty(sensorData)) {
       dispatch(getSensors(organization));
@@ -346,7 +341,6 @@ const Shipment = (props) => {
       max_warning_humidity: item.max_warning_humidity,
       min_warning_humidity: item.min_warning_humidity,
       route_description: item.route_description,
-      unit_of_measure: item.unit_of_measure,
       value: item.value,
       gross_weight: item.gross_weight,
       net_weight: item.net_weight,

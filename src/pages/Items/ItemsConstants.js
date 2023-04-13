@@ -59,8 +59,8 @@ export const itemColumns = [
     },
   },
   {
-    name: 'unitsMeasure',
-    label: 'Units of Measure',
+    name: 'unitMeasure',
+    label: 'Unit of Measure',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -69,9 +69,12 @@ export const itemColumns = [
   },
 ];
 
-export const getItemFormattedRow = (data, itemTypeList, unitsOfMeasure) => {
+export const getItemFormattedRow = (data, itemTypeList, unitOfMeasure) => {
   if (data && itemTypeList) {
     let formattedData = [];
+    const uomw = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for === 'weight'))) || '';
+    const uom = uomw ? uomw.unit_of_measure : '';
+
     _.forEach(data, (element) => {
       let editedData = element;
       _.forEach(itemTypeList, (type) => {
@@ -79,19 +82,10 @@ export const getItemFormattedRow = (data, itemTypeList, unitsOfMeasure) => {
           editedData = {
             ...editedData,
             item_type_value: type.name,
+            unitMeasure: uom,
           };
         }
       });
-      if (unitsOfMeasure) {
-        _.forEach(unitsOfMeasure, (unit) => {
-          if (unit.url === element.unit_of_measure) {
-            editedData = {
-              ...editedData,
-              unitsMeasure: unit.name,
-            };
-          }
-        });
-      }
       formattedData = [...formattedData, editedData];
     });
 
