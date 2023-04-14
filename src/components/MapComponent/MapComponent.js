@@ -247,7 +247,11 @@ const RenderedMap = withScriptjs(
             />
             <InfoWindow>
               <div style={{ color: 'black' }}>
-                {`Geofence of ${mark.radius} miles`}
+                {`Geofence of ${mark.radius} ${_.toLower(
+                  _.find(props.unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
+                    ? _.find(props.unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
+                    : ''
+                )}`}
               </div>
             </InfoWindow>
           </Marker>

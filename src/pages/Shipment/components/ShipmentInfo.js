@@ -33,6 +33,7 @@ import { validators } from '../../../utils/validators';
 import ShipmentRouteInfo from './ShipmentRouteInfo';
 import { editGateway } from '@redux/sensorsGateway/actions/sensorsGateway.actions';
 import Loader from '@components/Loader/Loader';
+import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -86,6 +87,7 @@ const ShipmentInfo = (props) => {
     setConfirmModalFor,
     timezone,
     gatewayData,
+    unitOfMeasure,
   } = props;
   const classes = useStyles();
   const theme = useTheme();
@@ -123,15 +125,6 @@ const ShipmentInfo = (props) => {
     (editData && editData.estimated_time_of_arrival)
     || new Date(),
   );
-  const [uom_temp, setUomTemp] = useState(
-    (editData && editData.uom_temp) || '',
-  );
-  const [uom_weight, setUomWeight] = useState(
-    (editData && editData.uom_weight) || '',
-  );
-  const [uom_distance, setUomDistance] = useState(
-    (editData && editData.uom_distance) || '',
-  );
 
   const [formError, setFormError] = useState({});
   const [fieldsMetadata, setFieldsMetaData] = useState({
@@ -142,9 +135,6 @@ const ShipmentInfo = (props) => {
     mode_type: '',
     scheduled_departure: '',
     scheduled_arrival: '',
-    uom_temp: '',
-    uom_distance: '',
-    uom_weight,
   });
 
   const organization = useContext(UserContext).organization.organization_uuid;
@@ -186,22 +176,16 @@ const ShipmentInfo = (props) => {
         shipmentOptions.actions.POST,
         'estimated_time_of_arrival',
       );
-      metadata.uom_temp = setOptionsData(
-        shipmentOptions.actions.POST,
-        'uom_temp',
-      );
-      metadata.uom_distance = setOptionsData(
-        shipmentOptions.actions.POST,
-        'uom_distance',
-      );
-      metadata.uom_weight = setOptionsData(
-        shipmentOptions.actions.POST,
-        'uom_weight',
-      );
     }
 
     setFieldsMetaData(metadata);
   }, [shipmentOptions]);
+
+  useEffect(() => {
+    if (!unitOfMeasure) {
+      dispatch(getUnitOfMeasure(organization));
+    }
+  }, []);
 
   /**
    * Handle input field blur event
@@ -267,9 +251,6 @@ const ShipmentInfo = (props) => {
       ) || [],
       wallet_ids: (editData && editData.wallet_ids) || [],
       custodian_ids: (editData && editData.custodian_ids) || [],
-      uom_distance,
-      uom_temp,
-      uom_weight,
       organization_uuid: organization,
       // platform_name,
     };
@@ -564,7 +545,6 @@ const ShipmentInfo = (props) => {
                       label="Scheduled departure"
                       selectedDate={
                         moment(scheduled_departure).tz(timezone)
-                          .format('MMMM DD, YYYY HH:mm:ss')
                       }
                       hasTime
                       handleDateChange={handleDepartureDateChange}
@@ -575,6 +555,16 @@ const ShipmentInfo = (props) => {
                           ? fieldsMetadata.scheduled_departure.help_text
                           : ''
                       }
+                      dateFormat={
+                        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                          : ''
+                      }
+                      timeFormat={
+                        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+                          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+                          : ''
+                      }
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -582,7 +572,6 @@ const ShipmentInfo = (props) => {
                       label="Scheduled arrival"
                       selectedDate={
                         moment(scheduled_arrival).tz(timezone)
-                          .format('MMMM DD, YYYY HH:mm:ss')
                       }
                       hasTime
                       handleDateChange={handleScheduledDateChange}
@@ -591,6 +580,16 @@ const ShipmentInfo = (props) => {
                         fieldsMetadata.scheduled_arrival
                         && fieldsMetadata.scheduled_arrival.help_text
                           ? fieldsMetadata.scheduled_arrival.help_text
+                          : ''
+                      }
+                      dateFormat={
+                        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                          : ''
+                      }
+                      timeFormat={
+                        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+                          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
                           : ''
                       }
                     />

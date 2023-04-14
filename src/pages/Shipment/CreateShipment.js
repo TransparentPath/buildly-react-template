@@ -288,16 +288,6 @@ const CreateShipment = (props) => {
 
   const [gatewayOptions, setGatewayOptions] = useState([]);
 
-  const [uom_temp, setUomTemp] = useState(
-    (editData && editData.uom_temp) || '',
-  );
-  const [uom_weight, setUomWeight] = useState(
-    (editData && editData.uom_weight) || '',
-  );
-  const [uom_distance, setUomDistance] = useState(
-    (editData && editData.uom_distance) || '',
-  );
-
   let formTitle;
   if (!editPage) {
     formTitle = 'Create Shipment';
@@ -410,9 +400,6 @@ const CreateShipment = (props) => {
       gateway_ids: (editData && editData.gateway_ids) || gatewayIds,
       gateway_imei: (editData && editData.gateway_imei)
         || imei_number,
-      uom_distance,
-      uom_temp,
-      uom_weight,
       organization_uuid,
       platform_name,
       max_excursion_temp: parseInt(max_excursion_temp.value, 10),
@@ -591,9 +578,6 @@ const CreateShipment = (props) => {
       gateway_ids: (editData && editData.gateway_ids) || gatewayIds,
       gateway_imei: (editData && editData.gateway_imei)
         || imei_number,
-      uom_distance,
-      uom_temp,
-      uom_weight,
       organization_uuid,
       platform_name,
       max_excursion_temp: parseInt(max_excursion_temp.value, 10),

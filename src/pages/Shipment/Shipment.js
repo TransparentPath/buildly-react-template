@@ -261,6 +261,7 @@ const Shipment = (props) => {
         allAlerts,
         contactInfo,
         timezone,
+        unitOfMeasure,
       );
 
       if (overview.length > 0) {
@@ -350,9 +351,6 @@ const Shipment = (props) => {
       gross_weight: item.gross_weight,
       net_weight: item.net_weight,
       organization_uuid: item.organization_uuid,
-      uom_weight: item.uom_weight,
-      uom_temp: item.uom_temp,
-      uom_distance: item.uom_distance,
       items: item.items,
     };
 
@@ -449,6 +447,11 @@ const Shipment = (props) => {
             setSelectedShipment={handleShipmentSelection}
             tileView={tileView}
             timezone={timezone}
+            dateFormat={
+              _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                : ''
+            }
           />
         </Grid>
         <Grid item xs={12} md={tileView ? 6 : 12}>

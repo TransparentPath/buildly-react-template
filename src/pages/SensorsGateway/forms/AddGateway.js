@@ -28,6 +28,7 @@ import {
 import { validators } from '../../../utils/validators';
 import { getCustodianFormattedRow } from '../../../pages/Custodians/CustodianConstants';
 import { GATEWAY_STATUS } from '../Constants';
+import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -77,6 +78,7 @@ const AddGateway = ({
   viewOnly,
   custodianData,
   contactInfo,
+  unitOfMeasure,
 }) => {
   const classes = useStyles();
   const [openFormModal, setFormModal] = useState(true);
@@ -124,6 +126,12 @@ const AddGateway = ({
 
   const [gatewayMetaData, setGatewayMetaData] = useState({});
   const organization = useContext(UserContext).organization.organization_uuid;
+
+  useEffect(() => {
+    if (!unitOfMeasure) {
+      dispatch(getUnitOfMeasure(organization));
+    }
+  }, []);
 
   useEffect(() => {
     if (gatewayOptions && gatewayOptions.actions) {
@@ -445,13 +453,17 @@ const AddGateway = ({
                       selectedDate={
                         moment(activation_date)
                           .tz(timezone)
-                          .format('l')
                       }
                       handleDateChange={handleDateChange}
                       helpText={
                         gatewayMetaData.activation_date
                         && gatewayMetaData.activation_date.help_text
                           ? gatewayMetaData.activation_date.help_text
+                          : ''
+                      }
+                      dateFormat={
+                        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
                           : ''
                       }
                     />
@@ -688,10 +700,12 @@ const mapStateToProps = (state, ownProps) => ({
   ...state.sensorsGatewayReducer,
   ...state.optionsReducer,
   ...state.custodianReducer,
+  ...state.itemsReducer,
   loading: (
     state.sensorsGatewayReducer.loading
     || state.optionsReducer.loading
     || state.custodianReducer.loading
+    || State.itemsReducer.loading
   ),
 });
 

@@ -270,7 +270,7 @@ const OrganizationSettings = ({
             margin="normal"
             id="radius"
             fullWidth
-            label="Radius for Geofence (miles)"
+            label={`Radius for Geofence (${_.toLower(distance)})`}
             name="radius"
             autoComplete="radius"
             {...radius.bind}

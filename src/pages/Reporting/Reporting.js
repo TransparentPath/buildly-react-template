@@ -129,8 +129,10 @@ const Reporting = ({
     let returnValue;
     if (selectedShipment[value] !== null) {
       if (moment(selectedShipment[value], true).isValid()) {
+        const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
+        const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
         returnValue = moment(selectedShipment[value])
-          .tz(timezone).format('MMMM DD, YYYY hh:mm:ss a');
+          .tz(timezone).format(`${dateFormat} ${timeFormat}`);
       } else if (typeof (selectedShipment[value]) !== 'object') {
         if (value === 'had_alert') {
           returnValue = selectedShipment[value]
@@ -158,6 +160,12 @@ const Reporting = ({
     setSelectedShipment(null);
     setMarkers([]);
   };
+
+  useEffect(() => {
+    if (!unitOfMeasure) {
+      dispatch(getUnitOfMeasure(organization));
+    }
+  }, []);
 
   useEffect(() => {
     if (!shipmentData || shipmentFilter === 'Active') {
@@ -214,9 +222,6 @@ const Reporting = ({
       dispatch(getSensors(organization));
       dispatch(getSensorType());
     }
-    if (!unitOfMeasure) {
-      dispatch(getUnitOfMeasure(organization));
-    }
   }, [shipmentFilter]);
 
   useEffect(() => {
@@ -246,6 +251,7 @@ const Reporting = ({
         allAlerts,
         contactInfo,
         timezone,
+        unitOfMeasure,
       );
       if (overview.length > 0) {
         setShipmentOverview(overview);

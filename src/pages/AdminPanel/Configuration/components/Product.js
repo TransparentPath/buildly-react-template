@@ -25,7 +25,6 @@ const Product = ({
   const organization = useContext(UserContext).organization.organization_uuid;
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [uomw, setUomw] = useState('');
 
   const addPath = redirectTo
     ? `${redirectTo}/product`
@@ -45,8 +44,6 @@ const Product = ({
     if (!loading) {
       if (_.isEmpty(unitOfMeasure)) {
         dispatch(getUnitOfMeasure(organization));
-      } else {
-        setUomw(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')) || '');
       }
     }
   }, [unitOfMeasure]);
@@ -80,7 +77,18 @@ const Product = ({
       noSpace
       loading={loading}
       rows={products || []}
-      columns={getProductColumns(timezone, uomw)}
+      columns={getProductColumns(
+        timezone,
+        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight'))
+          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')).unit_of_measure
+          : '',
+        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+          : '',
+        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+          : '',
+      )}
       filename="Products"
       addButtonHeading="Product"
       onAddButtonClick={onAddButtonClick}

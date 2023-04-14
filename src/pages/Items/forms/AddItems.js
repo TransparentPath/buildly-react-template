@@ -114,7 +114,6 @@ const AddItems = ({
   const [product_weight, setProductWeight] = useState(
     editData.product_weight || '',
   );
-  const [product_uom_name, setProductUomName] = useState('');
 
   const [formError, setFormError] = useState({});
 

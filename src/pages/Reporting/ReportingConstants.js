@@ -102,6 +102,7 @@ export const getShipmentOverview = (
   alertsData,
   contactData,
   timezone,
+  unitOfMeasure,
 ) => {
   let shipmentList = [];
   let custodyRows = [];
@@ -130,6 +131,8 @@ export const getShipmentOverview = (
     let probeData = [];
     let markersToSet = [];
     editedShipment.sensor_report = [];
+    const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
+    const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
 
     const alerts = _.filter(
       alertsData,
@@ -199,16 +202,16 @@ export const getShipmentOverview = (
               if ('report_timestamp' in report_entry) {
                 if (report_entry.report_timestamp !== null) {
                   dateTime = moment(report_entry.report_timestamp)
-                    .tz(timezone).format('MMM DD YYYY, h:mm:ss a');
+                    .tz(timezone).format(`${dateFormat} ${timeFormat}`);
                 }
               } else if ('report_location' in report_entry) {
                 dateTime = moment(
                   report_entry.report_location.timeOfPosition,
-                ).tz(timezone).format('MMM DD YYYY, h:mm:ss a');
+                ).tz(timezone).format(`${dateFormat} ${timeFormat}`);
               }
 
               _.forEach(alerts, (alert) => {
-                const alertTime = moment(alert.create_date).tz(timezone).format('MMM DD YYYY, h:mm:ss a');
+                const alertTime = moment(alert.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`);
                 if (alertTime === dateTime) {
                   if (alert.recovered_alert_id !== null) {
                     alert_status = 'RECOVERED';
@@ -521,7 +524,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
   },
 ]);
 
-export const getAlertsReportColumns = (timezone) => ([
+export const getAlertsReportColumns = (timezone, dateFormat, timeFormat) => ([
   // {
   //   name: 'id',
   //   label: 'Alert ID',
@@ -622,7 +625,7 @@ export const getAlertsReportColumns = (timezone) => ([
       filter: true,
       customBodyRender: (value) => (
         value && value !== '-'
-          ? moment(value).tz(timezone).format('MMM DD YYYY, h:mm:ss a')
+          ? moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`)
           : value
       ),
     },
