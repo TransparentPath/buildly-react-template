@@ -6,7 +6,7 @@ import Geocode from 'react-geocode';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import { routes } from '../../routes/routesConstants';
-import { MapComponent } from '../../components/MapComponent/MapComponent';
+import MapComponent from '../../components/MapComponent/MapComponent';
 import {
   Button,
   useTheme,

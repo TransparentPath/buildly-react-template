@@ -13,7 +13,7 @@ import {
   Apps as AppsIcon,
 } from '@mui/icons-material';
 import Loader from '../../components/Loader/Loader';
-import { MapComponent } from '../../components/MapComponent/MapComponent';
+import MapComponent from '../../components/MapComponent/MapComponent';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import CustomizedTooltips from '../../components/ToolTip/ToolTip';
 import { UserContext } from '../../context/User.context';

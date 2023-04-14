@@ -405,7 +405,7 @@ export const REPORT_TYPES = (unitOfMeasure) => ([
   { id: 'probe', name: 'Probe Temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
 ]);
 
-export const SENSOR_REPORT_COLUMNS = [
+export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
   {
     name: 'alert_status',
     label: 'ALERT STATUS',
@@ -437,7 +437,7 @@ export const SENSOR_REPORT_COLUMNS = [
   },
   {
     name: 'temperature',
-    label: 'TEMP (\u00b0F)',
+    label: `TEMP ${tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')))}`,
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -510,7 +510,7 @@ export const SENSOR_REPORT_COLUMNS = [
   },
   {
     name: 'probe',
-    label: 'PROBE TEMP (\u00b0F)',
+    label: `PROBE TEMP ${tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')))}`,
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -519,7 +519,7 @@ export const SENSOR_REPORT_COLUMNS = [
       customBodyRender: (value) => (_.isNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
-];
+]);
 
 export const getAlertsReportColumns = (timezone) => ([
   // {

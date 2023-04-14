@@ -18,7 +18,7 @@ import {
   ViewCompact as ViewCompactIcon,
 } from '@mui/icons-material';
 import Loader from '../../components/Loader/Loader';
-import { MapComponent } from '../../components/MapComponent/MapComponent';
+import MapComponent from '../../components/MapComponent/MapComponent';
 import ConfirmModal from '../../components/Modal/ConfirmModal';
 import CustomizedTooltips from '../../components/ToolTip/ToolTip';
 import { UserContext } from '../../context/User.context';
@@ -32,6 +32,7 @@ import {
 import {
   getItems,
   getItemType,
+  getUnitOfMeasure,
 } from '../../redux/items/actions/items.actions';
 import {
   getCustodyOptions,
@@ -112,6 +113,7 @@ const Shipment = (props) => {
     shipmentFormData,
     contactInfo,
     allAlerts,
+    unitOfMeasure,
   } = props;
   const classes = useStyles();
 
@@ -188,6 +190,9 @@ const Shipment = (props) => {
     }
     if (_.isEmpty(custodyOptions)) {
       dispatch(getCustodyOptions());
+    }
+    if (_.isEmpty(unitOfMeasure)) {
+      dispatch(getUnitOfMeasure(organization));
     }
   }, []);
 
@@ -504,6 +509,7 @@ const Shipment = (props) => {
         aggregateReport={(!loading && selectedShipment && selectedShipment.sensor_report) || []}
         shipmentName={selectedShipment && selectedShipment.name}
         selectedMarker={selectedShipment && selectedMarker}
+        unitOfMeasure={unitOfMeasure}
       />
       <Route
         path={`${routes.SHIPMENT}/add`}

@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 import GraphComponent from '../../components/GraphComponent/GraphComponent';
 import Loader from '../../components/Loader/Loader';
-import { MapComponent } from '../../components/MapComponent/MapComponent';
+import MapComponent from '../../components/MapComponent/MapComponent';
 import CustomizedTooltips from '../../components/ToolTip/ToolTip';
 import { UserContext } from '../../context/User.context';
 import {
@@ -550,6 +550,7 @@ const Reporting = ({
         )}
         shipmentName={selectedShipment && selectedShipment.name}
         selectedMarker={selectedShipment && selectedMarker}
+        unitOfMeasure={unitOfMeasure}
       />
       <AlertsReport
         loading={loading}

@@ -123,7 +123,6 @@ const EnvironmentalLimitsInfo = ({
 
   const [shipmentMetaData, setShipmentMetaData] = useState({});
   const organization = useContext(UserContext).organization.organization_uuid;
-  const [uomt, setUomt] = useState('');
 
   useEffect(() => {
     if (shipmentOptions && shipmentOptions.actions) {
@@ -132,12 +131,8 @@ const EnvironmentalLimitsInfo = ({
   }, [shipmentOptions]);
 
   useEffect(() => {
-    if (!loading) {
-      if (_.isEmpty(unitOfMeasure)) {
-        dispatch(getUnitOfMeasure(organization));
-      } else {
-        setUomt(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure) === 'temperature')) || '');
-      }
+    if (!loading && _.isEmpty(unitOfMeasure)) {
+      dispatch(getUnitOfMeasure(organization));
     }
   }, [unitOfMeasure]);
 
@@ -295,7 +290,10 @@ const EnvironmentalLimitsInfo = ({
                 className={classes.boxHeading}
                 variant="body2"
               >
-                {`Temperature settings (${tempUnit(uomt)})`}
+                {`Temperature settings (${tempUnit(
+                  _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
+                  || '',
+                )})`}
               </Typography>
               <CardContent>
                 <Grid container spacing={2}>
@@ -418,11 +416,17 @@ const EnvironmentalLimitsInfo = ({
                       marks={[
                         {
                           value: 0,
-                          label: `0${tempUnit(uomt)}`,
+                          label: `0${tempUnit(
+                            _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
+                            || '',
+                          )}`,
                         },
                         {
                           value: 100,
-                          label: `100${tempUnit(uomt)}`,
+                          label: `100${tempUnit(
+                            _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
+                            || '',
+                          )}`,
                         },
                       ]}
                     />
