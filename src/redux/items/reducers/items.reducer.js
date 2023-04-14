@@ -60,6 +60,8 @@ import {
   DELETE_UNIT_OF_MEASURE,
   DELETE_UNIT_OF_MEASURE_SUCCESS,
   DELETE_UNIT_OF_MEASURE_FAILURE,
+  CREATE_DEFAULT_UNITS,
+  CREATE_DEFAULT_UNITS_FAILURE,
 } from '../actions/items.actions';
 
 const initialState = {
@@ -606,6 +608,22 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_UNIT_OF_MEASURE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        error: action.error,
+      };
+
+    case CREATE_DEFAULT_UNITS:
+      return {
+        ...state,
+        loading: true,
+        loaded: false,
+        error: null,
+      };
+
+    case CREATE_DEFAULT_UNITS_FAILURE:
       return {
         ...state,
         loading: false,

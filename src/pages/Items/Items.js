@@ -50,7 +50,7 @@ const Items = ({
       dispatch(getItemType(organization));
     }
     if (!unitOfMeasure) {
-      dispatch(getUnitOfMeasure());
+      dispatch(getUnitOfMeasure(organization));
     }
     if (products === null) {
       dispatch(getProducts(organization));

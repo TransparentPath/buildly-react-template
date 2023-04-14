@@ -755,3 +755,27 @@ describe('Delete Unit of Measure reducer', () => {
     });
   });
 });
+
+describe('Create Default Unit of Measure reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.CREATE_DEFAULT_UNITS },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Create Default Unit of Measure fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.CREATE_DEFAULT_UNITS_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});

@@ -79,6 +79,9 @@ export const DELETE_UNIT_OF_MEASURE = 'ITEMS/DELETE_UNIT_OF_MEASURE';
 export const DELETE_UNIT_OF_MEASURE_SUCCESS = 'ITEMS/DELETE_UNIT_OF_MEASURE_SUCCESS';
 export const DELETE_UNIT_OF_MEASURE_FAILURE = 'ITEMS/DELETE_UNIT_OF_MEASURE_FAILURE';
 
+export const CREATE_DEFAULT_UNITS = 'ITEMS/CREATE_DEFAULT_UNITS';
+export const CREATE_DEFAULT_UNITS_FAILURE = 'ITEMS/CREATE_DEFAULT_UNITS_FAILURE';
+
 /**
  * Get Item List
  * @param {String} organization_uuid
@@ -267,4 +270,13 @@ export const editUnitOfMeasure = (payload) => ({
 export const deleteUnitOfMeasure = (id) => ({
   type: DELETE_UNIT_OF_MEASURE,
   id,
+});
+
+/**
+ * Create default unit of measures
+ * @param {String} organization
+ */
+export const createDefaultUnits = (organization) => ({
+  type: CREATE_DEFAULT_UNITS,
+  organization,
 });

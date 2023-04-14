@@ -285,3 +285,15 @@ describe('Delete Unit of Measure action', () => {
     expect(actions.deleteUnitOfMeasure(id)).toEqual(expectedAction);
   });
 });
+
+// Test Create Default Unit of Measure
+describe('Create Default Unit of Measure action', () => {
+  it('should create an action to create default unit of measure', () => {
+    const organization = '37r82-dsbfew8-37yrtwejf-eshf38';
+    const expectedAction = {
+      type: actions.CREATE_DEFAULT_UNITS,
+      organization,
+    };
+    expect(actions.createDefaultUnits(organization)).toEqual(expectedAction);
+  });
+});

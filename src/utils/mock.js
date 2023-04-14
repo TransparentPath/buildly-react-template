@@ -80,6 +80,26 @@ export const CUSTODIAN_DATA = [
   },
 ];
 
+export const CURRENCY_CHOICES = ['Dollar'];
+
+export const DATE_DISPLAY_CHOICES = [
+  { label: 'Like Mar 31, 1990', value: 'MMM DD, YYYY' },
+  { label: 'Like 31 Mar, 1990', value: 'DD MMM, YYYY' },
+  { label: 'Like 03/31/1990', value: 'MM/DD/YYYY' },
+  { label: 'Like 31/03/1990', value: 'DD/MM/YYYY' },
+];
+
+export const TIME_DISPLAY_CHOICES = [
+  { label: '12 Hour clock', value: 'hh:mm:ss A' },
+  { label: '24 Hour clock', value: 'HH:mm:ss' },
+];
+
+export const UOM_DISTANCE_CHOICES = ['Miles', 'Kilometers'];
+
+export const UOM_TEMPERATURE_CHOICES = ['Fahrenheit', 'Celsius'];
+
+export const UOM_WEIGHT_CHOICES = ['Pounds', 'Kilograms', 'Liters'];
+
 export const COUNTRY_CHOICES = ['USA'];
 
 export const STATE_CHOICES = [

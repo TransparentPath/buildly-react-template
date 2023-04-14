@@ -72,7 +72,7 @@ export const itemColumns = [
 export const getItemFormattedRow = (data, itemTypeList, unitOfMeasure) => {
   if (data && itemTypeList) {
     let formattedData = [];
-    const uomw = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for === 'weight'))) || '';
+    const uomw = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')) || '';
     const uom = uomw ? uomw.unit_of_measure : '';
 
     _.forEach(data, (element) => {

@@ -62,6 +62,8 @@ import {
   DELETE_UNIT_OF_MEASURE,
   DELETE_UNIT_OF_MEASURE_SUCCESS,
   DELETE_UNIT_OF_MEASURE_FAILURE,
+  CREATE_DEFAULT_UNITS,
+  CREATE_DEFAULT_UNITS_FAILURE,
 } from '../actions/items.actions';
 
 const shipmentApiEndPoint = 'shipment/';
@@ -787,6 +789,31 @@ function* deleteUnitOfMeasure(payload) {
   }
 }
 
+function* createDefaultUnits(payload) {
+  try {
+    const data = yield call(
+      httpService.makeRequest,
+      'post',
+      `${window.env.API_URL}${shipmentApiEndPoint}create_default_unit_of_measures/`,
+      { organization: payload.organization },
+    );
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Couldn\'t Create Default Unit of Measures due to some error!',
+        }),
+      ),
+      yield put({
+        type: CREATE_DEFAULT_UNITS_FAILURE,
+        error,
+      }),
+    ];
+  }
+}
+
 function* watchGetItem() {
   yield takeLatest(GET_ITEMS, getItemsList);
 }
@@ -867,6 +894,10 @@ function* watchDeleteUnitOfMeasure() {
   yield takeLatest(DELETE_UNIT_OF_MEASURE, deleteUnitOfMeasure);
 }
 
+function* watchCreateDefaultUnits() {
+  yield takeLatest(CREATE_DEFAULT_UNITS, createDefaultUnits);
+}
+
 export default function* itemSaga() {
   yield all([
     watchGetItem(),
@@ -889,5 +920,6 @@ export default function* itemSaga() {
     watchAddUnitOfMeasure(),
     watchEditUnitOfMeasure(),
     watchDeleteUnitOfMeasure(),
+    watchCreateDefaultUnits(),
   ]);
 }
