@@ -60,7 +60,7 @@ const DatePickerComponent = ({
             label={label}
             value={selectedDate}
             onChange={(value, keyInput) => handleDateChange(value.$d)}
-            format={`${dateFormat} ${timeFormat}`}
+            inputFormat={`${dateFormat} ${timeFormat}`}
             PopperProps={{
               sx: classes.popperSx,
             }}
@@ -72,7 +72,7 @@ const DatePickerComponent = ({
             fullWidth
             inputVariant="outlined"
             variant="inline"
-            format={`${dateFormat}`}
+            inputFormat={`${dateFormat}`}
             margin="normal"
             disabled={disabled}
             required={required}
