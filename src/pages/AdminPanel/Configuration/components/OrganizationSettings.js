@@ -18,8 +18,6 @@ import {
 } from '../../../../redux/authuser/actions/authuser.actions';
 import { editUnitOfMeasure, getUnitOfMeasure } from '@redux/items/actions/items.actions';
 import {
-  COUNTRY_CHOICES,
-  CURRENCY_CHOICES,
   DATE_DISPLAY_CHOICES,
   TIME_DISPLAY_CHOICES,
   UOM_DISTANCE_CHOICES,
@@ -27,6 +25,7 @@ import {
   UOM_WEIGHT_CHOICES,
 } from '@utils/mock';
 import { useInput } from '@hooks/useInput';
+import { getCountries, getCurrencies } from '@redux/shipment/actions/shipment.actions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,6 +77,8 @@ const OrganizationSettings = ({
   organizationData,
   orgTypes,
   unitOfMeasure,
+  countries,
+  currencies,
 }) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -97,12 +98,12 @@ const OrganizationSettings = ({
   const country = useInput(
     _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
       ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
-      : 'USA',
+      : 'United States',
   );
   const currency = useInput(
     _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
       ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
-      : 'Dollar',
+      : 'USD',
   );
   const dateFormat = useInput(
     _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
@@ -129,6 +130,15 @@ const OrganizationSettings = ({
       ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')).unit_of_measure
       : 'Pounds',
   );
+
+  useEffect(() => {
+    if (!countries) {
+      dispatch(getCountries());
+    }
+    if (!currencies) {
+      dispatch(getCurrencies());
+    }
+  }, []);
 
   useEffect(() => {
     if (organizationData && !unitOfMeasure) {
@@ -314,12 +324,12 @@ const OrganizationSettings = ({
               {...country.bind}
             >
               <MenuItem value="">Select</MenuItem>
-              {_.map(COUNTRY_CHOICES, (cntry, index) => (
+              {countries && _.map(countries, (data, index) => (
                 <MenuItem
-                  key={`country-${index}-${cntry}`}
-                  value={cntry}
+                  key={`country-${index}-${data.country}`}
+                  value={data.country}
                 >
-                  {cntry}
+                  {data.country}
                 </MenuItem>
               ))}
             </TextField>
@@ -338,7 +348,7 @@ const OrganizationSettings = ({
               {...currency.bind}
             >
               <MenuItem value="">Select</MenuItem>
-              {_.map(CURRENCY_CHOICES, (curr, index) => (
+              {currencies && _.map(currencies, (curr, index) => (
                 <MenuItem
                   key={`currency-${index}-${curr}`}
                   value={curr}
@@ -509,7 +519,8 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.authReducer,
   ...state.itemsReducer,
-  loading: state.authReducer.loading || state.itemsReducer.loading,
+  ...state.shipmentReducer,
+  loading: state.authReducer.loading || state.itemsReducer.loading || state.shipmentReducer.loading,
 });
 
 export default connect(mapStateToProps)(OrganizationSettings);

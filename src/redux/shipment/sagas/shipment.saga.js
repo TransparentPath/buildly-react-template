@@ -36,6 +36,12 @@ import {
   ADD_PDF_IDENTIFIER_SUCCESS,
   ADD_PDF_IDENTIFIER_FAILURE,
   GET_REPORT_AND_ALERTS,
+  GET_COUNTRIES_STATES,
+  GET_COUNTRIES_STATES_SUCCESS,
+  GET_COUNTRIES_STATES_FAILURE,
+  GET_CURRENCIES,
+  GET_CURRENCIES_SUCCESS,
+  GET_CURRENCIES_FAILURE,
 } from '../actions/shipment.actions';
 import { GET_CUSTODY_SUCCESS } from '../../custodian/actions/custodian.actions';
 
@@ -514,6 +520,71 @@ function* pdfIdentifier(action) {
   }
 }
 
+function* getCountries() {
+  try {
+    const data = yield call(
+      httpService.makeRequest,
+      'get',
+      'https://countriesnow.space/api/v0.1/countries/states',
+    );
+    if (data && data.data && data.data.data) {
+      let countries = [];
+      _.forEach(data.data.data, (country) => {
+        if (!_.includes(
+          ['cuba', 'iran', 'north korea', 'russia', 'syria', 'venezuela'],
+          _.toLower(country.name),
+        )) {
+          countries = [
+            ...countries,
+            {
+              country: country.name,
+              states: _.sortBy(_.without(_.uniq(_.map(country.states, 'name')), [''])),
+            },
+          ];
+        }
+      });
+      countries = _.uniqBy(countries, 'country');
+      yield put({ type: GET_COUNTRIES_STATES_SUCCESS, countries });
+    }
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Couldn\'t load countries and related states due to some error!',
+        }),
+      ),
+      yield put({ type: GET_COUNTRIES_STATES_FAILURE, error }),
+    ];
+  }
+}
+
+function* getCurrencies() {
+  try {
+    const data = yield call(
+      httpService.makeRequest,
+      'get',
+      'https://countriesnow.space/api/v0.1/countries/currency',
+    );
+    if (data && data.data && data.data.data) {
+      const currencies = _.sortBy(_.without(_.uniq(_.map(data.data.data, 'currency')), ['']));
+      yield put({ type: GET_CURRENCIES_SUCCESS, currencies });
+    }
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Couldn\'t load currencies due to some error!',
+        }),
+      ),
+      yield put({ type: GET_CURRENCIES_FAILURE, error }),
+    ];
+  }
+}
+
 function* watchGetShipment() {
   yield takeLatest(GET_SHIPMENTS, getShipmentList);
 }
@@ -538,6 +609,14 @@ function* watchReportAndAlerts() {
   yield takeLatest(GET_REPORT_AND_ALERTS, getReportAndAlerts);
 }
 
+function* watchGetCountries() {
+  yield takeLatest(GET_COUNTRIES_STATES, getCountries);
+}
+
+function* watchGetCurrencies() {
+  yield takeLatest(GET_CURRENCIES, getCurrencies);
+}
+
 export default function* shipmentSaga() {
   yield all([
     watchGetShipment(),
@@ -546,5 +625,7 @@ export default function* shipmentSaga() {
     watchEditShipment(),
     watchPdfIdentifier(),
     watchReportAndAlerts(),
+    watchGetCountries(),
+    watchGetCurrencies(),
   ]);
 }

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import { numberWithCommas } from '../../utils/utilMethods';
 
-export const itemColumns = [
+export const itemColumns = (currUnit) => ([
   {
     name: 'name',
     label: 'Item Name',
@@ -39,7 +39,7 @@ export const itemColumns = [
       filter: true,
       customBodyRender: (value) => (
         value && value !== '-'
-          ? `$${numberWithCommas(value)}`
+          ? `${numberWithCommas(value)} ${currUnit}`
           : value
       ),
     },
@@ -67,7 +67,7 @@ export const itemColumns = [
       filter: true,
     },
   },
-];
+]);
 
 export const getItemFormattedRow = (data, itemTypeList, unitOfMeasure) => {
   if (data && itemTypeList) {

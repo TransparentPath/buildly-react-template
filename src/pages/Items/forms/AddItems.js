@@ -70,6 +70,7 @@ const AddItems = ({
   productType,
   productOptions,
   itemOptions,
+  unitOfMeasure,
 }) => {
   const classes = useStyles();
   const [openFormModal, setFormModal] = useState(true);
@@ -502,7 +503,9 @@ const AddItems = ({
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            $
+                            {_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+                              ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+                              : ''}
                           </InputAdornment>
                         ),
                       }}
@@ -765,7 +768,9 @@ const AddItems = ({
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        $
+                        {_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+                          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+                          : ''}
                       </InputAdornment>
                     ),
                   }}

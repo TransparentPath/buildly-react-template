@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
+import _ from 'lodash';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import { UserContext } from '../../context/User.context';
 import {
@@ -109,7 +110,11 @@ const Items = ({
     <DataTableWrapper
       loading={loading}
       rows={rows || []}
-      columns={itemColumns}
+      columns={itemColumns(
+        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+          : '',
+      )}
       filename="ItemsData"
       addButtonHeading="Add Item"
       onAddButtonClick={onAddButtonClick}

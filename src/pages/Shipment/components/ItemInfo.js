@@ -233,7 +233,11 @@ const ItemsInfo = ({
                 <DataTableWrapper
                   loading={loading}
                   rows={rows}
-                  columns={itemColumns}
+                  columns={itemColumns(
+                    _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+                      ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+                      : '',
+                  )}
                   hideAddButton
                   noOptionsIcon
                   noSpace

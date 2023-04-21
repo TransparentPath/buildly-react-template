@@ -333,7 +333,7 @@ export const getFormattedCustodyRows = (custodyData, custodianData) => {
   );
 };
 
-export const itemColumns = [
+export const itemColumns = (currUnit) => ([
   {
     name: 'name',
     label: 'Item Name',
@@ -366,7 +366,7 @@ export const itemColumns = [
       sortThirdClickReset: true,
       customBodyRender: (value) => (
         value && value !== '-'
-          ? `$${numberWithCommas(value)}`
+          ? `${numberWithCommas(value)} ${currUnit}`
           : value
       ),
     },
@@ -392,7 +392,7 @@ export const itemColumns = [
       sortThirdClickReset: true,
     },
   },
-];
+]);
 
 export const gatewayColumns = (timezone, dateFormat) => ([
   {
