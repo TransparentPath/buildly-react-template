@@ -587,7 +587,9 @@ const AddCustodians = ({
                       onBlur={(e) => handleBlur(e, 'required', state, 'state')}
                       {...state.bind}
                       disabled={countries && !country.value}
-                      placeholder={countries && !country.value && 'Select country for states options'}
+                      placeholder={countries && !country.value
+                        ? 'Select country for states options'
+                        : ''}
                     >
                       <MenuItem value="">Select</MenuItem>
                       {countries && country.value && _.map(

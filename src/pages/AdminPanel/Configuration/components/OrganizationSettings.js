@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import {
@@ -130,6 +130,8 @@ const OrganizationSettings = ({
       ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')).unit_of_measure
       : 'Pounds',
   );
+  const [countryList, setCountryList] = useState([]);
+  const [currencyList, setCurrencyList] = useState([]);
 
   useEffect(() => {
     if (!countries) {
@@ -139,6 +141,18 @@ const OrganizationSettings = ({
       dispatch(getCurrencies());
     }
   }, []);
+
+  useEffect(() => {
+    if (!_.isEmpty(countries)) {
+      setCountryList(_.sortBy(_.without(_.uniq(_.map(countries, 'country')), [''])));
+    }
+  }, [countries]);
+
+  useEffect(() => {
+    if (!_.isEmpty(currencies)) {
+      setCurrencyList(_.sortBy(_.without(_.uniq(_.map(currencies, 'currency')), [''])));
+    }
+  }, [currencies]);
 
   useEffect(() => {
     if (organizationData && !unitOfMeasure) {
@@ -280,7 +294,7 @@ const OrganizationSettings = ({
             margin="normal"
             id="radius"
             fullWidth
-            label={`Radius for Geofence (${_.toLower(distance)})`}
+            label={`Radius for Geofence (${_.toLower(distance.value)})`}
             name="radius"
             autoComplete="radius"
             {...radius.bind}
@@ -321,15 +335,24 @@ const OrganizationSettings = ({
               name="country"
               label="Default Country"
               autoComplete="country"
-              {...country.bind}
+              value={country.value}
+              onChange={(e) => {
+                const curr = _.find(currencies, {
+                  country: _.find(countries, { country: e.target.value })
+                    ? _.find(countries, { country: e.target.value }).iso3
+                    : '',
+                });
+                currency.setValue(curr ? curr.currency : '');
+                country.setValue(e.target.value);
+              }}
             >
               <MenuItem value="">Select</MenuItem>
-              {countries && _.map(countries, (data, index) => (
+              {countryList && _.map(countryList, (cntry, index) => (
                 <MenuItem
-                  key={`country-${index}-${data.country}`}
-                  value={data.country}
+                  key={`country-${index}-${cntry}`}
+                  value={cntry}
                 >
-                  {data.country}
+                  {cntry}
                 </MenuItem>
               ))}
             </TextField>
@@ -348,7 +371,7 @@ const OrganizationSettings = ({
               {...currency.bind}
             >
               <MenuItem value="">Select</MenuItem>
-              {currencies && _.map(currencies, (curr, index) => (
+              {currencyList && _.map(currencyList, (curr, index) => (
                 <MenuItem
                   key={`currency-${index}-${curr}`}
                   value={curr}

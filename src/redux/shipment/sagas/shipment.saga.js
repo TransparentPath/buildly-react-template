@@ -538,6 +538,7 @@ function* getCountries() {
             ...countries,
             {
               country: country.name,
+              iso3: country.iso3,
               states: _.sortBy(_.without(_.uniq(_.map(country.states, 'name')), [''])),
             },
           ];
@@ -568,7 +569,9 @@ function* getCurrencies() {
       'https://countriesnow.space/api/v0.1/countries/currency',
     );
     if (data && data.data && data.data.data) {
-      const currencies = _.sortBy(_.without(_.uniq(_.map(data.data.data, 'currency')), ['']));
+      const currencies = _.uniqBy(_.map(
+        data.data.data, (curr) => ({ country: curr.iso3, currency: curr.currency }),
+      ), 'country');
       yield put({ type: GET_CURRENCIES_SUCCESS, currencies });
     }
   } catch (error) {
