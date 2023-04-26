@@ -237,7 +237,7 @@ export const custodyColumns = [
     },
   },
   {
-    name: 'start_of_custody_location',
+    name: 'start_address',
     label: 'Start Location',
     options: {
       sort: true,
@@ -245,7 +245,7 @@ export const custodyColumns = [
     },
   },
   {
-    name: 'end_of_custody_location',
+    name: 'end_address',
     label: 'End Location',
     options: {
       sort: true,
