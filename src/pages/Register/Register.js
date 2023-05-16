@@ -497,7 +497,7 @@ const Register = ({
                   <Link
                     href={routes.LOGIN}
                     variant="body2"
-                    color="secondary"
+                    color="primary"
                   >
                     Already have an account? Sign in
                   </Link>

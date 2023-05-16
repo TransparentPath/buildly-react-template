@@ -8,7 +8,6 @@ import {
   IconButton,
   TextField,
   MenuItem,
-  Button,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
@@ -16,7 +15,6 @@ import {
   Refresh as RefreshIcon,
   Settings as SettingsIcon,
   Menu as MenuIcon,
-  Add as AddIcon,
 } from '@mui/icons-material';
 import logo from '@assets/tp-logo.png';
 import {
@@ -44,7 +42,7 @@ import AccountMenu from './AccountMenu';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    backgroundColor: theme.palette.background.dark,
+    backgroundColor: theme.palette.background.default,
     zIndex: theme.zIndex.drawer + 1,
     [theme.breakpoints.down('sm')]: {
       overflowX: 'auto',
@@ -169,7 +167,6 @@ const TopBar = ({
           edge="start"
           className={classes.menuButton}
           onClick={() => setNavHidden(!navHidden)}
-          color="default"
           aria-label="menu"
           sx={{
             display: {
@@ -231,7 +228,7 @@ const TopBar = ({
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={settingMenu}
-            color="default"
+            color="primary"
           >
             <SettingsIcon fontSize="large" />
           </IconButton>
@@ -247,7 +244,7 @@ const TopBar = ({
             aria-controls="menu-appbar"
             aria-haspopup="false"
             onClick={refreshPage}
-            color="default"
+            color="primary"
           >
             <RefreshIcon fontSize="large" />
           </IconButton>
@@ -256,7 +253,7 @@ const TopBar = ({
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleMenu}
-            color="default"
+            color="primary"
           >
             <AccountCircle fontSize="large" />
           </IconButton>

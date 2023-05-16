@@ -84,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
     zIndex: '5',
   },
   tabContainer: {
-    backgroundColor: theme.palette.common.tab,
+    // backgroundColor: theme.palette.common.tab,
     margin: '0',
     display: 'flex',
     justifyContent: 'space-between',

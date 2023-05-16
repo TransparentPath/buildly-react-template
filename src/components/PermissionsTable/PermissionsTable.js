@@ -32,7 +32,7 @@ const StyledTableHeadCell = withStyles((theme) => ({
     fontSize: 12.5,
     fontWeight: '400',
     padding: theme.spacing(1, 2),
-    color: theme.palette.common.grey,
+    // color: theme.palette.common.grey,
     background: theme.palette.background.dark,
   },
 }))(TableCell);

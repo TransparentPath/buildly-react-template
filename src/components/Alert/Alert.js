@@ -15,20 +15,20 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   success: {
-    backgroundColor: theme.palette.common.success,
-    color: theme.palette.secondary.contrastText,
+    backgroundColor: theme.palette.success.main,
+    // color: theme.palette.secondary.contrastText,
   },
   info: {
-    backgroundColor: theme.palette.common.info,
-    color: theme.palette.secondary.contrastText,
+    backgroundColor: theme.palette.info.main,
+    // color: theme.palette.secondary.contrastText,
   },
   warning: {
-    backgroundColor: theme.palette.common.warning,
-    color: theme.palette.secondary.contrastText,
+    backgroundColor: theme.palette.warning.main,
+    // color: theme.palette.secondary.contrastText,
   },
   error: {
-    backgroundColor: theme.palette.common.error,
-    color: theme.palette.secondary.contrastText,
+    backgroundColor: theme.palette.error.main,
+    // color: theme.palette.secondary.contrastText,
   },
 }));
 

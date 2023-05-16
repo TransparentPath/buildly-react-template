@@ -233,7 +233,7 @@ const NewPassword = ({
                   <Link
                     href={routes.LOGIN}
                     variant="body2"
-                    color="secondary"
+                    color="primary"
                   >
                     Go back to Sign in
                   </Link>

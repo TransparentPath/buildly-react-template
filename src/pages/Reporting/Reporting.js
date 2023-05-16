@@ -88,12 +88,12 @@ const useStyles = makeStyles((theme) => ({
   infoContainer: {
     height: '525px',
     overflowX: 'auto',
-    backgroundColor: theme.palette.common.darkGrey2,
+    // backgroundColor: theme.palette.common.darkGrey2,
   },
   reportContainer: {
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(3),
-    backgroundColor: theme.palette.common.darkGrey2,
+    // backgroundColor: theme.palette.common.darkGrey2,
   },
   selectInput: {
     marginLeft: theme.spacing(1),
