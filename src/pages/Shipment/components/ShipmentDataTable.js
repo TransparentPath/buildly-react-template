@@ -5,6 +5,7 @@ import {
   Checkbox,
   Radio,
   IconButton,
+  useTheme,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
@@ -25,10 +26,23 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiPaper-root > .MuiToolbar-regular': {
       marginTop: '-60px',
       paddingRight: '35px',
-      backgroundColor: theme.palette.common.tab,
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.background.default,
       '&>:nth-child(1)': {
         margin: '0 25%',
       },
+    },
+    '& .MuiPaper-root > .MuiToolbar-root': {
+      backgroundColor: theme.palette.primary.dark,
+      '& .MuiSvgIcon-root': {
+        fill: theme.palette.background.default,
+      },
+    },
+    '& tr > th': {
+      backgroundColor: theme.palette.primary.light,
+    },
+    '& .MuiTableFooter-root': {
+      backgroundColor: theme.palette.primary.light,
     },
   },
   centerHeader: {
@@ -39,6 +53,17 @@ const useStyles = makeStyles((theme) => ({
   leftHeader: {
     '& span': {
       textAlign: 'left',
+    },
+  },
+  iconButton: {
+    color: theme.palette.primary.dark,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light,
+    },
+  },
+  dataTableBody: {
+    '&:hover': {
+      backgroundColor: 'none',
     },
   },
 }));
@@ -72,6 +97,7 @@ const ShipmentDataTable = ({
   dateFormat,
 }) => {
   const classes = useStyles();
+  const theme = useTheme();
   const [selected, setSelected] = useState(_.findIndex(rows, selectedShipment) || 0);
   const [columns, setColumns] = useState([]);
   const user = useContext(UserContext);
@@ -98,6 +124,9 @@ const ShipmentDataTable = ({
       setSelected(rowMeta.dataIndex);
       setSelectedShipment(rows[rowMeta.dataIndex]);
     },
+    setRowProps: (row, dataIndex, rowIndex) => ({
+      className: classes.dataTableBody,
+    }),
     rowsSelected: [selected],
     textLabels: {
       body: {
@@ -120,6 +149,7 @@ const ShipmentDataTable = ({
           }),
           customBodyRenderLite: (dataIndex) => (
             <IconButton
+              className={classes.iconButton}
               onClick={() => copyAction(rows[dataIndex])}
             >
               <FileCopyIcon />
@@ -137,7 +167,7 @@ const ShipmentDataTable = ({
             className: classes.centerHeader,
           }),
           customBodyRenderLite: (dataIndex) => (
-            <IconButton onClick={() => editAction(rows[dataIndex])}>
+            <IconButton className={classes.iconButton} onClick={() => editAction(rows[dataIndex])}>
               {!isAdmin
               && rows[dataIndex]
               && rows[dataIndex].status
@@ -164,6 +194,7 @@ const ShipmentDataTable = ({
             }),
             customBodyRenderLite: (dataIndex) => (
               <IconButton
+                className={classes.iconButton}
                 onClick={() => deleteAction(rows[dataIndex])}
               >
                 <DeleteIcon />
@@ -176,7 +207,9 @@ const ShipmentDataTable = ({
 
     cols = [
       ...cols,
-      ..._.map(getShipmentDataTableColumns(timezone, dateFormat), (column) => ({
+      ..._.map(getShipmentDataTableColumns(
+        timezone, dateFormat, theme.palette.primary.main,
+      ), (column) => ({
         ...column,
         options: {
           ...column.options,

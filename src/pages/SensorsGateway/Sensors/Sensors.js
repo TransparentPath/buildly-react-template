@@ -111,6 +111,7 @@ const Sensors = ({
       deleteModalTitle="Are you sure you want to delete this Sensor?"
       tableHeader="Sensors"
       hideAddButton
+      centerLabel
     >
       <Route path={`${addPath}`} component={AddSensors} />
       <Route path={`${editPath}/:id`} component={AddSensors} />

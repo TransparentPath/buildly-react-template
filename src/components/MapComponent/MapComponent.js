@@ -11,6 +11,7 @@ import {
   Circle,
 } from 'react-google-maps';
 import _ from 'lodash';
+import { useTheme } from '@mui/material';
 import {
   REPORT_TYPES,
   getIcon,
@@ -80,6 +81,7 @@ export const MapComponent = (props) => {
   return (
     <RenderedMap
       {...props}
+      theme={useTheme()}
       onMarkerDrag={onMarkerDrag}
       center={center}
       polygon={polygon}
@@ -106,7 +108,7 @@ const RenderedMap = withScriptjs(
                 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
               fillColor: `${mark.color}`,
               fillOpacity: 1,
-              strokeColor: 'white',
+              strokeColor: props.theme.palette.background.default,
               scale: 1.4,
               anchor: { x: 12, y: 24 },
             }}
@@ -122,7 +124,7 @@ const RenderedMap = withScriptjs(
               {mark.label === 'Clustered' ? (
                 <div
                   style={{
-                    color: 'black',
+                    color: props.theme.palette.background.dark,
                     display: 'flex',
                     justifyContent: 'flex-wrap',
                     flexWrap: 'wrap',
@@ -142,7 +144,7 @@ const RenderedMap = withScriptjs(
                         alignItems: 'center',
                       }}
                     >
-                      {getIcon(item, 'black')}
+                      {getIcon(item, props.theme.palette.background.dark)}
                       {' '}
                         &nbsp;
                       {mark[item.id] ? (
@@ -162,7 +164,7 @@ const RenderedMap = withScriptjs(
                       alignItems: 'center',
                     }}
                   >
-                    {getIcon({ id: 'time' }, 'black')}
+                    {getIcon({ id: 'time' }, props.theme.palette.background.dark)}
                     {' '}
                     <span>
                       {` : ${mark.timestamp}`}
@@ -170,7 +172,7 @@ const RenderedMap = withScriptjs(
                   </div>
                 </div>
               ) : (
-                <div style={{ color: 'black' }}>
+                <div style={{ color: props.theme.palette.background.dark }}>
                   {mark.label}
                 </div>
               )}
@@ -207,7 +209,7 @@ const RenderedMap = withScriptjs(
           }))}
           geodesic
           options={{
-            strokeColor: '#424242',
+            strokeColor: props.theme.palette.background.dark,
             strokeOpacity: 0.75,
             strokeWeight: 1,
           }}
@@ -238,19 +240,19 @@ const RenderedMap = withScriptjs(
               }}
               radius={mark.radius * 1000}
               options={{
-                strokeColor: '#ff0000',
+                strokeColor: props.theme.palette.error.main,
                 strokeOpacity: 0.8,
                 strokeWeight: 2,
-                fillColor: '#ff0000',
+                fillColor: props.theme.palette.error.main,
                 fillOpacity: 0.35,
               }}
             />
             <InfoWindow>
-              <div style={{ color: 'black' }}>
+              <div style={{ color: props.theme.palette.background.dark }}>
                 {`Geofence of ${mark.radius} ${_.toLower(
                   _.find(props.unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
                     ? _.find(props.unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
-                    : ''
+                    : '',
                 )}`}
               </div>
             </InfoWindow>
@@ -269,7 +271,7 @@ const RenderedMap = withScriptjs(
           }
           >
             <InfoWindow>
-              <div style={{ color: 'black' }}>
+              <div style={{ color: props.theme.palette.background.dark }}>
                 Configure radius for geofence
               </div>
             </InfoWindow>
@@ -283,10 +285,10 @@ const RenderedMap = withScriptjs(
           path={props.polygon}
           editable={false}
           options={{
-            strokeColor: '#424242',
+            strokeColor: props.theme.palette.background.dark,
             strokeOpacity: 0.8,
             strokeWeight: 2,
-            fillColor: '#424242',
+            fillColor: props.theme.palette.background.dark,
             fillOpacity: 0.35,
             polygonKey: 1,
           }}

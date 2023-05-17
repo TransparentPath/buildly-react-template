@@ -89,6 +89,28 @@ const theme = createTheme({
       xl: 1920,
     },
   },
+  components: {
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          color: '#FFFFFF',
+          '&.Mui-selected': {
+            color: '#F0CE7F',
+          },
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          color: '#FFFFFF',
+          '&.Mui-selected': {
+            color: '#F0CE7F',
+          },
+        },
+      },
+    },
+  },
 });
 
 export default responsiveFontSizes(theme);

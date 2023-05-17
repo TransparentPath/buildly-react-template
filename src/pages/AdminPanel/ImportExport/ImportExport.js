@@ -24,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
   form: {
     width: '100%',
     margin: theme.spacing(1),
-    // backgroundColor: theme.palette.common.darkGrey2,
     padding: theme.spacing(1, 2),
   },
 }));

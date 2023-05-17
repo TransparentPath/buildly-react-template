@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
       width: 240,
       flexShrink: 0,
     },
-    // backgroundColor: theme.palette.common.drawer,
+    backgroundColor: theme.palette.background.dark,
   },
   toolbar: theme.mixins.toolbar,
   drawerPaper: {

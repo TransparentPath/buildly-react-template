@@ -15,6 +15,7 @@ import {
   ToggleButtonGroup,
   CardContent,
   Card,
+  useTheme,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
@@ -67,13 +68,22 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   switchViewSection: {
-    background: theme.palette.background.dark,
+    background: theme.palette.primary.main,
+    color: theme.palette.background.default,
+    width: '100%',
+    display: 'flex',
+    minHeight: '40px',
+    alignItems: 'center',
+  },
+  switchViewSection2: {
+    background: theme.palette.primary.light,
     width: '100%',
     display: 'flex',
     minHeight: '40px',
     alignItems: 'center',
   },
   iconBar: {
+    backgroundColor: theme.palette.primary.light,
     '& svg': {
       margin: '0 auto',
     },
@@ -88,12 +98,10 @@ const useStyles = makeStyles((theme) => ({
   infoContainer: {
     height: '525px',
     overflowX: 'auto',
-    // backgroundColor: theme.palette.common.darkGrey2,
   },
   reportContainer: {
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(3),
-    // backgroundColor: theme.palette.common.darkGrey2,
   },
   selectInput: {
     marginLeft: theme.spacing(1),
@@ -114,6 +122,7 @@ const Reporting = ({
   allAlerts,
 }) => {
   const classes = useStyles();
+  const theme = useTheme();
   const organization = useContext(UserContext).organization.organization_uuid;
   const [tileView, setTileView] = useState(true);
   const [shipmentFilter, setShipmentFilter] = useState('Active');
@@ -317,7 +326,7 @@ const Reporting = ({
             </Typography>
             <IconButton
               onClick={() => setTileView(!tileView)}
-              color="default"
+              color="inherit"
               aria-label="menu"
               sx={{
                 display: {
@@ -352,7 +361,7 @@ const Reporting = ({
         <Grid item xs={12} md={tileView ? 6 : 12}>
           <div className={classes.switchViewSection}>
             <ToggleButtonGroup
-              color="primary"
+              color="secondary"
               value={shipmentFilter}
               exclusive
               fullWidth
@@ -377,7 +386,7 @@ const Reporting = ({
               </ToggleButton>
             </ToggleButtonGroup>
           </div>
-          <div className={classes.switchViewSection}>
+          <div className={classes.switchViewSection2}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -459,8 +468,8 @@ const Reporting = ({
                                   style={{
                                     marginBottom: 10,
                                     color: value.custody_type === 'Current'
-                                      ? '#EBC645'
-                                      : '#ffffff',
+                                      ? theme.palette.primary.main
+                                      : theme.palette.background.dark,
                                   }}
                                 >
                                   <Typography variant="body1">
@@ -522,7 +531,7 @@ const Reporting = ({
                   selected={selectedGraph === item.id}
                   onClick={() => setSelectedGraph(item.id)}
                 >
-                  {getIcon(item, 'white')}
+                  {getIcon(item, theme.palette.background.dark)}
                 </ListItem>
               </React.Fragment>
             ))}

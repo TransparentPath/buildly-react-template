@@ -679,7 +679,7 @@ const AddGateway = ({
                 <Button
                   type="button"
                   fullWidth
-                  variant="contained"
+                  variant="outlined"
                   color="primary"
                   onClick={discardFormData}
                   className={classes.submit}

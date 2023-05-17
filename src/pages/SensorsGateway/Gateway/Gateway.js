@@ -131,6 +131,7 @@ const Gateway = ({
       deleteModalTitle="Are you sure you want to delete this Gateway?"
       tableHeader="Gateway"
       hideAddButton
+      centerLabel
     >
       <Route path={`${addPath}`} component={AddGateway} />
       <Route path={`${editPath}/:id`} component={AddGateway} />

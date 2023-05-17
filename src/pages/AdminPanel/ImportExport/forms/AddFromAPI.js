@@ -53,7 +53,6 @@ const useStyles = makeStyles((theme) => ({
   apiResponse: {
     width: '100%',
     backgroundColor: theme.palette.secondary.main,
-    color: theme.palette.secondary.contrastText,
     overflow: 'wrap',
     whiteSpace: 'normal',
     wordBreak: 'break-word',

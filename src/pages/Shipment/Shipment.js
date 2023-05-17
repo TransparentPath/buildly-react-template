@@ -72,8 +72,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
   },
+  compactView: {
+    paddingTop: `${theme.spacing(0.5)} !important`,
+  },
   switchViewSection: {
-    background: theme.palette.background.dark,
+    background: theme.palette.primary.main,
+    color: theme.palette.background.default,
     width: '100%',
     display: 'flex',
     minHeight: '40px',
@@ -84,7 +88,8 @@ const useStyles = makeStyles((theme) => ({
     zIndex: '5',
   },
   tabContainer: {
-    // backgroundColor: theme.palette.common.tab,
+    backgroundColor: theme.palette.background.dark,
+    color: theme.palette.background.default,
     margin: '0',
     display: 'flex',
     justifyContent: 'space-between',
@@ -415,7 +420,7 @@ const Shipment = (props) => {
             <IconButton
               className={classes.menuButton}
               onClick={() => setTileView(!tileView)}
-              color="default"
+              color="inherit"
               aria-label="menu"
               sx={{
                 display: {
@@ -454,7 +459,7 @@ const Shipment = (props) => {
             }
           />
         </Grid>
-        <Grid item xs={12} md={tileView ? 6 : 12}>
+        <Grid item xs={12} md={tileView ? 6 : 12} className={tileView && classes.compactView}>
           <div className={classes.switchViewSection}>
             {
               selectedShipment
@@ -473,7 +478,7 @@ const Shipment = (props) => {
             <IconButton
               className={classes.menuButton}
               onClick={() => setTileView(!tileView)}
-              color="default"
+              color="inherit"
               aria-label="menu"
               sx={{
                 display: {

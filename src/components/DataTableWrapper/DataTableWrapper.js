@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: '0.5em',
   },
   iconButton: {
+    padding: 0,
     color: theme.palette.primary.dark,
     '&:hover': {
       backgroundColor: theme.palette.primary.light,
@@ -68,9 +69,10 @@ const DataTableWrapper = ({
   selectable,
   selected,
   customSort,
-  noCustomTheme,
+  customTheme,
   noSpace,
   noOptionsIcon,
+  centerLabel,
 }) => {
   const classes = useStyles();
 
@@ -84,7 +86,7 @@ const DataTableWrapper = ({
           filter: false,
           sort: false,
           empty: true,
-          setCellHeaderProps: () => ({ style: { textAlign: 'center' } }),
+          setCellHeaderProps: () => ({ style: { textAlign: centerLabel ? 'center' : 'start' } }),
           customBodyRenderLite: (dataIndex) => (
             <IconButton
               className={classes.iconButton}
@@ -164,7 +166,7 @@ const DataTableWrapper = ({
         noMatch: 'No data to display',
       },
     },
-    setRowProps: (row, dataIndex, rowIndex) => !noCustomTheme && ({
+    setRowProps: (row, dataIndex, rowIndex) => !customTheme && ({
       className: classes.dataTableBody,
     }),
     customSort,
@@ -196,7 +198,7 @@ const DataTableWrapper = ({
           </Typography>
         )}
         <Grid
-          className={`${!noCustomTheme && classes.dataTable}`}
+          className={`${!customTheme && classes.dataTable}`}
           container
           spacing={2}
         >

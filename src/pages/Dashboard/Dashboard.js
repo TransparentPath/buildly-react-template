@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
   },
   switchViewSection: {
-    background: theme.palette.background.dark,
+    background: theme.palette.background.default,
     width: '100%',
     display: 'flex',
     minHeight: '40px',

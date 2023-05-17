@@ -30,7 +30,6 @@ import { getCountries, getCurrencies } from '@redux/shipment/actions/shipment.ac
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
-    // backgroundColor: theme.palette.common.darkGrey2,
     margin: theme.spacing(0.25, 0, 0.25, 0.25),
   },
   checkbox: {

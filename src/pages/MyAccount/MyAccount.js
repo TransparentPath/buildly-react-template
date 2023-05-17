@@ -76,7 +76,7 @@ const MyAccount = ({
               <div className={classes.iconRight}>
                 <IconButton
                   edge="end"
-                  color="secondary"
+                  color="primary"
                   aria-label="edit"
                   onClick={() => setFormModal(true)}
                 >

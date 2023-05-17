@@ -16,7 +16,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
   },
   tooltip: {
-    background: theme.palette.background.dark,
+    background: theme.palette.primary.main,
+    color: theme.palette.background.default,
     width: '100%',
     display: 'flex',
     minHeight: '40px',
@@ -108,7 +109,6 @@ const SensorReport = ({
           </Typography>
         </div>
         <DataTableWrapper
-          noCustomTheme
           noSpace
           loading={loading}
           rows={rows}

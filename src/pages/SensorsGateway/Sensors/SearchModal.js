@@ -70,7 +70,7 @@ const SearchModal = ({
         </div>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setOpen(false)} color="primary">
+        <Button variant="outlined" onClick={() => setOpen(false)} color="primary">
           Cancel
         </Button>
         <Button

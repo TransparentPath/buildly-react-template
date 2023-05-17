@@ -12,7 +12,7 @@ export const MAP_TOOLTIP = 'Locations of the shipment from starting point till c
 
 export const SHIPMENT_DATA_TABLE_TOOLTIP = 'Click on a shipment to view it on the map';
 
-export const getShipmentDataTableColumns = (timezone, dateFormat) => ([
+export const getShipmentDataTableColumns = (timezone, dateFormat, alertColor) => ([
   {
     name: 'name',
     label: 'SHIPMENT NAME',
@@ -100,7 +100,7 @@ export const getShipmentDataTableColumns = (timezone, dateFormat) => ([
       customBodyRender: (value) => (value
         ? (
           <Typography sx={{
-            color: '#EBC645',
+            color: alertColor,
           }}
           >
             YES
