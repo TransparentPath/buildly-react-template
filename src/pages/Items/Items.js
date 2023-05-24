@@ -17,7 +17,7 @@ import {
   getProductsOptions,
 } from '../../redux/options/actions/options.actions';
 import { routes } from '../../routes/routesConstants';
-import { itemColumns, getItemFormattedRow } from './ItemsConstants';
+import { itemColumns, getItemFormattedRow } from '../../utils/constants';
 import AddItems from './forms/AddItems';
 
 const Items = ({

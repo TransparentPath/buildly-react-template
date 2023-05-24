@@ -13,7 +13,7 @@ import {
   getSensorOptions,
 } from '../../../redux/options/actions/options.actions';
 import { routes } from '../../../routes/routesConstants';
-import { sensorsColumns, getSensorFormattedRow } from '../Constants';
+import { sensorsColumns, getSensorFormattedRow } from '../../../utils/constants';
 import AddSensors from '../forms/AddSensors';
 import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 

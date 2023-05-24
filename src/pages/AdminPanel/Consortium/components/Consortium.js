@@ -11,7 +11,7 @@ import {
   deleteConsortium,
 } from '../../../../redux/consortium/actions/consortium.actions';
 import { routes } from '../../../../routes/routesConstants';
-import { getConsortiumColumns } from '../ConsortiumConstant';
+import { getConsortiumColumns } from '../../../../utils/constants';
 import AddConsortium from '../forms/AddConsortium';
 import { UserContext } from '@context/User.context';
 import { getUnitOfMeasure } from '@redux/items/actions/items.actions';

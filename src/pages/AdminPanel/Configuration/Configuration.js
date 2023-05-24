@@ -10,7 +10,6 @@ import { makeStyles } from '@mui/styles';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { UserContext } from '../../../context/User.context';
-import { checkForGlobalAdmin } from '../../../utils/utilMethods';
 import {
   CUSTODIAN_TYPE_TOOLTIP,
   GATEWAY_TYPE_TOOLTIP,
@@ -20,7 +19,8 @@ import {
   PRODUCT_TYPE_TOOLTIP,
   SENSOR_TYPE_TOOLTIP,
   ORG_SETTINGS_TOOLTIP,
-} from './ConfigurationConstants';
+} from '../../../utils/constants';
+import { checkForGlobalAdmin } from '../../../utils/utilMethods';
 import CustodianType from './components/CustodianType';
 import GatewayType from './components/GatewayType';
 import ItemType from './components/ItemType';

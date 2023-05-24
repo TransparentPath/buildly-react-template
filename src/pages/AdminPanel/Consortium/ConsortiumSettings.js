@@ -12,7 +12,7 @@ import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import {
   MAPPING_TOOLTIP,
   CONSORTIUM_TOOLTIP,
-} from './ConsortiumConstant';
+} from '../../../utils/constants';
 import Consortium from './components/Consortium';
 import MappingOrg from './components/MappingOrg';
 

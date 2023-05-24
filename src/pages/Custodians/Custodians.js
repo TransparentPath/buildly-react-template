@@ -20,7 +20,7 @@ import {
   custodianColumns,
   getCustodianFormattedRow,
   getUniqueContactInfo,
-} from './CustodianConstants';
+} from '../../utils/constants';
 import AddCustodians from './forms/AddCustodians';
 
 const Custodian = ({

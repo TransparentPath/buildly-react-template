@@ -26,8 +26,7 @@ import {
   editGateway,
 } from '../../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { validators } from '../../../utils/validators';
-import { getCustodianFormattedRow } from '../../../pages/Custodians/CustodianConstants';
-import { GATEWAY_STATUS } from '../Constants';
+import { getCustodianFormattedRow, GATEWAY_STATUS } from '../../../utils/constants';
 import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const useStyles = makeStyles((theme) => ({

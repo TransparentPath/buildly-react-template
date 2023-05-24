@@ -52,7 +52,7 @@ import {
   SHIPMENT_OVERVIEW_TOOL_TIP,
   REPORT_TYPES,
   getIcon,
-} from './ReportingConstants';
+} from '../../utils/constants';
 
 const useStyles = makeStyles((theme) => ({
   dashboardHeading: {

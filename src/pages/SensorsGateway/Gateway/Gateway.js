@@ -21,7 +21,7 @@ import {
   getShipmentDetails,
 } from '../../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../../routes/routesConstants';
-import { gatewayColumns, getGatewayFormattedRow } from '../Constants';
+import { gatewayColumns, getGatewayFormattedRow } from '../../../utils/constants';
 import AddGateway from '../forms/AddGateway';
 import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 

@@ -8,7 +8,7 @@ import {
 } from '../../../../redux/authuser/actions/authuser.actions';
 import DataTableWrapper from '../../../../components/DataTableWrapper/DataTableWrapper';
 import { routes } from '../../../../routes/routesConstants';
-import { getColumns } from '../ConfigurationConstants';
+import { getColumns } from '../../../../utils/constants';
 import AddOrganizationType from '../forms/AddOrganizationType';
 import { UserContext } from '@context/User.context';
 import { getUnitOfMeasure } from '@redux/items/actions/items.actions';

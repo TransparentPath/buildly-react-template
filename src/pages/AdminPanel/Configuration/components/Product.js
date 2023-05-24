@@ -10,7 +10,7 @@ import {
 import DataTableWrapper from '../../../../components/DataTableWrapper/DataTableWrapper';
 import { UserContext } from '../../../../context/User.context';
 import { routes } from '../../../../routes/routesConstants';
-import { getProductColumns } from '../ConfigurationConstants';
+import { getProductColumns } from '../../../../utils/constants';
 import AddProduct from '../forms/AddProduct';
 
 const Product = ({

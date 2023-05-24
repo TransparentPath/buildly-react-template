@@ -15,7 +15,7 @@ import { useTheme } from '@mui/material';
 import {
   REPORT_TYPES,
   getIcon,
-} from '../../pages/Reporting/ReportingConstants';
+} from '../../utils/constants';
 
 export const MapComponent = (props) => {
   const {

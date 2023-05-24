@@ -73,6 +73,7 @@ const DataTableWrapper = ({
   noSpace,
   noOptionsIcon,
   centerLabel,
+  extraOptions,
 }) => {
   const classes = useStyles();
 
@@ -170,6 +171,7 @@ const DataTableWrapper = ({
       className: classes.dataTableBody,
     }),
     customSort,
+    ...extraOptions,
   };
 
   return (

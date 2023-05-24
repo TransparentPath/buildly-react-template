@@ -68,10 +68,7 @@ import {
   CARRIER,
 } from '../../utils/mock';
 import { validators } from '../../utils/validators';
-import {
-  getAvailableGateways,
-} from '../../pages/SensorsGateway/Constants';
-import { getCustodianFormattedRow } from '../../pages/Custodians/CustodianConstants';
+import { getCustodianFormattedRow } from '../../utils/constants';
 import AddCustodians from '../Custodians/forms/AddCustodians';
 
 const useStyles = makeStyles((theme) => ({
@@ -365,16 +362,17 @@ const CreateShipment = (props) => {
       && shipmentData
       && shipmentData.length
     ) {
-      const opts = getAvailableGateways(
-        gatewayData,
-        platform_name
-          ? _.lowerCase(platform_name)
-          : 'tive',
-        gatewayTypeList,
-        shipmentData,
-        null,
-      );
-      setGatewayOptions(opts);
+      // const opts = getAvailableGateways(
+      //   gatewayData,
+      //   platform_name
+      //     ? _.lowerCase(platform_name)
+      //     : 'tive',
+      //   gatewayTypeList,
+      //   shipmentData,
+      //   null,
+      // );
+      // setGatewayOptions(opts);
+      setGatewayOptions([]);
     }
   }, [custodianData, contactInfo, gatewayData,
     itemData, platform_name, gatewayTypeList,

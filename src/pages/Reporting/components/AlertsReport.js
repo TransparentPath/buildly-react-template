@@ -12,7 +12,7 @@ import DataTableWrapper from '../../../components/DataTableWrapper/DataTableWrap
 import {
   getAlertsReportColumns,
   ALERTS_REPORT_TOOLTIP,
-} from '../ReportingConstants';
+} from '../../../utils/constants';
 import { UserContext } from '@context/User.context';
 import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 

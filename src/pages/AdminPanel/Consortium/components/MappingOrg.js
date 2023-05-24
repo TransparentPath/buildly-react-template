@@ -9,7 +9,7 @@ import {
   getCustodians,
 } from '../../../../redux/custodian/actions/custodian.actions';
 import { routes } from '../../../../routes/routesConstants';
-import { getMappingOrg } from '../ConsortiumConstant';
+import { getMappingOrg } from '../../../../utils/constants';
 import EditMapping from '../forms/EditMapping';
 
 const MappingOrg = ({

@@ -44,7 +44,7 @@ import {
   DASHBOARD_MAP_TOOLTIP,
   DASHBOARD_RECALL_TOOLTIP,
   DASHBOARD_DELAY_TOOLTIP,
-} from './DashboardConstants';
+} from '../../utils/constants';
 
 const useStyles = makeStyles((theme) => ({
   dashboardHeading: {
