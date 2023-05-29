@@ -133,6 +133,7 @@ export const getShipmentOverview = (
     editedShipment.sensor_report = [];
     const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
     const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
+    const tempUnit = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure;
 
     const alerts = _.filter(
       alertsData,
@@ -196,7 +197,12 @@ export const getShipmentOverview = (
             try {
               counter += 1;
               let marker = {};
-              const temperature = report_entry.report_temp;
+              const temperature = _.toLower(tempUnit) === 'fahrenheit'
+                ? report_entry.report_temp_fah
+                : report_entry.report_temp_cel;
+              const probe = _.toLower(tempUnit) === 'fahrenheit'
+                ? report_entry.report_probe_fah
+                : report_entry.report_probe_cel;
               let dateTime = '';
               let alert_status = '-';
               if ('report_timestamp' in report_entry) {
@@ -247,7 +253,7 @@ export const getShipmentOverview = (
                     humidity: report_entry.report_humidity,
                     battery: report_entry.report_battery,
                     pressure: report_entry.report_pressure,
-                    probe: report_entry.report_probe,
+                    probe,
                     color: 'green',
                     timestamp: dateTime,
                     alert_status,
@@ -277,7 +283,7 @@ export const getShipmentOverview = (
                   humidity: report_entry.report_humidity,
                   battery: report_entry.report_battery,
                   pressure: report_entry.report_pressure,
-                  probe: report_entry.report_probe,
+                  probe,
                   color: 'green',
                   timestamp: dateTime,
                   alert_status,
@@ -345,7 +351,7 @@ export const getShipmentOverview = (
                   ...probeData,
                   {
                     x: dateTime,
-                    y: report_entry.report_probe,
+                    y: probe,
                   },
                 ];
               }
