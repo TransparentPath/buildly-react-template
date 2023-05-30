@@ -201,7 +201,11 @@ const OrganizationSettings = ({
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (allowImportExport.hasChanged() || radius.hasChanged() || orgType.hasChanged() || distance.hasChanged()) {
+    if (allowImportExport.hasChanged()
+      || radius.hasChanged()
+      || orgType.hasChanged()
+      || distance.hasChanged()
+    ) {
       let data = {
         ...organizationData,
         edit_date: new Date(),
@@ -211,7 +215,7 @@ const OrganizationSettings = ({
       };
 
       if (distance.hasChanged()) {
-        data = { ...data, radius: uomDistanceUpdate(distance.value, radius.value) }
+        data = { ...data, radius: uomDistanceUpdate(distance.value, radius.value) };
       }
 
       dispatch(updateOrganization(data));
