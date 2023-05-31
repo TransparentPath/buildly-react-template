@@ -199,10 +199,10 @@ export const getShipmentOverview = (
               let marker = {};
               const temperature = _.toLower(tempUnit) === 'fahrenheit'
                 ? report_entry.report_temp_fah
-                : report_entry.report_temp_cel;
+                : _.round(report_entry.report_temp_cel, 2).toFixed(2);
               const probe = _.toLower(tempUnit) === 'fahrenheit'
                 ? report_entry.report_probe_fah
-                : report_entry.report_probe_cel;
+                : _.round(report_entry.report_temp_cel, 2).toFixed(2);
               let dateTime = '';
               let alert_status = '-';
               if ('report_timestamp' in report_entry) {
@@ -451,7 +451,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.isNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (value ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -525,7 +525,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.isNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (value ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
 ]);
@@ -560,11 +560,18 @@ export const getAlertsReportColumns = (aggregateReport, timezone, dateFormat, ti
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (
-        value && value !== '-'
-          ? value
-          : '-'
-      ),
+      customBodyRender: (value) => {
+        let formattedValue = '';
+        if (value && _.includes(value, ' F/') && _.includes(value, ' C')) {
+          const [val1, val2] = _.split(value, ' F/');
+          const [temp, unit] = _.split(val2, ' ');
+          formattedValue = `${val1} F/${_.round(Number(temp), 2).toFixed(2)} ${unit}`;
+        } else {
+          formattedValue = value || '-';
+        }
+
+        return formattedValue;
+      },
     },
   },
   {

@@ -165,10 +165,10 @@ const Register = ({
       user_timezone: moment.tz.guess(),
       country: country.value,
       currency: currency.value,
-      dateFormat: dateFormat.value,
-      timeFormat: timeFormat.value,
+      date_format: dateFormat.value,
+      time_format: timeFormat.value,
       distance: distance.value,
-      temp: temp.value,
+      temperature: temp.value,
       weight: weight.value,
     };
     dispatch(register(registerFormValue, history));
