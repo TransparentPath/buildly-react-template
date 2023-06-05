@@ -26,6 +26,7 @@ import {
 } from '@utils/mock';
 import { useInput } from '@hooks/useInput';
 import { getCountries, getCurrencies } from '@redux/shipment/actions/shipment.actions';
+import { uomDistanceUpdate } from '@utils/utilMethods';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -199,14 +200,23 @@ const OrganizationSettings = ({
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (allowImportExport.hasChanged() || radius.hasChanged() || orgType.hasChanged()) {
-      const data = {
+    if (allowImportExport.hasChanged()
+      || radius.hasChanged()
+      || orgType.hasChanged()
+      || distance.hasChanged()
+    ) {
+      let data = {
         ...organizationData,
         edit_date: new Date(),
         allow_import_export: allowImportExport.value,
         radius: radius.value || 0,
         organization_type: orgType.value,
       };
+
+      if (distance.hasChanged()) {
+        data = { ...data, radius: uomDistanceUpdate(distance.value, radius.value) };
+      }
+
       dispatch(updateOrganization(data));
     }
 
