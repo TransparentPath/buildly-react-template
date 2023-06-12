@@ -4,9 +4,11 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import { Typography, useTheme } from '@mui/material';
 
-const GraphComponent = ({ data, selectedGraph }) => {
-  const theme = useTheme();
+const GraphComponent = ({ data, selectedGraph, unitOfMeasure }) => {
+  const classes = useStyles();
   const [dataChart, setDataChart] = useState({});
+  const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
+  const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
 
   const options = {
     responsive: true,
@@ -18,9 +20,9 @@ const GraphComponent = ({ data, selectedGraph }) => {
             unit: 'minute',
             unitStepSize: 1,
             displayFormats: {
-              minute: 'MMM DD',
+              minute: dateFormat,
             },
-            tooltipFormat: 'MMMM DD, YYYY HH:mm:ss',
+            tooltipFormat: `${dateFormat} ${timeFormat}`,
           },
         },
       ],
