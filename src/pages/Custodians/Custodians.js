@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
+import _ from 'lodash';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import { UserContext } from '../../context/User.context';
 import {
@@ -49,18 +50,18 @@ const Custodian = ({
     : `${routes.CUSTODIANS}/edit`;
 
   useEffect(() => {
-    if (custodianData === null) {
+    if (_.isEmpty(custodianData)) {
       dispatch(getCustodians(organization));
       dispatch(getCustodianType());
       dispatch(getContact(organization));
     }
-    if (!custodyData) {
+    if (_.isEmpty(custodyData)) {
       dispatch(getCustody());
     }
-    if (custodianOptions === null) {
+    if (_.isEmpty(custodianOptions)) {
       dispatch(getCustodianOptions());
     }
-    if (contactOptions === null) {
+    if (_.isEmpty(contactOptions)) {
       dispatch(getContactOptions());
     }
     dispatch(getCountries());
@@ -93,7 +94,6 @@ const Custodian = ({
     dispatch(deleteCustodian(
       deleteItemId,
       deleteContactObjId,
-      organization,
     ));
     setDeleteModal(false);
   };

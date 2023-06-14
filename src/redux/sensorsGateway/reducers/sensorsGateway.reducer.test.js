@@ -5,12 +5,10 @@ const initialState = {
   loading: false,
   loaded: false,
   error: null,
-  gatewayData: null,
-  gatewayTypeList: null,
-  sensorData: null,
-  sensorTypeList: null,
-  aggregateReportData: null,
-  allAlerts: null,
+  gatewayData: [],
+  gatewayTypeList: [],
+  sensorData: [],
+  sensorTypeList: [],
 };
 
 describe('Get Gateway reducer', () => {
@@ -27,12 +25,12 @@ describe('Get Gateway reducer', () => {
   it('get Gateway success Reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.GET_GATEWAYS_SUCCESS },
+      { type: actions.GET_GATEWAYS_SUCCESS, data: [] },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      gatewayData: undefined,
+      gatewayData: [],
     });
   });
 
@@ -96,14 +94,15 @@ describe('Add Gateway reducer', () => {
   });
 
   it('Add Gateway success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
       initialState,
-      { type: actions.ADD_GATEWAY_SUCCESS },
+      { type: actions.ADD_GATEWAY_SUCCESS, gateway: data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      gatewayData: undefined,
+      gatewayData: [data],
     });
   });
 
@@ -132,14 +131,16 @@ describe('Edit Gateway reducer', () => {
   });
 
   it('Edit Gateway success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
+    const editedData = { id: 1, name: 'Test data edited' };
     expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_GATEWAY_SUCCESS },
+      { ...initialState, gatewayData: [data] },
+      { type: actions.EDIT_GATEWAY_SUCCESS, gateway: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      gatewayData: undefined,
+      gatewayData: [editedData],
     });
   });
 
@@ -168,14 +169,15 @@ describe('Delete Gateway reducer', () => {
   });
 
   it('Delete Gateway success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_GATEWAY_SUCCESS },
+      { ...initialState, gatewayData: [data] },
+      { type: actions.DELETE_GATEWAY_SUCCESS, id: data.id },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      gatewayData: undefined,
+      gatewayData: [],
     });
   });
 
@@ -206,12 +208,12 @@ describe('Get Gateway type reducer', () => {
   it('Get Gateway type success Reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.GET_GATEWAYS_TYPE_SUCCESS },
+      { type: actions.GET_GATEWAYS_TYPE_SUCCESS, data: [] },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      gatewayTypeList: undefined,
+      gatewayTypeList: [],
     });
   });
 
@@ -240,17 +242,15 @@ describe('Add Gateway type reducer', () => {
   });
 
   it('Add Gateway type success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
-      {
-        ...initialState,
-        gatewayTypeList: [],
-      },
-      { type: actions.ADD_GATEWAYS_TYPE_SUCCESS },
+      initialState,
+      { type: actions.ADD_GATEWAYS_TYPE_SUCCESS, gatewayType: data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      gatewayTypeList: [undefined],
+      gatewayTypeList: [data],
     });
   });
 
@@ -279,17 +279,19 @@ describe('Edit Gateway type reducer', () => {
   });
 
   it('Edit Gateway type success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
+    const editedData = { id: 1, name: 'Test data edited' };
     expect(reducer.default(
       {
         ...initialState,
-        gatewayTypeList: [],
+        gatewayTypeList: [data],
       },
-      { type: actions.EDIT_GATEWAYS_TYPE_SUCCESS },
+      { type: actions.EDIT_GATEWAYS_TYPE_SUCCESS, gatewayType: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      gatewayTypeList: [],
+      gatewayTypeList: [editedData],
     });
   });
 
@@ -318,14 +320,15 @@ describe('Delete Gateway type reducer', () => {
   });
 
   it('Delete Gateway type success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_GATEWAYS_TYPE_SUCCESS },
+      { ...initialState, gatewayTypeList: [data] },
+      { type: actions.DELETE_GATEWAYS_TYPE_SUCCESS, id: data.id },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      gatewayTypeList: undefined,
+      gatewayTypeList: [],
     });
   });
 
@@ -356,12 +359,12 @@ describe('Get Sensor reducer', () => {
   it('get Sensors success Reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.GET_SENSORS_SUCCESS },
+      { type: actions.GET_SENSORS_SUCCESS, data: [] },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      sensorData: undefined,
+      sensorData: [],
     });
   });
 
@@ -390,14 +393,15 @@ describe('Add Sensor reducer', () => {
   });
 
   it('Add Sensor success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
       initialState,
-      { type: actions.ADD_SENSOR_SUCCESS },
+      { type: actions.ADD_SENSOR_SUCCESS, sensor: data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      sensorData: undefined,
+      sensorData: [data],
     });
   });
 
@@ -426,14 +430,16 @@ describe('Edit Sensor reducer', () => {
   });
 
   it('Edit Sensor success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
+    const editedData = { id: 1, name: 'Test data edited' };
     expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_SENSOR_SUCCESS },
+      { ...initialState, sensorData: [data] },
+      { type: actions.EDIT_SENSOR_SUCCESS, sensor: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      sensorData: undefined,
+      sensorData: [editedData],
     });
   });
 
@@ -462,14 +468,15 @@ describe('Delete Sensor reducer', () => {
   });
 
   it('Delete Sensor success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_SENSOR_SUCCESS },
+      { ...initialState, sensorData: [data] },
+      { type: actions.DELETE_SENSOR_SUCCESS, id: data.id },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      sensorData: undefined,
+      sensorData: [],
     });
   });
 
@@ -500,12 +507,12 @@ describe('Get Sensor type reducer', () => {
   it('Get Sensor type success Reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.GET_SENSORS_TYPE_SUCCESS },
+      { type: actions.GET_SENSORS_TYPE_SUCCESS, data: [] },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      sensorTypeList: undefined,
+      sensorTypeList: [],
     });
   });
 
@@ -534,17 +541,15 @@ describe('Add Sensor type reducer', () => {
   });
 
   it('Add Sensor type success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
-      {
-        ...initialState,
-        sensorTypeList: [],
-      },
-      { type: actions.ADD_SENSORS_TYPE_SUCCESS },
+      initialState,
+      { type: actions.ADD_SENSORS_TYPE_SUCCESS, sensorType: data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      sensorTypeList: [undefined],
+      sensorTypeList: [data],
     });
   });
 
@@ -573,17 +578,19 @@ describe('Edit Sensor type reducer', () => {
   });
 
   it('Edit Sensor type success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
+    const editedData = { id: 1, name: 'Test data edited' };
     expect(reducer.default(
       {
         ...initialState,
-        sensorTypeList: [],
+        sensorTypeList: [data],
       },
-      { type: actions.EDIT_SENSORS_TYPE_SUCCESS },
+      { type: actions.EDIT_SENSORS_TYPE_SUCCESS, sensorType: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      sensorTypeList: [],
+      sensorTypeList: [editedData],
     });
   });
 
@@ -612,14 +619,15 @@ describe('Delete Sensor type reducer', () => {
   });
 
   it('Delete Sensor type success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_SENSORS_TYPE_SUCCESS },
+      { ...initialState, sensorTypeList: [data] },
+      { type: actions.DELETE_SENSORS_TYPE_SUCCESS, id: data.id },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      sensorTypeList: undefined,
+      sensorTypeList: [],
     });
   });
 
@@ -627,78 +635,6 @@ describe('Delete Sensor type reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.DELETE_SENSORS_TYPE_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Get Aggregate Report reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_AGGREGATE_REPORT },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Get Aggregate Report success Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_AGGREGATE_REPORT_SUCCESS },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      aggregateReportData: undefined,
-    });
-  });
-
-  it('Get Aggregate Report fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_AGGREGATE_REPORT_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Get All Sensor Alerts reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_ALL_SENSOR_ALERTS },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Get All Sensor Alerts success Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_ALL_SENSOR_ALERTS_SUCCESS },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      allAlerts: undefined,
-    });
-  });
-
-  it('Get All Sensor Alerts fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_ALL_SENSOR_ALERTS_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,

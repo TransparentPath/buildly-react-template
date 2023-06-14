@@ -5,9 +5,9 @@ import { connect } from 'react-redux';
 import addNotification from 'react-push-notification';
 import _ from 'lodash';
 import moment from 'moment-timezone';
-import { AppContext } from '@context/App.context';
-import { showAlert } from '@redux/alert/actions/alert.actions';
-import { getShipmentDetails } from '@redux/shipment/actions/shipment.actions';
+import { AppContext } from '../../context/App.context';
+import { showAlert } from '../../redux/alert/actions/alert.actions';
+import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 
 const PushNotification = ({ dispatch, loaded, user }) => {
   const [alerts, setAlerts] = useState([]);
@@ -122,26 +122,12 @@ const PushNotification = ({ dispatch, loaded, user }) => {
         setAlerts(filteredAlerts);
       }
       if (msg.command === 'new_alert') {
-        dispatch(getShipmentDetails(
-          user.organization.organization_uuid,
-          'Planned,Enroute',
-          null,
-          true,
-          true,
-          'get',
-        ));
+        dispatch(getShipmentDetails(user.organization.organization_uuid));
         setAlerts([...alerts, ...pushAlerts]);
       }
       if (msg.command === 'reload_data') {
         console.log('Reloading data');
-        dispatch(getShipmentDetails(
-          user.organization.organization_uuid,
-          'Planned,Enroute',
-          null,
-          true,
-          true,
-          'get',
-        ));
+        dispatch(getShipmentDetails(user.organization.organization_uuid));
       }
     };
   };

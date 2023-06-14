@@ -39,13 +39,10 @@ import {
 } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
-  getReportAndAlerts,
 } from '../../redux/shipment/actions/shipment.actions';
 import {
   getUnitOfMeasure,
 } from '../../redux/items/actions/items.actions';
-import AlertsReport from './components/AlertsReport';
-import SensorReport from './components/SensorReport';
 import {
   getShipmentOverview,
   SHIPMENT_OVERVIEW_COLUMNS,
@@ -53,6 +50,8 @@ import {
   REPORT_TYPES,
   getIcon,
 } from '../../utils/constants';
+import AlertsReport from './components/AlertsReport';
+import SensorReport from './components/SensorReport';
 
 const useStyles = makeStyles((theme) => ({
   dashboardHeading: {
@@ -159,9 +158,9 @@ const Reporting = ({
 
   const handleShipmentSelection = (shipment) => {
     setSelectedShipment(shipment);
-    if (shipment.partner_shipment_id) {
-      dispatch(getReportAndAlerts(shipment.partner_shipment_id));
-    }
+    // if (shipment.partner_shipment_id) {
+    //   dispatch(getReportAndAlerts(shipment.partner_shipment_id));
+    // }
   };
 
   const makeFilterSelection = (value) => {
@@ -171,47 +170,27 @@ const Reporting = ({
   };
 
   useEffect(() => {
-    if (!unitOfMeasure) {
+    if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
+    }
+    if (_.isEmpty(markers)) {
+      setTimeout(() => setMapLoaded(true), 1000);
     }
   }, []);
 
   useEffect(() => {
     if (!shipmentData || shipmentFilter === 'Active') {
-      const aggregate = !aggregateReportData;
-      const custody = !custodyData;
-      dispatch(getShipmentDetails(
-        organization,
-        'Planned,Enroute',
-        null,
-        aggregate,
-        custody,
-        'get',
-      ));
+      dispatch(getShipmentDetails(organization));
     } else {
       const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
       // const cancelledShipments =
       // _.filter(shipmentData, (shipment) => shipment.type === 'Cancelled');
 
       if (!completedShipments.length || shipmentFilter === 'Completed') {
-        dispatch(getShipmentDetails(
-          organization,
-          'Completed',
-          null,
-          true,
-          true,
-          'get',
-        ));
+        dispatch(getShipmentDetails(organization));
       }
       // if (!cancelledShipments.length) {
-      //   dispatch(getShipmentDetails(
-      //     organization,
-      //     'Cancelled',
-      //     null,
-      //     true,
-      //     true,
-      //     'get',
-      //   ));
+      //   dispatch(getShipmentDetails(organization));
       // }
       const UUIDS = _.map(shipmentData, 'shipment_uuid');
       const encodedUUIDs = encodeURIComponent(UUIDS);
@@ -219,15 +198,15 @@ const Reporting = ({
         dispatch(getCustody(encodedUUIDs));
       }
     }
-    if (!custodianData) {
+    if (_.isEmpty(custodianData)) {
       dispatch(getCustodians(organization));
       dispatch(getCustodianType());
       dispatch(getContact(organization));
     }
-    // if (!custodyData) {
+    // if (_.isEmpty(custodyData)) {
     //   dispatch(getCustody());
     // }
-    if (!sensorData) {
+    if (_.isEmpty(sensorData)) {
       dispatch(getSensors(organization));
       dispatch(getSensorType());
     }
@@ -238,12 +217,6 @@ const Reporting = ({
       setMarkers(selectedShipment.markers_to_set);
     }
   }, [selectedShipment, shipmentOverview]);
-
-  useEffect(() => {
-    if (markers && markers.length > 0) {
-      setTimeout(() => setMapLoaded(true), 1000);
-    }
-  });
 
   useEffect(() => {
     if (aggregateReportData

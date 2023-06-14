@@ -165,7 +165,7 @@ const AddCustodians = ({
    */
   const handleSubmit = (event) => {
     event.preventDefault();
-    const contact_obj = {
+    const contactFormValue = {
       country: country.value,
       state: state.value,
       address1: address_1.value,
@@ -191,7 +191,6 @@ const AddCustodians = ({
       custodian_type: custodianType.value,
       name: company.value,
       custodian_glns: glnNumber.value,
-      contact_obj,
       ...(editPage && { url: editData.url }),
       ...(editPage && { id: editData.id }),
       organization_uuid: organization,
@@ -200,12 +199,14 @@ const AddCustodians = ({
     if (editPage) {
       dispatch(editCustodian(
         custodianFormValue,
+        contactFormValue,
         history,
         redirectTo,
       ));
     } else {
       dispatch(addCustodians(
         custodianFormValue,
+        contactFormValue,
         history,
         redirectTo,
       ));

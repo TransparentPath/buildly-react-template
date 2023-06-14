@@ -19,12 +19,8 @@ import {
 import { getItemType, getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
 import { getCustodyOptions, getShipmentOptions } from '../../redux/options/actions/options.actions';
 import {
-  getAggregateReport,
-  getAllSensorAlerts,
   getGatewayType,
   getGateways,
-  getSensorType,
-  getSensors,
 } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 import { getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
@@ -45,8 +41,11 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('sm')]: {
       position: 'absolute',
       top: '24%',
-      left: '0'
+      left: '0',
     },
+  },
+  tab: {
+    color: theme.palette.background.default,
   },
   dataTable: {
     marginTop: '-40px',
@@ -94,6 +93,7 @@ const Shipment = ({
         <Tab
           {...itemProps}
           key={`tab${index}:${itemProps.value}`}
+          className={classes.tab}
         />
       ))}
     </Tabs>
@@ -105,14 +105,7 @@ const Shipment = ({
         _.includes(['Planned', 'Enroute'], ship.status)
       )))
     )) {
-      dispatch(getShipmentDetails(
-        organization,
-        'Planned,Enroute',
-        null,
-        true,
-        true,
-        'get',
-      ));
+      dispatch(getShipmentDetails(organization));
     } else {
       const UUIDS = _.map(_.filter(shipmentData, (shipment) => shipment.type === 'Active'), 'shipment_uuid');
       const uuids = _.toString(_.without(UUIDS, null));
@@ -146,15 +139,15 @@ const Shipment = ({
     }
   }, []);
 
-  useEffect(() => {
-    if (!_.isEmpty(shipmentData)) {
-      const uuids = _.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null));
-      const encodedUUIDs = encodeURIComponent(uuids);
-      if (encodedUUIDs) {
-        dispatch(getAllSensorAlerts(encodedUUIDs));
-      }
-    }
-  }, [shipmentData]);
+  // useEffect(() => {
+  //   if (!_.isEmpty(shipmentData)) {
+  //     const uuids = _.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null));
+  //     const encodedUUIDs = encodeURIComponent(uuids);
+  //     if (encodedUUIDs) {
+  //       dispatch(getAllSensorAlerts(encodedUUIDs));
+  //     }
+  //   }
+  // }, [shipmentData]);
 
   useEffect(() => {
     const formattedRows = getShipmentFormattedRow(
@@ -172,20 +165,11 @@ const Shipment = ({
   }, [shipmentFilter, shipmentData, custodianData, custodyData, itemData, gatewayData]);
 
   useEffect(() => {
-    if (selectedShipment) {
-      dispatch(getAggregateReport(selectedShipment.partner_shipment_id))
-    }
-  }, [selectedShipment]);
-
-  useEffect(() => {
-    const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
-    const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
+    const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
+    const timeFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
     let markersToSet = [];
 
-    if (
-      aggregateReportData
-      && aggregateReportData.length > 0
-    ) {
+    if (!_.isEmpty(aggregateReportData)) {
       let counter = 0;
       _.forEach(aggregateReportData, (report) => {
         _.forEach(report.report_entries, (report_entry) => {
@@ -293,14 +277,7 @@ const Shipment = ({
         break;
     }
 
-    dispatch(getShipmentDetails(
-      organization,
-      shipmentStatus,
-      null,
-      true,
-      true,
-      'get',
-    ));
+    dispatch(getShipmentDetails(organization));
   };
 
   return (

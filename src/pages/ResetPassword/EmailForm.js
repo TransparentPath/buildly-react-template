@@ -13,7 +13,7 @@ import {
   Container,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import logo from '@assets/tp-logo.png';
+import logo from '../../assets/tp-logo.png';
 import { useInput } from '../../hooks/useInput';
 import {
   resetPassword,

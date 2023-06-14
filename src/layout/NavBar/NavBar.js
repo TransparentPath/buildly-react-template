@@ -4,7 +4,6 @@ import _ from 'lodash';
 import {
   Divider,
   Drawer,
-  Hidden,
   List,
   ListItem,
   ListItemText,

@@ -2,16 +2,16 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import DataTableWrapper from '../../../../components/DataTableWrapper/DataTableWrapper';
+import { UserContext } from '../../../../context/User.context';
+import { getUnitOfMeasure } from '../../../../redux/items/actions/items.actions';
 import {
   getSensorType,
   deleteSensorType,
 } from '../../../../redux/sensorsGateway/actions/sensorsGateway.actions';
-import DataTableWrapper from '../../../../components/DataTableWrapper/DataTableWrapper';
 import { routes } from '../../../../routes/routesConstants';
 import { getColumns } from '../../../../utils/constants';
 import AddSensorType from '../forms/AddSensorType';
-import { UserContext } from '@context/User.context';
-import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const SensorType = ({
   dispatch,
@@ -35,16 +35,13 @@ const SensorType = ({
     : `${routes.CONFIGURATION}/sensor-type/edit`;
 
   useEffect(() => {
-    if (!unitOfMeasure) {
+    if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
     }
-  }, []);
-
-  useEffect(() => {
-    if (!loading && !sensorTypeList) {
+    if (_.isEmpty(sensorTypeList)) {
       dispatch(getSensorType());
     }
-  }, [sensorTypeList]);
+  }, []);
 
   const onAddButtonClick = () => {
     history.push(`${addPath}`, {

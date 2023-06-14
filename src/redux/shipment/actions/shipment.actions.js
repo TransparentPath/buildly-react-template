@@ -24,8 +24,6 @@ export const ADD_PDF_IDENTIFIER = 'SHIPMENT/ADD_PDF_IDENTIFIER';
 export const ADD_PDF_IDENTIFIER_SUCCESS = 'SHIPMENT/ADD_PDF_IDENTIFIER_SUCCESS';
 export const ADD_PDF_IDENTIFIER_FAILURE = 'SHIPMENT/ADD_PDF_IDENTIFIER_FAILURE';
 
-export const GET_REPORT_AND_ALERTS = 'SHIPMENT/GET_REPORT_AND_ALERTS';
-
 export const GET_COUNTRIES_STATES = 'SHIPMENT/GET_COUNTRIES_STATES';
 export const GET_COUNTRIES_STATES_SUCCESS = 'SHIPMENT/GET_COUNTRIES_STATES_SUCCESS';
 export const GET_COUNTRIES_STATES_FAILURE = 'SHIPMENT/GET_COUNTRIES_STATES_FAILURE';
@@ -44,40 +42,12 @@ export const saveShipmentFormData = (formData) => ({
 });
 
 /**
- * Get Aggregate Report and Alerts for given shipment
- * @param {Object} shipment_id
- */
-export const getReportAndAlerts = (shipment_id) => ({
-  type: GET_REPORT_AND_ALERTS,
-  shipment_id,
-});
-
-/**
  * Get Shipment Details
  * @param {String} organization_uuid
- * @param {String} status
- * @param {Number} id
- * @param {Boolean} getUpdatedSensorData
- * @param {Boolean} getUpdatedCustody
- * @param {String} shipmentAction
  */
-export const getShipmentDetails = (
-  organization_uuid,
-  status = null,
-  id = null,
-  getUpdatedSensorData = false,
-  getUpdatedCustody = false,
-  shipmentAction = null,
-  addEdit = {},
-) => ({
+export const getShipmentDetails = (organization_uuid) => ({
   type: GET_SHIPMENTS,
   organization_uuid,
-  status,
-  id,
-  getUpdatedSensorData,
-  getUpdatedCustody,
-  shipmentAction,
-  addEdit,
 });
 
 /**
@@ -85,54 +55,32 @@ export const getShipmentDetails = (
  * @param {Object} payload
  * @param {Object} history
  * @param {String} redirectTo
- * @param {String} organization_uuid
  */
-export const addShipment = (
-  payload,
-  history,
-  redirectTo,
-  organization_uuid,
-) => ({
+export const addShipment = (payload, history, redirectTo) => ({
   type: ADD_SHIPMENT,
   payload,
   history,
   redirectTo,
-  organization_uuid,
 });
 
 /**
  * Edit Shipment
  * @param {Object} payload
  * @param {Object} history
- * @param {String} redirectTo path to redirect
- * @param {String} organization_uuid
- * @param {String} gateway
+ * @param {String} redirectTo
  */
-export const editShipment = (
-  payload,
-  history,
-  redirectTo,
-  organization_uuid,
-  gateway,
-) => ({
+export const editShipment = (payload, history, redirectTo) => ({
   type: EDIT_SHIPMENT,
   payload,
   history,
   redirectTo,
-  organization_uuid,
-  gateway,
 });
 
 /**
  * Delete Shipment entity
- * @param {string} shipmentId
- * @param {string} organization_uuid
+ * @param {string} id
  */
-export const deleteShipment = (shipmentId, organization_uuid) => ({
-  type: DELETE_SHIPMENT,
-  shipmentId,
-  organization_uuid,
-});
+export const deleteShipment = (id) => ({ type: DELETE_SHIPMENT, id });
 
 /**
  * Get Dashboard Items

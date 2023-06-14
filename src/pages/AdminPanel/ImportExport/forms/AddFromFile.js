@@ -10,10 +10,10 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { useInput } from '../../../../hooks/useInput';
-import { validators } from '../../../../utils/validators';
 import {
   addFromFile,
 } from '../../../../redux/importExport/actions/importExport.actions';
+import { validators } from '../../../../utils/validators';
 
 const useStyles = makeStyles((theme) => ({
   form: {

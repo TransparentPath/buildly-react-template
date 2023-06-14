@@ -51,39 +51,68 @@ import {
   DELETE_SENSORS_TYPE,
   DELETE_SENSORS_TYPE_SUCCESS,
   DELETE_SENSORS_TYPE_FAILURE,
-  GET_SENSOR_REPORT,
-  GET_SENSOR_REPORT_SUCCESS,
-  GET_SENSOR_REPORT_FAILURE,
-  GET_AGGREGATE_REPORT,
-  GET_AGGREGATE_REPORT_SUCCESS,
-  GET_AGGREGATE_REPORT_FAILURE,
-  GET_ALL_SENSOR_ALERTS,
-  GET_ALL_SENSOR_ALERTS_SUCCESS,
-  GET_ALL_SENSOR_ALERTS_FAILURE,
 } from '../actions/sensorsGateway.actions';
+import { ca } from 'date-fns/locale';
 
 const initialState = {
   loading: false,
   loaded: false,
   error: null,
-  gatewayData: null,
-  gatewayTypeList: null,
-  sensorData: null,
-  sensorTypeList: null,
-  aggregateReportData: null,
-  allAlerts: null,
-  sensorReportData: null,
+  gatewayData: [],
+  gatewayTypeList: [],
+  sensorData: [],
+  sensorTypeList: [],
 };
 
 // Reducer
 export default (state = initialState, action) => {
   switch (action.type) {
     case GET_GATEWAYS:
+    case ADD_GATEWAY:
+    case EDIT_GATEWAY:
+    case DELETE_GATEWAY:
+    case GET_GATEWAYS_TYPE:
+    case ADD_GATEWAYS_TYPE:
+    case EDIT_GATEWAYS_TYPE:
+    case DELETE_GATEWAYS_TYPE:
+    case GET_SENSORS:
+    case ADD_SENSOR:
+    case EDIT_SENSOR:
+    case DELETE_SENSOR:
+    case GET_SENSORS_TYPE:
+    case ADD_SENSORS_TYPE:
+    case EDIT_SENSORS_TYPE:
+    case DELETE_SENSORS_TYPE:
+    case GET_NEW_GATEWAYS:
       return {
         ...state,
         loading: true,
         loaded: false,
         error: null,
+      };
+
+    case GET_GATEWAYS_FAILURE:
+    case ADD_GATEWAY_FAILURE:
+    case EDIT_GATEWAY_FAILURE:
+    case DELETE_GATEWAY_FAILURE:
+    case GET_GATEWAYS_TYPE_FAILURE:
+    case ADD_GATEWAYS_TYPE_FAILURE:
+    case EDIT_GATEWAYS_TYPE_FAILURE:
+    case DELETE_GATEWAYS_TYPE_FAILURE:
+    case GET_SENSORS_FAILURE:
+    case ADD_SENSOR_FAILURE:
+    case EDIT_SENSOR_FAILURE:
+    case DELETE_SENSOR_FAILURE:
+    case GET_SENSORS_TYPE_FAILURE:
+    case ADD_SENSORS_TYPE_FAILURE:
+    case EDIT_SENSORS_TYPE_FAILURE:
+    case DELETE_SENSORS_TYPE_FAILURE:
+    case GET_NEW_GATEWAYS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        error: action.error,
       };
 
     case GET_GATEWAYS_SUCCESS:
@@ -94,116 +123,44 @@ export default (state = initialState, action) => {
         gatewayData: action.data,
       };
 
-    case GET_GATEWAYS_FAILURE:
+    case ADD_GATEWAY_SUCCESS:
+    case EDIT_GATEWAY_SUCCESS: {
+      const found = _.find(
+        state.gatewayData,
+        { id: action.gateway.id },
+      );
+      const gatewayData = found
+        ? _.map(state.gatewayData, (gateway) => (
+          gateway.id === action.gateway.id
+            ? action.gateway
+            : gateway
+        ))
+        : [...state.gatewayData, action.gateway];
       return {
         ...state,
         loading: false,
         loaded: true,
-        error: action.error,
+        gatewayData,
       };
+    }
 
-    case GET_NEW_GATEWAYS:
+    case DELETE_GATEWAY_SUCCESS: {
+      const { gatewayData } = state;
+      _.remove(gatewayData, { id: action.id });
+
       return {
         ...state,
-        loading: true,
-        loaded: false,
-        error: null,
+        loading: false,
+        loaded: true,
+        gatewayData,
       };
+    }
 
     case GET_NEW_GATEWAYS_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
-      };
-
-    case GET_NEW_GATEWAYS_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case ADD_GATEWAY:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case ADD_GATEWAY_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        gatewayData: action.data,
-      };
-
-    case ADD_GATEWAY_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case EDIT_GATEWAY:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case EDIT_GATEWAY_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        gatewayData: action.data,
-        error: null,
-      };
-
-    case EDIT_GATEWAY_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case DELETE_GATEWAY:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case DELETE_GATEWAY_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        gatewayData: action.data,
-      };
-
-    case DELETE_GATEWAY_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_GATEWAYS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
       };
 
     case GET_GATEWAYS_TYPE_SUCCESS:
@@ -214,107 +171,38 @@ export default (state = initialState, action) => {
         gatewayTypeList: action.data,
       };
 
-    case GET_GATEWAYS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case ADD_GATEWAYS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
     case ADD_GATEWAYS_TYPE_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        gatewayTypeList: [
-          ...state.gatewayTypeList, action.gatewayType,
-        ],
-      };
-
-    case ADD_GATEWAYS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case EDIT_GATEWAYS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
     case EDIT_GATEWAYS_TYPE_SUCCESS: {
-      const gatewayTypes = _.map(state.gatewayTypeList, (gt) => (
-        action.gatewayType && (gt.id === action.gatewayType.id)
-          ? action.gatewayType
-          : gt
-      ));
-
+      const found = _.find(
+        state.gatewayTypeList,
+        { id: action.gatewayType.id },
+      );
+      const gatewayTypeList = found
+        ? _.map(state.gatewayTypeList, (gatewyType) => (
+          gatewyType.id === action.gatewayType.id
+            ? action.gatewayType
+            : gatewyType
+        ))
+        : [...state.gatewayTypeList, action.gatewayType];
       return {
         ...state,
         loading: false,
         loaded: true,
-        gatewayTypeList: gatewayTypes,
+        gatewayTypeList,
       };
     }
-
-    case EDIT_GATEWAYS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case DELETE_GATEWAYS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
 
     case DELETE_GATEWAYS_TYPE_SUCCESS: {
-      const gatewayTypes = _.filter(state.gatewayTypeList, (gt) => (
-        action.gatewayType && (gt.id !== action.gatewayType.id)
-      ));
+      const { gatewayTypeList } = state;
+      _.remove(gatewayTypeList, { id: action.id });
 
       return {
         ...state,
         loading: false,
         loaded: true,
-        gatewayTypeList: gatewayTypes,
+        gatewayTypeList,
       };
     }
-
-    case DELETE_GATEWAYS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_SENSORS:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
 
     case GET_SENSORS_SUCCESS:
       return {
@@ -324,94 +212,38 @@ export default (state = initialState, action) => {
         sensorData: action.data,
       };
 
-    case GET_SENSORS_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case ADD_SENSOR:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
     case ADD_SENSOR_SUCCESS:
+    case EDIT_SENSOR_SUCCESS: {
+      const found = _.find(
+        state.sensorData,
+        { id: action.sensor.id },
+      );
+      const sensorData = found
+        ? _.map(state.sensorData, (sensor) => (
+          sensor.id === action.sensor.id
+            ? action.sensor
+            : sensor
+        ))
+        : [...state.sensorData, action.sensor];
       return {
         ...state,
         loading: false,
         loaded: true,
-        sensorData: action.data,
+        sensorData,
       };
+    }
 
-    case ADD_SENSOR_FAILURE:
+    case DELETE_SENSOR_SUCCESS: {
+      const { sensorData } = state;
+      _.remove(sensorData, { id: action.id });
+
       return {
         ...state,
         loading: false,
         loaded: true,
-        error: action.error,
+        sensorData,
       };
-
-    case EDIT_SENSOR:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case EDIT_SENSOR_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorData: action.data,
-        error: null,
-      };
-
-    case EDIT_SENSOR_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case DELETE_SENSOR:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case DELETE_SENSOR_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorData: action.data,
-      };
-
-    case DELETE_SENSOR_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_SENSORS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
+    }
 
     case GET_SENSORS_TYPE_SUCCESS:
       return {
@@ -421,192 +253,38 @@ export default (state = initialState, action) => {
         sensorTypeList: action.data,
       };
 
-    case GET_SENSORS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case ADD_SENSORS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
     case ADD_SENSORS_TYPE_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorTypeList: [
-          ...state.sensorTypeList, action.sensorType,
-        ],
-      };
-
-    case ADD_SENSORS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case EDIT_SENSORS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
     case EDIT_SENSORS_TYPE_SUCCESS: {
-      const sensorTypes = _.map(state.sensorTypeList, (st) => (
-        action.sensorType && (st.id === action.sensorType.id)
-          ? action.sensorType
-          : st
-      ));
-
+      const found = _.find(
+        state.sensorTypeList,
+        { id: action.sensorType.id },
+      );
+      const sensorTypeList = found
+        ? _.map(state.sensorTypeList, (snsrType) => (
+          snsrType.id === action.sensorType.id
+            ? action.sensorType
+            : snsrType
+        ))
+        : [...state.sensorTypeList, action.sensorType];
       return {
         ...state,
         loading: false,
         loaded: true,
-        sensorTypeList: sensorTypes,
+        sensorTypeList,
       };
     }
-
-    case EDIT_SENSORS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case DELETE_SENSORS_TYPE:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
 
     case DELETE_SENSORS_TYPE_SUCCESS: {
-      const sensorTypes = _.filter(state.sensorTypeList, (st) => (
-        action.sensorType && (st.id !== action.sensorType.id)
-      ));
+      const { sensorTypeList } = state;
+      _.remove(sensorTypeList, { id: action.id });
 
       return {
         ...state,
         loading: false,
         loaded: true,
-        sensorTypeList: sensorTypes,
+        sensorTypeList,
       };
     }
-
-    case DELETE_SENSORS_TYPE_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_SENSOR_REPORT:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case GET_SENSOR_REPORT_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorReportData: action.data,
-      };
-
-    case GET_SENSOR_REPORT_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_AGGREGATE_REPORT:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case GET_AGGREGATE_REPORT_SUCCESS: {
-      // const initialAggregateReport = state.aggregateReportData;
-      // let aggregateReport = action.data;
-      // if (initialAggregateReport) {
-      //   aggregateReport = Object.values(
-      //     [...initialAggregateReport, ...action.data].reduce((result, { id, ...rest }) => {
-      //       // eslint-disable-next-line no-param-reassign
-      //       result[id] = {
-      //         ...(result[id] || {}),
-      //         id,
-      //         ...rest,
-      //       };
-      //       return result;
-      //     }, {}),
-      //   );
-      // }
-      // return {
-      //   ...state,
-      //   loading: false,
-      //   loaded: true,
-      //   aggregateReportData: aggregateReport,
-      // };
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        aggregateReportData: action.data,
-      };
-    }
-    case GET_AGGREGATE_REPORT_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_ALL_SENSOR_ALERTS:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case GET_ALL_SENSOR_ALERTS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        allAlerts: action.data,
-      };
-
-    case GET_ALL_SENSOR_ALERTS_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
 
     default:
       return state;

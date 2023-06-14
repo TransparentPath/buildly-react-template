@@ -6,9 +6,9 @@ const initialState = {
   loaded: false,
   error: null,
   shipmentFormData: null,
-  shipmentData: null,
-  countries: null,
-  currencies: null,
+  shipmentData: [],
+  countries: [],
+  currencies: [],
 };
 
 describe('Save Shipment Form Data reducer', () => {
@@ -38,12 +38,12 @@ describe('Get Shipment Details reducer', () => {
   it('get Shipment Details success Reducer', () => {
     expect(reducer.default(
       initialState,
-      { type: actions.GET_SHIPMENTS_SUCCESS },
+      { type: actions.GET_SHIPMENTS_SUCCESS, data: [] },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      shipmentData: [undefined],
+      shipmentData: [],
     });
   });
 
@@ -72,14 +72,15 @@ describe('Add Shipment reducer', () => {
   });
 
   it('Add Shipment success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
       initialState,
-      { type: actions.ADD_SHIPMENT_SUCCESS },
+      { type: actions.ADD_SHIPMENT_SUCCESS, shipment: data },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      shipmentData: undefined,
+      shipmentData: [data],
     });
   });
 
@@ -108,14 +109,16 @@ describe('Edit Shipment reducer', () => {
   });
 
   it('Edit Shipment success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
+    const editedData = { id: 1, name: 'Test data edited' };
     expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_SHIPMENT_SUCCESS },
+      { ...initialState, shipmentData: [data] },
+      { type: actions.EDIT_SHIPMENT_SUCCESS, shipment: editedData },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      shipmentData: undefined,
+      shipmentData: [editedData],
     });
   });
 
@@ -144,14 +147,15 @@ describe('Delete Shipment reducer', () => {
   });
 
   it('Delete Shipment success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_SHIPMENT_SUCCESS },
+      { ...initialState, shipmentData: [data] },
+      { type: actions.DELETE_SHIPMENT_SUCCESS, id: data.id },
     )).toEqual({
       ...initialState,
       loaded: true,
       loading: false,
-      shipmentData: undefined,
+      shipmentData: [],
     });
   });
 

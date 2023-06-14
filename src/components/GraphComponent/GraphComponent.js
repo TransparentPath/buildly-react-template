@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import { Typography, useTheme } from '@mui/material';
 
 const GraphComponent = ({ data, selectedGraph, unitOfMeasure }) => {
-  const classes = useStyles();
+  const theme = useTheme();
   const [dataChart, setDataChart] = useState({});
   const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
   const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;

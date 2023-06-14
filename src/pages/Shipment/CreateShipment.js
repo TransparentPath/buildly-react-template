@@ -5,8 +5,6 @@ import { Route } from 'react-router-dom';
 import Geocode from 'react-geocode';
 import _ from 'lodash';
 import moment from 'moment-timezone';
-import { routes } from '../../routes/routesConstants';
-import MapComponent from '../../components/MapComponent/MapComponent';
 import {
   Button,
   useTheme,
@@ -35,8 +33,8 @@ import {
 } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
+import MapComponent from '../../components/MapComponent/MapComponent';
 import { UserContext } from '../../context/User.context';
-import { checkForGlobalAdmin } from '../../utils/utilMethods';
 import DatePickerComponent from '../../components/DatePicker/DatePicker';
 import TimePickerComponent from '../../components/TimePicker/TimePicker';
 import { useInput } from '../../hooks/useInput';
@@ -62,6 +60,8 @@ import {
   addShipment,
   saveShipmentFormData,
 } from '../../redux/shipment/actions/shipment.actions';
+import { routes } from '../../routes/routesConstants';
+import { checkForGlobalAdmin } from '../../utils/utilMethods';
 import {
   SENSOR_PLATFORM,
   TRANSPORT_MODE,

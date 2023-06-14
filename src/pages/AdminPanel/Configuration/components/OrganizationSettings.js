@@ -13,20 +13,20 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import Loader from '../../../../components/Loader/Loader';
+import { useInput } from '../../../../hooks/useInput';
 import {
   updateOrganization,
 } from '../../../../redux/authuser/actions/authuser.actions';
-import { editUnitOfMeasure, getUnitOfMeasure } from '@redux/items/actions/items.actions';
+import { editUnitOfMeasure, getUnitOfMeasure } from '../../../../redux/items/actions/items.actions';
+import { getCountries, getCurrencies } from '../../../../redux/shipment/actions/shipment.actions';
 import {
   DATE_DISPLAY_CHOICES,
   TIME_DISPLAY_CHOICES,
   UOM_DISTANCE_CHOICES,
   UOM_TEMPERATURE_CHOICES,
   UOM_WEIGHT_CHOICES,
-} from '@utils/mock';
-import { useInput } from '@hooks/useInput';
-import { getCountries, getCurrencies } from '@redux/shipment/actions/shipment.actions';
-import { uomDistanceUpdate } from '@utils/utilMethods';
+} from '../../../../utils/mock';
+import { uomDistanceUpdate } from '../../../../utils/utilMethods';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -134,10 +134,10 @@ const OrganizationSettings = ({
   const [currencyList, setCurrencyList] = useState([]);
 
   useEffect(() => {
-    if (!countries) {
+    if (_.isEmpty(countries)) {
       dispatch(getCountries());
     }
-    if (!currencies) {
+    if (_.isEmpty(currencies)) {
       dispatch(getCurrencies());
     }
   }, []);
@@ -155,7 +155,7 @@ const OrganizationSettings = ({
   }, [currencies]);
 
   useEffect(() => {
-    if (organizationData && !unitOfMeasure) {
+    if (!_.isEmpty(organizationData) && _.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organizationData.organization_uuid));
     }
   }, [organizationData]);

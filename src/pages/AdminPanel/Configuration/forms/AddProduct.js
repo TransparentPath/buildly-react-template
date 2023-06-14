@@ -12,13 +12,13 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import FormModal from '../../../../components/Modal/FormModal';
+import { UserContext } from '../../../../context/User.context';
 import { useInput } from '../../../../hooks/useInput';
-import { validators } from '../../../../utils/validators';
 import {
   addProduct,
   editProduct,
 } from '../../../../redux/items/actions/items.actions';
-import { UserContext } from '../../../../context/User.context';
+import { validators } from '../../../../utils/validators';
 
 const useStyles = makeStyles((theme) => ({
   form: {

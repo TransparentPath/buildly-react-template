@@ -22,7 +22,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import logo from '@assets/tp-logo.png';
+import logo from '../../assets/tp-logo.png';
 import Copyright from '../../components/Copyright/Copyright';
 import { useInput } from '../../hooks/useInput';
 import {
@@ -123,13 +123,13 @@ const Register = ({
   const [formError, setFormError] = useState({});
 
   useEffect(() => {
-    if (!orgNames) {
+    if (_.isEmpty(orgNames)) {
       dispatch(loadOrgNames());
     }
-    if (!countries) {
+    if (_.isEmpty(countries)) {
       dispatch(getCountries());
     }
-    if (!currencies) {
+    if (_.isEmpty(currencies)) {
       dispatch(getCurrencies());
     }
   }, []);

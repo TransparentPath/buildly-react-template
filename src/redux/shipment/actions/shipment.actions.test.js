@@ -17,20 +17,8 @@ describe('Save Shipment Form Data action', () => {
 describe('Get Shipment Details action', () => {
   it('should create an action to get shipment details', () => {
     const organization_uuid = 'gweiug-3t2igf-3yfhf-329hgds73';
-    const id = 1;
-    const expectedAction = {
-      type: actions.GET_SHIPMENTS,
-      organization_uuid,
-      id: null,
-      getUpdatedSensorData: false,
-      getUpdatedCustody: false,
-      shipmentAction: null,
-      status: 1,
-    };
-    expect(actions.getShipmentDetails(
-      organization_uuid,
-      id,
-    )).toEqual(expectedAction);
+    const expectedAction = { type: actions.GET_SHIPMENTS, organization_uuid };
+    expect(actions.getShipmentDetails(organization_uuid)).toEqual(expectedAction);
   });
 });
 
@@ -40,20 +28,13 @@ describe('Add Shipment action', () => {
     const payload = { name: 'Test Shipment New' };
     const history = {};
     const redirectTo = '/test';
-    const organization_uuid = 'gweiug-3t2igf-3yfhf-329hgds73';
     const expectedAction = {
       type: actions.ADD_SHIPMENT,
       payload,
       history,
       redirectTo,
-      organization_uuid,
     };
-    expect(actions.addShipment(
-      payload,
-      history,
-      redirectTo,
-      organization_uuid,
-    )).toEqual(expectedAction);
+    expect(actions.addShipment(payload, history, redirectTo)).toEqual(expectedAction);
   });
 });
 
@@ -63,38 +44,22 @@ describe('Edit Shipment action', () => {
     const payload = { name: 'Test Shipment New Edited' };
     const history = {};
     const redirectTo = '/test';
-    const organization_uuid = 'gweiug-3t2igf-3yfhf-329hgds73';
-    const gateway = { id: 11 };
     const expectedAction = {
       type: actions.EDIT_SHIPMENT,
       payload,
       history,
       redirectTo,
-      organization_uuid,
-      gateway,
     };
-    expect(actions.editShipment(
-      payload,
-      history,
-      redirectTo,
-      organization_uuid,
-      gateway,
-    )).toEqual(expectedAction);
+    expect(actions.editShipment(payload, history, redirectTo)).toEqual(expectedAction);
   });
 });
 
 // Test Delete Shipment action
 describe('Delete Shipment action', () => {
   it('should create an action to delete shipment', () => {
-    const shipmentId = 1;
-    const organization_uuid = 'gweiug-3t2igf-3yfhf-329hgds73';
-    const expectedAction = {
-      type: actions.DELETE_SHIPMENT,
-      shipmentId,
-      organization_uuid,
-    };
-    expect(actions.deleteShipment(shipmentId, organization_uuid))
-      .toEqual(expectedAction);
+    const id = 1;
+    const expectedAction = { type: actions.DELETE_SHIPMENT, id };
+    expect(actions.deleteShipment(id)).toEqual(expectedAction);
   });
 });
 
@@ -106,8 +71,7 @@ describe('Get DashBoard Items action', () => {
       type: actions.GET_DASHBOARD_ITEMS,
       organization_uuid,
     };
-    expect(actions.getDashboardItems(organization_uuid))
-      .toEqual(expectedAction);
+    expect(actions.getDashboardItems(organization_uuid)).toEqual(expectedAction);
   });
 });
 

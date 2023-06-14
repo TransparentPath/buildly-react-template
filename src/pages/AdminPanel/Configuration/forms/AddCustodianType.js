@@ -12,11 +12,11 @@ import {
 import { makeStyles } from '@mui/styles';
 import FormModal from '../../../../components/Modal/FormModal';
 import { useInput } from '../../../../hooks/useInput';
-import { validators } from '../../../../utils/validators';
 import {
   addCustodianType,
   editCustodianType,
 } from '../../../../redux/custodian/actions/custodian.actions';
+import { validators } from '../../../../utils/validators';
 
 const useStyles = makeStyles((theme) => ({
   form: {

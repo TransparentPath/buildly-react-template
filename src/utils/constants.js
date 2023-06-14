@@ -260,17 +260,17 @@ export const getCustodianFormattedRow = (data, contactInfo, custodyData) => {
       const contactInfoItem = getUniqueContactInfo(rowItem, contactInfo);
       const location = `${contactInfoItem.address1
         && `${contactInfoItem.address1},`
-        } ${contactInfoItem.address2
+      } ${contactInfoItem.address2
         && `${contactInfoItem.address2},`
-        } ${contactInfoItem.city
+      } ${contactInfoItem.city
         && `${contactInfoItem.city},`
-        } ${contactInfoItem.state
+      } ${contactInfoItem.state
         && `${contactInfoItem.state},`
-        } ${contactInfoItem.country
+      } ${contactInfoItem.country
         && `${contactInfoItem.country},`
-        } ${contactInfoItem.postal_code
+      } ${contactInfoItem.postal_code
         && `${contactInfoItem.postal_code}`
-        }`;
+      }`;
       const editedData = { ...rowItem, location };
       customizedRow = [...customizedRow, editedData];
     });
@@ -1608,14 +1608,14 @@ export const getShipmentFormattedRow = (
 
       [firstCustody] = _.filter(custodies, { first_custody: true });
       if (firstCustody === undefined) {
-        origin = custodies[0].name;
+        origin = 'N/A';
       } else {
         origin = firstCustody.custodian_name;
       }
 
       [lastCustody] = _.filter(custodies, { last_custody: true });
       if (lastCustody === undefined) {
-        destination = '';
+        destination = 'N/A';
       } else {
         destination = lastCustody.custodian_name;
       }
@@ -1647,13 +1647,15 @@ export const getShipmentFormattedRow = (
     }
 
     if (!_.isEmpty(gatewayData)) {
-      const gateways = _.filter(gatewayData, (gateway) => _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number)));
-      editedShipment.tracker = _.toString(_.join(_.map(gateways, 'name'), ','));
+      const gateways = _.filter(gatewayData, (gateway) => (
+        _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
+      ));
+      editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ','))) || 'N/A';
     }
 
     if (editedShipment.had_alert) {
       const recovered = _.map(allAlerts, 'recovered_alert_id');
-      let filteredAlerts = _.filter(allAlerts, (alert) => (
+      const filteredAlerts = _.filter(allAlerts, (alert) => (
         alert.shipment_id === editedShipment.partner_shipment_id
         && !_.includes(recovered, _.toString(alert.id))
         && !alert.recovered_alert_id

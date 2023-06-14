@@ -21,13 +21,13 @@ import FormModal from '../../../components/Modal/FormModal';
 import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { UserContext } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
+import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
 import {
   addGateway,
   editGateway,
 } from '../../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { validators } from '../../../utils/validators';
 import { getCustodianFormattedRow, GATEWAY_STATUS } from '../../../utils/constants';
-import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -127,7 +127,7 @@ const AddGateway = ({
   const organization = useContext(UserContext).organization.organization_uuid;
 
   useEffect(() => {
-    if (!unitOfMeasure) {
+    if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
     }
   }, []);
@@ -139,11 +139,7 @@ const AddGateway = ({
   }, [gatewayOptions]);
 
   useEffect(() => {
-    if (
-      custodianData
-      && contactInfo
-      && custodianData.length
-    ) {
+    if (!_.isEmpty(custodianData) && contactInfo) {
       setCustodianList(getCustodianFormattedRow(
         custodianData,
         contactInfo,

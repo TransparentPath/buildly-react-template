@@ -14,7 +14,7 @@ import {
   Box,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import logo from '@assets/tp-logo.png';
+import logo from '../../assets/tp-logo.png';
 import Copyright from '../../components/Copyright/Copyright';
 import { useInput } from '../../hooks/useInput';
 import { confirmResetPassword } from '../../redux/authuser/actions/authuser.actions';

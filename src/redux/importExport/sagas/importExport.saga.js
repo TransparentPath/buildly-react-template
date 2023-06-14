@@ -2,8 +2,8 @@ import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
 import _ from 'lodash';
-import { httpService } from '@modules/http/http.service';
-import { showAlert } from '@redux/alert/actions/alert.actions';
+import { httpService } from '../../../modules/http/http.service';
+import { showAlert } from '../../alert/actions/alert.actions';
 import {
   ADD_FROM_FILE,
   ADD_FROM_FILE_SUCCESS,

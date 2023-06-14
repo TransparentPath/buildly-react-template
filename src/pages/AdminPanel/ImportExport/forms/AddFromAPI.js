@@ -12,8 +12,8 @@ import {
 import { makeStyles } from '@mui/styles';
 import ConfirmModal from '../../../../components/Modal/ConfirmModal';
 import CustomizedTooltips from '../../../../components/ToolTip/ToolTip';
+import { UserContext } from '../../../../context/User.context';
 import { useInput } from '../../../../hooks/useInput';
-import { validators } from '../../../../utils/validators';
 import {
   getItemsOptions,
   getProductsOptions,
@@ -24,7 +24,7 @@ import {
   getApiResponse,
   addApiSetup,
 } from '../../../../redux/importExport/actions/importExport.actions';
-import { UserContext } from '../../../../context/User.context';
+import { validators } from '../../../../utils/validators';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -137,16 +137,16 @@ const AddFromAPI = ({
   });
 
   useEffect(() => {
-    if (itemOptions === null) {
+    if (_.isEmpty(itemOptions)) {
       dispatch(getItemsOptions());
     }
-    if (productOptions === null) {
+    if (_.isEmpty(productOptions)) {
       dispatch(getProductsOptions());
     }
-    if (gatewayOptions === null) {
+    if (_.isEmpty(gatewayOptions)) {
       dispatch(getGatewayOptions());
     }
-    if (sensorOptions === null) {
+    if (_.isEmpty(sensorOptions)) {
       dispatch(getSensorOptions());
     }
   }, []);

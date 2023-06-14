@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import {
   Typography,
   Box,
@@ -107,39 +108,32 @@ const Dashboard = (props) => {
   const organization = useContext(UserContext).organization.organization_uuid;
 
   useEffect(() => {
-    if (shipmentData === null) {
+    if (_.isEmpty(shipmentData)) {
       const aggregate = !aggregateReportData;
       const custody = !custodyData;
-      dispatch(getShipmentDetails(
-        organization,
-        'Planned,Enroute',
-        null,
-        aggregate,
-        custody,
-        'get',
-      ));
+      dispatch(getShipmentDetails(organization));
     }
-    if (custodianData === null) {
+    if (_.isEmpty(custodianData)) {
       dispatch(getCustodians(organization));
       dispatch(getCustodianType());
       dispatch(getContact(organization));
     }
-    if (itemData === null) {
+    if (_.isEmpty(itemData)) {
       dispatch(getItems(organization));
       dispatch(getItemType(organization));
     }
-    if (gatewayData === null) {
+    if (_.isEmpty(gatewayData)) {
       dispatch(getGateways(organization));
       dispatch(getGatewayType());
     }
-    // if (!custodyData) {
+    // if (_.isEmpty(custodyData)) {
     //   dispatch(getCustody());
     // }
-    if (!sensorData) {
+    if (_.isEmpty(sensorData)) {
       dispatch(getSensors(organization));
       dispatch(getSensorType());
     }
-    if (!dashboardItems) {
+    if (_.isEmpty(dashboardItems)) {
       dispatch(getDashboardItems(organization));
     }
   }, []);

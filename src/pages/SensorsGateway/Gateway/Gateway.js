@@ -10,20 +10,17 @@ import {
   deleteGateway,
 } from '../../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
-  getGatewayOptions,
-} from '../../../redux/options/actions/options.actions';
-import {
   getCustodians,
   getCustodianType,
   getContact,
 } from '../../../redux/custodian/actions/custodian.actions';
+import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
 import {
   getShipmentDetails,
 } from '../../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../../routes/routesConstants';
 import { gatewayColumns, getGatewayFormattedRow } from '../../../utils/constants';
 import AddGateway from '../forms/AddGateway';
-import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const Gateway = ({
   dispatch,
@@ -32,7 +29,6 @@ const Gateway = ({
   loading,
   gatewayTypeList,
   redirectTo,
-  gatewayOptions,
   shipmentData,
   timezone,
   custodianData,
@@ -55,33 +51,18 @@ const Gateway = ({
   useEffect(() => {
     dispatch(getGateways(organization));
     dispatch(getGatewayType());
-    dispatch(getGatewayOptions());
-
-    dispatch(getShipmentDetails(
-      organization,
-      'Planned,Enroute',
-      null,
-      !aggregateReportData,
-      true,
-      'get',
-    ));
-
+    dispatch(getShipmentDetails(organization));
     dispatch(getCustodians(organization));
     dispatch(getCustodianType());
     dispatch(getContact(organization));
 
-    if (!unitOfMeasure) {
+    if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
     }
   }, []);
 
   useEffect(() => {
-    if (
-      gatewayData
-      && gatewayData.length
-      && gatewayTypeList
-      && gatewayTypeList.length
-    ) {
+    if (!_.isEmpty(gatewayData) && !_.isEmpty(gatewayTypeList)) {
       setRows(getGatewayFormattedRow(gatewayData, gatewayTypeList, shipmentData, custodianData));
     }
   }, [gatewayData, gatewayTypeList, shipmentData, custodianData]);

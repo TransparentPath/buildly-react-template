@@ -46,34 +46,27 @@ const Items = ({
     : `${routes.ITEMS}/edit`;
 
   useEffect(() => {
-    if (itemData === null) {
+    if (_.isEmpty(itemData)) {
       dispatch(getItems(organization));
       dispatch(getItemType(organization));
     }
-    if (!unitOfMeasure) {
+    if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
     }
-    if (products === null) {
+    if (_.isEmpty(products)) {
       dispatch(getProducts(organization));
       dispatch(getProductType(organization));
     }
-    if (itemOptions === null) {
+    if (_.isEmpty(itemOptions)) {
       dispatch(getItemsOptions());
     }
-    if (productOptions === null) {
+    if (_.isEmpty(productOptions)) {
       dispatch(getProductsOptions());
     }
   }, []);
 
   useEffect(() => {
-    if (
-      itemData
-      && itemData.length
-      && itemTypeList
-      && itemTypeList.length
-      && unitOfMeasure
-      && unitOfMeasure.length
-    ) {
+    if (!_.isEmpty(itemData) && !_.isEmpty(itemTypeList) && !_.isEmpty(unitOfMeasure)) {
       setRows(getItemFormattedRow(
         itemData,
         itemTypeList,

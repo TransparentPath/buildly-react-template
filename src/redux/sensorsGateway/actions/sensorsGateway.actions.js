@@ -68,33 +68,17 @@ export const DELETE_SENSORS_TYPE = 'SENSORS/DELETE_SENSORS_TYPE';
 export const DELETE_SENSORS_TYPE_SUCCESS = 'SENSORS/DELETE_SENSORS_TYPE_SUCCESS';
 export const DELETE_SENSORS_TYPE_FAILURE = 'SENSORS/DELETE_SENSORS_TYPE_FAILURE';
 
-export const GET_SENSOR_REPORT = 'SENSORS/GET_SENSOR_REPORT';
-export const GET_SENSOR_REPORT_SUCCESS = 'SENSORS/GET_SENSOR_REPORT_SUCCESS';
-export const GET_SENSOR_REPORT_FAILURE = 'SENSORS/GET_SENSOR_REPORT_FAILURE';
-
-export const GET_AGGREGATE_REPORT = 'SENSORS/GET_AGGREGATE_REPORT';
-export const GET_AGGREGATE_REPORT_SUCCESS = 'SENSORS/GET_AGGREGATE_REPORT_SUCCESS';
-export const GET_AGGREGATE_REPORT_FAILURE = 'SENSORS/GET_AGGREGATE_REPORT_FAILURE';
-
-export const GET_ALL_SENSOR_ALERTS = 'SENSORS/GET_ALL_SENSOR_ALERTS';
-export const GET_ALL_SENSOR_ALERTS_SUCCESS = 'SENSORS/GET_ALL_SENSOR_ALERTS_SUCCESS';
-export const GET_ALL_SENSOR_ALERTS_FAILURE = 'SENSORS/GET_ALL_SENSOR_ALERTS_FAILURE';
-
 // Gateway action functions
 /**
  *  Get Gateway List
+ * @param {String}organization_uuid
  */
-export const getGateways = (organization_uuid) => ({
-  type: GET_GATEWAYS,
-  organization_uuid,
-});
+export const getGateways = (organization_uuid) => ({ type: GET_GATEWAYS, organization_uuid });
 
 /**
  *  Get New Gateways
  */
-export const getNewGateways = () => ({
-  type: GET_NEW_GATEWAYS,
-});
+export const getNewGateways = () => ({ type: GET_NEW_GATEWAYS });
 
 /**
  *  Add Gateway
@@ -124,58 +108,39 @@ export const editGateway = (payload, history, redirectTo) => ({
 
 /**
  * Delete Gateway
- * @param {Number} gatewayId
- * @param {String} organization_uuid
+ * @param {Number} id
  */
-export const deleteGateway = (gatewayId, organization_uuid) => ({
-  type: DELETE_GATEWAY,
-  gatewayId,
-  organization_uuid,
-});
+export const deleteGateway = (id) => ({ type: DELETE_GATEWAY, id });
 
 /**
  *  Get Gateway Type
  */
-export const getGatewayType = () => ({
-  type: GET_GATEWAYS_TYPE,
-});
+export const getGatewayType = () => ({ type: GET_GATEWAYS_TYPE });
 
 /**
  * Add Gateway Type
  * @param {Object} payload
  */
-export const addGatewayType = (payload) => ({
-  type: ADD_GATEWAYS_TYPE,
-  payload,
-});
+export const addGatewayType = (payload) => ({ type: ADD_GATEWAYS_TYPE, payload });
 
 /**
  * Edit Gateway Type
  * @param {Object} payload
  */
-export const editGatewayType = (payload) => ({
-  type: EDIT_GATEWAYS_TYPE,
-  payload,
-});
+export const editGatewayType = (payload) => ({ type: EDIT_GATEWAYS_TYPE, payload });
 
 /**
  * Delete Gateway Type
  * @param {Number} id
  */
-export const deleteGatewayType = (id) => ({
-  type: DELETE_GATEWAYS_TYPE,
-  id,
-});
+export const deleteGatewayType = (id) => ({ type: DELETE_GATEWAYS_TYPE, id });
 
 // Sensor Action functions
 /**
  * Get Sensor List
  * @param {String} organization_uuid
  */
-export const getSensors = (organization_uuid) => ({
-  type: GET_SENSORS,
-  organization_uuid,
-});
+export const getSensors = (organization_uuid) => ({ type: GET_SENSORS, organization_uuid });
 
 /**
  * Add Sensor
@@ -205,72 +170,29 @@ export const editSensor = (payload, history, redirectTo) => ({
 
 /**
  * Delete Sensor
- * @param {Number} sensorId
- * @param {String} organization_uuid
+ * @param {Number} id
  */
-export const deleteSensor = (sensorId, organization_uuid) => ({
-  type: DELETE_SENSOR,
-  sensorId,
-  organization_uuid,
-});
+export const deleteSensor = (id) => ({ type: DELETE_SENSOR, id });
 
 /**
  * Get Sensor Type
  */
-export const getSensorType = () => ({
-  type: GET_SENSORS_TYPE,
-});
+export const getSensorType = () => ({ type: GET_SENSORS_TYPE });
 
 /**
  * Add Sensor Type
  * @param {Object} payload
  */
-export const addSensorType = (payload) => ({
-  type: ADD_SENSORS_TYPE,
-  payload,
-});
+export const addSensorType = (payload) => ({ type: ADD_SENSORS_TYPE, payload });
 
 /**
  * Edit Sensor Type
  * @param {Object} payload
  */
-export const editSensorType = (payload) => ({
-  type: EDIT_SENSORS_TYPE,
-  payload,
-});
+export const editSensorType = (payload) => ({ type: EDIT_SENSORS_TYPE, payload });
 
 /**
  * Delete Sensor Type
  * @param {Number} id
  */
-export const deleteSensorType = (id) => ({
-  type: DELETE_SENSORS_TYPE,
-  id,
-});
-
-/**
- * Get Sensor Report
- * @param {Array} partnerShipmentIds
- */
-export const getSensorReport = (partnerShipmentIds) => ({
-  type: GET_SENSOR_REPORT,
-  partnerShipmentIds,
-});
-
-/**
- * Get Aggregate Report
- * @param {Array} partnerShipmentIds
- */
-export const getAggregateReport = (partnerShipmentIds) => ({
-  type: GET_AGGREGATE_REPORT,
-  partnerShipmentIds,
-});
-
-/**
- * Get Sensor Alerts
- * @param {Array} partnerShipmentIds
- */
-export const getAllSensorAlerts = (partnerShipmentIds) => ({
-  type: GET_ALL_SENSOR_ALERTS,
-  partnerShipmentIds,
-});
+export const deleteSensorType = (id) => ({ type: DELETE_SENSORS_TYPE, id });

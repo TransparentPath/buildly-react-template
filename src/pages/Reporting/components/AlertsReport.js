@@ -9,12 +9,12 @@ import {
 import { makeStyles } from '@mui/styles';
 import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import DataTableWrapper from '../../../components/DataTableWrapper/DataTableWrapper';
+import { UserContext } from '../../../context/User.context';
+import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
 import {
   getAlertsReportColumns,
   ALERTS_REPORT_TOOLTIP,
 } from '../../../utils/constants';
-import { UserContext } from '@context/User.context';
-import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,7 +52,7 @@ const AlertsReport = ({
   const organization = useContext(UserContext).organization.organization_uuid;
 
   useEffect(() => {
-    if (!unitOfMeasure) {
+    if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
     }
   }, []);

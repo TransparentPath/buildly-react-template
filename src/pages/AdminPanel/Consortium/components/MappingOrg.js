@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import DataTableWrapper from '../../../../components/DataTableWrapper/DataTableWrapper';
+import { UserContext } from '../../../../context/User.context';
 import {
   loadAllOrgs,
 } from '../../../../redux/authuser/actions/authuser.actions';
@@ -21,13 +23,14 @@ const MappingOrg = ({
   allOrgs,
 }) => {
   const editPath = redirectTo || `${routes.CONSORTIUM}/mapping-edit`;
+  const organization = useContext(UserContext).organization.organization_uuid;
 
   useEffect(() => {
-    if (!allOrgs) {
+    if (_.isEmpty(allOrgs)) {
       dispatch(loadAllOrgs());
     }
-    if (!custodianData) {
-      dispatch(getCustodians());
+    if (_.isEmpty(custodianData)) {
+      dispatch(getCustodians(organization));
     }
   }, []);
 

@@ -11,9 +11,6 @@ import {
   EDIT_CUSTODIANS,
   EDIT_CUSTODIANS_SUCCESS,
   EDIT_CUSTODIANS_FAILURE,
-  UPDATE_CUSTODIAN,
-  UPDATE_CUSTODIAN_FAILURE,
-  UPDATE_CUSTODIAN_SUCCESS,
   DELETE_CUSTODIANS,
   DELETE_CUSTODIANS_FAILURE,
   DELETE_CUSTODIANS_SUCCESS,
@@ -26,9 +23,6 @@ import {
   EDIT_CUSTODY,
   EDIT_CUSTODY_SUCCESS,
   EDIT_CUSTODY_FAILURE,
-  UPDATE_CUSTODY,
-  UPDATE_CUSTODY_SUCCESS,
-  UPDATE_CUSTODY_FAILURE,
   DELETE_CUSTODY,
   DELETE_CUSTODY_SUCCESS,
   DELETE_CUSTODY_FAILURE,
@@ -53,9 +47,9 @@ const initialState = {
   loading: false,
   loaded: false,
   error: null,
-  custodianData: null,
-  custodianTypeList: null,
-  contactInfo: null,
+  custodianData: [],
+  custodianTypeList: [],
+  contactInfo: [],
 };
 
 // Reducer
@@ -64,12 +58,10 @@ export default (state = initialState, action) => {
     case GET_CUSTODIANS:
     case ADD_CUSTODIANS:
     case EDIT_CUSTODIANS:
-    case UPDATE_CUSTODIAN:
     case DELETE_CUSTODIANS:
     case GET_CUSTODY:
     case ADD_CUSTODY:
     case EDIT_CUSTODY:
-    case UPDATE_CUSTODY:
     case DELETE_CUSTODY:
     case GET_CUSTODIAN_TYPE:
     case ADD_CUSTODIAN_TYPE:
@@ -86,12 +78,10 @@ export default (state = initialState, action) => {
     case GET_CUSTODIANS_FAILURE:
     case ADD_CUSTODIANS_FAILURE:
     case EDIT_CUSTODIANS_FAILURE:
-    case UPDATE_CUSTODIAN_FAILURE:
     case DELETE_CUSTODIANS_FAILURE:
     case GET_CUSTODY_FAILURE:
     case ADD_CUSTODY_FAILURE:
     case EDIT_CUSTODY_FAILURE:
-    case UPDATE_CUSTODY_FAILURE:
     case DELETE_CUSTODY_FAILURE:
     case GET_CUSTODIAN_TYPE_FAILURE:
     case ADD_CUSTODIAN_TYPE_FAILURE:
@@ -114,8 +104,7 @@ export default (state = initialState, action) => {
       };
 
     case ADD_CUSTODIANS_SUCCESS:
-    case EDIT_CUSTODIANS_SUCCESS:
-    case UPDATE_CUSTODIAN_SUCCESS: {
+    case EDIT_CUSTODIANS_SUCCESS: {
       const found = _.find(
         state.custodianData,
         { id: action.data.id },
@@ -158,8 +147,7 @@ export default (state = initialState, action) => {
       };
 
     case ADD_CUSTODY_SUCCESS:
-    case EDIT_CUSTODY_SUCCESS:
-    case UPDATE_CUSTODY_SUCCESS: {
+    case EDIT_CUSTODY_SUCCESS: {
       const found = _.find(
         state.custodyData,
         { id: action.data.id },

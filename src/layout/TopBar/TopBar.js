@@ -16,7 +16,8 @@ import {
   Settings as SettingsIcon,
   Menu as MenuIcon,
 } from '@mui/icons-material';
-import logo from '@assets/tp-logo.png';
+import logo from '../../assets/tp-logo.png';
+import Loader from '../../components/Loader/Loader';
 import {
   logout,
   getUser,
@@ -36,7 +37,6 @@ import {
   checkForAdmin,
   checkForGlobalAdmin,
 } from '../../utils/utilMethods';
-import Loader from '../../components/Loader/Loader';
 import AdminMenu from './AdminMenu';
 import AccountMenu from './AccountMenu';
 

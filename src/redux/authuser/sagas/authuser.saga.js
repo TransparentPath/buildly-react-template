@@ -1,10 +1,9 @@
 import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
-import { httpService } from '@modules/http/http.service';
-import { oauthService } from '@modules/oauth/oauth.service';
-import { showAlert } from '@redux/alert/actions/alert.actions';
-import { routes } from '@routes/routesConstants';
+import { httpService } from '../../../modules/http/http.service';
+import { oauthService } from '../../../modules/oauth/oauth.service';
+import { showAlert } from '../../alert/actions/alert.actions';
 import {
   LOGIN,
   LOGIN_SUCCESS,
@@ -57,8 +56,9 @@ import {
   DELETE_ORG_TYPE,
   DELETE_ORG_TYPE_SUCCESS,
   DELETE_ORG_TYPE_FAILURE,
-} from '@redux/authuser/actions/authuser.actions';
-import { createDefaultUnits } from '@redux/items/actions/items.actions';
+} from '../actions/authuser.actions';
+import { createDefaultUnits } from '../../items/actions/items.actions';
+import { routes } from '../../../routes/routesConstants';
 
 function* logout() {
   try {
@@ -92,7 +92,8 @@ function* login(payload) {
     yield call(oauthService.setCurrentCoreUser, coreuser, user);
     yield [
       yield put({ type: LOGIN_SUCCESS, user }),
-      yield call(history.push, routes.SHIPMENT),
+      // yield call(history.push, routes.SHIPMENT),
+      yield call(history.push, routes.ITEMS),
     ];
   } catch (error) {
     yield [

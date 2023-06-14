@@ -1,18 +1,20 @@
 import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
-import { httpService } from '@modules/http/http.service';
-import { showAlert } from '@redux/alert/actions/alert.actions';
+import { httpService } from '../../../modules/http/http.service';
+import { showAlert } from '../../alert/actions/alert.actions';
 import {
-  getItems,
   GET_ITEMS,
   GET_ITEMS_SUCCESS,
   GET_ITEMS_FAILURE,
   ADD_ITEMS,
+  ADD_ITEMS_SUCCESS,
   ADD_ITEMS_FAILURE,
   EDIT_ITEMS,
+  EDIT_ITEMS_SUCCESS,
   EDIT_ITEMS_FAILURE,
   DELETE_ITEMS,
+  DELETE_ITEMS_SUCCESS,
   DELETE_ITEMS_FAILURE,
   GET_ITEMS_TYPE,
   GET_ITEMS_TYPE_SUCCESS,
@@ -63,6 +65,7 @@ import {
   DELETE_UNIT_OF_MEASURE_SUCCESS,
   DELETE_UNIT_OF_MEASURE_FAILURE,
   CREATE_DEFAULT_UNITS,
+  CREATE_DEFAULT_UNITS_SUCCESS,
   CREATE_DEFAULT_UNITS_FAILURE,
 } from '../actions/items.actions';
 
@@ -103,7 +106,7 @@ function* addItem(action) {
       payload,
     );
     yield [
-      yield put(getItems(payload.organization_uuid)),
+      yield put({ type: ADD_ITEMS_SUCCESS, item: data.data }),
       yield put(
         showAlert({
           type: 'success',
@@ -137,12 +140,12 @@ function* editItem(action) {
   try {
     const data = yield call(
       httpService.makeRequest,
-      'put',
+      'patch',
       `${window.env.API_URL}${shipmentApiEndPoint}item/${payload.id}/`,
       payload,
     );
     yield [
-      yield put(getItems(payload.organization_uuid)),
+      yield put({ type: EDIT_ITEMS_SUCCESS, item: data.data }),
       yield put(
         showAlert({
           type: 'success',
@@ -172,7 +175,7 @@ function* editItem(action) {
 }
 
 function* deleteItem(payload) {
-  const { itemId, organization_uuid } = payload;
+  const { itemId } = payload;
   try {
     yield call(
       httpService.makeRequest,
@@ -180,7 +183,7 @@ function* deleteItem(payload) {
       `${window.env.API_URL}${shipmentApiEndPoint}item/${itemId}/`,
     );
     yield [
-      yield put(getItems(organization_uuid)),
+      yield put({ type: DELETE_ITEMS_SUCCESS, id: itemId }),
       yield put(
         showAlert({
           type: 'success',
@@ -281,7 +284,7 @@ function* editItemType(action) {
   try {
     const data = yield call(
       httpService.makeRequest,
-      'put',
+      'patch',
       `${window.env.API_URL}${shipmentApiEndPoint}item_type/${payload.id}`,
       payload,
     );
@@ -327,7 +330,7 @@ function* deleteItemType(payload) {
     yield [
       yield put({
         type: DELETE_ITEMS_TYPE_SUCCESS,
-        itemType: { id: payload.id },
+        id: payload.id,
       }),
       yield put(
         showAlert({
@@ -425,7 +428,7 @@ function* editProducts(action) {
   try {
     const data = yield call(
       httpService.makeRequest,
-      'put',
+      'patch',
       `${window.env.API_URL}${shipmentApiEndPoint}product/${payload.id}`,
       payload,
     );
@@ -471,7 +474,7 @@ function* deleteProducts(payload) {
     yield [
       yield put({
         type: DELETE_PRODUCTS_SUCCESS,
-        product: { id: payload.id },
+        id: payload.id,
       }),
       yield put(
         showAlert({
@@ -569,7 +572,7 @@ function* editProductType(action) {
   try {
     const data = yield call(
       httpService.makeRequest,
-      'put',
+      'patch',
       `${window.env.API_URL}${shipmentApiEndPoint}product_type/${payload.id}`,
       payload,
     );
@@ -615,7 +618,7 @@ function* deleteProductType(payload) {
     yield [
       yield put({
         type: DELETE_PRODUCTS_TYPE_SUCCESS,
-        productType: { id: payload.id },
+        id: payload.id,
       }),
       yield put(
         showAlert({
@@ -716,7 +719,7 @@ function* editUnitOfMeasure(action) {
   try {
     const data = yield call(
       httpService.makeRequest,
-      'put',
+      'patch',
       `${window.env.API_URL}${shipmentApiEndPoint}unit_of_measure/${payload.id}`,
       payload,
     );
@@ -762,7 +765,7 @@ function* deleteUnitOfMeasure(payload) {
     yield [
       yield put({
         type: DELETE_UNIT_OF_MEASURE_SUCCESS,
-        unitOfMeasure: { id: payload.id },
+        id: payload.id,
       }),
       yield put(
         showAlert({
@@ -797,6 +800,7 @@ function* createDefaultUnits(payload) {
       `${window.env.API_URL}${shipmentApiEndPoint}create_default_unit_of_measures/`,
       { organization: payload.organization },
     );
+    yield put({ type: CREATE_DEFAULT_UNITS_SUCCESS, units: data.data });
   } catch (error) {
     yield [
       yield put(

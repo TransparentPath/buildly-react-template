@@ -19,7 +19,6 @@ import {
   ADD_PDF_IDENTIFIER,
   ADD_PDF_IDENTIFIER_SUCCESS,
   ADD_PDF_IDENTIFIER_FAILURE,
-  GET_REPORT_AND_ALERTS,
   GET_COUNTRIES_STATES,
   GET_COUNTRIES_STATES_SUCCESS,
   GET_COUNTRIES_STATES_FAILURE,
@@ -33,9 +32,9 @@ const initialState = {
   loaded: false,
   error: null,
   shipmentFormData: null,
-  shipmentData: null,
-  countries: null,
-  currencies: null,
+  shipmentData: [],
+  countries: [],
+  currencies: [],
 };
 
 // Reducer
@@ -50,15 +49,14 @@ export default (state = initialState, action) => {
         shipmentFormData: action.formData,
       };
 
-    case GET_REPORT_AND_ALERTS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: null,
-      };
-
     case GET_SHIPMENTS:
+    case ADD_SHIPMENT:
+    case EDIT_SHIPMENT:
+    case DELETE_SHIPMENT:
+    case GET_DASHBOARD_ITEMS:
+    case ADD_PDF_IDENTIFIER:
+    case GET_COUNTRIES_STATES:
+    case GET_CURRENCIES:
       return {
         ...state,
         loading: true,
@@ -66,13 +64,53 @@ export default (state = initialState, action) => {
         error: null,
       };
 
-    case GET_SHIPMENTS_SUCCESS: {
-      let shipmentData = state.shipmentData || [];
-      if (!_.isArray(action.data)) {
-        shipmentData = [...shipmentData, action.data];
-      } else {
-        shipmentData = action.data;
-      }
+    case GET_SHIPMENTS_FAILURE:
+    case ADD_SHIPMENT_FAILURE:
+    case EDIT_SHIPMENT_FAILURE:
+    case DELETE_SHIPMENT_FAILURE:
+    case GET_DASHBOARD_ITEMS_FAILURE:
+    case ADD_PDF_IDENTIFIER_FAILURE:
+    case GET_COUNTRIES_STATES_FAILURE:
+    case GET_CURRENCIES_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        error: action.error,
+      };
+
+    case GET_SHIPMENTS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        shipmentData: action.data,
+      };
+
+    case ADD_SHIPMENT_SUCCESS:
+    case EDIT_SHIPMENT_SUCCESS: {
+      const found = _.find(
+        state.shipmentData,
+        { id: action.shipment.id },
+      );
+      const shipmentData = found
+        ? _.map(state.shipmentData, (shipment) => (
+          shipment.id === action.shipment.id
+            ? action.shipment
+            : shipment
+        ))
+        : [...state.shipmentData, action.shipment];
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        shipmentData,
+      };
+    }
+
+    case DELETE_SHIPMENT_SUCCESS: {
+      const { shipmentData } = state;
+      _.remove(shipmentData, { id: action.id });
 
       return {
         ...state,
@@ -82,117 +120,12 @@ export default (state = initialState, action) => {
       };
     }
 
-    case GET_SHIPMENTS_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case ADD_SHIPMENT:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case ADD_SHIPMENT_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        shipmentData: action.data,
-      };
-
-    case ADD_SHIPMENT_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case EDIT_SHIPMENT:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case EDIT_SHIPMENT_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        shipmentData: action.data,
-        error: null,
-      };
-
-    case EDIT_SHIPMENT_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case DELETE_SHIPMENT:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
-    case DELETE_SHIPMENT_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        shipmentData: action.data,
-      };
-
-    case DELETE_SHIPMENT_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_DASHBOARD_ITEMS:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
     case GET_DASHBOARD_ITEMS_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
         dashboardItems: action.data,
-      };
-
-    case GET_DASHBOARD_ITEMS_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case ADD_PDF_IDENTIFIER:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
       };
 
     case ADD_PDF_IDENTIFIER_SUCCESS:
@@ -208,22 +141,6 @@ export default (state = initialState, action) => {
         },
       };
 
-    case ADD_PDF_IDENTIFIER_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_COUNTRIES_STATES:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
     case GET_COUNTRIES_STATES_SUCCESS:
       return {
         ...state,
@@ -232,36 +149,12 @@ export default (state = initialState, action) => {
         countries: action.countries,
       };
 
-    case GET_COUNTRIES_STATES_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
-      };
-
-    case GET_CURRENCIES:
-      return {
-        ...state,
-        loading: true,
-        loaded: false,
-        error: null,
-      };
-
     case GET_CURRENCIES_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
         currencies: action.currencies,
-      };
-
-    case GET_CURRENCIES_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: action.error,
       };
 
     default:

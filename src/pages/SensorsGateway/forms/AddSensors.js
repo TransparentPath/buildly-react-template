@@ -22,6 +22,7 @@ import FormModal from '../../../components/Modal/FormModal';
 import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { UserContext } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
+import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
 import {
   editSensor,
   addSensor,
@@ -29,7 +30,6 @@ import {
 import { routes } from '../../../routes/routesConstants';
 import { validators } from '../../../utils/validators';
 import SearchModal from '../Sensors/SearchModal';
-import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const useStyles = makeStyles((theme) => ({
   chip: {
@@ -128,7 +128,7 @@ const AddSensor = ({
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
   useEffect(() => {
-    if (!unitOfMeasure) {
+    if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
     }
   }, []);
@@ -140,12 +140,7 @@ const AddSensor = ({
   }, [sensorOptions]);
 
   useEffect(() => {
-    if (
-      gatewayData
-      && gatewayData.length
-      && editData.gateway
-      && associatedGateway === null
-    ) {
+    if (!_.isEmpty(gatewayData) && editData.gateway && associatedGateway === null) {
       _.forEach(gatewayData, (gtwy) => {
         if (gtwy.url === editData.gateway) {
           setAccociatedGateway(gtwy);

@@ -12,10 +12,10 @@ import {
 import {
   getSensorOptions,
 } from '../../../redux/options/actions/options.actions';
+import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
 import { routes } from '../../../routes/routesConstants';
 import { sensorsColumns, getSensorFormattedRow } from '../../../utils/constants';
 import AddSensors from '../forms/AddSensors';
-import { getUnitOfMeasure } from '@redux/items/actions/items.actions';
 
 const Sensors = ({
   dispatch,
@@ -43,25 +43,20 @@ const Sensors = ({
     : `${routes.SENSORS_GATEWAY}/sensor/edit`;
 
   useEffect(() => {
-    if (sensorData === null) {
+    if (_.isEmpty(sensorData)) {
       dispatch(getSensors(organization));
       dispatch(getSensorType());
     }
-    if (sensorOptions === null) {
+    if (_.isEmpty(sensorOptions)) {
       dispatch(getSensorOptions());
     }
-    if (!unitOfMeasure) {
+    if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
     }
   }, []);
 
   useEffect(() => {
-    if (
-      sensorData
-      && sensorData.length
-      && sensorTypeList
-      && sensorTypeList.length
-    ) {
+    if (!_.isEmpty(sensorData) && !_.isEmpty(sensorTypeList)) {
       setRows(getSensorFormattedRow(sensorData, sensorTypeList, gatewayData));
     }
   }, [sensorData, sensorTypeList]);
