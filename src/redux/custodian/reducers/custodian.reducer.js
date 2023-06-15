@@ -125,9 +125,10 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_CUSTODIANS_SUCCESS: {
-      const { custodianData, contactInfo } = state;
-      _.remove(contactInfo, { id: action.data.contactId });
-      _.remove(custodianData, { id: action.data.custodianId });
+      const contactInfo = _.filter(state.contactInfo, (info) => info.id !== action.data.contactId);
+      const custodianData = _.filter(state.custodianData, (custodian) => (
+        custodian.id !== action.data.custodianId
+      ));
 
       return {
         ...state,
@@ -170,8 +171,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_CUSTODY_SUCCESS: {
-      const { custodyData } = state;
-      _.remove(custodyData, { id: action.data.id });
+      const custodyData = _.filter(state.custodyData, (custody) => custody.id !== action.data.id);
 
       return {
         ...state,
@@ -219,11 +219,10 @@ export default (state = initialState, action) => {
       };
     }
     case DELETE_CUSTODIAN_TYPE_SUCCESS: {
-      const { custodianTypeList } = state;
-      _.remove(
-        custodianTypeList,
-        { id: action.data.id },
-      );
+      const custodianTypeList = _.filter(state.custodianTypeList, (custType) => (
+        custType.id !== action.data.id
+      ));
+
       return {
         ...state,
         loading: false,

@@ -92,8 +92,7 @@ function* login(payload) {
     yield call(oauthService.setCurrentCoreUser, coreuser, user);
     yield [
       yield put({ type: LOGIN_SUCCESS, user }),
-      // yield call(history.push, routes.SHIPMENT),
-      yield call(history.push, routes.ITEMS),
+      yield call(history.push, routes.SHIPMENT),
     ];
   } catch (error) {
     yield [

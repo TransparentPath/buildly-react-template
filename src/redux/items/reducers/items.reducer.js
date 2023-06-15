@@ -165,8 +165,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_ITEMS_SUCCESS: {
-      const { itemData } = state;
-      _.remove(itemData, { id: action.id });
+      const itemData = _.filter(state.itemData, (item) => item.id !== action.id);
 
       return {
         ...state,
@@ -206,8 +205,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_ITEMS_TYPE_SUCCESS: {
-      const { itemTypeList } = state;
-      _.remove(itemTypeList, { id: action.id });
+      const itemTypeList = _.filter(state.itemTypeList, (itemType) => itemType.id !== action.id);
 
       return {
         ...state,
@@ -247,8 +245,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_PRODUCTS_SUCCESS: {
-      const { products } = state;
-      _.remove(products, { id: action.id });
+      const products = _.filter(state.products, (product) => product.id !== action.id);
 
       return {
         ...state,
@@ -288,8 +285,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_PRODUCTS_TYPE_SUCCESS: {
-      const { productType } = state;
-      _.remove(productType, { id: action.id });
+      const productType = _.filter(state.productType, (prodType) => prodType.id !== action.id);
 
       return {
         ...state,
@@ -329,8 +325,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_UNIT_OF_MEASURE_SUCCESS: {
-      const { unitOfMeasure } = state;
-      _.remove(unitOfMeasure, { id: action.id });
+      const unitOfMeasure = _.filter(state.unitOfMeasure, (uom) => uom.id !== action.id);
 
       return {
         ...state,

@@ -540,6 +540,7 @@ const Reporting = ({
         shipmentName={selectedShipment && selectedShipment.name}
         selectedMarker={selectedShipment && selectedMarker}
         unitOfMeasure={unitOfMeasure}
+        timezone={timezone}
       />
       <AlertsReport
         loading={loading}

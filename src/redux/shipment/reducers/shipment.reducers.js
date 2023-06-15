@@ -109,8 +109,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_SHIPMENT_SUCCESS: {
-      const { shipmentData } = state;
-      _.remove(shipmentData, { id: action.id });
+      const shipmentData = _.filter(state.shipmentData, (shipment) => shipment.id !== action.id);
 
       return {
         ...state,

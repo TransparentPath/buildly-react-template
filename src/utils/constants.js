@@ -956,7 +956,7 @@ export const REPORT_TYPES = (unitOfMeasure) => ([
   { id: 'probe', name: 'Probe Temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
 ]);
 
-export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
+export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
   {
     name: 'alert_status',
     label: 'ALERT STATUS',
@@ -974,6 +974,20 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      customBodyRender: (value) => {
+        const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+          : '';
+        const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+          : '';
+
+        return (
+          value && value !== '-'
+            ? moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`)
+            : value
+        );
+      },
     },
   },
   {
@@ -993,7 +1007,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (value && (value > 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1003,7 +1017,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.isNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1013,7 +1027,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.isNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1023,7 +1037,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.isNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1034,7 +1048,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.isNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1045,7 +1059,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.isNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1056,7 +1070,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.isNumber(value) ? value : 'N/A'),
+      customBodyRender: (value) => (_.toNumber(value) ? value : 'N/A'),
     },
   },
   {
@@ -1067,7 +1081,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (value && (value > 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
 ]);

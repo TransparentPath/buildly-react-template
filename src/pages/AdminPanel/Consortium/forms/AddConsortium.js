@@ -232,7 +232,7 @@ const AddConsortium = ({
                     option && option.name
                   )}
                   isOptionEqualToValue={(option, value) => (
-                    option.organization_uuid === value
+                    !value || (value && (option.organization_uuid === value))
                   )}
                   value={orgs}
                   onChange={(e, newValue) => onInputChange(newValue)}

@@ -145,8 +145,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_GATEWAY_SUCCESS: {
-      const { gatewayData } = state;
-      _.remove(gatewayData, { id: action.id });
+      const gatewayData = _.filter(state.gatewayData, (gateway) => gateway.id !== action.id);
 
       return {
         ...state,
@@ -193,8 +192,9 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_GATEWAYS_TYPE_SUCCESS: {
-      const { gatewayTypeList } = state;
-      _.remove(gatewayTypeList, { id: action.id });
+      const gatewayTypeList = _.filter(state.gatewayTypeList, (gatewayType) => (
+        gatewayType.id !== action.id
+      ));
 
       return {
         ...state,
@@ -234,8 +234,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_SENSOR_SUCCESS: {
-      const { sensorData } = state;
-      _.remove(sensorData, { id: action.id });
+      const sensorData = _.filter(state.sensorData, (sensor) => sensor.id !== action.id);
 
       return {
         ...state,
@@ -275,8 +274,9 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_SENSORS_TYPE_SUCCESS: {
-      const { sensorTypeList } = state;
-      _.remove(sensorTypeList, { id: action.id });
+      const sensorTypeList = _.filter(state.sensorTypeList, (sensorType) => (
+        sensorType.id !== action.id
+      ));
 
       return {
         ...state,

@@ -83,10 +83,26 @@ function* addCustodian(action) {
     );
     if (contactData && contactData.data) {
       const contactInfo = contactData.data.url;
-      const custodianPayload = {
+      let custodianPayload = {
         ...custodian,
         contact_data: [contactInfo],
       };
+
+      if (!custodian.custody_org_uuid) {
+        const response = yield call(
+          httpService.makeRequest,
+          'post',
+          `${window.env.API_URL}organization/`,
+          { name: custodianPayload.name },
+        );
+        if (response && response.data) {
+          custodianPayload = {
+            ...custodianPayload,
+            custody_org_uuid: response.data.organization_uuid,
+          };
+        }
+      }
+
       const data = yield call(
         httpService.makeRequest,
         'post',

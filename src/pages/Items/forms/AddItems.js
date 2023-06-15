@@ -408,7 +408,9 @@ const AddItems = ({
                         onChange={(event, newValue) => onProductChange(newValue)}
                         style={{ flex: 1 }}
                         getOptionLabel={(option) => option && option.name}
-                        isOptionEqualToValue={(option, value) => option.name === value.name}
+                        isOptionEqualToValue={(option, value) => (
+                          !value || (value && (option.name === value.name))
+                        )}
                         renderInput={(params) => (
                           <TextField
                             {...params}

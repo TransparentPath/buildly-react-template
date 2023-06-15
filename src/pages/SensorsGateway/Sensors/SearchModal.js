@@ -52,7 +52,9 @@ const SearchModal = ({
             id="tags-outlined"
             options={listOfItems}
             getOptionLabel={(option) => option && `${option.name}:${option.gateway_uuid}`}
-            isOptionEqualToValue={(option, value) => `${option.name}:${option.gateway_uuid}` === `${value.name}:${value.gateway_uuid}`}
+            isOptionEqualToValue={(option, value) => (
+              !value || (value && (`${option.name}:${option.gateway_uuid}` === `${value.name}:${value.gateway_uuid}`))
+            )}
             onChange={(event, newValue) => setList(newValue)}
             defaultValue={selectedList}
             style={{ flex: 1 }}
