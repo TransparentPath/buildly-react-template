@@ -16,10 +16,6 @@ export const DELETE_SHIPMENT = 'SHIPMENT/DELETE_SHIPMENT';
 export const DELETE_SHIPMENT_SUCCESS = 'SHIPMENT/DELETE_SHIPMENT_SUCCESS';
 export const DELETE_SHIPMENT_FAILURE = 'SHIPMENT/DELETE_SHIPMENT_FAILURE';
 
-export const GET_DASHBOARD_ITEMS = 'SHIPMENT/GET_DASHBOARD_ITEMS';
-export const GET_DASHBOARD_ITEMS_SUCCESS = 'SHIPMENT/GET_DASHBOARD_ITEMS_SUCCESS';
-export const GET_DASHBOARD_ITEMS_FAILURE = 'SHIPMENT/GET_DASHBOARD_ITEMS_FAILURE';
-
 export const ADD_PDF_IDENTIFIER = 'SHIPMENT/ADD_PDF_IDENTIFIER';
 export const ADD_PDF_IDENTIFIER_SUCCESS = 'SHIPMENT/ADD_PDF_IDENTIFIER_SUCCESS';
 export const ADD_PDF_IDENTIFIER_FAILURE = 'SHIPMENT/ADD_PDF_IDENTIFIER_FAILURE';
@@ -45,9 +41,15 @@ export const saveShipmentFormData = (formData) => ({
  * Get Shipment Details
  * @param {String} organization_uuid
  */
-export const getShipmentDetails = (organization_uuid) => ({
+export const getShipmentDetails = (
+  organization_uuid = null,
+  status = null,
+  fetchRelatedData = false,
+) => ({
   type: GET_SHIPMENTS,
   organization_uuid,
+  status,
+  fetchRelatedData,
 });
 
 /**
@@ -81,15 +83,6 @@ export const editShipment = (payload, history, redirectTo) => ({
  * @param {string} id
  */
 export const deleteShipment = (id) => ({ type: DELETE_SHIPMENT, id });
-
-/**
- * Get Dashboard Items
- * @param {String} organization_uuid
- */
-export const getDashboardItems = (organization_uuid) => ({
-  type: GET_DASHBOARD_ITEMS,
-  organization_uuid,
-});
 
 /**
  * PDF Identifier

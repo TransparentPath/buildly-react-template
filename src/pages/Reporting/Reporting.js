@@ -29,14 +29,8 @@ import CustomizedTooltips from '../../components/ToolTip/ToolTip';
 import { UserContext } from '../../context/User.context';
 import {
   getCustodians,
-  getCustodianType,
   getContact,
-  getCustody,
 } from '../../redux/custodian/actions/custodian.actions';
-import {
-  getSensors,
-  getSensorType,
-} from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
 } from '../../redux/shipment/actions/shipment.actions';
@@ -114,7 +108,6 @@ const Reporting = ({
   shipmentData,
   custodianData,
   custodyData,
-  sensorData,
   contactInfo,
   unitOfMeasure,
   timezone,
@@ -170,45 +163,30 @@ const Reporting = ({
   };
 
   useEffect(() => {
-    if (_.isEmpty(unitOfMeasure)) {
-      dispatch(getUnitOfMeasure(organization));
-    }
+    dispatch(getUnitOfMeasure(organization));
     if (_.isEmpty(markers)) {
       setTimeout(() => setMapLoaded(true), 1000);
     }
   }, []);
 
   useEffect(() => {
-    if (!shipmentData || shipmentFilter === 'Active') {
-      dispatch(getShipmentDetails(organization));
+    if (_.isEmpty(shipmentData) || shipmentFilter === 'Active') {
+      dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
     } else {
       const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
       // const cancelledShipments =
       // _.filter(shipmentData, (shipment) => shipment.type === 'Cancelled');
 
       if (!completedShipments.length || shipmentFilter === 'Completed') {
-        dispatch(getShipmentDetails(organization));
+        dispatch(getShipmentDetails(organization, 'Completed', true));
       }
       // if (!cancelledShipments.length) {
-      //   dispatch(getShipmentDetails(organization));
+      //   dispatch(getShipmentDetails(organization, 'Cancelled', true));
       // }
-      const UUIDS = _.map(shipmentData, 'shipment_uuid');
-      const encodedUUIDs = encodeURIComponent(UUIDS);
-      if (encodedUUIDs) {
-        dispatch(getCustody(encodedUUIDs));
-      }
     }
     if (_.isEmpty(custodianData)) {
       dispatch(getCustodians(organization));
-      dispatch(getCustodianType());
       dispatch(getContact(organization));
-    }
-    // if (_.isEmpty(custodyData)) {
-    //   dispatch(getCustody());
-    // }
-    if (_.isEmpty(sensorData)) {
-      dispatch(getSensors(organization));
-      dispatch(getSensorType());
     }
   }, [shipmentFilter]);
 

@@ -4,6 +4,8 @@ import {
 import _ from 'lodash';
 import { httpService } from '../../../modules/http/http.service';
 import { showAlert } from '../../alert/actions/alert.actions';
+import { getCustody } from '../../custodian/actions/custodian.actions';
+import { getAllSensorAlerts } from '../../sensorsGateway/actions/sensorsGateway.actions';
 import {
   GET_SHIPMENTS,
   GET_SHIPMENTS_SUCCESS,
@@ -17,9 +19,6 @@ import {
   DELETE_SHIPMENT,
   DELETE_SHIPMENT_SUCCESS,
   DELETE_SHIPMENT_FAILURE,
-  GET_DASHBOARD_ITEMS,
-  GET_DASHBOARD_ITEMS_SUCCESS,
-  GET_DASHBOARD_ITEMS_FAILURE,
   ADD_PDF_IDENTIFIER,
   ADD_PDF_IDENTIFIER_SUCCESS,
   ADD_PDF_IDENTIFIER_FAILURE,
@@ -34,17 +33,21 @@ import {
 const shipmentApiEndPoint = 'shipment/';
 
 function* getShipmentList(payload) {
+  const { organization_uuid, status, fetchRelatedData } = payload;
   try {
-    let query_params = `?organization_uuid=${payload.organization_uuid}`;
+    let query_params = `?organization_uuid=${organization_uuid}`;
 
     const response = yield call(
       httpService.makeRequest,
       'get',
-      `${window.env.API_URL}consortium/?organization_uuid=${payload.organization_uuid}`,
+      `${window.env.API_URL}consortium/?organization_uuid=${organization_uuid}`,
     );
     const consortium_uuid = _.join(_.map(response.data, 'consortium_uuid'), ',');
     if (consortium_uuid) {
       query_params = query_params.concat(`&consortium_uuid=${consortium_uuid}`);
+    }
+    if (status) {
+      query_params = query_params.concat(`&status=${status}`);
     }
 
     const data = yield call(
@@ -53,18 +56,28 @@ function* getShipmentList(payload) {
       `${window.env.API_URL}${shipmentApiEndPoint}shipment/${query_params}`,
     );
     if (data && data.data) {
-      let shipment_data = data.data;
-      if (_.isArray(shipment_data)) {
-        shipment_data = _.filter(shipment_data, (shipment) => _.toLower(shipment.platform_name) !== 'iclp');
+      const shipments = _.filter(data.data, (shipment) => _.toLower(shipment.platform_name) !== 'iclp');
+      if (fetchRelatedData) {
+        const uuids = _.toString(_.without(_.map(shipments, 'shipment_uuid'), null));
+        const partnerIds = _.toString(_.without(_.map(shipments, 'partner_shipment_id'), null));
+        const encodedUUIDs = encodeURIComponent(uuids);
+        const encodedPartnerIds = encodeURIComponent(partnerIds);
+
+        if (encodedUUIDs) {
+          yield put(getCustody(encodedUUIDs));
+        }
+        if (encodedPartnerIds) {
+          yield put(getAllSensorAlerts(encodedPartnerIds));
+        }
       }
 
       yield [
-        yield put({ type: GET_SHIPMENTS_SUCCESS, data: shipment_data }),
+        yield put({ type: GET_SHIPMENTS_SUCCESS, data: shipments }),
         yield put(
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully fetched all shipment data',
+            message: 'Successfully fetched shipment(s) data',
           }),
         ),
       ];
@@ -183,34 +196,6 @@ function* deleteShipment(payload) {
         }),
       ),
       yield put({ type: DELETE_SHIPMENT_FAILURE, error }),
-    ];
-  }
-}
-
-function* getDashboard(payload) {
-  try {
-    const data = yield call(
-      httpService.makeRequest,
-      'get',
-      `${window.env.API_URL}${shipmentApiEndPoint}dashboard/?organization_uuid=${payload.organization_uuid}`,
-    );
-    yield put({
-      type: GET_DASHBOARD_ITEMS_SUCCESS,
-      data: data.data,
-    });
-  } catch (error) {
-    yield [
-      yield put(
-        showAlert({
-          type: 'error',
-          open: true,
-          message: 'Couldn\'t load data due to some error!',
-        }),
-      ),
-      yield put({
-        type: GET_DASHBOARD_ITEMS_FAILURE,
-        error,
-      }),
     ];
   }
 }

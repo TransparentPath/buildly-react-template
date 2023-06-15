@@ -121,14 +121,14 @@ const PushNotification = ({ dispatch, loaded, user }) => {
         );
         setAlerts(filteredAlerts);
       }
-      if (msg.command === 'new_alert') {
-        dispatch(getShipmentDetails(user.organization.organization_uuid));
-        setAlerts([...alerts, ...pushAlerts]);
-      }
-      if (msg.command === 'reload_data') {
-        console.log('Reloading data');
-        dispatch(getShipmentDetails(user.organization.organization_uuid));
-      }
+      // if (msg.command === 'new_alert') {
+      //   dispatch(getShipmentDetails(user.organization.organization_uuid));
+      //   setAlerts([...alerts, ...pushAlerts]);
+      // }
+      // if (msg.command === 'reload_data') {
+      //   console.log('Reloading data');
+      //   dispatch(getShipmentDetails(user.organization.organization_uuid));
+      // }
     };
   };
 

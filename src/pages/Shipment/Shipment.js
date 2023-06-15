@@ -12,16 +12,10 @@ import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper
 import { UserContext } from '../../context/User.context';
 import {
   getContact,
-  getCustodianType,
   getCustodians,
-  getCustody,
 } from '../../redux/custodian/actions/custodian.actions';
-import { getItemType, getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
-import { getCustodyOptions, getShipmentOptions } from '../../redux/options/actions/options.actions';
-import {
-  getGatewayType,
-  getGateways,
-} from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
+import { getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
+import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 import { getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
 
@@ -60,11 +54,9 @@ const Shipment = ({
   gatewayData,
   custodyData,
   loading,
-  shipmentOptions,
-  custodyOptions,
   timezone,
   unitOfMeasure,
-  allAlerts,
+  allSensorAlerts,
   aggregateReportData,
 }) => {
   const classes = useStyles();
@@ -100,54 +92,13 @@ const Shipment = ({
   );
 
   useEffect(() => {
-    if (_.isEmpty(shipmentData) || (
-      !_.isEmpty(shipmentData) && _.isEmpty(_.filter(shipmentData, (ship) => (
-        _.includes(['Planned', 'Enroute'], ship.status)
-      )))
-    )) {
-      dispatch(getShipmentDetails(organization));
-    } else {
-      const UUIDS = _.map(_.filter(shipmentData, (shipment) => shipment.type === 'Active'), 'shipment_uuid');
-      const uuids = _.toString(_.without(UUIDS, null));
-      const encodedUUIDs = encodeURIComponent(uuids);
-      if (encodedUUIDs) {
-        dispatch(getCustody(encodedUUIDs));
-      }
-    }
-
-    if (_.isEmpty(custodianData)) {
-      dispatch(getCustodians(organization));
-      dispatch(getCustodianType());
-      dispatch(getContact(organization));
-    }
-    if (_.isEmpty(itemData)) {
-      dispatch(getItems(organization));
-      dispatch(getItemType(organization));
-    }
-    if (_.isEmpty(gatewayData)) {
-      dispatch(getGateways(organization));
-      dispatch(getGatewayType());
-    }
-    if (_.isEmpty(shipmentOptions)) {
-      dispatch(getShipmentOptions());
-    }
-    if (_.isEmpty(custodyOptions)) {
-      dispatch(getCustodyOptions());
-    }
-    if (_.isEmpty(unitOfMeasure)) {
-      dispatch(getUnitOfMeasure(organization));
-    }
+    dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
+    dispatch(getCustodians(organization));
+    dispatch(getContact(organization));
+    dispatch(getItems(organization));
+    dispatch(getGateways(organization));
+    dispatch(getUnitOfMeasure(organization));
   }, []);
-
-  // useEffect(() => {
-  //   if (!_.isEmpty(shipmentData)) {
-  //     const uuids = _.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null));
-  //     const encodedUUIDs = encodeURIComponent(uuids);
-  //     if (encodedUUIDs) {
-  //       dispatch(getAllSensorAlerts(encodedUUIDs));
-  //     }
-  //   }
-  // }, [shipmentData]);
 
   useEffect(() => {
     const formattedRows = getShipmentFormattedRow(
@@ -156,111 +107,111 @@ const Shipment = ({
       custodyData,
       itemData,
       gatewayData,
-      allAlerts,
+      allSensorAlerts,
     );
 
     const filteredRows = _.filter(formattedRows, { type: shipmentFilter });
     setRows(filteredRows);
     setSelectedShipment(!_.isEmpty(filteredRows) ? filteredRows[0] : null);
-  }, [shipmentFilter, shipmentData, custodianData, custodyData, itemData, gatewayData]);
+  }, [shipmentFilter, shipmentData, custodianData, custodyData, itemData, gatewayData, allSensorAlerts]);
 
-  useEffect(() => {
-    const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
-    const timeFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
-    let markersToSet = [];
+  // useEffect(() => {
+  //   const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
+  //   const timeFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
+  //   let markersToSet = [];
 
-    if (!_.isEmpty(aggregateReportData)) {
-      let counter = 0;
-      _.forEach(aggregateReportData, (report) => {
-        _.forEach(report.report_entries, (report_entry) => {
-          try {
-            counter += 1;
-            let marker = {};
-            const temperature = report_entry.report_temp;
-            let dateTime = '';
-            if ('report_timestamp' in report_entry) {
-              if (report_entry.report_timestamp !== null) {
-                dateTime = moment(report_entry.report_timestamp)
-                  .tz(timezone).format(`${dateFormat} ${timeFormat}`);
-              }
-            } else if ('report_location' in report_entry) {
-              dateTime = moment(
-                report_entry.report_location.timeOfPosition,
-              ).tz(timezone).format(`${dateFormat} ${timeFormat}`);
-            }
+  //   if (!_.isEmpty(aggregateReportData)) {
+  //     let counter = 0;
+  //     _.forEach(aggregateReportData, (report) => {
+  //       _.forEach(report.report_entries, (report_entry) => {
+  //         try {
+  //           counter += 1;
+  //           let marker = {};
+  //           const temperature = report_entry.report_temp;
+  //           let dateTime = '';
+  //           if ('report_timestamp' in report_entry) {
+  //             if (report_entry.report_timestamp !== null) {
+  //               dateTime = moment(report_entry.report_timestamp)
+  //                 .tz(timezone).format(`${dateFormat} ${timeFormat}`);
+  //             }
+  //           } else if ('report_location' in report_entry) {
+  //             dateTime = moment(
+  //               report_entry.report_location.timeOfPosition,
+  //             ).tz(timezone).format(`${dateFormat} ${timeFormat}`);
+  //           }
 
-            // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
-            if (report_entry.report_location !== null
-              && report_entry.report_latitude !== null
-              && report_entry.report_longitude !== null) {
-              const latitude = report_entry.report_latitude
-                || report_entry.report_location.latitude;
-              const longitude = report_entry.report_longitude
-                || report_entry.report_location.longitude;
-              if (
-                (latitude >= -90
-                  && latitude <= 90)
-                && (longitude >= -180
-                  && longitude <= 180)
-                && dateTime !== ''
-              ) {
-                marker = {
-                  lat: latitude,
-                  lng: longitude,
-                  location: report_entry.report_location,
-                  label: 'Clustered',
-                  temperature,
-                  light: report_entry.report_light,
-                  shock: report_entry.report_shock,
-                  tilt: report_entry.report_tilt,
-                  humidity: report_entry.report_humidity,
-                  battery: report_entry.report_battery,
-                  pressure: report_entry.report_pressure,
-                  probe: report_entry.report_probe,
-                  color: 'green',
-                  timestamp: dateTime,
-                };
-                // Considered use case: If a shipment stays at some
-                // position for long, other value changes can be
-                // critical
-                const markerFound = _.find(markersToSet, {
-                  lat: marker.lat,
-                  lng: marker.lng,
-                });
+  //           // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
+  //           if (report_entry.report_location !== null
+  //             && report_entry.report_latitude !== null
+  //             && report_entry.report_longitude !== null) {
+  //             const latitude = report_entry.report_latitude
+  //               || report_entry.report_location.latitude;
+  //             const longitude = report_entry.report_longitude
+  //               || report_entry.report_location.longitude;
+  //             if (
+  //               (latitude >= -90
+  //                 && latitude <= 90)
+  //               && (longitude >= -180
+  //                 && longitude <= 180)
+  //               && dateTime !== ''
+  //             ) {
+  //               marker = {
+  //                 lat: latitude,
+  //                 lng: longitude,
+  //                 location: report_entry.report_location,
+  //                 label: 'Clustered',
+  //                 temperature,
+  //                 light: report_entry.report_light,
+  //                 shock: report_entry.report_shock,
+  //                 tilt: report_entry.report_tilt,
+  //                 humidity: report_entry.report_humidity,
+  //                 battery: report_entry.report_battery,
+  //                 pressure: report_entry.report_pressure,
+  //                 probe: report_entry.report_probe,
+  //                 color: 'green',
+  //                 timestamp: dateTime,
+  //               };
+  //               // Considered use case: If a shipment stays at some
+  //               // position for long, other value changes can be
+  //               // critical
+  //               const markerFound = _.find(markersToSet, {
+  //                 lat: marker.lat,
+  //                 lng: marker.lng,
+  //               });
 
-                if (!markerFound) {
-                  markersToSet = [...markersToSet, marker];
-                }
-              }
-            } else {
-              marker = {
-                lat: '*',
-                lng: '*',
-                location: 'N/A',
-                label: 'Clustered',
-                temperature,
-                light: report_entry.report_light,
-                shock: report_entry.report_shock,
-                tilt: report_entry.report_tilt,
-                humidity: report_entry.report_humidity,
-                battery: report_entry.report_battery,
-                pressure: report_entry.report_pressure,
-                probe: report_entry.report_probe,
-                color: 'green',
-                timestamp: dateTime,
-              };
-            }
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log(e);
-          }
-        });
-      });
-    }
+  //               if (!markerFound) {
+  //                 markersToSet = [...markersToSet, marker];
+  //               }
+  //             }
+  //           } else {
+  //             marker = {
+  //               lat: '*',
+  //               lng: '*',
+  //               location: 'N/A',
+  //               label: 'Clustered',
+  //               temperature,
+  //               light: report_entry.report_light,
+  //               shock: report_entry.report_shock,
+  //               tilt: report_entry.report_tilt,
+  //               humidity: report_entry.report_humidity,
+  //               battery: report_entry.report_battery,
+  //               pressure: report_entry.report_pressure,
+  //               probe: report_entry.report_probe,
+  //               color: 'green',
+  //               timestamp: dateTime,
+  //             };
+  //           }
+  //         } catch (e) {
+  //           // eslint-disable-next-line no-console
+  //           console.log(e);
+  //         }
+  //       });
+  //     });
+  //   }
 
-    setMarkers(markersToSet);
-    setSelectedMarker(markersToSet[0]);
-  }, [aggregateReportData, unitOfMeasure]);
+  //   setMarkers(markersToSet);
+  //   setSelectedMarker(markersToSet[0]);
+  // }, [aggregateReportData, unitOfMeasure]);
 
   const filterTabClicked = (event, filter) => {
     let shipmentStatus = '';
@@ -271,13 +222,14 @@ const Shipment = ({
       default:
         shipmentStatus = 'Planned,Enroute';
         break;
+
       case 'Completed':
       case 'Cancelled':
         shipmentStatus = filter;
         break;
     }
 
-    dispatch(getShipmentDetails(organization));
+    dispatch(getShipmentDetails(organization, shipmentStatus, true));
   };
 
   return (

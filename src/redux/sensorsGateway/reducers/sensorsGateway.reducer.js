@@ -51,8 +51,10 @@ import {
   DELETE_SENSORS_TYPE,
   DELETE_SENSORS_TYPE_SUCCESS,
   DELETE_SENSORS_TYPE_FAILURE,
+  GET_ALL_SENSOR_ALERTS,
+  GET_ALL_SENSOR_ALERTS_SUCCESS,
+  GET_ALL_SENSOR_ALERTS_FAILURE,
 } from '../actions/sensorsGateway.actions';
-import { ca } from 'date-fns/locale';
 
 const initialState = {
   loading: false,
@@ -62,6 +64,7 @@ const initialState = {
   gatewayTypeList: [],
   sensorData: [],
   sensorTypeList: [],
+  allSensorAlerts: [],
 };
 
 // Reducer
@@ -84,6 +87,7 @@ export default (state = initialState, action) => {
     case EDIT_SENSORS_TYPE:
     case DELETE_SENSORS_TYPE:
     case GET_NEW_GATEWAYS:
+    case GET_ALL_SENSOR_ALERTS:
       return {
         ...state,
         loading: true,
@@ -108,6 +112,7 @@ export default (state = initialState, action) => {
     case EDIT_SENSORS_TYPE_FAILURE:
     case DELETE_SENSORS_TYPE_FAILURE:
     case GET_NEW_GATEWAYS_FAILURE:
+    case GET_ALL_SENSOR_ALERTS_FAILURE:
       return {
         ...state,
         loading: false,
@@ -285,6 +290,14 @@ export default (state = initialState, action) => {
         sensorTypeList,
       };
     }
+
+    case GET_ALL_SENSOR_ALERTS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        allSensorAlerts: action.alerts,
+      };
 
     default:
       return state;

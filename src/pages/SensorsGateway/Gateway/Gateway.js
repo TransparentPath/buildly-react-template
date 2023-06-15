@@ -4,17 +4,13 @@ import { Route } from 'react-router-dom';
 import _ from 'lodash';
 import DataTableWrapper from '../../../components/DataTableWrapper/DataTableWrapper';
 import { UserContext } from '../../../context/User.context';
+import { getContact, getCustodians } from '../../../redux/custodian/actions/custodian.actions';
+import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
 import {
   getGateways,
   getGatewayType,
   deleteGateway,
 } from '../../../redux/sensorsGateway/actions/sensorsGateway.actions';
-import {
-  getCustodians,
-  getCustodianType,
-  getContact,
-} from '../../../redux/custodian/actions/custodian.actions';
-import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
 import {
   getShipmentDetails,
 } from '../../../redux/shipment/actions/shipment.actions';
@@ -32,7 +28,6 @@ const Gateway = ({
   shipmentData,
   timezone,
   custodianData,
-  aggregateReportData,
   unitOfMeasure,
 }) => {
   const [openDeleteModal, setDeleteModal] = useState(false);
@@ -51,14 +46,10 @@ const Gateway = ({
   useEffect(() => {
     dispatch(getGateways(organization));
     dispatch(getGatewayType());
-    dispatch(getShipmentDetails(organization));
     dispatch(getCustodians(organization));
-    dispatch(getCustodianType());
     dispatch(getContact(organization));
-
-    if (_.isEmpty(unitOfMeasure)) {
-      dispatch(getUnitOfMeasure(organization));
-    }
+    dispatch(getShipmentDetails(organization, 'Planned,Enroute'));
+    dispatch(getUnitOfMeasure(organization));
   }, []);
 
   useEffect(() => {

@@ -13,9 +13,6 @@ import {
   DELETE_SHIPMENT,
   DELETE_SHIPMENT_SUCCESS,
   DELETE_SHIPMENT_FAILURE,
-  GET_DASHBOARD_ITEMS,
-  GET_DASHBOARD_ITEMS_SUCCESS,
-  GET_DASHBOARD_ITEMS_FAILURE,
   ADD_PDF_IDENTIFIER,
   ADD_PDF_IDENTIFIER_SUCCESS,
   ADD_PDF_IDENTIFIER_FAILURE,
@@ -53,7 +50,6 @@ export default (state = initialState, action) => {
     case ADD_SHIPMENT:
     case EDIT_SHIPMENT:
     case DELETE_SHIPMENT:
-    case GET_DASHBOARD_ITEMS:
     case ADD_PDF_IDENTIFIER:
     case GET_COUNTRIES_STATES:
     case GET_CURRENCIES:
@@ -68,7 +64,6 @@ export default (state = initialState, action) => {
     case ADD_SHIPMENT_FAILURE:
     case EDIT_SHIPMENT_FAILURE:
     case DELETE_SHIPMENT_FAILURE:
-    case GET_DASHBOARD_ITEMS_FAILURE:
     case ADD_PDF_IDENTIFIER_FAILURE:
     case GET_COUNTRIES_STATES_FAILURE:
     case GET_CURRENCIES_FAILURE:
@@ -118,14 +113,6 @@ export default (state = initialState, action) => {
         shipmentData,
       };
     }
-
-    case GET_DASHBOARD_ITEMS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        dashboardItems: action.data,
-      };
 
     case ADD_PDF_IDENTIFIER_SUCCESS:
       return {

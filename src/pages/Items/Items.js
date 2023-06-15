@@ -9,13 +9,7 @@ import {
   deleteItem,
   getItemType,
   getUnitOfMeasure,
-  getProducts,
-  getProductType,
 } from '../../redux/items/actions/items.actions';
-import {
-  getItemsOptions,
-  getProductsOptions,
-} from '../../redux/options/actions/options.actions';
 import { routes } from '../../routes/routesConstants';
 import { itemColumns, getItemFormattedRow } from '../../utils/constants';
 import AddItems from './forms/AddItems';
@@ -28,9 +22,6 @@ const Items = ({
   itemTypeList,
   redirectTo,
   unitOfMeasure,
-  products,
-  itemOptions,
-  productOptions,
 }) => {
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState('');
@@ -46,23 +37,9 @@ const Items = ({
     : `${routes.ITEMS}/edit`;
 
   useEffect(() => {
-    if (_.isEmpty(itemData)) {
-      dispatch(getItems(organization));
-      dispatch(getItemType(organization));
-    }
-    if (_.isEmpty(unitOfMeasure)) {
-      dispatch(getUnitOfMeasure(organization));
-    }
-    if (_.isEmpty(products)) {
-      dispatch(getProducts(organization));
-      dispatch(getProductType(organization));
-    }
-    if (_.isEmpty(itemOptions)) {
-      dispatch(getItemsOptions());
-    }
-    if (_.isEmpty(productOptions)) {
-      dispatch(getProductsOptions());
-    }
+    dispatch(getItems(organization));
+    dispatch(getItemType(organization));
+    dispatch(getUnitOfMeasure(organization));
   }, []);
 
   useEffect(() => {

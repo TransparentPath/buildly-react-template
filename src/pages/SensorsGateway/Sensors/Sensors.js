@@ -43,16 +43,10 @@ const Sensors = ({
     : `${routes.SENSORS_GATEWAY}/sensor/edit`;
 
   useEffect(() => {
-    if (_.isEmpty(sensorData)) {
-      dispatch(getSensors(organization));
-      dispatch(getSensorType());
-    }
-    if (_.isEmpty(sensorOptions)) {
-      dispatch(getSensorOptions());
-    }
-    if (_.isEmpty(unitOfMeasure)) {
-      dispatch(getUnitOfMeasure(organization));
-    }
+    dispatch(getSensors(organization));
+    dispatch(getSensorType());
+    dispatch(getSensorOptions());
+    dispatch(getUnitOfMeasure(organization));
   }, []);
 
   useEffect(() => {

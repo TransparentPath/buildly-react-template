@@ -6,15 +6,9 @@ import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper
 import { UserContext } from '../../context/User.context';
 import {
   getCustodians,
-  getCustodianType,
   deleteCustodian,
   getContact,
-  getCustody,
 } from '../../redux/custodian/actions/custodian.actions';
-import {
-  getCustodianOptions,
-  getContactOptions,
-} from '../../redux/options/actions/options.actions';
 import { getCountries } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
 import {
@@ -31,9 +25,6 @@ const Custodian = ({
   loading,
   contactInfo,
   redirectTo,
-  custodyData,
-  custodianOptions,
-  contactOptions,
 }) => {
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState('');
@@ -50,28 +41,16 @@ const Custodian = ({
     : `${routes.CUSTODIANS}/edit`;
 
   useEffect(() => {
-    if (_.isEmpty(custodianData)) {
-      dispatch(getCustodians(organization));
-      dispatch(getCustodianType());
-      dispatch(getContact(organization));
-    }
-    if (_.isEmpty(custodyData)) {
-      dispatch(getCustody());
-    }
-    if (_.isEmpty(custodianOptions)) {
-      dispatch(getCustodianOptions());
-    }
-    if (_.isEmpty(contactOptions)) {
-      dispatch(getContactOptions());
-    }
+    dispatch(getCustodians(organization));
+    dispatch(getContact(organization));
     dispatch(getCountries());
   }, []);
 
   useEffect(() => {
-    if (custodianData && custodianData.length && contactInfo && contactInfo.length) {
+    if (!_.isEmpty(custodianData) && !_.isEmpty(contactInfo)) {
       setRows(getCustodianFormattedRow(custodianData, contactInfo));
     }
-  }, [JSON.stringify(custodianData), JSON.stringify(contactInfo)]);
+  }, [custodianData, contactInfo]);
 
   const editItem = (item) => {
     const contactObj = getUniqueContactInfo(item, contactInfo);
@@ -129,11 +108,6 @@ const Custodian = ({
 const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.custodianReducer,
-  ...state.optionsReducer,
-  loading: (
-    state.custodianReducer.loading
-    || state.optionsReducer.loading
-  ),
 });
 
 export default connect(mapStateToProps)(Custodian);

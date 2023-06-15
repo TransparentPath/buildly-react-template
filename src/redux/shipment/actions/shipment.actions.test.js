@@ -17,7 +17,12 @@ describe('Save Shipment Form Data action', () => {
 describe('Get Shipment Details action', () => {
   it('should create an action to get shipment details', () => {
     const organization_uuid = 'gweiug-3t2igf-3yfhf-329hgds73';
-    const expectedAction = { type: actions.GET_SHIPMENTS, organization_uuid };
+    const expectedAction = {
+      type: actions.GET_SHIPMENTS,
+      organization_uuid,
+      status: null,
+      fetchRelatedData: false,
+    };
     expect(actions.getShipmentDetails(organization_uuid)).toEqual(expectedAction);
   });
 });
@@ -60,18 +65,6 @@ describe('Delete Shipment action', () => {
     const id = 1;
     const expectedAction = { type: actions.DELETE_SHIPMENT, id };
     expect(actions.deleteShipment(id)).toEqual(expectedAction);
-  });
-});
-
-// Test Get DashBoard Items action
-describe('Get DashBoard Items action', () => {
-  it('should create an action to get dashboard items', () => {
-    const organization_uuid = 'gweiug-3t2igf-3yfhf-329hgds73';
-    const expectedAction = {
-      type: actions.GET_DASHBOARD_ITEMS,
-      organization_uuid,
-    };
-    expect(actions.getDashboardItems(organization_uuid)).toEqual(expectedAction);
   });
 });
 

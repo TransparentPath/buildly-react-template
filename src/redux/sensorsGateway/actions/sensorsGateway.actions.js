@@ -68,6 +68,10 @@ export const DELETE_SENSORS_TYPE = 'SENSORS/DELETE_SENSORS_TYPE';
 export const DELETE_SENSORS_TYPE_SUCCESS = 'SENSORS/DELETE_SENSORS_TYPE_SUCCESS';
 export const DELETE_SENSORS_TYPE_FAILURE = 'SENSORS/DELETE_SENSORS_TYPE_FAILURE';
 
+export const GET_ALL_SENSOR_ALERTS = 'SENSORS/GET_ALL_SENSOR_ALERTS';
+export const GET_ALL_SENSOR_ALERTS_SUCCESS = 'SENSORS/GET_ALL_SENSOR_ALERTS_SUCCESS';
+export const GET_ALL_SENSOR_ALERTS_FAILURE = 'SENSORS/GET_ALL_SENSOR_ALERTS_FAILURE';
+
 // Gateway action functions
 /**
  *  Get Gateway List
@@ -196,3 +200,12 @@ export const editSensorType = (payload) => ({ type: EDIT_SENSORS_TYPE, payload }
  * @param {Number} id
  */
 export const deleteSensorType = (id) => ({ type: DELETE_SENSORS_TYPE, id });
+
+/**
+ * Get All Sensor Alerts
+ * @param {Array} partnerShipmentIds
+ */
+export const getAllSensorAlerts = (partnerShipmentIds) => ({
+  type: GET_ALL_SENSOR_ALERTS,
+  partnerShipmentIds,
+});

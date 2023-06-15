@@ -25,9 +25,6 @@ const showValue = (value, timezone, dateFormat, timeFormat) => (
 export const ALERTS_REPORT_TOOLTIP = 'Shipment Alerts till current time';
 export const CONSORTIUM_TOOLTIP = 'Consortium(s) available in this Organization';
 export const CUSTODIAN_TYPE_TOOLTIP = 'Custodian Type(s) available in the system';
-export const DASHBOARD_DELAY_TOOLTIP = 'Shipments which are delayed';
-export const DASHBOARD_MAP_TOOLTIP = 'Start and end locations of custodians which have current custody of the shipments that are currently enroute.';
-export const DASHBOARD_RECALL_TOOLTIP = 'Shipments which are either recalled or have violations such as temperature, humidity and delay';
 export const GATEWAY_TYPE_TOOLTIP = 'Gateway Type(s) available in the system';
 export const ITEM_TYPE_TOOLTIP = 'Item Type(s) available in the system';
 export const MAPPING_TOOLTIP = 'Mapping Custodian to Organization(s)';
@@ -253,7 +250,7 @@ export const getUniqueContactInfo = (rowItem, contactInfo) => {
   return obj;
 };
 
-export const getCustodianFormattedRow = (data, contactInfo, custodyData) => {
+export const getCustodianFormattedRow = (data, contactInfo) => {
   if (data && data.length && contactInfo && contactInfo.length) {
     let customizedRow = [];
     _.forEach(data, (rowItem) => {
@@ -1617,22 +1614,13 @@ export const getShipmentFormattedRow = (
       // First custody can be
       // 1. A custody whose first_custody is set to True
       // 2. The custody attached very first to the shipment
-      const custodies = _.orderBy(_.filter(custodyRows,
-        { shipment_id: editedShipment.shipment_uuid }), 'create_date', 'asc');
+      const custodies = _.orderBy(_.filter(custodyRows, { shipment_id: editedShipment.shipment_uuid }), 'create_date', 'asc');
 
       [firstCustody] = _.filter(custodies, { first_custody: true });
-      if (firstCustody === undefined) {
-        origin = 'N/A';
-      } else {
-        origin = firstCustody.custodian_name;
-      }
-
       [lastCustody] = _.filter(custodies, { last_custody: true });
-      if (lastCustody === undefined) {
-        destination = 'N/A';
-      } else {
-        destination = lastCustody.custodian_name;
-      }
+
+      origin = firstCustody ? firstCustody.custodian_name : 'N/A';
+      destination = lastCustody ? lastCustody.custodian_name : 'N/A';
     }
     editedShipment.origin = origin;
     editedShipment.destination = destination;

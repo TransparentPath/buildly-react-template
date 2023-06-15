@@ -56,6 +56,9 @@ import {
   DELETE_SENSORS_TYPE,
   DELETE_SENSORS_TYPE_SUCCESS,
   DELETE_SENSORS_TYPE_FAILURE,
+  GET_ALL_SENSOR_ALERTS,
+  GET_ALL_SENSOR_ALERTS_SUCCESS,
+  GET_ALL_SENSOR_ALERTS_FAILURE,
 } from '../actions/sensorsGateway.actions';
 
 const sensorApiEndPoint = 'sensors/';
@@ -582,6 +585,28 @@ function* deleteSensorType(payload) {
   }
 }
 
+function* getSensorAlerts(payload) {
+  try {
+    const response = yield call(
+      httpService.makeRequest,
+      'get',
+      `${window.env.API_URL}${sensorApiEndPoint}sensor_report_alert/?shipment_ids=${payload.partnerShipmentIds}`,
+    );
+    yield put({ type: GET_ALL_SENSOR_ALERTS_SUCCESS, alerts: response.data });
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Couldn\'t load sensor alerts due to some error!',
+        }),
+      ),
+      yield put({ type: GET_ALL_SENSOR_ALERTS_FAILURE, error }),
+    ];
+  }
+}
+
 function* watchGetGateway() {
   yield takeLatest(GET_GATEWAYS, getGatewayList);
 }
@@ -650,6 +675,10 @@ function* watchDeleteSensorType() {
   yield takeLatest(DELETE_SENSORS_TYPE, deleteSensorType);
 }
 
+function* watchGetAllSensorAlerts() {
+  yield takeLatest(GET_ALL_SENSOR_ALERTS, getSensorAlerts);
+}
+
 export default function* sensorsGatewaySaga() {
   yield all([
     watchGetGateway(),
@@ -669,5 +698,6 @@ export default function* sensorsGatewaySaga() {
     watchAddSensorType(),
     watchEditSensorType(),
     watchDeleteSensorType(),
+    watchGetAllSensorAlerts(),
   ]);
 }

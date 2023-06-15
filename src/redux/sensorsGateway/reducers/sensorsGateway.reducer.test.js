@@ -9,6 +9,7 @@ const initialState = {
   gatewayTypeList: [],
   sensorData: [],
   sensorTypeList: [],
+  allSensorAlerts: [],
 };
 
 describe('Get Gateway reducer', () => {
@@ -635,6 +636,42 @@ describe('Delete Sensor type reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.DELETE_SENSORS_TYPE_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Get All Sensor Alerts reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_ALL_SENSOR_ALERTS },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Get All Sensor Alerts success Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_ALL_SENSOR_ALERTS_SUCCESS, alerts: [] },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      allSensorAlerts: [],
+    });
+  });
+
+  it('Get All Sensor Alerts fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_ALL_SENSOR_ALERTS_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,

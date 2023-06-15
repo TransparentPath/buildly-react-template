@@ -172,42 +172,6 @@ describe('Delete Shipment reducer', () => {
   });
 });
 
-describe('Get DashBoard Items reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_DASHBOARD_ITEMS },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Get DashBoard Items success Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_DASHBOARD_ITEMS_SUCCESS },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      dashboardItems: undefined,
-    });
-  });
-
-  it('Get DashBoard Items fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_DASHBOARD_ITEMS_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
 describe('Add PDF Identifier reducer', () => {
   it('Empty Reducer', () => {
     expect(reducer.default(
