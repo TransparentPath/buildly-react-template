@@ -12,6 +12,9 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     margin: '0px',
+    '& .MuiFormControl-root': {
+      width: '100%',
+    },
   },
   popperSx: {
     '& .MuiPaper-root': {

@@ -22,6 +22,12 @@ import {
   GET_CURRENCIES,
   GET_CURRENCIES_SUCCESS,
   GET_CURRENCIES_FAILURE,
+  GET_SHIPMENT_TEMPLATES,
+  GET_SHIPMENT_TEMPLATES_SUCCESS,
+  GET_SHIPMENT_TEMPLATES_FAILURE,
+  ADD_SHIPMENT_TEMPLATE,
+  ADD_SHIPMENT_TEMPLATE_SUCCESS,
+  ADD_SHIPMENT_TEMPLATE_FAILURE,
 } from '../actions/shipment.actions';
 
 const initialState = {
@@ -32,6 +38,7 @@ const initialState = {
   shipmentData: [],
   countries: [],
   currencies: [],
+  templates: [],
 };
 
 // Reducer
@@ -53,6 +60,8 @@ export default (state = initialState, action) => {
     case ADD_PDF_IDENTIFIER:
     case GET_COUNTRIES_STATES:
     case GET_CURRENCIES:
+    case GET_SHIPMENT_TEMPLATES:
+    case ADD_SHIPMENT_TEMPLATE:
       return {
         ...state,
         loading: true,
@@ -67,6 +76,8 @@ export default (state = initialState, action) => {
     case ADD_PDF_IDENTIFIER_FAILURE:
     case GET_COUNTRIES_STATES_FAILURE:
     case GET_CURRENCIES_FAILURE:
+    case GET_SHIPMENT_TEMPLATES_FAILURE:
+    case ADD_SHIPMENT_TEMPLATE_FAILURE:
       return {
         ...state,
         loading: false,
@@ -141,6 +152,22 @@ export default (state = initialState, action) => {
         loading: false,
         loaded: true,
         currencies: action.currencies,
+      };
+
+    case GET_SHIPMENT_TEMPLATES_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        templates: action.data,
+      };
+
+    case ADD_SHIPMENT_TEMPLATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        templates: [...state.templates, action.data],
       };
 
     default:

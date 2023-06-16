@@ -115,3 +115,21 @@ describe('Get currencies action', () => {
     expect(actions.getCurrencies()).toEqual(expectedAction);
   });
 });
+
+// Test Get Shipment Template action
+describe('Get Shipment Template action', () => {
+  it('should create an action to get shipment template', () => {
+    const organization_uuid = 'gweiug-3t2igf-3yfhf-329hgds73';
+    const expectedAction = { type: actions.GET_SHIPMENT_TEMPLATES, organization_uuid };
+    expect(actions.getShiipmentTemplates(organization_uuid)).toEqual(expectedAction);
+  });
+});
+
+// Test Add Shipment Template action
+describe('Add Shipment Template action', () => {
+  it('should create an action to add shipment template', () => {
+    const payload = { name: 'Test template' };
+    const expectedAction = { type: actions.ADD_SHIPMENT_TEMPLATE, payload };
+    expect(actions.addShipmentTemplate(payload)).toEqual(expectedAction);
+  });
+});

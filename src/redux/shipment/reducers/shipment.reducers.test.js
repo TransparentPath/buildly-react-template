@@ -9,6 +9,7 @@ const initialState = {
   shipmentData: [],
   countries: [],
   currencies: [],
+  templates: [],
 };
 
 describe('Save Shipment Form Data reducer', () => {
@@ -276,6 +277,79 @@ describe('Get currencies reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.GET_CURRENCIES_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Get Shipment Template reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_SHIPMENT_TEMPLATES },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('get Shipment Template success Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_SHIPMENT_TEMPLATES_SUCCESS, data: [] },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      templates: [],
+    });
+  });
+
+  it('get Shipment Template fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_SHIPMENT_TEMPLATES_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Add Shipment Template reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.ADD_SHIPMENT_TEMPLATE },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Add Shipment Template success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
+    expect(reducer.default(
+      initialState,
+      { type: actions.ADD_SHIPMENT_TEMPLATE_SUCCESS, data },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      templates: [data],
+    });
+  });
+
+  it('Add Shipment Template fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.ADD_SHIPMENT_TEMPLATE_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,

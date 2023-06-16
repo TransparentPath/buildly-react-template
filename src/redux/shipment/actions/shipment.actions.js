@@ -28,6 +28,14 @@ export const GET_CURRENCIES = 'SHIPMENT/GET_CURRENCIES';
 export const GET_CURRENCIES_SUCCESS = 'SHIPMENT/GET_CURRENCIES_SUCCESS';
 export const GET_CURRENCIES_FAILURE = 'SHIPMENT/GET_CURRENCIES_FAILURE';
 
+export const GET_SHIPMENT_TEMPLATES = 'SHIPMENT/GET_SHIPMENT_TEMPLATES';
+export const GET_SHIPMENT_TEMPLATES_SUCCESS = 'SHIPMENT/GET_SHIPMENT_TEMPLATES_SUCCESS';
+export const GET_SHIPMENT_TEMPLATES_FAILURE = 'SHIPMENT/GET_SHIPMENT_TEMPLATES_FAILURE';
+
+export const ADD_SHIPMENT_TEMPLATE = 'SHIPMENT/ADD_SHIPMENT_TEMPLATE';
+export const ADD_SHIPMENT_TEMPLATE_SUCCESS = 'SHIPMENT/ADD_SHIPMENT_TEMPLATE_SUCCESS';
+export const ADD_SHIPMENT_TEMPLATE_FAILURE = 'SHIPMENT/ADD_SHIPMENT_TEMPLATE_FAILURE';
+
 /**
  * Save Shipment Form Data
  * @param {Object} formData
@@ -122,3 +130,18 @@ export const getCountries = () => ({ type: GET_COUNTRIES_STATES });
  * Get currencies
  */
 export const getCurrencies = () => ({ type: GET_CURRENCIES });
+
+/**
+ * Get Shipment templates
+ * @param {String} organization_uuid
+ */
+export const getShiipmentTemplates = (organization_uuid) => ({
+  type: GET_SHIPMENT_TEMPLATES,
+  organization_uuid,
+});
+
+/**
+ * Add Shipment Template
+ * @param {Object} payload
+ */
+export const addShipmentTemplate = (payload) => ({ type: ADD_SHIPMENT_TEMPLATE, payload });

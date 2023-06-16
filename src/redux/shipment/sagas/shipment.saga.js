@@ -28,6 +28,12 @@ import {
   GET_CURRENCIES,
   GET_CURRENCIES_SUCCESS,
   GET_CURRENCIES_FAILURE,
+  GET_SHIPMENT_TEMPLATES,
+  GET_SHIPMENT_TEMPLATES_SUCCESS,
+  GET_SHIPMENT_TEMPLATES_FAILURE,
+  ADD_SHIPMENT_TEMPLATE,
+  ADD_SHIPMENT_TEMPLATE_SUCCESS,
+  ADD_SHIPMENT_TEMPLATE_FAILURE,
 } from '../actions/shipment.actions';
 
 const shipmentApiEndPoint = 'shipment/';
@@ -360,6 +366,71 @@ function* getCurrencies() {
   }
 }
 
+function* getShipmentTemplates(payload) {
+  const { organization_uuid } = payload;
+  try {
+    const response = yield call(
+      httpService.makeRequest,
+      'get',
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment_template/?organization_uuid=${organization_uuid}`,
+    );
+    yield [
+      yield put({ type: GET_SHIPMENT_TEMPLATES_SUCCESS, data: response.data }),
+      yield put(
+        showAlert({
+          type: 'success',
+          open: true,
+          message: 'Successfully fetched shipment template(s)',
+        }),
+      ),
+    ];
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Couldn\'t load shipment template(s) due to some error!',
+        }),
+      ),
+      yield put({ type: GET_SHIPMENT_TEMPLATES_FAILURE, error }),
+    ];
+  }
+}
+
+function* addShipmentTemplate(action) {
+  const { payload } = action;
+  try {
+    const response = yield call(
+      httpService.makeRequest,
+      'post',
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment_template/`,
+      payload,
+    );
+    yield [
+      yield put(
+        showAlert({
+          type: 'success',
+          open: true,
+          message: 'Successfully Added Shipment Template',
+        }),
+      ),
+      yield put({ type: ADD_SHIPMENT_TEMPLATE_SUCCESS, data: response.data }),
+    ];
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Error in creating shipment template',
+        }),
+      ),
+      yield put({ type: ADD_SHIPMENT_TEMPLATE_FAILURE, error }),
+    ];
+  }
+}
+
 function* watchGetShipment() {
   yield takeLatest(GET_SHIPMENTS, getShipmentList);
 }
@@ -388,6 +459,14 @@ function* watchGetCurrencies() {
   yield takeLatest(GET_CURRENCIES, getCurrencies);
 }
 
+function* watchGetShipmentTemplates() {
+  yield takeLatest(GET_SHIPMENT_TEMPLATES, getShipmentTemplates);
+}
+
+function* watchAddShipmentTemplate() {
+  yield takeLatest(ADD_SHIPMENT_TEMPLATE, addShipmentTemplate);
+}
+
 export default function* shipmentSaga() {
   yield all([
     watchGetShipment(),
@@ -397,5 +476,7 @@ export default function* shipmentSaga() {
     watchPdfIdentifier(),
     watchGetCountries(),
     watchGetCurrencies(),
+    watchGetShipmentTemplates(),
+    watchAddShipmentTemplate(),
   ]);
 }

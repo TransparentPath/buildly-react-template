@@ -2,6 +2,11 @@ import { routes } from '../../routes/routesConstants';
 
 export const NAVIGATION_ITEMS = [
   {
+    id: 'create-shipment',
+    name: 'Create Shipment',
+    link: routes.CREATE_SHIPMENT,
+  },
+  {
     id: 'shipment',
     name: 'Shipments',
     link: routes.SHIPMENT,
