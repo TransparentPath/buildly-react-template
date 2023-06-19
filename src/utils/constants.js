@@ -220,6 +220,15 @@ export const custodianColumns = [
     },
   },
   {
+    name: 'abbrevation',
+    label: 'Abbrevation',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
     name: 'location',
     label: 'Location',
     options: {

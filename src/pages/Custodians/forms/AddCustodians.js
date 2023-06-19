@@ -5,7 +5,6 @@ import {
   Button,
   TextField,
   Card,
-  CircularProgress,
   CardContent,
   Typography,
   useTheme,
@@ -14,8 +13,9 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
+import Loader from '../../../components/Loader/Loader';
 import FormModal from '../../../components/Modal/FormModal';
+import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { UserContext } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
 import {
@@ -49,9 +49,6 @@ const useStyles = makeStyles((theme) => ({
     left: '50%',
     marginTop: -12,
     marginLeft: -12,
-  },
-  loadingWrapper: {
-    position: 'relative',
   },
   addressContainer: {
     marginTop: theme.spacing(4),
@@ -94,7 +91,7 @@ const AddCustodians = ({
   const company = useInput(editData.name || '', {
     required: true,
   });
-  const alias = useInput(editData.custodian_alias || '');
+  const abbrevation = useInput(editData.abbrevation || '');
   const custodianType = useInput(editData.custodian_type || '', {
     required: true,
   });
@@ -189,7 +186,7 @@ const AddCustodians = ({
     }
 
     const custodianFormValue = {
-      custodian_alias: alias.value,
+      abbrevation: _.toUpper(abbrevation.value),
       custodian_type: custodianType.value,
       name: company.value,
       custodian_glns: glnNumber.value,
@@ -277,6 +274,7 @@ const AddCustodians = ({
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
+          {loading && <Loader open={loading} />}
           <form
             className={classes.form}
             noValidate
@@ -329,22 +327,25 @@ const AddCustodians = ({
                 sm={6}
               >
                 <TextField
-                  variant="filled"
+                  variant="outlined"
                   margin="normal"
                   fullWidth
-                  disabled
-                  id="alias"
-                  label="Alias"
-                  name="alias"
-                  autoComplete="alias"
-                  {...alias.bind}
+                  id="abbrevation"
+                  label="Abbrevation"
+                  name="abbrevation"
+                  autoComplete="abbrevation"
+                  inputProps={{
+                    maxLength: 7,
+                    style: { textTransform: 'uppercase' },
+                  }}
+                  {...abbrevation.bind}
                 />
-                {custodianMetaData.alias
-                && custodianMetaData.alias.help_text
+                {custodianMetaData.abbrevation
+                && custodianMetaData.abbrevation.help_text
                 && (
                   <CustomizedTooltips
                     toolTipText={
-                      custodianMetaData.alias.help_text
+                      custodianMetaData.abbrevation.help_text
                     }
                   />
                 )}
@@ -676,24 +677,16 @@ const AddCustodians = ({
               justifyContent="center"
             >
               <Grid item xs={12} sm={4}>
-                <div className={classes.loadingWrapper}>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    disabled={loading || submitDisabled()}
-                  >
-                    {buttonText}
-                  </Button>
-                  {loading && (
-                    <CircularProgress
-                      size={24}
-                      className={classes.buttonProgress}
-                    />
-                  )}
-                </div>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  disabled={loading || submitDisabled()}
+                >
+                  {buttonText}
+                </Button>
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Button

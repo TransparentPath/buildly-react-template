@@ -135,7 +135,7 @@ export const getCurrencies = () => ({ type: GET_CURRENCIES });
  * Get Shipment templates
  * @param {String} organization_uuid
  */
-export const getShiipmentTemplates = (organization_uuid) => ({
+export const getShipmentTemplates = (organization_uuid) => ({
   type: GET_SHIPMENT_TEMPLATES,
   organization_uuid,
 });

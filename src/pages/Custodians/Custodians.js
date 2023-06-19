@@ -8,6 +8,7 @@ import {
   getCustodians,
   deleteCustodian,
   getContact,
+  getCustodianType,
 } from '../../redux/custodian/actions/custodian.actions';
 import { getCountries } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
@@ -42,6 +43,7 @@ const Custodian = ({
 
   useEffect(() => {
     dispatch(getCustodians(organization));
+    dispatch(getCustodianType());
     dispatch(getContact(organization));
     dispatch(getCountries());
   }, []);

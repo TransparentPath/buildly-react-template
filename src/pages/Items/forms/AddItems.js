@@ -5,7 +5,6 @@ import {
   useTheme,
   Button,
   TextField,
-  CircularProgress,
   InputAdornment,
   Grid,
   MenuItem,
@@ -16,6 +15,7 @@ import {
   Autocomplete,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import Loader from '../../../components/Loader/Loader';
 import FormModal from '../../../components/Modal/FormModal';
 import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { UserContext } from '../../../context/User.context';
@@ -42,9 +42,6 @@ const useStyles = makeStyles((theme) => ({
     left: '50%',
     marginTop: -12,
     marginLeft: -12,
-  },
-  loadingWrapper: {
-    position: 'relative',
   },
   cardItems: {
     margin: theme.spacing(4, 0),
@@ -306,6 +303,7 @@ const AddItems = ({
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
+          {loading && <Loader open={loading} />}
           <form
             className={classes.form}
             noValidate
@@ -820,24 +818,16 @@ const AddItems = ({
               justifyContent="center"
             >
               <Grid item xs={12} sm={4}>
-                <div className={classes.loadingWrapper}>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    disabled={loading || submitDisabled()}
-                  >
-                    {buttonText}
-                  </Button>
-                  {loading && (
-                    <CircularProgress
-                      size={24}
-                      className={classes.buttonProgress}
-                    />
-                  )}
-                </div>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  disabled={loading || submitDisabled()}
+                >
+                  {buttonText}
+                </Button>
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Button

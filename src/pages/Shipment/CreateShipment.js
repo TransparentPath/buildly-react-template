@@ -6,6 +6,7 @@ import moment from 'moment-timezone';
 import {
   Autocomplete,
   Box,
+  Button,
   Checkbox,
   Chip,
   FormControl,
@@ -19,7 +20,16 @@ import {
   useTheme,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { CheckBox as CheckBoxIcon, CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon, LocationOn as LocationIcon } from '@mui/icons-material';
+import {
+  BoltOutlined as ShockIcon,
+  CheckBox as CheckBoxIcon,
+  CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
+  LightModeOutlined as LightIcon,
+  LocationOn as LocationIcon,
+  Opacity as HumidityIcon,
+  Thermostat as TemperatureIcon,
+} from '@mui/icons-material';
+import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import DatePickerComponent from '../../components/DatePicker/DatePicker';
 import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
@@ -27,11 +37,10 @@ import { UserContext } from '../../context/User.context';
 import { useInput } from '../../hooks/useInput';
 import { getContact, getCustodians } from '../../redux/custodian/actions/custodian.actions';
 import { getItemType, getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
-import { getShiipmentTemplates } from '../../redux/shipment/actions/shipment.actions';
+import { addShipmentTemplate, getShipmentTemplates } from '../../redux/shipment/actions/shipment.actions';
 import { getCustodianFormattedRow, getItemFormattedRow, itemColumns } from '../../utils/constants';
-import { SHIPMENT_STATUS } from '../../utils/mock';
+import { SHIPMENT_STATUS, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
 import { validators } from '../../utils/validators';
-import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
     border: `1px solid ${theme.palette.background.light}`,
     padding: `${theme.spacing(2)} ${theme.spacing(4)}`,
     borderRadius: theme.spacing(1),
+    marginBottom: theme.spacing(2),
   },
   legend: {
     fontSize: theme.spacing(1.5),
@@ -57,24 +67,45 @@ const useStyles = makeStyles((theme) => ({
   outerAsterisk: {
     fontSize: theme.spacing(4),
     color: theme.palette.secondary.main,
-    padding: `${theme.spacing(2)} !important`,
-    paddingTop: `${theme.spacing(7)} !important`,
+    paddingLeft: `${theme.spacing(2)} !important`,
+    paddingTop: `${theme.spacing(5)} !important`,
   },
   adjustSpacing: {
     marginRight: theme.spacing(6),
   },
+  alertSettingText: {
+    color: theme.palette.background.light,
+  },
+  highest: {
+    fontWeight: 700,
+    color: theme.palette.error.main,
+  },
+  lowest: {
+    fontWeight: 700,
+    color: theme.palette.info.main,
+  },
 }));
 
-const CreateShipment = ({ dispatch, loading, templates, custodianData, contactInfo, timezone, unitOfMeasure, itemData, itemTypeList }) => {
+const CreateShipment = ({
+  dispatch,
+  loading,
+  templates,
+  custodianData,
+  contactInfo,
+  timezone,
+  unitOfMeasure,
+  itemData,
+  itemTypeList,
+}) => {
   const classes = useStyles();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
-  const organization = useContext(UserContext).organization;
+  const { organization } = useContext(UserContext);
 
-  let formTitle = 'Create Shipment';
+  const formTitle = 'Create Shipment';
   let latLongChanged = false;
 
-  const template = useInput('');
+  const [template, setTemplate] = useState('');
   const [custodianList, setCustodianList] = useState([]);
   const [originCustodian, setOriginCustodian] = useState('');
   const [originAbb, setOriginAbb] = useState('');
@@ -86,20 +117,33 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
   const [endingAddress, setEndingAddress] = useState('');
   const [endingLocation, setEndingLocation] = useState('');
 
-  const [departureDateTime, setDepartureDateTime] = useState(moment().startOf("day").hour(12).minute(0));
-  const [arrivalDateTime, setArrivalDateTime] = useState(moment().startOf("day").hour(12).minute(0));
+  const [departureDateTime, setDepartureDateTime] = useState(moment().startOf('day').hour(12).minute(0));
+  const [arrivalDateTime, setArrivalDateTime] = useState(moment().startOf('day').hour(12).minute(0));
   const status = useInput('Planned');
 
   const [items, setItems] = useState([]);
   const [itemRows, setItemRows] = useState([]);
 
+  const min_excursion_temp = useInput('0');
+  const max_excursion_temp = useInput('100');
+  const min_excursion_humidity = useInput('0');
+  const max_excursion_humidity = useInput('100');
+  const shock_threshold = useInput('4');
+  const light_threshold = useInput('5');
+
+  const shipmentName = useInput('');
+  const purchaseOrderNumber = useInput('');
+  const billOfLading = useInput('');
+  const note = useInput('');
+  const [additionalCustodians, setAdditionalCustocations] = useState([]);
+
   const [formError, setFormError] = useState({});
 
-  const uncheckedIcon = <CheckBoxOutlineBlankIcon fontSize='small' />;
-  const checkedIcon = <CheckBoxIcon fontSize='small' />;
+  const uncheckedIcon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+  const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
   useEffect(() => {
-    dispatch(getShiipmentTemplates(organization.organization_uuid));
+    dispatch(getShipmentTemplates(organization.organization_uuid));
     dispatch(getCustodians(organization.organization_uuid));
     dispatch(getContact(organization.organization_uuid));
     dispatch(getUnitOfMeasure(organization.organization_uuid));
@@ -188,11 +232,11 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
           const selectedCustodian = _.find(custodianList, { url: value });
           if (custody === 'start') {
             setOriginCustodian(value);
-            setOriginAbb(getAbbreviation(selectedCustodian.name));
+            setOriginAbb(getAbbreviation(selectedCustodian.abbrevation));
             getLatLong(selectedCustodian.location, 'start');
           } else if (custody === 'end') {
             setDestinationCustodian(value);
-            setDestinationAbb(getAbbreviation(selectedCustodian.name));
+            setDestinationAbb(getAbbreviation(selectedCustodian.abbrevation));
             getLatLong(selectedCustodian.location, 'end');
           }
         }
@@ -211,10 +255,58 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
     }
   };
 
+  const saveTemplateDisabled = () => (
+    (!!template
+      && originCustodian === template.origin_custodian
+      && destinationCustodian === template.destination_custodian
+      && items === template.items
+      && status.value === template.status
+      && min_excursion_temp.value === template.min_excursion_temp
+      && max_excursion_temp.value === template.max_excursion_temp
+      && min_excursion_humidity.value === template.min_excursion_humidity
+      && max_excursion_humidity.value === template.max_excursion_humidity
+      && shock_threshold.value === template.shock_threshold
+      && light_threshold.value === template.light_threshold
+    ) || (!template && (!originCustodian || !destinationCustodian || _.isEmpty(items)))
+  );
+
+  const handleTemplateChange = (value) => {
+    setTemplate(value);
+    onInputChange(value.origin_custodian, 'custodian', 'start');
+    onInputChange(value.destination_custodian, 'custodian', 'end');
+    setItems(value.items);
+    status.setValue(value.status);
+    min_excursion_temp.setValue(value.min_excursion_temp);
+    max_excursion_temp.setValue(value.max_excursion_temp);
+    min_excursion_humidity.setValue(value.min_excursion_humidity);
+    max_excursion_humidity.setValue(value.max_excursion_humidity);
+    shock_threshold.setValue(value.shock_threshold);
+    light_threshold.setValue(value.light_threshold);
+  };
+
+  const saveAsTemplate = () => {
+    const itemName = _.find(itemRows, { url: items[0] }) ? _.find(itemRows, { url: items[0] }).name : 'NoItems';
+    const templateFormValue = {
+      name: `${originAbb}-${destinationAbb}-${itemName}`,
+      origin_custodian: originCustodian,
+      destination_custodian: destinationCustodian,
+      items,
+      status: status.value,
+      min_excursion_temp: min_excursion_temp.value,
+      max_excursion_temp: max_excursion_temp.value,
+      min_excursion_humidity: min_excursion_humidity.value,
+      max_excursion_humidity: max_excursion_humidity.value,
+      shock_threshold: shock_threshold.value,
+      light_threshold: light_threshold.value,
+      organization_uuid: organization.organization_uuid,
+    };
+    dispatch(addShipmentTemplate(templateFormValue));
+  };
+
   return (
     <Box mt={5} mb={5}>
       {loading && <Loader open={loading} />}
-      <Grid container spacing={2} alignItems='center' justifyContent='center'>
+      <Grid container spacing={2} alignItems="center" justifyContent="center">
         <Grid item xs={8}>
           <Typography className={classes.dashboardHeading} variant="h5">
             {formTitle}
@@ -224,15 +316,15 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
         <Grid item xs={4}>
           <TextField
             variant="outlined"
-            margin="normal"
             id="template"
             select
             fullWidth
-            placeholder='Select...'
+            placeholder="Select..."
             label="Templates"
-            {...template.bind}
+            value={template}
+            onChange={(e) => handleTemplateChange(e.target.value)}
           >
-            <MenuItem value=''>Select</MenuItem>
+            <MenuItem value="">Select</MenuItem>
             {!_.isEmpty(templates) && _.map(templates, (tmp) => (
               <MenuItem key={tmp.template_uuid} value={tmp}>
                 {tmp.name}
@@ -244,8 +336,8 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
 
       <form className={classes.form} noValidate>
         <Box mt={2}>
-          <FormControl fullWidth component='fieldset' variant='outlined' className={classes.fieldset}>
-            <FormLabel component='legend' className={classes.legend}>
+          <FormControl fullWidth component="fieldset" variant="outlined" className={classes.fieldset}>
+            <FormLabel component="legend" className={classes.legend}>
               Shipment Details
             </FormLabel>
 
@@ -255,18 +347,17 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                   <Grid item xs={8}>
                     <TextField
                       variant="outlined"
-                      margin="normal"
                       id="origin-custodian"
                       select
                       fullWidth
                       required
-                      placeholder='Select...'
+                      placeholder="Select..."
                       label="Origin Custodian"
                       onBlur={(e) => handleBlur(e, 'required', originCustodian, 'origin-custodian')}
                       value={originCustodian}
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'start')}
                     >
-                      <MenuItem value=''>Select</MenuItem>
+                      <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(custodianList) && _.map(custodianList, (cust) => (
                         <MenuItem key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
@@ -278,20 +369,18 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                   <Grid item xs={3}>
                     <TextField
                       variant="outlined"
-                      margin="normal"
                       id="origin-custodian-abbreviation"
                       label="ID"
                       disabled
                       required
                       value={originAbb}
-                      />
+                    />
                   </Grid>
                   <Grid item xs={1} className={classes.innerAsterisk}>*</Grid>
 
                   <Grid item xs={11}>
                     <TextField
                       variant="outlined"
-                      margin="normal"
                       fullWidth
                       required
                       id="starting-address"
@@ -303,7 +392,7 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                       InputProps={{
                         endAdornment: <InputAdornment position="end"><LocationIcon /></InputAdornment>,
                       }}
-                      />
+                    />
                   </Grid>
                   <Grid item xs={1} className={classes.innerAsterisk}>*</Grid>
 
@@ -332,18 +421,17 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                   <Grid item xs={8}>
                     <TextField
                       variant="outlined"
-                      margin="normal"
                       id="destination-custodian"
                       select
                       fullWidth
                       required
-                      placeholder='Select...'
+                      placeholder="Select..."
                       label="Destination Custodian"
                       onBlur={(e) => handleBlur(e, 'required', destinationCustodian, 'destination-custodian')}
                       value={destinationCustodian}
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'end')}
                     >
-                      <MenuItem value=''>Select</MenuItem>
+                      <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(custodianList) && _.map(custodianList, (cust) => (
                         <MenuItem key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
@@ -355,20 +443,18 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                   <Grid item xs={3}>
                     <TextField
                       variant="outlined"
-                      margin="normal"
                       id="destination-custodian-abbreviation"
                       label="ID"
                       disabled
                       required
                       value={destinationAbb}
-                      />
+                    />
                   </Grid>
                   <Grid item xs={1} className={classes.innerAsterisk}>*</Grid>
 
                   <Grid item xs={11}>
                     <TextField
                       variant="outlined"
-                      margin="normal"
                       fullWidth
                       required
                       id="ending-address"
@@ -380,7 +466,7 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                       InputProps={{
                         endAdornment: <InputAdornment position="end"><LocationIcon /></InputAdornment>,
                       }}
-                      />
+                    />
                   </Grid>
                   <Grid item xs={1} className={classes.innerAsterisk}>*</Grid>
 
@@ -409,7 +495,10 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                   label="Shipment start"
                   selectedDate={moment(departureDateTime).tz(timezone)}
                   hasTime
-                  handleDateChange={setDepartureDateTime}
+                  handleDateChange={(value) => {
+                    setDepartureDateTime(value);
+                    setArrivalDateTime(value);
+                  }}
                   dateFormat={
                     _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
                       ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
@@ -445,17 +534,16 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
               <Grid item xs={11} sm={5.5}>
                 <TextField
                   variant="outlined"
-                  margin="normal"
                   id="status"
                   select
                   fullWidth
                   required
-                  placeholder='Select...'
+                  placeholder="Select..."
                   label="Shipment Status"
                   onBlur={(e) => handleBlur(e, 'required', status, 'status')}
                   {...status.bind}
                 >
-                  <MenuItem value=''>Select</MenuItem>
+                  <MenuItem value="">Select</MenuItem>
                   {_.map(SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
@@ -512,10 +600,12 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                   )}
                 />
               </Grid>
-              <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
+              <Grid item xs={0.5} className={classes.innerAsterisk} style={{ paddingLeft: 16 }}>
+                *
+              </Grid>
 
               {!_.isEmpty(itemRows) && (
-                <Grid item xs={11.5} pt={-2}>
+                <Grid item xs={11.5} pt={0}>
                   <DataTableWrapper
                     loading={loading}
                     rows={itemRows}
@@ -530,6 +620,235 @@ const CreateShipment = ({ dispatch, loading, templates, custodianData, contactIn
                   />
                 </Grid>
               )}
+
+              <Grid item xs={12} sm={5.75} lg={3.83}>
+                <div className={classes.fieldset}>
+                  <Typography variant="body1" component="div" fontWeight={700}>
+                    TEMPERATURE
+                  </Typography>
+
+                  <Typography mt={2} className={classes.alertSettingText}>
+                    <span className={classes.highest}>HIGHEST</span>
+                    {' safe temperature'}
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    required
+                    id="max_excursion_temp"
+                    name="max_excursion_temp"
+                    autoComplete="max_excursion_temp"
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start"><TemperatureIcon /></InputAdornment>,
+                      endAdornment: (
+                        <InputAdornment position="start">
+                          {
+                            _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
+                            && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure === UOM_TEMPERATURE_CHOICES[0]
+                              ? <span>&#8457;</span>
+                              : <span>&#8451;</span>
+                          }
+                        </InputAdornment>
+                      ),
+                    }}
+                    onBlur={(e) => handleBlur(e, 'required', max_excursion_temp, 'max_excursion_temp')}
+                    {...max_excursion_temp.bind}
+                  />
+
+                  <Typography mt={3} className={classes.alertSettingText}>
+                    <span className={classes.lowest}>LOWEST</span>
+                    {' safe temperature'}
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    required
+                    id="min_excursion_temp"
+                    name="min_excursion_temp"
+                    autoComplete="min_excursion_temp"
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start"><TemperatureIcon /></InputAdornment>,
+                      endAdornment: (
+                        <InputAdornment position="start">
+                          {
+                            _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
+                            && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure === UOM_TEMPERATURE_CHOICES[0]
+                              ? <span>&#8457;</span>
+                              : <span>&#8451;</span>
+                          }
+                        </InputAdornment>
+                      ),
+                    }}
+                    onBlur={(e) => handleBlur(e, 'required', min_excursion_temp, 'min_excursion_temp')}
+                    {...min_excursion_temp.bind}
+                  />
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={5.75} lg={3.83}>
+                <div className={classes.fieldset}>
+                  <Typography variant="body1" component="div" fontWeight={700}>
+                    HUMIDITY
+                  </Typography>
+
+                  <Typography mt={2} className={classes.alertSettingText}>
+                    <span className={classes.highest}>HIGHEST</span>
+                    {' safe humidity'}
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    required
+                    id="max_excursion_humidity"
+                    name="max_excursion_humidity"
+                    autoComplete="max_excursion_humidity"
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start"><HumidityIcon /></InputAdornment>,
+                      endAdornment: <InputAdornment position="start">%</InputAdornment>,
+                    }}
+                    onBlur={(e) => handleBlur(e, 'required', max_excursion_humidity, 'max_excursion_humidity')}
+                    {...max_excursion_humidity.bind}
+                  />
+
+                  <Typography mt={3} className={classes.alertSettingText}>
+                    <span className={classes.lowest}>LOWEST</span>
+                    {' safe humidity'}
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    required
+                    id="min_excursion_humidity"
+                    name="min_excursion_humidity"
+                    autoComplete="min_excursion_humidity"
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start"><HumidityIcon /></InputAdornment>,
+                      endAdornment: <InputAdornment position="start">%</InputAdornment>,
+                    }}
+                    onBlur={(e) => handleBlur(e, 'required', min_excursion_humidity, 'min_excursion_humidity')}
+                    {...min_excursion_humidity.bind}
+                  />
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={5.75} lg={3.83}>
+                <div className={classes.fieldset}>
+                  <Typography variant="body1" component="div" fontWeight={700}>
+                    SHOCK & LIGHT
+                  </Typography>
+
+                  <Typography mt={2} className={classes.alertSettingText}>
+                    <span className={classes.highest}>MAX</span>
+                    {' shock'}
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    required
+                    id="shock_threshold"
+                    name="shock_threshold"
+                    autoComplete="shock_threshold"
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start"><ShockIcon /></InputAdornment>,
+                      endAdornment: <InputAdornment position="start">G</InputAdornment>,
+                    }}
+                    onBlur={(e) => handleBlur(e, 'required', shock_threshold, 'shock_threshold')}
+                    {...shock_threshold.bind}
+                  />
+
+                  <Typography mt={3} className={classes.alertSettingText}>
+                    <span className={classes.highest}>MAX</span>
+                    {' light'}
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    required
+                    id="light_threshold"
+                    name="light_threshold"
+                    autoComplete="light_threshold"
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start"><LightIcon /></InputAdornment>,
+                      endAdornment: <InputAdornment position="start">lumens</InputAdornment>,
+                    }}
+                    onBlur={(e) => handleBlur(e, 'required', light_threshold, 'light_threshold')}
+                    {...light_threshold.bind}
+                  />
+                </div>
+              </Grid>
+
+              <Grid item xs={11.5} textAlign="end">
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  disabled={saveTemplateDisabled()}
+                  onClick={saveAsTemplate}
+                >
+                  Save as Template
+                </Button>
+              </Grid>
+            </Grid>
+          </FormControl>
+
+          <FormControl fullWidth component="fieldset" variant="outlined" className={classes.fieldset}>
+            <FormLabel component="legend" className={classes.legend}>
+              Order Information
+            </FormLabel>
+
+            <Grid container spacing={isDesktop ? 4 : 0}>
+              <Grid item xs={2}>
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  disabled
+                  id="org-abbreviation"
+                  name="org-abbreviation"
+                  autoComplete="org-abbreviation"
+                  value={organization && organization.abbrevation}
+                />
+              </Grid>
+
+              <Grid item xs={9.5}>
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  required
+                  id="shipment-name"
+                  name="shipment-name"
+                  label="Shipment Name"
+                  autoComplete="shipment-name"
+                  onBlur={(e) => handleBlur(e, 'required', shipmentName, 'shipment-name')}
+                  {...shipmentName.bind}
+                />
+              </Grid>
+              <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
+
+              <Grid item xs={5.75}>
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  required
+                  id="purchase-order-number"
+                  name="purchase-order-number"
+                  label="Purchase Order Number"
+                  autoComplete="purchase-order-number"
+                  {...purchaseOrderNumber.bind}
+                />
+              </Grid>
+
+              <Grid item xs={5.75}>
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  required
+                  id="bill-of-lading"
+                  name="bill-of-lading"
+                  label="Bill Of Lading"
+                  autoComplete="bill-of-lading"
+                  {...billOfLading.bind}
+                />
+              </Grid>
             </Grid>
           </FormControl>
         </Box>

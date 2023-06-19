@@ -7,13 +7,13 @@ import {
   Link,
   Grid,
   Card,
-  CircularProgress,
   CardContent,
   Typography,
   Container,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import logo from '../../assets/tp-logo.png';
+import Loader from '../../components/Loader/Loader';
 import { useInput } from '../../hooks/useInput';
 import {
   resetPassword,
@@ -52,10 +52,6 @@ const useStyles = makeStyles((theme) => ({
     left: '50%',
     marginTop: -12,
     marginLeft: -12,
-  },
-  loadingWrapper: {
-    margin: theme.spacing(1),
-    position: 'relative',
   },
 }));
 
@@ -122,6 +118,7 @@ const EmailForm = ({ dispatch, loading }) => {
       maxWidth="xs"
       className={classes.container}
     >
+      {loading && <Loader open={loading} />}
       <CssBaseline />
       <Card variant="outlined">
         <CardContent>
@@ -159,24 +156,16 @@ const EmailForm = ({ dispatch, loading }) => {
                 {...email.bind}
               />
 
-              <div className={classes.loadingWrapper}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}
-                  disabled={loading || submitDisabled()}
-                >
-                  Submit
-                </Button>
-                {loading && (
-                  <CircularProgress
-                    size={24}
-                    className={classes.buttonProgress}
-                  />
-                )}
-              </div>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                disabled={loading || submitDisabled()}
+              >
+                Submit
+              </Button>
               <Grid container>
                 <Grid item xs>
                   <Link

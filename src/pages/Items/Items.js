@@ -9,6 +9,8 @@ import {
   deleteItem,
   getItemType,
   getUnitOfMeasure,
+  getProducts,
+  getProductType,
 } from '../../redux/items/actions/items.actions';
 import { routes } from '../../routes/routesConstants';
 import { itemColumns, getItemFormattedRow } from '../../utils/constants';
@@ -39,6 +41,8 @@ const Items = ({
   useEffect(() => {
     dispatch(getItems(organization));
     dispatch(getItemType(organization));
+    dispatch(getProducts(organization));
+    dispatch(getProductType(organization));
     dispatch(getUnitOfMeasure(organization));
   }, []);
 

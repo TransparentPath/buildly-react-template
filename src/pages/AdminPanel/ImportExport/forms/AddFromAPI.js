@@ -6,7 +6,6 @@ import {
   TextField,
   MenuItem,
   Button,
-  CircularProgress,
   Typography,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
@@ -42,9 +41,6 @@ const useStyles = makeStyles((theme) => ({
     left: '50%',
     marginTop: -12,
     marginLeft: -12,
-  },
-  loadingWrapper: {
-    position: 'relative',
   },
   title: {
     margin: theme.spacing(2, 0),
@@ -650,24 +646,16 @@ const AddFromAPI = ({
             )}
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={6} sm={4}>
-              <div className={classes.loadingWrapper}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}
-                  disabled={loading || submitDisabled()}
-                >
-                  Set Mapping and Import
-                </Button>
-                {loading && (
-                  <CircularProgress
-                    size={24}
-                    className={classes.buttonProgress}
-                  />
-                )}
-              </div>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                disabled={loading || submitDisabled()}
+              >
+                Set Mapping and Import
+              </Button>
             </Grid>
           </Grid>
         </Grid>
