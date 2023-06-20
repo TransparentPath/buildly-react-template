@@ -259,7 +259,7 @@ export const getUniqueContactInfo = (rowItem, contactInfo) => {
   return obj;
 };
 
-export const getCustodianFormattedRow = (data, contactInfo) => {
+export const getCustodianFormattedRow = (data, contactInfo, type = []) => {
   if (data && data.length && contactInfo && contactInfo.length) {
     let customizedRow = [];
     _.forEach(data, (rowItem) => {
@@ -277,7 +277,13 @@ export const getCustodianFormattedRow = (data, contactInfo) => {
       } ${contactInfoItem.postal_code
         && `${contactInfoItem.postal_code}`
       }`;
-      const editedData = { ...rowItem, location };
+      let editedData = { ...rowItem, location };
+
+      const custType = _.find(type, { url: rowItem.custodian_type });
+      if (custType) {
+        editedData = { ...editedData, type: custType.name };
+      }
+
       customizedRow = [...customizedRow, editedData];
     });
 

@@ -14,6 +14,7 @@ import {
   Grid,
   InputAdornment,
   MenuItem,
+  Stack,
   TextField,
   Typography,
   useMediaQuery,
@@ -21,7 +22,9 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
+  Battery4Bar as BatteryIcon,
   BoltOutlined as ShockIcon,
+  DisabledByDefault as CancelIcon,
   CheckBox as CheckBoxIcon,
   CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
   LightModeOutlined as LightIcon,
@@ -35,11 +38,13 @@ import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
 import { UserContext } from '../../context/User.context';
 import { useInput } from '../../hooks/useInput';
-import { getContact, getCustodians } from '../../redux/custodian/actions/custodian.actions';
+import { getContact, getCustodianType, getCustodians } from '../../redux/custodian/actions/custodian.actions';
 import { getItemType, getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
+import { getGatewayType, getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { addShipmentTemplate, getShipmentTemplates } from '../../redux/shipment/actions/shipment.actions';
+import { routes } from '../../routes/routesConstants';
 import { getCustodianFormattedRow, getItemFormattedRow, itemColumns } from '../../utils/constants';
-import { SHIPMENT_STATUS, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
+import { SHIPMENT_STATUS, TIVE_GATEWAY_TIMES, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
 import { validators } from '../../utils/validators';
 
 const useStyles = makeStyles((theme) => ({
@@ -62,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
   innerAsterisk: {
     fontSize: theme.spacing(4),
     color: theme.palette.secondary.main,
-    paddingTop: `${theme.spacing(5)} !important`,
+    paddingTop: `${theme.spacing(3)} !important`,
   },
   outerAsterisk: {
     fontSize: theme.spacing(4),
@@ -84,6 +89,40 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     color: theme.palette.info.main,
   },
+  cancel: {
+    marginTop: theme.spacing(0.5),
+    marginLeft: theme.spacing(-4),
+    fill: theme.palette.background.light,
+  },
+  attachedFiles: {
+    border: `1px solid ${theme.palette.background.light}`,
+    padding: theme.spacing(1.5),
+    borderRadius: theme.spacing(0.5),
+    height: '100%',
+  },
+  fileButton: {
+    paddingTop: `${theme.spacing(5)} !important`,
+    '& fieldset': {
+      border: 0,
+    },
+  },
+  gatewayDetails: {
+    display: 'flex',
+    justifyContent: 'end',
+    marginRight: theme.spacing(1),
+    padding: theme.spacing(5),
+    paddingTop: theme.spacing(2),
+  },
+  finalName: {
+    paddingTop: theme.spacing(5),
+    color: theme.palette.background.light,
+    '& div': {
+      paddingLeft: `${theme.spacing(4)} !important`,
+    },
+  },
+  finalNameDisplay: {
+    backgroundColor: theme.palette.primary.light,
+  },
 }));
 
 const CreateShipment = ({
@@ -96,6 +135,10 @@ const CreateShipment = ({
   unitOfMeasure,
   itemData,
   itemTypeList,
+  custodianTypeList,
+  gatewayData,
+  gatewayTypeList,
+  history,
 }) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -134,8 +177,17 @@ const CreateShipment = ({
   const shipmentName = useInput('');
   const purchaseOrderNumber = useInput('');
   const billOfLading = useInput('');
+  const [files, setFiles] = useState([]);
+  const [showNote, setShowNote] = useState(false);
+  const [showAddCustodian, setShowAddCustodian] = useState(false);
   const note = useInput('');
   const [additionalCustodians, setAdditionalCustocations] = useState([]);
+
+  const gatewayType = useInput('');
+  const [availableGateways, setAvailableGateways] = useState([]);
+  const gateway = useInput('');
+  const transmissionInterval = useInput(5);
+  const measurementInterval = useInput(5);
 
   const [formError, setFormError] = useState({});
 
@@ -145,17 +197,20 @@ const CreateShipment = ({
   useEffect(() => {
     dispatch(getShipmentTemplates(organization.organization_uuid));
     dispatch(getCustodians(organization.organization_uuid));
+    dispatch(getCustodianType());
     dispatch(getContact(organization.organization_uuid));
     dispatch(getUnitOfMeasure(organization.organization_uuid));
     dispatch(getItems(organization.organization_uuid));
     dispatch(getItemType(organization.organization_uuid));
+    dispatch(getGateways(organization.organization_uuid));
+    dispatch(getGatewayType());
   }, []);
 
   useEffect(() => {
     if (!_.isEmpty(custodianData) && !_.isEmpty(contactInfo)) {
-      setCustodianList(getCustodianFormattedRow(custodianData, contactInfo));
+      setCustodianList(getCustodianFormattedRow(custodianData, contactInfo, custodianTypeList));
     }
-  }, [custodianData, contactInfo]);
+  }, [custodianData, contactInfo, custodianTypeList]);
 
   useEffect(() => {
     if (!_.isEmpty(itemData)) {
@@ -170,6 +225,17 @@ const CreateShipment = ({
       setItemRows(rows);
     }
   }, [itemData, itemTypeList, unitOfMeasure, items]);
+
+  useEffect(() => {
+    const custodian = _.find(custodianData, { url: originCustodian });
+    if (custodian) {
+      const gateways = _.filter(gatewayData, {
+        custodian_uuid: custodian.custodian_uuid,
+        gateway_type: gatewayType.value,
+      });
+      setAvailableGateways(gateways);
+    }
+  }, [gatewayData, gatewayType.value, originCustodian]);
 
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
@@ -303,6 +369,48 @@ const CreateShipment = ({
     dispatch(addShipmentTemplate(templateFormValue));
   };
 
+  const fileChange = (event) => {
+    const maxAllowedSize = 2 * 1024 * 1024;
+    let error = false;
+
+    _.forEach(event.target.files, (attachedFile) => {
+      if (attachedFile) {
+        switch (true) {
+          case (attachedFile.type !== 'application/pdf'):
+            error = error || true;
+            // eslint-disable-next-line no-alert
+            alert('Only PDF files are allowed for upload.');
+            break;
+
+          case (attachedFile.size > maxAllowedSize):
+            error = error || true;
+            // eslint-disable-next-line no-alert
+            alert('File size is more that 2MB. Please upload another file.');
+            break;
+
+          default:
+            break;
+        }
+      }
+    });
+    if (!error) {
+      setFiles([...files, ...event.target.files]);
+    }
+  };
+
+  const submitDisabled = () => (
+    !originCustodian
+    || !destinationCustodian
+    || _.isEmpty(items)
+    || !shipmentName.value
+    || !gatewayType.value
+    || !gateway.value
+  );
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+  };
+
   return (
     <Box mt={5} mb={5}>
       {loading && <Loader open={loading} />}
@@ -334,7 +442,7 @@ const CreateShipment = ({
         </Grid>
       </Grid>
 
-      <form className={classes.form} noValidate>
+      <form className={classes.form} noValidate onSubmit={handleSubmit}>
         <Box mt={2}>
           <FormControl fullWidth component="fieldset" variant="outlined" className={classes.fieldset}>
             <FormLabel component="legend" className={classes.legend}>
@@ -350,7 +458,6 @@ const CreateShipment = ({
                       id="origin-custodian"
                       select
                       fullWidth
-                      required
                       placeholder="Select..."
                       label="Origin Custodian"
                       onBlur={(e) => handleBlur(e, 'required', originCustodian, 'origin-custodian')}
@@ -372,7 +479,6 @@ const CreateShipment = ({
                       id="origin-custodian-abbreviation"
                       label="ID"
                       disabled
-                      required
                       value={originAbb}
                     />
                   </Grid>
@@ -382,7 +488,6 @@ const CreateShipment = ({
                     <TextField
                       variant="outlined"
                       fullWidth
-                      required
                       id="starting-address"
                       label="Starting Address"
                       name="starting-address"
@@ -424,7 +529,6 @@ const CreateShipment = ({
                       id="destination-custodian"
                       select
                       fullWidth
-                      required
                       placeholder="Select..."
                       label="Destination Custodian"
                       onBlur={(e) => handleBlur(e, 'required', destinationCustodian, 'destination-custodian')}
@@ -446,7 +550,6 @@ const CreateShipment = ({
                       id="destination-custodian-abbreviation"
                       label="ID"
                       disabled
-                      required
                       value={destinationAbb}
                     />
                   </Grid>
@@ -456,7 +559,6 @@ const CreateShipment = ({
                     <TextField
                       variant="outlined"
                       fullWidth
-                      required
                       id="ending-address"
                       label="Ending Address"
                       name="ending-address"
@@ -537,7 +639,6 @@ const CreateShipment = ({
                   id="status"
                   select
                   fullWidth
-                  required
                   placeholder="Select..."
                   label="Shipment Status"
                   onBlur={(e) => handleBlur(e, 'required', status, 'status')}
@@ -600,9 +701,7 @@ const CreateShipment = ({
                   )}
                 />
               </Grid>
-              <Grid item xs={0.5} className={classes.innerAsterisk} style={{ paddingLeft: 16 }}>
-                *
-              </Grid>
+              <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
 
               {!_.isEmpty(itemRows) && (
                 <Grid item xs={11.5} pt={0}>
@@ -634,7 +733,6 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
-                    required
                     id="max_excursion_temp"
                     name="max_excursion_temp"
                     autoComplete="max_excursion_temp"
@@ -662,7 +760,6 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
-                    required
                     id="min_excursion_temp"
                     name="min_excursion_temp"
                     autoComplete="min_excursion_temp"
@@ -698,7 +795,6 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
-                    required
                     id="max_excursion_humidity"
                     name="max_excursion_humidity"
                     autoComplete="max_excursion_humidity"
@@ -717,7 +813,6 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
-                    required
                     id="min_excursion_humidity"
                     name="min_excursion_humidity"
                     autoComplete="min_excursion_humidity"
@@ -744,7 +839,6 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
-                    required
                     id="shock_threshold"
                     name="shock_threshold"
                     autoComplete="shock_threshold"
@@ -763,7 +857,6 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
-                    required
                     id="light_threshold"
                     name="light_threshold"
                     autoComplete="light_threshold"
@@ -782,7 +875,7 @@ const CreateShipment = ({
                   type="button"
                   variant="contained"
                   color="primary"
-                  disabled={saveTemplateDisabled()}
+                  disabled={loading || saveTemplateDisabled()}
                   onClick={saveAsTemplate}
                 >
                   Save as Template
@@ -813,7 +906,6 @@ const CreateShipment = ({
                 <TextField
                   variant="outlined"
                   fullWidth
-                  required
                   id="shipment-name"
                   name="shipment-name"
                   label="Shipment Name"
@@ -828,7 +920,6 @@ const CreateShipment = ({
                 <TextField
                   variant="outlined"
                   fullWidth
-                  required
                   id="purchase-order-number"
                   name="purchase-order-number"
                   label="Purchase Order Number"
@@ -841,7 +932,6 @@ const CreateShipment = ({
                 <TextField
                   variant="outlined"
                   fullWidth
-                  required
                   id="bill-of-lading"
                   name="bill-of-lading"
                   label="Bill Of Lading"
@@ -849,8 +939,393 @@ const CreateShipment = ({
                   {...billOfLading.bind}
                 />
               </Grid>
+
+              <Grid item xs={10}>
+                <FormControl fullWidth component="fieldset" variant="outlined" className={classes.attachedFiles}>
+                  <FormLabel component="legend" className={classes.legend}>
+                    Attached Files
+                  </FormLabel>
+
+                  <Stack direction="row" spacing={1}>
+                    {!_.isEmpty(files) && _.map(files, (file, idx) => (
+                      <Chip
+                        key={`${file.name}-${idx}`}
+                        variant="outlined"
+                        label={file.name}
+                        onDelete={(e) => setFiles(_.filter(files, (f, index) => (index !== idx)))}
+                      />
+                    ))}
+                  </Stack>
+                </FormControl>
+              </Grid>
+              <Grid item xs={1.5} className={classes.fileButton}>
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  type="file"
+                  id="attach-files"
+                  name="attach-files"
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ multiple: true }}
+                  onChange={fileChange}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                {!showNote && (
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="primary"
+                    onClick={(e) => setShowNote(true)}
+                  >
+                    + Add a note
+                  </Button>
+                )}
+                {showNote && (
+                  <Grid container spacing={2}>
+                    <Grid item xs={11.5}>
+                      <TextField
+                        variant="outlined"
+                        multiline
+                        fullWidth
+                        maxRows={4}
+                        id="note"
+                        name="note"
+                        label="Note"
+                        autoComplete="note"
+                        {...note.bind}
+                      />
+                    </Grid>
+
+                    <Grid item xs={0.5}>
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          note.setValue('');
+                          setShowNote(false);
+                        }}
+                      >
+                        <CancelIcon fontSize="large" className={classes.cancel} />
+                      </Button>
+                    </Grid>
+                  </Grid>
+                )}
+              </Grid>
+
+              {!_.isEmpty(additionalCustodians)
+              && _.map(additionalCustodians, (addCust, index) => (
+                <Grid item xs={12} key={`${index}-${addCust.custodian_uuid}`}>
+                  <Grid container spacing={4}>
+                    <Grid item xs={5.5}>
+                      <TextField
+                        id={`add-cust-${addCust.custodian_uuid}`}
+                        select
+                        fullWidth
+                        placeholder="Select..."
+                        label={`Custodian ${index + 1}`}
+                        value={addCust}
+                        onChange={(e) => {
+                          const newList = _.map(
+                            additionalCustodians,
+                            (cust, idx) => (idx === index ? e.target.value : cust),
+                          );
+                          setAdditionalCustocations(newList);
+                        }}
+                      >
+                        <MenuItem value="">Select</MenuItem>
+                        {!_.isEmpty(custodianList)
+                        && _.map(_.without(
+                          custodianList,
+                          _.find(custodianList, { url: originCustodian }),
+                          ..._.without(additionalCustodians, addCust),
+                          _.find(custodianList, { url: destinationCustodian }),
+                        ), (cust) => (
+                          <MenuItem key={cust.custodian_uuid} value={cust}>
+                            {cust.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+
+                    <Grid item xs={2.5}>
+                      <TextField
+                        variant="outlined"
+                        id={`add-cust-abb-${addCust.custodian_uuid}`}
+                        label="ID"
+                        fullWidth
+                        disabled
+                        value={addCust.abbrevation}
+                      />
+                    </Grid>
+
+                    <Grid item xs={3.5}>
+                      <TextField
+                        variant="outlined"
+                        id={`add-cust-type-${addCust.custodian_uuid}`}
+                        label="Custodian Type"
+                        fullWidth
+                        disabled
+                        value={addCust.type}
+                      />
+                    </Grid>
+
+                    {index > 0 && (
+                      <Grid item xs={0.5}>
+                        <Button
+                          type="button"
+                          onClick={(e) => {
+                            const newList = _.filter(
+                              additionalCustodians,
+                              (cust, idx) => (idx !== index),
+                            );
+                            setAdditionalCustocations(newList);
+                          }}
+                        >
+                          <CancelIcon fontSize="large" className={classes.cancel} />
+                        </Button>
+                      </Grid>
+                    )}
+                  </Grid>
+                </Grid>
+              ))}
+
+              <Grid item xs={11.5}>
+                {showAddCustodian && (
+                  <TextField
+                    variant="outlined"
+                    id="additional-custodian"
+                    select
+                    fullWidth
+                    placeholder="Select..."
+                    label="Add additional carrier"
+                    onChange={(e) => {
+                      setAdditionalCustocations([...additionalCustodians, e.target.value]);
+                      setShowAddCustodian(false);
+                    }}
+                  >
+                    <MenuItem value="">Select</MenuItem>
+                    {!_.isEmpty(custodianList)
+                    && _.map(_.without(
+                      custodianList,
+                      _.find(custodianList, { url: originCustodian }),
+                      ...additionalCustodians,
+                      _.find(custodianList, { url: destinationCustodian }),
+                    ), (cust) => (
+                      <MenuItem key={cust.custodian_uuid} value={cust}>
+                        {cust.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+
+                {!showAddCustodian && (
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="primary"
+                    onClick={(e) => setShowAddCustodian(true)}
+                  >
+                    + Add additional carrier
+                  </Button>
+                )}
+              </Grid>
             </Grid>
           </FormControl>
+
+          <FormControl fullWidth component="fieldset" variant="outlined" className={classes.fieldset}>
+            <FormLabel component="legend" className={classes.legend}>
+              Tracker
+            </FormLabel>
+
+            <Grid container spacing={isDesktop ? 4 : 0}>
+              <Grid item xs={5.5}>
+                <TextField
+                  id="gateway-type"
+                  select
+                  fullWidth
+                  placeholder="Select..."
+                  label="Tracker platform"
+                  onBlur={(e) => handleBlur(e, 'required', gatewayType, 'gateway-type')}
+                  {...gatewayType.bind}
+                >
+                  <MenuItem value="">Select</MenuItem>
+                  {!_.isEmpty(gatewayTypeList) && _.map(gatewayTypeList, (gtype) => (
+                    <MenuItem key={gtype.id} value={gtype.url}>
+                      {_.capitalize(gtype.name)}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
+
+              <Grid item xs={5.5}>
+                <TextField
+                  id="gateway"
+                  select
+                  fullWidth
+                  placeholder="Select..."
+                  label="Tracker identifier"
+                  onBlur={(e) => handleBlur(e, 'required', gateway, 'gateway')}
+                  {...gateway.bind}
+                >
+                  <MenuItem value="">Select</MenuItem>
+                  {!_.isEmpty(availableGateways) && _.map(availableGateways, (avgt) => (
+                    <MenuItem key={avgt.gateway_uuid} value={avgt}>
+                      {avgt.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
+            </Grid>
+            {gateway && gateway.value && (
+              <Grid item xs={11.5} className={classes.gatewayDetails}>
+                <Typography variant="body1" component="div">
+                  Battery Level:
+                </Typography>
+                <BatteryIcon color="secondary" />
+                <Typography variant="body1" component="div">
+                  {`${gateway.value.last_known_battery_level}%`}
+                </Typography>
+              </Grid>
+            )}
+            {gateway && gateway.value && (
+              <Grid item xs={12}>
+                <Grid container spacing={4}>
+                  <Grid item xs={6} />
+                  <Grid item xs={2.75}>
+                    <TextField
+                      id="transmission-interval"
+                      select
+                      fullWidth
+                      placeholder="Select..."
+                      label="Transmission interval"
+                      onBlur={(e) => handleBlur(e, 'required', transmissionInterval, 'transmission-interval')}
+                      {...transmissionInterval.bind}
+                    >
+                      <MenuItem value="">Select</MenuItem>
+                      {!_.isEmpty(TIVE_GATEWAY_TIMES)
+                      && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
+                        <MenuItem key={`${time.value}-${index}`} value={time.value}>
+                          {time.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={2.75}>
+                    <TextField
+                      id="measurement-interval"
+                      select
+                      fullWidth
+                      placeholder="Select..."
+                      label="Measurement interval"
+                      onBlur={(e) => handleBlur(e, 'required', measurementInterval, 'measurement-interval')}
+                      {...measurementInterval.bind}
+                    >
+                      <MenuItem value="">Select</MenuItem>
+                      {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
+                        _.filter(TIVE_GATEWAY_TIMES, (t) => t.value <= transmissionInterval.value),
+                        (time, index) => (
+                          <MenuItem key={`${time.value}-${index}`} value={time.value}>
+                            {time.label}
+                          </MenuItem>
+                        ),
+                      )}
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>
+            )}
+          </FormControl>
+
+          <Grid container spacing={2} className={classes.finalName}>
+            <Grid item xs={3}>
+              <Typography>ID</Typography>
+            </Grid>
+            <Grid item xs={5}>
+              <Typography>SHIPMENT NAME</Typography>
+            </Grid>
+            <Grid item xs={2}>
+              <Typography>ORIGIN</Typography>
+            </Grid>
+            <Grid item xs={2}>
+              <Typography>DEST</Typography>
+            </Grid>
+          </Grid>
+          <Grid container spacing={2}>
+            <Grid item xs={3}>
+              <TextField
+                variant="outlined"
+                id="org-id-final"
+                fullWidth
+                disabled
+                className={classes.finalNameDisplay}
+                value={organization && organization.abbrevation}
+              />
+            </Grid>
+            <Grid item xs={5}>
+              <TextField
+                variant="outlined"
+                id="shipment-name-final"
+                fullWidth
+                disabled
+                className={classes.finalNameDisplay}
+                value={shipmentName.value}
+              />
+            </Grid>
+            <Grid item xs={2}>
+              <TextField
+                variant="outlined"
+                id="origin-final"
+                fullWidth
+                disabled
+                className={classes.finalNameDisplay}
+                value={originAbb}
+              />
+            </Grid>
+            <Grid item xs={2}>
+              <TextField
+                variant="outlined"
+                id="dest-final"
+                fullWidth
+                disabled
+                className={classes.finalNameDisplay}
+                value={destinationAbb}
+              />
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={4}>
+            <Grid item xs={12} mt={1}>
+              <Typography variant="caption" component="div" textAlign="center" fontStyle="italic" color={theme.palette.background.light}>
+                This is your automated shipment number.
+                It is automatically generated from the form above.
+              </Typography>
+            </Grid>
+
+            <Grid item xs={0.5} />
+            <Grid item xs={5.5}>
+              <Button type="button" variant="outlined" fullWidth onClick={(e) => history.push(routes.SHIPMENT)}>
+                Cancel
+              </Button>
+            </Grid>
+
+            <Grid item xs={5.5}>
+              <Button type="submit" variant="contained" fullWidth disabled={loading || submitDisabled()}>
+                Create a shipment
+              </Button>
+            </Grid>
+            <Grid item xs={0.5} />
+          </Grid>
+
+          <Grid container spacing={4}>
+            <Grid item xs={12} mt={2}>
+              <Typography variant="caption" component="div" textAlign="center" fontStyle="italic" color={theme.palette.background.light}>
+                You must fill out all required fields to create an active shipment
+              </Typography>
+            </Grid>
+          </Grid>
         </Box>
       </form>
     </Box>
@@ -863,11 +1338,13 @@ const mapStateToProps = (state, ownProps) => ({
   ...state.custodianReducer,
   ...state.optionsReducer,
   ...state.itemsReducer,
+  ...state.sensorsGatewayReducer,
   loading: (
     state.shipmentReducer.loading
     || state.custodianReducer.loading
     || state.optionsReducer.loading
     || state.itemsReducer.loading
+    || state.sensorsGatewayReducer.loading
   ),
 });
 
