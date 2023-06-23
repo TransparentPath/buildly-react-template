@@ -2,8 +2,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment-timezone';
+import { ExpandButton } from 'mui-datatables';
 import {
-  Box, Grid, Tab, Tabs, Typography,
+  Box, Grid, Tab, TableCell, TableRow, Tabs, Typography,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
@@ -90,6 +91,16 @@ const Shipment = ({
       ))}
     </Tabs>
   );
+
+  const components = {
+    ExpandButton: (props) => {
+      const { dataIndex } = props;
+      if (dataIndex === 3 || dataIndex === 4) {
+        return <div style={{ width: '24px' }} />;
+      }
+      return <ExpandButton {...props} />;
+    },
+  };
 
   useEffect(() => {
     dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
@@ -275,8 +286,90 @@ const Shipment = ({
                 ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
                 : '',
             )}
-            extraOptions={{ customToolbar: () => (<HeaderElements style={{ right: '180%' }} />) }}
+            extraOptions={{
+              expandableRows: true,
+              expandableRowsHeader: false,
+              expandableRowsOnClick: true,
+              customToolbar: () => (<HeaderElements style={{ right: '180%' }} />),
+              isRowExpandable: (dataIndex, expandedRows) => {
+                if (dataIndex === 3 || dataIndex === 4) return false;
+                // Prevent expand/collapse of any row if there are 4 rows expanded
+                // already (but allow those already expanded to be collapsed)
+                return !((
+                  expandedRows.data.length > 4 && expandedRows.data.filter(
+                    (d) => d.dataIndex === dataIndex,
+                  ).length === 0
+                ));
+              },
+              renderExpandableRow: (rowData, rowMeta) => {
+                const colSpan = rowData.length + 1;
+                const ship = rows[rowMeta.rowIndex];
+
+                return (
+                  <TableRow>
+                    <TableCell colSpan={colSpan}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={2}>
+                          <Grid container rowGap={1}>
+                            <Grid item>
+                              <Typography fontWeight={700}>
+                                Order ID:
+                              </Typography>
+                              <Typography>
+                                {ship.order_number}
+                              </Typography>
+                            </Grid>
+
+                            <Grid item>
+                              <Typography fontWeight={700}>
+                                Items:
+                              </Typography>
+                              {_.map(_.split(ship.itemNames, ','), (item, idx) => (
+                                <Typography key={`${item}-${idx}`}>{item}</Typography>
+                              ))}
+                            </Grid>
+
+                            <Grid item>
+                              <Typography fontWeight={700}>
+                                Status:
+                              </Typography>
+                              <Typography>
+                                {ship.type}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          <Grid container rowGap={1}>
+                            {_.map(ship.carriers, (carr, idx) => (
+                              <Grid key={`${carr}-${idx}`} item>
+                                <Typography fontWeight={700}>
+                                  {`Logistics company ${idx + 1}:`}
+                                </Typography>
+                                <Typography>
+                                  {carr}
+                                </Typography>
+                              </Grid>
+                            ))}
+                            <Grid item>
+                              <Typography fontWeight={700}>
+                                Receiver:
+                              </Typography>
+                              <Typography>
+                                {ship.destination}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </TableCell>
+                  </TableRow>
+                );
+              },
+            }}
             filename="ShipmentData"
+            components={components}
             hideAddButton
           />
         </Grid>

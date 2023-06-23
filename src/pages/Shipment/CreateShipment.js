@@ -9,6 +9,10 @@ import {
   Button,
   Checkbox,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   FormLabel,
   Grid,
@@ -41,7 +45,9 @@ import { useInput } from '../../hooks/useInput';
 import { getContact, getCustodianType, getCustodians } from '../../redux/custodian/actions/custodian.actions';
 import { getItemType, getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
 import { getGatewayType, getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
-import { addShipmentTemplate, getShipmentTemplates } from '../../redux/shipment/actions/shipment.actions';
+import {
+  addShipment, addShipmentTemplate, editShipmentTemplate, getShipmentTemplates,
+} from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
 import { getCustodianFormattedRow, getItemFormattedRow, itemColumns } from '../../utils/constants';
 import { SHIPMENT_STATUS, TIVE_GATEWAY_TIMES, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
@@ -123,6 +129,19 @@ const useStyles = makeStyles((theme) => ({
   finalNameDisplay: {
     backgroundColor: theme.palette.primary.light,
   },
+  numberInput: {
+    '& input::-webkit-outer-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+    '& input::-webkit-inner-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+    '& input[type="number"]': {
+      '-moz-appearance': 'textfield',
+    },
+  },
 }));
 
 const CreateShipment = ({
@@ -146,9 +165,12 @@ const CreateShipment = ({
   const { organization } = useContext(UserContext);
 
   const formTitle = 'Create Shipment';
-  let latLongChanged = false;
 
   const [template, setTemplate] = useState('');
+  const [confirmSaveTemplate, setConfirmSaveTemplate] = useState(false);
+  const [confirmName, setConfirmName] = useState(false);
+  const [templateName, setTemplateName] = useState({ name: '', suffix: '' });
+
   const [custodianList, setCustodianList] = useState([]);
   const [originCustodian, setOriginCustodian] = useState('');
   const [originAbb, setOriginAbb] = useState('');
@@ -167,12 +189,12 @@ const CreateShipment = ({
   const [items, setItems] = useState([]);
   const [itemRows, setItemRows] = useState([]);
 
-  const min_excursion_temp = useInput('0');
-  const max_excursion_temp = useInput('100');
-  const min_excursion_humidity = useInput('0');
-  const max_excursion_humidity = useInput('100');
-  const shock_threshold = useInput('4');
-  const light_threshold = useInput('5');
+  const min_excursion_temp = useInput(0);
+  const max_excursion_temp = useInput(100);
+  const min_excursion_humidity = useInput(0);
+  const max_excursion_humidity = useInput(100);
+  const shock_threshold = useInput(4);
+  const light_threshold = useInput(5);
 
   const shipmentName = useInput('');
   const purchaseOrderNumber = useInput('');
@@ -182,6 +204,7 @@ const CreateShipment = ({
   const [showAddCustodian, setShowAddCustodian] = useState(false);
   const note = useInput('');
   const [additionalCustodians, setAdditionalCustocations] = useState([]);
+  const [carrierLocations, setCarrierLocations] = useState([]);
 
   const gatewayType = useInput('');
   const [availableGateways, setAvailableGateways] = useState([]);
@@ -232,10 +255,22 @@ const CreateShipment = ({
       const gateways = _.filter(gatewayData, {
         custodian_uuid: custodian.custodian_uuid,
         gateway_type: gatewayType.value,
+        gateway_status: 'available',
       });
       setAvailableGateways(gateways);
     }
   }, [gatewayData, gatewayType.value, originCustodian]);
+
+  useEffect(() => {
+    if (template) {
+      if (templateName.name && templateName.suffix) {
+        setTemplate(_.find(templates, { name: `${templateName.name}${templateName.suffix}` }));
+        setTemplateName({ name: '', suffix: '' });
+      } else {
+        setTemplate(_.find(templates, { id: template.id }));
+      }
+    }
+  }, [templates]);
 
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
@@ -258,37 +293,28 @@ const CreateShipment = ({
 
   const getAbbreviation = (name) => name.replace(/[^A-Z0-9]/g, '');
 
-  const getLatLong = (address, pointer) => {
-    if (pointer === 'start') {
-      latLongChanged = true;
-      setStartingAddress(address);
-    } else if (pointer === 'end') {
-      latLongChanged = true;
-      setEndingAddress(address);
-    }
-
-    if (
-      (pointer === 'start' && address && !_.isEqual(address, startingAddress))
-      || (pointer === 'end' && address && !_.isEqual(address, endingAddress))
-    ) {
-      latLongChanged = true;
-      Geocode.setApiKey(window.env.GEO_CODE_API);
-      Geocode.setLanguage('en');
-      Geocode.fromAddress(address).then(
-        (response) => {
-          const { lat, lng } = response.results[0].geometry.location;
-          if (pointer === 'start') {
+  const getLatLong = (address, position) => {
+    Geocode.setApiKey(window.env.GEO_CODE_API);
+    Geocode.setLanguage('en');
+    Geocode.fromAddress(address).then(
+      (response) => {
+        const { lat, lng } = response.results[0].geometry.location;
+        switch (position) {
+          case 'start':
             setStartingLocation(`${lat},${lng}`);
-          } else if (pointer === 'end') {
+            break;
+          case 'end':
             setEndingLocation(`${lat},${lng}`);
-          }
-        },
-        (error) => {
-          // eslint-disable-next-line no-console
-          console.error(error);
-        },
-      );
-    }
+            break;
+          default:
+            break;
+        }
+      },
+      (error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      },
+    );
   };
 
   const onInputChange = (value, type, custody) => {
@@ -299,10 +325,12 @@ const CreateShipment = ({
           if (custody === 'start') {
             setOriginCustodian(value);
             setOriginAbb(getAbbreviation(selectedCustodian.abbrevation));
+            setStartingAddress(selectedCustodian.location);
             getLatLong(selectedCustodian.location, 'start');
           } else if (custody === 'end') {
             setDestinationCustodian(value);
             setDestinationAbb(getAbbreviation(selectedCustodian.abbrevation));
+            setEndingAddress(selectedCustodian.location);
             getLatLong(selectedCustodian.location, 'end');
           }
         }
@@ -325,7 +353,7 @@ const CreateShipment = ({
     (!!template
       && originCustodian === template.origin_custodian
       && destinationCustodian === template.destination_custodian
-      && items === template.items
+      && _.isEqual(items, template.items)
       && status.value === template.status
       && min_excursion_temp.value === template.min_excursion_temp
       && max_excursion_temp.value === template.max_excursion_temp
@@ -350,10 +378,22 @@ const CreateShipment = ({
     light_threshold.setValue(value.light_threshold);
   };
 
-  const saveAsTemplate = () => {
-    const itemName = _.find(itemRows, { url: items[0] }) ? _.find(itemRows, { url: items[0] }).name : 'NoItems';
+  const getTemplateName = () => {
+    let suffix = '-01';
+    const tmpName = `${originAbb}-${destinationAbb}-${_.find(itemRows, { url: items[0] }).name}`;
+    const latest = _.find(_.orderBy(templates, 'create_date', 'desc'), (tmp) => _.includes(tmp.name, `${tmpName}-`));
+
+    if (latest) {
+      const [name, nsuffix] = _.split(latest.name, `${tmpName}-`);
+      suffix = `-${_.padStart(_.toString((_.toNumber(nsuffix) || 0) + 1), 2, '0')}`;
+    }
+
+    setTemplateName({ name: tmpName, suffix });
+  };
+
+  const overrideExisting = () => {
     const templateFormValue = {
-      name: `${originAbb}-${destinationAbb}-${itemName}`,
+      ...template,
       origin_custodian: originCustodian,
       destination_custodian: destinationCustodian,
       items,
@@ -366,7 +406,36 @@ const CreateShipment = ({
       light_threshold: light_threshold.value,
       organization_uuid: organization.organization_uuid,
     };
+
+    dispatch(editShipmentTemplate(templateFormValue));
+    setConfirmSaveTemplate(false);
+  };
+
+  const saveAsTemplate = () => {
+    // eslint-disable-next-line no-nested-ternary
+    const name = template
+      ? `${templateName.name}${templateName.suffix}`
+      : _.find(itemRows, { url: items[0] })
+        ? `${originAbb}-${destinationAbb}-${_.find(itemRows, { url: items[0] }).name}`
+        : `${originAbb}-${destinationAbb}-NoItems`;
+
+    const templateFormValue = {
+      name,
+      origin_custodian: originCustodian,
+      destination_custodian: destinationCustodian,
+      items,
+      status: status.value,
+      min_excursion_temp: min_excursion_temp.value,
+      max_excursion_temp: max_excursion_temp.value,
+      min_excursion_humidity: min_excursion_humidity.value,
+      max_excursion_humidity: max_excursion_humidity.value,
+      shock_threshold: shock_threshold.value,
+      light_threshold: light_threshold.value,
+      organization_uuid: organization.organization_uuid,
+    };
+
     dispatch(addShipmentTemplate(templateFormValue));
+    setConfirmName(false);
   };
 
   const fileChange = (event) => {
@@ -403,9 +472,79 @@ const CreateShipment = ({
     || !destinationCustodian
     || _.isEmpty(items)
     || !shipmentName.value
-    || !gatewayType.value
-    || !gateway.value
   );
+
+  const saveDraft = (event, action) => {
+    event.preventDefault();
+    const shipName = `${organization.abbrevation}-${shipmentName.value}-${originAbb}-${destinationAbb}`;
+    const uom_distance = _.find(unitOfMeasure, (unit) => (
+      _.toLower(unit.unit_of_measure_for) === 'distance'
+    ))?.unit_of_measure;
+
+    const shipmentFormValue = {
+      name: shipName,
+      purchase_order_number: purchaseOrderNumber.value,
+      order_number: shipmentName.value,
+      status: status.value,
+      estimated_time_of_arrival: arrivalDateTime,
+      estimated_time_of_departure: departureDateTime,
+      items,
+      organization_uuid: organization.organization_uuid,
+      platform_name: gatewayType.value,
+      max_excursion_temp: parseInt(max_excursion_temp.value, 10),
+      min_excursion_temp: parseInt(min_excursion_temp.value, 10),
+      max_excursion_humidity: parseInt(max_excursion_humidity.value, 10),
+      min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
+      note: note.value,
+    };
+    const startCustodyForm = {
+      custodian: [originCustodian],
+      start_of_custody_location: startingLocation,
+      end_of_custody_location: startingLocation,
+      has_current_custody: true,
+      first_custody: true,
+      last_custody: false,
+      radius: organization.radius || 10,
+      shipment_name: shipName,
+      load_id: '1',
+      unit_of_measure: uom_distance,
+    };
+
+    const endCustodyForm = {
+      custodian: [destinationCustodian],
+      start_of_custody_location: endingLocation,
+      end_of_custody_location: endingLocation,
+      has_current_custody: false,
+      first_custody: false,
+      last_custody: true,
+      radius: organization.radius || 10,
+      shipment_name: shipName,
+      load_id: `${_.size(additionalCustodians) + 2}`,
+      unit_of_measure: uom_distance,
+    };
+
+    const carriers = _.map(additionalCustodians, (addCust, index) => ({
+      custodian: [addCust.url],
+      location: addCust.location,
+      has_current_custody: false,
+      first_custody: false,
+      last_custody: false,
+      radius: organization.radius || 10,
+      shipment_name: shipName,
+      load_id: `${index + 2}`,
+      unit_of_measure: uom_distance,
+    }));
+
+    const saveDraftPayload = {
+      shipment: shipmentFormValue,
+      start_custody: startCustodyForm,
+      end_custody: endCustodyForm,
+      files,
+      carriers,
+    };
+
+    dispatch(addShipment(saveDraftPayload, history, routes.SHIPMENT));
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -488,12 +627,12 @@ const CreateShipment = ({
                     <TextField
                       variant="outlined"
                       fullWidth
+                      disabled
                       id="starting-address"
                       label="Starting Address"
                       name="starting-address"
                       autoComplete="starting-address"
                       value={startingAddress}
-                      onChange={(e) => getLatLong(e.target.value, 'start')}
                       InputProps={{
                         endAdornment: <InputAdornment position="end"><LocationIcon /></InputAdornment>,
                       }}
@@ -511,8 +650,8 @@ const CreateShipment = ({
                       mapElement={<div style={{ height: '100%' }} />}
                       markers={[
                         {
-                          lat: startingLocation && parseFloat(startingLocation.split(',')[0]),
-                          lng: startingLocation && parseFloat(startingLocation.split(',')[1]),
+                          lat: startingLocation && _.includes(startingLocation, ',') && parseFloat(startingLocation.split(',')[0]),
+                          lng: startingLocation && _.includes(startingLocation, ',') && parseFloat(startingLocation.split(',')[1]),
                           radius: organization.radius,
                         },
                       ]}
@@ -559,12 +698,12 @@ const CreateShipment = ({
                     <TextField
                       variant="outlined"
                       fullWidth
+                      disabled
                       id="ending-address"
                       label="Ending Address"
                       name="ending-address"
                       autoComplete="ending-address"
                       value={endingAddress}
-                      onChange={(e) => getLatLong(e.target.value, 'end')}
                       InputProps={{
                         endAdornment: <InputAdornment position="end"><LocationIcon /></InputAdornment>,
                       }}
@@ -582,8 +721,8 @@ const CreateShipment = ({
                       mapElement={<div style={{ height: '100%' }} />}
                       markers={[
                         {
-                          lat: endingLocation && parseFloat(endingLocation.split(',')[0]),
-                          lng: endingLocation && parseFloat(endingLocation.split(',')[1]),
+                          lat: endingLocation && _.includes(endingLocation, ',') && parseFloat(endingLocation.split(',')[0]),
+                          lng: endingLocation && _.includes(endingLocation, ',') && parseFloat(endingLocation.split(',')[1]),
                           radius: organization.radius,
                         },
                       ]}
@@ -733,6 +872,8 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    type="number"
+                    className={classes.numberInput}
                     id="max_excursion_temp"
                     name="max_excursion_temp"
                     autoComplete="max_excursion_temp"
@@ -750,7 +891,8 @@ const CreateShipment = ({
                       ),
                     }}
                     onBlur={(e) => handleBlur(e, 'required', max_excursion_temp, 'max_excursion_temp')}
-                    {...max_excursion_temp.bind}
+                    value={max_excursion_temp.value}
+                    onChange={(e) => max_excursion_temp.setValue(_.toNumber(e.target.value))}
                   />
 
                   <Typography mt={3} className={classes.alertSettingText}>
@@ -760,6 +902,8 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    type="number"
+                    className={classes.numberInput}
                     id="min_excursion_temp"
                     name="min_excursion_temp"
                     autoComplete="min_excursion_temp"
@@ -777,7 +921,8 @@ const CreateShipment = ({
                       ),
                     }}
                     onBlur={(e) => handleBlur(e, 'required', min_excursion_temp, 'min_excursion_temp')}
-                    {...min_excursion_temp.bind}
+                    value={min_excursion_temp.value}
+                    onChange={(e) => min_excursion_temp.setValue(_.toNumber(e.target.value))}
                   />
                 </div>
               </Grid>
@@ -795,6 +940,8 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    type="number"
+                    className={classes.numberInput}
                     id="max_excursion_humidity"
                     name="max_excursion_humidity"
                     autoComplete="max_excursion_humidity"
@@ -803,7 +950,8 @@ const CreateShipment = ({
                       endAdornment: <InputAdornment position="start">%</InputAdornment>,
                     }}
                     onBlur={(e) => handleBlur(e, 'required', max_excursion_humidity, 'max_excursion_humidity')}
-                    {...max_excursion_humidity.bind}
+                    value={max_excursion_humidity.value}
+                    onChange={(e) => max_excursion_humidity.setValue(_.toNumber(e.target.value))}
                   />
 
                   <Typography mt={3} className={classes.alertSettingText}>
@@ -813,6 +961,8 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    type="number"
+                    className={classes.numberInput}
                     id="min_excursion_humidity"
                     name="min_excursion_humidity"
                     autoComplete="min_excursion_humidity"
@@ -821,7 +971,8 @@ const CreateShipment = ({
                       endAdornment: <InputAdornment position="start">%</InputAdornment>,
                     }}
                     onBlur={(e) => handleBlur(e, 'required', min_excursion_humidity, 'min_excursion_humidity')}
-                    {...min_excursion_humidity.bind}
+                    value={min_excursion_humidity.value}
+                    onChange={(e) => min_excursion_humidity.setValue(_.toNumber(e.target.value))}
                   />
                 </div>
               </Grid>
@@ -839,6 +990,8 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    type="number"
+                    className={classes.numberInput}
                     id="shock_threshold"
                     name="shock_threshold"
                     autoComplete="shock_threshold"
@@ -847,7 +1000,8 @@ const CreateShipment = ({
                       endAdornment: <InputAdornment position="start">G</InputAdornment>,
                     }}
                     onBlur={(e) => handleBlur(e, 'required', shock_threshold, 'shock_threshold')}
-                    {...shock_threshold.bind}
+                    value={shock_threshold.value}
+                    onChange={(e) => shock_threshold.setValue(_.toNumber(e.target.value))}
                   />
 
                   <Typography mt={3} className={classes.alertSettingText}>
@@ -857,6 +1011,8 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    type="number"
+                    className={classes.numberInput}
                     id="light_threshold"
                     name="light_threshold"
                     autoComplete="light_threshold"
@@ -865,7 +1021,8 @@ const CreateShipment = ({
                       endAdornment: <InputAdornment position="start">lumens</InputAdornment>,
                     }}
                     onBlur={(e) => handleBlur(e, 'required', light_threshold, 'light_threshold')}
-                    {...light_threshold.bind}
+                    value={light_threshold.value}
+                    onChange={(e) => light_threshold.setValue(_.toNumber(e.target.value))}
                   />
                 </div>
               </Grid>
@@ -876,7 +1033,13 @@ const CreateShipment = ({
                   variant="contained"
                   color="primary"
                   disabled={loading || saveTemplateDisabled()}
-                  onClick={saveAsTemplate}
+                  onClick={(e) => {
+                    if (template) {
+                      setConfirmSaveTemplate(true);
+                    } else {
+                      saveAsTemplate();
+                    }
+                  }}
                 >
                   Save as Template
                 </Button>
@@ -906,6 +1069,8 @@ const CreateShipment = ({
                 <TextField
                   variant="outlined"
                   fullWidth
+                  type="number"
+                  className={classes.numberInput}
                   id="shipment-name"
                   name="shipment-name"
                   label="Shipment Name"
@@ -1139,7 +1304,7 @@ const CreateShipment = ({
             </FormLabel>
 
             <Grid container spacing={isDesktop ? 4 : 0}>
-              <Grid item xs={5.5}>
+              <Grid item xs={gatewayType && gatewayType.value ? 5.5 : 5.75}>
                 <TextField
                   id="gateway-type"
                   select
@@ -1157,9 +1322,11 @@ const CreateShipment = ({
                   ))}
                 </TextField>
               </Grid>
-              <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
+              {gatewayType && gatewayType.value && (
+                <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
+              )}
 
-              <Grid item xs={5.5}>
+              <Grid item xs={gatewayType && gatewayType.value ? 5.5 : 5.75}>
                 <TextField
                   id="gateway"
                   select
@@ -1177,7 +1344,9 @@ const CreateShipment = ({
                   ))}
                 </TextField>
               </Grid>
-              <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
+              {gatewayType && gatewayType.value && (
+                <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
+              )}
             </Grid>
             {gateway && gateway.value && (
               <Grid item xs={11.5} className={classes.gatewayDetails}>
@@ -1312,9 +1481,22 @@ const CreateShipment = ({
             </Grid>
 
             <Grid item xs={5.5}>
-              <Button type="submit" variant="contained" fullWidth disabled={loading || submitDisabled()}>
-                Create a shipment
-              </Button>
+              {gateway && !gatewayType.value && (
+                <Button
+                  type="button"
+                  variant="contained"
+                  fullWidth
+                  disabled={loading || submitDisabled()}
+                  onClick={saveDraft}
+                >
+                  Save as Draft
+                </Button>
+              )}
+              {gateway && gatewayType.value && (
+                <Button type="submit" variant="contained" fullWidth disabled={loading || submitDisabled() || !gatewayType.value || !gateway.value}>
+                  Create a shipment
+                </Button>
+              )}
             </Grid>
             <Grid item xs={0.5} />
           </Grid>
@@ -1328,6 +1510,89 @@ const CreateShipment = ({
           </Grid>
         </Box>
       </form>
+
+      <div>
+        <Dialog
+          open={confirmSaveTemplate}
+          onClose={(e) => setConfirmSaveTemplate(false)}
+          aria-labelledby="confirm-dialog-title"
+          aria-describedby="confirm-dialog-description"
+        >
+          {loading && <Loader open={loading} />}
+          <DialogTitle id="confirm-dialog-title">
+            Do you want to override existing template or create a new one?
+          </DialogTitle>
+          <DialogContent />
+          <DialogActions>
+            <Button variant="outlined" onClick={overrideExisting} color="primary">
+              Override exisiting
+            </Button>
+            <Button
+              variant="contained"
+              onClick={(e) => {
+                getTemplateName();
+                setConfirmName(true);
+                setConfirmSaveTemplate(false);
+              }}
+              color="primary"
+              autoFocus
+            >
+              Save as a new template
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+
+      <div>
+        <Dialog
+          open={confirmName}
+          onClose={(e) => setConfirmName(false)}
+          aria-labelledby="confirm-name-title"
+          aria-describedby="confirm-name-description"
+        >
+          {loading && <Loader open={loading} />}
+          <DialogTitle id="confirm-name-title">
+            Saving template named as
+          </DialogTitle>
+          <DialogContent>
+            <Grid container spacing={isDesktop ? 4 : 0}>
+              <Grid item xs={8}>
+                <TextField
+                  variant="outlined"
+                  id="final-temp-name-1"
+                  fullWidth
+                  disabled
+                  className={classes.finalNameDisplay}
+                  value={templateName.name}
+                />
+              </Grid>
+
+              <Grid item xs={4}>
+                <TextField
+                  variant="outlined"
+                  required
+                  id="final-temp-name-2"
+                  name="final-temp-name-2"
+                  autoComplete="final-temp-name-2"
+                  inputProps={{ maxLength: 16 }}
+                  value={templateName.suffix}
+                  onChange={(e) => setTemplateName({ ...templateName, suffix: e.target.value })}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="contained"
+              onClick={saveAsTemplate}
+              color="primary"
+              disabled={!templateName.suffix}
+            >
+              Okay
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </Box>
   );
 };

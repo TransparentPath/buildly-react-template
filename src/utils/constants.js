@@ -1623,6 +1623,7 @@ export const getShipmentFormattedRow = (
     let lastCustody = null;
     let origin = null;
     let destination = null;
+    let carriers = [];
 
     if (!_.isEmpty(custodyRows)) {
       // From list of custodians attached to the shipment find the first custody for the shipment
@@ -1636,9 +1637,11 @@ export const getShipmentFormattedRow = (
 
       origin = firstCustody ? firstCustody.custodian_name : 'N/A';
       destination = lastCustody ? lastCustody.custodian_name : 'N/A';
+      carriers = _.map(_.orderBy(_.filter(custodyRows, { first_custody: false, last_custody: false }), 'load_id', 'asc'), 'custodian_name');
     }
     editedShipment.origin = origin;
     editedShipment.destination = destination;
+    editedShipment.carriers = carriers;
 
     switch (_.lowerCase(shipment.status)) {
       case 'planned':

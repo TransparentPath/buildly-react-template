@@ -1,10 +1,11 @@
 import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
+import Geocode from 'react-geocode';
 import _ from 'lodash';
 import { httpService } from '../../../modules/http/http.service';
 import { showAlert } from '../../alert/actions/alert.actions';
-import { getCustody } from '../../custodian/actions/custodian.actions';
+import { addCustody, getCustody } from '../../custodian/actions/custodian.actions';
 import { getAllSensorAlerts } from '../../sensorsGateway/actions/sensorsGateway.actions';
 import {
   GET_SHIPMENTS,
@@ -19,9 +20,6 @@ import {
   DELETE_SHIPMENT,
   DELETE_SHIPMENT_SUCCESS,
   DELETE_SHIPMENT_FAILURE,
-  ADD_PDF_IDENTIFIER,
-  ADD_PDF_IDENTIFIER_SUCCESS,
-  ADD_PDF_IDENTIFIER_FAILURE,
   GET_COUNTRIES_STATES,
   GET_COUNTRIES_STATES_SUCCESS,
   GET_COUNTRIES_STATES_FAILURE,
@@ -34,9 +32,27 @@ import {
   ADD_SHIPMENT_TEMPLATE,
   ADD_SHIPMENT_TEMPLATE_SUCCESS,
   ADD_SHIPMENT_TEMPLATE_FAILURE,
+  EDIT_SHIPMENT_TEMPLATE,
+  EDIT_SHIPMENT_TEMPLATE_SUCCESS,
+  EDIT_SHIPMENT_TEMPLATE_FAILURE,
 } from '../actions/shipment.actions';
 
 const shipmentApiEndPoint = 'shipment/';
+
+function* getLocations(carrierLocations) {
+  Geocode.setApiKey(window.env.GEO_CODE_API);
+  Geocode.setLanguage('en');
+
+  const reponses = yield all(_.map(carrierLocations, (loc) => (
+    Geocode.fromAddress(loc)
+  )));
+  const locations = _.map(reponses, (res) => {
+    const { lat, lng } = res.results[0].geometry.location;
+    return `${lat},${lng}`;
+  });
+
+  return locations;
+}
 
 function* getShipmentList(payload) {
   const { organization_uuid, status, fetchRelatedData } = payload;
@@ -104,13 +120,68 @@ function* getShipmentList(payload) {
 
 function* addShipment(action) {
   const { history, payload, redirectTo } = action;
+  const {
+    start_custody, end_custody, files, carriers,
+  } = payload;
+
   try {
+    let shipmentPayload = payload.shipment;
+    let uploadFile = null;
+
+    if (!_.isEmpty(files)) {
+      const responses = yield all(_.map(files, (file) => {
+        uploadFile = new FormData();
+        uploadFile.append('file', file, file.name);
+
+        return call(
+          httpService.makeRequest,
+          'post',
+          `${window.env.API_URL}${shipmentApiEndPoint}upload_file/`,
+          uploadFile,
+        );
+      }));
+
+      shipmentPayload = {
+        ...shipmentPayload,
+        uploaded_pdf: _.map(files, 'name'),
+        uploaded_pdf_link: _.map(_.flatMap(_.map(responses, 'data')), 'aws url'),
+      };
+    }
+
     const data = yield call(
       httpService.makeRequest,
       'post',
       `${window.env.API_URL}${shipmentApiEndPoint}shipment/`,
-      payload,
+      shipmentPayload,
     );
+    if (start_custody && data.data) {
+      yield put(addCustody({
+        ...start_custody,
+        shipment_id: data.data.shipment_uuid,
+        shipment: data.data.id,
+      }));
+    }
+    if (end_custody && data.data) {
+      yield put(addCustody({
+        ...end_custody,
+        shipment_id: data.data.shipment_uuid,
+        shipment: data.data.id,
+      }));
+    }
+    if (!_.isEmpty(carriers) && data.data) {
+      const locations = yield getLocations(_.map(carriers, 'location'));
+
+      yield all(_.map(carriers, (carrier, index) => (
+        put(addCustody({
+          ...carrier,
+          start_of_custody_location: locations[index],
+          end_of_custody_location: locations[index],
+          shipment_id: data.data.shipment_uuid,
+          shipment: data.data.id,
+        }))
+      )));
+    }
+
     yield [
       yield put(
         showAlert({
@@ -202,98 +273,6 @@ function* deleteShipment(payload) {
         }),
       ),
       yield put({ type: DELETE_SHIPMENT_FAILURE, error }),
-    ];
-  }
-}
-
-function* pdfIdentifier(action) {
-  const {
-    data,
-    filename,
-    identifier,
-    payload,
-    history,
-    redirectTo,
-    organization_uuid,
-  } = action;
-  try {
-    let { uploaded_pdf, uploaded_pdf_link } = payload;
-    if (data && filename) {
-      const response = yield call(
-        httpService.makeRequest,
-        'post',
-        `${window.env.API_URL}${shipmentApiEndPoint}upload_file/`,
-        data,
-      );
-      uploaded_pdf = payload.uploaded_pdf
-        ? [...payload.uploaded_pdf, filename]
-        : [filename];
-      uploaded_pdf_link = payload.uploaded_pdf_link
-        ? [...payload.uploaded_pdf_link, response.data['aws url']]
-        : [response.data['aws url']];
-    }
-
-    const unique_identifier = identifier;
-    yield [
-      yield put({
-        type: ADD_PDF_IDENTIFIER_SUCCESS,
-        uploaded_pdf,
-        uploaded_pdf_link,
-        unique_identifier,
-      }),
-      yield put({
-        type: EDIT_SHIPMENT,
-        payload: {
-          ...payload,
-          uploaded_pdf,
-          uploaded_pdf_link,
-          unique_identifier,
-        },
-        history,
-        redirectTo,
-        organization_uuid,
-      }),
-    ];
-    if (data && filename && identifier) {
-      yield put(
-        showAlert({
-          type: 'success',
-          open: true,
-          message: 'Successfully Added PDF and Unique Identifer',
-        }),
-      );
-    }
-    if (data && filename && !identifier) {
-      yield put(
-        showAlert({
-          type: 'success',
-          open: true,
-          message: 'Successfully Added PDF',
-        }),
-      );
-    }
-    if (!data && !filename && identifier) {
-      yield put(
-        showAlert({
-          type: 'success',
-          open: true,
-          message: 'Successfully Added Unique Identifer',
-        }),
-      );
-    }
-  } catch (error) {
-    yield [
-      yield put(
-        showAlert({
-          type: 'error',
-          open: true,
-          message: 'Couldn\'t Upload Bill due to some error!',
-        }),
-      ),
-      yield put({
-        type: ADD_PDF_IDENTIFIER_FAILURE,
-        error,
-      }),
     ];
   }
 }
@@ -407,6 +386,7 @@ function* addShipmentTemplate(action) {
       `${window.env.API_URL}${shipmentApiEndPoint}shipment_template/`,
       payload,
     );
+
     yield [
       yield put(
         showAlert({
@@ -415,7 +395,7 @@ function* addShipmentTemplate(action) {
           message: 'Successfully Added Shipment Template',
         }),
       ),
-      yield put({ type: ADD_SHIPMENT_TEMPLATE_SUCCESS, data: response.data }),
+      yield put({ type: ADD_SHIPMENT_TEMPLATE_SUCCESS, template: response.data }),
     ];
   } catch (error) {
     yield [
@@ -427,6 +407,40 @@ function* addShipmentTemplate(action) {
         }),
       ),
       yield put({ type: ADD_SHIPMENT_TEMPLATE_FAILURE, error }),
+    ];
+  }
+}
+
+function* editShipmentTemplate(action) {
+  const { payload } = action;
+  try {
+    const data = yield call(
+      httpService.makeRequest,
+      'patch',
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment_template/${payload.id}/`,
+      payload,
+    );
+
+    yield [
+      yield put({ type: EDIT_SHIPMENT_TEMPLATE_SUCCESS, template: data.data }),
+      yield put(
+        showAlert({
+          type: 'success',
+          open: true,
+          message: 'Shipment template successfully edited!',
+        }),
+      ),
+    ];
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Error in updating shipment template!',
+        }),
+      ),
+      yield put({ type: EDIT_SHIPMENT_TEMPLATE_FAILURE, error }),
     ];
   }
 }
@@ -447,10 +461,6 @@ function* watchDeleteShipment() {
   yield takeLatest(DELETE_SHIPMENT, deleteShipment);
 }
 
-function* watchPdfIdentifier() {
-  yield takeLatest(ADD_PDF_IDENTIFIER, pdfIdentifier);
-}
-
 function* watchGetCountries() {
   yield takeLatest(GET_COUNTRIES_STATES, getCountries);
 }
@@ -467,16 +477,20 @@ function* watchAddShipmentTemplate() {
   yield takeLatest(ADD_SHIPMENT_TEMPLATE, addShipmentTemplate);
 }
 
+function* watchEditShipmentTemplate() {
+  yield takeLatest(EDIT_SHIPMENT_TEMPLATE, editShipmentTemplate);
+}
+
 export default function* shipmentSaga() {
   yield all([
     watchGetShipment(),
     watchAddShipment(),
     watchDeleteShipment(),
     watchEditShipment(),
-    watchPdfIdentifier(),
     watchGetCountries(),
     watchGetCurrencies(),
     watchGetShipmentTemplates(),
     watchAddShipmentTemplate(),
+    watchEditShipmentTemplate(),
   ]);
 }

@@ -13,9 +13,6 @@ import {
   DELETE_SHIPMENT,
   DELETE_SHIPMENT_SUCCESS,
   DELETE_SHIPMENT_FAILURE,
-  ADD_PDF_IDENTIFIER,
-  ADD_PDF_IDENTIFIER_SUCCESS,
-  ADD_PDF_IDENTIFIER_FAILURE,
   GET_COUNTRIES_STATES,
   GET_COUNTRIES_STATES_SUCCESS,
   GET_COUNTRIES_STATES_FAILURE,
@@ -28,6 +25,9 @@ import {
   ADD_SHIPMENT_TEMPLATE,
   ADD_SHIPMENT_TEMPLATE_SUCCESS,
   ADD_SHIPMENT_TEMPLATE_FAILURE,
+  EDIT_SHIPMENT_TEMPLATE,
+  EDIT_SHIPMENT_TEMPLATE_SUCCESS,
+  EDIT_SHIPMENT_TEMPLATE_FAILURE,
 } from '../actions/shipment.actions';
 
 const initialState = {
@@ -57,11 +57,11 @@ export default (state = initialState, action) => {
     case ADD_SHIPMENT:
     case EDIT_SHIPMENT:
     case DELETE_SHIPMENT:
-    case ADD_PDF_IDENTIFIER:
     case GET_COUNTRIES_STATES:
     case GET_CURRENCIES:
     case GET_SHIPMENT_TEMPLATES:
     case ADD_SHIPMENT_TEMPLATE:
+    case EDIT_SHIPMENT_TEMPLATE:
       return {
         ...state,
         loading: true,
@@ -73,11 +73,11 @@ export default (state = initialState, action) => {
     case ADD_SHIPMENT_FAILURE:
     case EDIT_SHIPMENT_FAILURE:
     case DELETE_SHIPMENT_FAILURE:
-    case ADD_PDF_IDENTIFIER_FAILURE:
     case GET_COUNTRIES_STATES_FAILURE:
     case GET_CURRENCIES_FAILURE:
     case GET_SHIPMENT_TEMPLATES_FAILURE:
     case ADD_SHIPMENT_TEMPLATE_FAILURE:
+    case EDIT_SHIPMENT_TEMPLATE_FAILURE:
       return {
         ...state,
         loading: false,
@@ -125,19 +125,6 @@ export default (state = initialState, action) => {
       };
     }
 
-    case ADD_PDF_IDENTIFIER_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        shipmentFormData: {
-          ...state.shipmentFormData,
-          uploaded_pdf: action.uploaded_pdf,
-          uploaded_pdf_link: action.uploaded_pdf_link,
-          unique_identifier: action.unique_identifier,
-        },
-      };
-
     case GET_COUNTRIES_STATES_SUCCESS:
       return {
         ...state,
@@ -163,12 +150,25 @@ export default (state = initialState, action) => {
       };
 
     case ADD_SHIPMENT_TEMPLATE_SUCCESS:
+    case EDIT_SHIPMENT_TEMPLATE_SUCCESS: {
+      const found = _.find(
+        state.templates,
+        { id: action.template.id },
+      );
+      const templates = found
+        ? _.map(state.templates, (template) => (
+          template.id === action.template.id
+            ? action.template
+            : template
+        ))
+        : [...state.templates, action.template];
       return {
         ...state,
         loading: false,
         loaded: true,
-        templates: [...state.templates, action.data],
+        templates,
       };
+    }
 
     default:
       return state;

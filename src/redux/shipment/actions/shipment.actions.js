@@ -16,10 +16,6 @@ export const DELETE_SHIPMENT = 'SHIPMENT/DELETE_SHIPMENT';
 export const DELETE_SHIPMENT_SUCCESS = 'SHIPMENT/DELETE_SHIPMENT_SUCCESS';
 export const DELETE_SHIPMENT_FAILURE = 'SHIPMENT/DELETE_SHIPMENT_FAILURE';
 
-export const ADD_PDF_IDENTIFIER = 'SHIPMENT/ADD_PDF_IDENTIFIER';
-export const ADD_PDF_IDENTIFIER_SUCCESS = 'SHIPMENT/ADD_PDF_IDENTIFIER_SUCCESS';
-export const ADD_PDF_IDENTIFIER_FAILURE = 'SHIPMENT/ADD_PDF_IDENTIFIER_FAILURE';
-
 export const GET_COUNTRIES_STATES = 'SHIPMENT/GET_COUNTRIES_STATES';
 export const GET_COUNTRIES_STATES_SUCCESS = 'SHIPMENT/GET_COUNTRIES_STATES_SUCCESS';
 export const GET_COUNTRIES_STATES_FAILURE = 'SHIPMENT/GET_COUNTRIES_STATES_FAILURE';
@@ -35,6 +31,10 @@ export const GET_SHIPMENT_TEMPLATES_FAILURE = 'SHIPMENT/GET_SHIPMENT_TEMPLATES_F
 export const ADD_SHIPMENT_TEMPLATE = 'SHIPMENT/ADD_SHIPMENT_TEMPLATE';
 export const ADD_SHIPMENT_TEMPLATE_SUCCESS = 'SHIPMENT/ADD_SHIPMENT_TEMPLATE_SUCCESS';
 export const ADD_SHIPMENT_TEMPLATE_FAILURE = 'SHIPMENT/ADD_SHIPMENT_TEMPLATE_FAILURE';
+
+export const EDIT_SHIPMENT_TEMPLATE = 'SHIPMENT/EDIT_SHIPMENT_TEMPLATE';
+export const EDIT_SHIPMENT_TEMPLATE_SUCCESS = 'SHIPMENT/EDIT_SHIPMENT_TEMPLATE_SUCCESS';
+export const EDIT_SHIPMENT_TEMPLATE_FAILURE = 'SHIPMENT/EDIT_SHIPMENT_TEMPLATE_FAILURE';
 
 /**
  * Save Shipment Form Data
@@ -93,35 +93,6 @@ export const editShipment = (payload, history, redirectTo) => ({
 export const deleteShipment = (id) => ({ type: DELETE_SHIPMENT, id });
 
 /**
- * PDF Identifier
- * @param {FormData} data
- * @param {String} filename
- * @param {String} identifier
- * @param {Object} payload
- * @param {Object} history
- * @param {String} redirectTo
- * @param {String} organization_uuid
- */
-export const pdfIdentifier = (
-  data,
-  filename,
-  identifier,
-  payload,
-  history,
-  redirectTo,
-  organization_uuid,
-) => ({
-  type: ADD_PDF_IDENTIFIER,
-  data,
-  filename,
-  identifier,
-  payload,
-  history,
-  redirectTo,
-  organization_uuid,
-});
-
-/**
  * Get countries and related states
  */
 export const getCountries = () => ({ type: GET_COUNTRIES_STATES });
@@ -145,3 +116,9 @@ export const getShipmentTemplates = (organization_uuid) => ({
  * @param {Object} payload
  */
 export const addShipmentTemplate = (payload) => ({ type: ADD_SHIPMENT_TEMPLATE, payload });
+
+/**
+ * Edit Shipment Template
+ * @param {Object} payload
+ */
+export const editShipmentTemplate = (payload) => ({ type: EDIT_SHIPMENT_TEMPLATE, payload });

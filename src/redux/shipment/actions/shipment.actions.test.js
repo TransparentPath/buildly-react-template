@@ -68,38 +68,6 @@ describe('Delete Shipment action', () => {
   });
 });
 
-// Test Add PDF Identifier action
-describe('Add PDF Identifier action', () => {
-  it('should create an action to add PDF identifier', () => {
-    const data = { file: 'test.pdf' };
-    const filename = 'test';
-    const identifier = 'Reciept Number';
-    const payload = { identifier: { 'Reciept Number': 'test' } };
-    const history = {};
-    const redirectTo = '/test';
-    const organization_uuid = 'gweiug-3t2igf-3yfhf-329hgds73';
-    const expectedAction = {
-      type: actions.ADD_PDF_IDENTIFIER,
-      data,
-      filename,
-      identifier,
-      payload,
-      history,
-      redirectTo,
-      organization_uuid,
-    };
-    expect(actions.pdfIdentifier(
-      data,
-      filename,
-      identifier,
-      payload,
-      history,
-      redirectTo,
-      organization_uuid,
-    )).toEqual(expectedAction);
-  });
-});
-
 // Test Get countries and related states action
 describe('Get countries and related states action', () => {
   it('should create an action to get countries and related states', () => {
@@ -131,5 +99,14 @@ describe('Add Shipment Template action', () => {
     const payload = { name: 'Test template' };
     const expectedAction = { type: actions.ADD_SHIPMENT_TEMPLATE, payload };
     expect(actions.addShipmentTemplate(payload)).toEqual(expectedAction);
+  });
+});
+
+// Test Add Shipment Template action
+describe('Add Shipment Template action', () => {
+  it('should create an action to add shipment template', () => {
+    const payload = { id: 1, name: 'Test template-01' };
+    const expectedAction = { type: actions.EDIT_SHIPMENT_TEMPLATE, payload };
+    expect(actions.editShipmentTemplate(payload)).toEqual(expectedAction);
   });
 });

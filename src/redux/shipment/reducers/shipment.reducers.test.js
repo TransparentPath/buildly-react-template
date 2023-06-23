@@ -173,47 +173,6 @@ describe('Delete Shipment reducer', () => {
   });
 });
 
-describe('Add PDF Identifier reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_PDF_IDENTIFIER },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Add PDF Identifier success Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_PDF_IDENTIFIER_SUCCESS },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      shipmentFormData: {
-        ...initialState.shipmentFormData,
-        uploaded_pdf: undefined,
-        uploaded_pdf_link: undefined,
-        unique_identifier: undefined,
-      },
-    });
-  });
-
-  it('Add PDF Identifier fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_PDF_IDENTIFIER_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
 describe('Get countries and related states reducer', () => {
   it('Empty Reducer', () => {
     expect(reducer.default(
@@ -337,7 +296,7 @@ describe('Add Shipment Template reducer', () => {
     const data = { id: 1, name: 'Test data' };
     expect(reducer.default(
       initialState,
-      { type: actions.ADD_SHIPMENT_TEMPLATE_SUCCESS, data },
+      { type: actions.ADD_SHIPMENT_TEMPLATE_SUCCESS, template: data },
     )).toEqual({
       ...initialState,
       loaded: true,
@@ -350,6 +309,44 @@ describe('Add Shipment Template reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.ADD_SHIPMENT_TEMPLATE_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Edit Shipment Template reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.EDIT_SHIPMENT_TEMPLATE },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Edit Shipment Template success Reducer', () => {
+    const data = { id: 1, name: 'Test template' };
+    const editedData = { id: 1, name: 'Test template edited' };
+    expect(reducer.default(
+      { ...initialState, templates: [data] },
+      { type: actions.EDIT_SHIPMENT_TEMPLATE_SUCCESS, template: editedData },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      templates: [editedData],
+    });
+  });
+
+  it('Edit Shipment Template fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.EDIT_SHIPMENT_TEMPLATE_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,
