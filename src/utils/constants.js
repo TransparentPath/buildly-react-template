@@ -2,7 +2,8 @@ import React from 'react';
 import moment from 'moment-timezone';
 import _ from 'lodash';
 import {
-  AccessTime as AccessTimeIcon, Warning as WarningIcon,
+  AccessTime as AccessTimeIcon,
+  Warning as WarningIcon,
 } from '@mui/icons-material';
 import {
   TempIcon,
@@ -1470,20 +1471,6 @@ export const GATEWAY_STATUS = [
 
 export const shipmentColumns = (timezone, dateFormat) => ([
   {
-    name: 'name',
-    label: 'Shipment Name',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-    },
-    customBodyRender: (value) => (
-      <Typography sx={{ whiteSpace: 'nowrap' }}>
-        {value}
-      </Typography>
-    ),
-  },
-  {
     name: 'status',
     label: 'Status',
     options: {
@@ -1637,7 +1624,7 @@ export const getShipmentFormattedRow = (
 
       origin = firstCustody ? firstCustody.custodian_name : 'N/A';
       destination = lastCustody ? lastCustody.custodian_name : 'N/A';
-      carriers = _.map(_.orderBy(_.filter(custodyRows, { first_custody: false, last_custody: false }), 'load_id', 'asc'), 'custodian_name');
+      carriers = _.map(_.orderBy(_.filter(custodies, { first_custody: false, last_custody: false }), 'load_id', 'asc'), 'custodian_name');
     }
     editedShipment.origin = origin;
     editedShipment.destination = destination;

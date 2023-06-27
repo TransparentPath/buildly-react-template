@@ -2,11 +2,11 @@ import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
 import Geocode from 'react-geocode';
-import _ from 'lodash';
+import _, { update } from 'lodash';
 import { httpService } from '../../../modules/http/http.service';
 import { showAlert } from '../../alert/actions/alert.actions';
-import { addCustody, getCustody } from '../../custodian/actions/custodian.actions';
-import { getAllSensorAlerts } from '../../sensorsGateway/actions/sensorsGateway.actions';
+import { addCustody, editCustody, getCustody } from '../../custodian/actions/custodian.actions';
+import { editGateway, getAllSensorAlerts } from '../../sensorsGateway/actions/sensorsGateway.actions';
 import {
   GET_SHIPMENTS,
   GET_SHIPMENTS_SUCCESS,
@@ -121,7 +121,7 @@ function* getShipmentList(payload) {
 function* addShipment(action) {
   const { history, payload, redirectTo } = action;
   const {
-    start_custody, end_custody, files, carriers,
+    start_custody, end_custody, files, carriers, updateGateway,
   } = payload;
 
   try {
@@ -181,6 +181,23 @@ function* addShipment(action) {
         }))
       )));
     }
+    if (updateGateway && data.data) {
+      yield call(
+        httpService.makeRequest,
+        'patch',
+        `${window.env.API_URL}${shipmentApiEndPoint}shipment/${data.data.id}`,
+        {
+          ...shipmentPayload,
+          gateway_ids: [updateGateway.gateway_uuid],
+          gateway_imei: [updateGateway.imei_number],
+        },
+      );
+      yield put(editGateway({
+        ...updateGateway,
+        gateway_status: 'assigned',
+        shipment_ids: [data.data.partner_shipment_id],
+      }));
+    }
 
     yield [
       yield put(
@@ -210,14 +227,122 @@ function* addShipment(action) {
 }
 
 function* editShipment(action) {
-  const { payload, history, redirectTo } = action;
+  const { history, payload, redirectTo } = action;
+  const {
+    start_custody, end_custody, files, carriers, updateGateway,
+  } = payload;
+
   try {
+    let shipmentPayload = payload.shipment;
+    let uploadFile = null;
+
+    if (!_.isEmpty(files)) {
+      const responses = yield all(_.map(files, (file) => {
+        uploadFile = new FormData();
+        uploadFile.append('file', file, file.name);
+
+        return call(
+          httpService.makeRequest,
+          'post',
+          `${window.env.API_URL}${shipmentApiEndPoint}upload_file/`,
+          uploadFile,
+        );
+      }));
+
+      shipmentPayload = {
+        ...shipmentPayload,
+        uploaded_pdf: shipmentPayload.uploaded_pdf
+          ? [...shipmentPayload.uploaded_pdf, ..._.map(files, 'name')]
+          : _.map(files, 'name'),
+        uploaded_pdf_link: shipmentPayload.uploaded_pdf_link
+          ? [...shipmentPayload.uploaded_pdf_link, ..._.map(_.flatMap(_.map(responses, 'data')), 'aws url')]
+          : _.map(_.flatMap(_.map(responses, 'data')), 'aws url'),
+      };
+    }
+
+    if (updateGateway) {
+      shipmentPayload = {
+        ...shipmentPayload,
+        gateway_ids: [updateGateway.gateway_uuid],
+        gateway_imei: [updateGateway.imei_number],
+      };
+    }
+
     const data = yield call(
       httpService.makeRequest,
       'patch',
-      `${window.env.API_URL}${shipmentApiEndPoint}shipment/${payload.id}/`,
-      payload,
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment/${shipmentPayload.id}`,
+      shipmentPayload,
     );
+
+    if (updateGateway && data.data) {
+      let gateway_status = '';
+      let shipment_ids = [];
+      switch (data.data.status) {
+        case 'Completed':
+        case 'Cancelled':
+          gateway_status = 'unavailable';
+          shipment_ids = [];
+          break;
+
+        case 'Planned':
+        case 'Enroute':
+          gateway_status = 'assigned';
+          shipment_ids = [data.data.partner_shipment_id];
+          break;
+
+        default:
+          break;
+      }
+
+      yield put(editGateway({
+        ...updateGateway,
+        gateway_status,
+        shipment_ids,
+      }));
+    }
+    if (start_custody && data.data) {
+      if (start_custody.id) {
+        yield put(editCustody(start_custody));
+      } else {
+        yield put(addCustody({
+          ...start_custody,
+          shipment_id: data.data.shipment_uuid,
+          shipment: data.data.id,
+        }));
+      }
+    }
+    if (end_custody && data.data) {
+      if (end_custody.id) {
+        yield put(editCustody(end_custody));
+      } else {
+        yield put(addCustody({
+          ...end_custody,
+          shipment_id: data.data.shipment_uuid,
+          shipment: data.data.id,
+        }));
+      }
+    }
+    if (!_.isEmpty(carriers) && data.data) {
+      const locations = yield getLocations(_.map(carriers, 'location'));
+
+      yield all(_.map(carriers, (carrier, index) => {
+        if (carrier.id) {
+          return put(editCustody({
+            ...carrier,
+            start_of_custody_location: locations[index],
+            end_of_custody_location: locations[index],
+          }));
+        }
+        return put(addCustody({
+          ...carrier,
+          start_of_custody_location: locations[index],
+          end_of_custody_location: locations[index],
+          shipment_id: data.data.shipment_uuid,
+          shipment: data.data.id,
+        }));
+      }));
+    }
 
     yield [
       yield put({ type: EDIT_SHIPMENT_SUCCESS, shipment: data.data }),

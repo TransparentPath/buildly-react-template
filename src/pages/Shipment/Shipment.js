@@ -2,11 +2,26 @@ import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment-timezone';
-import { ExpandButton } from 'mui-datatables';
 import {
-  Box, Grid, Tab, TableCell, TableRow, Tabs, Typography,
+  Box,
+  Chip,
+  Fade,
+  FormControl,
+  FormLabel,
+  Grid,
+  Stack,
+  Tab,
+  TableCell,
+  TableRow,
+  Tabs,
+  TextField,
+  Tooltip,
+  Typography,
+  tooltipClasses,
+  useTheme,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { Assignment as NoteIcon } from '@mui/icons-material';
+import { makeStyles, styled } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
@@ -19,6 +34,7 @@ import { getItems, getUnitOfMeasure } from '../../redux/items/actions/items.acti
 import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 import { getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
+import { routes } from '@routes/routesConstants';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -44,6 +60,25 @@ const useStyles = makeStyles((theme) => ({
   },
   dataTable: {
     marginTop: '-40px',
+    '& .MuiTableCell-root': {
+      color: 'inherit',
+    },
+    '& .MuiTableCell-paddingCheckbox': {
+      display: 'none',
+    },
+  },
+  attachedFiles: {
+    border: `1px solid ${theme.palette.background.light}`,
+    borderRadius: theme.spacing(0.5),
+    height: '100%',
+  },
+  legend: {
+    fontSize: theme.spacing(1.5),
+  },
+  shipmentName: {
+    textDecoration: 'underline',
+    textDecorationColor: theme.palette.background.light,
+    cursor: 'pointer',
   },
 }));
 
@@ -59,8 +94,10 @@ const Shipment = ({
   unitOfMeasure,
   allSensorAlerts,
   aggregateReportData,
+  history,
 }) => {
   const classes = useStyles();
+  const muiTheme = useTheme();
   const subNav = [
     { label: 'Active', value: 'Active' },
     { label: 'Completed', value: 'Completed' },
@@ -92,15 +129,16 @@ const Shipment = ({
     </Tabs>
   );
 
-  const components = {
-    ExpandButton: (props) => {
-      const { dataIndex } = props;
-      if (dataIndex === 3 || dataIndex === 4) {
-        return <div style={{ width: '24px' }} />;
-      }
-      return <ExpandButton {...props} />;
+  const HtmlTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.background.dark,
+      maxWidth: theme.spacing(40),
+      border: `1px solid ${theme.palette.background.light}`,
     },
-  };
+  }));
 
   useEffect(() => {
     dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
@@ -123,8 +161,8 @@ const Shipment = ({
 
     const filteredRows = _.filter(formattedRows, { type: shipmentFilter });
     setRows(filteredRows);
-    setSelectedShipment(!_.isEmpty(filteredRows) ? filteredRows[0] : null);
-  }, [shipmentFilter, shipmentData, custodianData, custodyData, itemData, gatewayData, allSensorAlerts]);
+  }, [shipmentFilter, shipmentData, custodianData, custodyData,
+    itemData, gatewayData, allSensorAlerts]);
 
   // useEffect(() => {
   //   const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
@@ -280,27 +318,62 @@ const Shipment = ({
           <DataTableWrapper
             loading={loading}
             rows={rows}
-            columns={shipmentColumns(
-              timezone,
-              _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-                ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-                : '',
-            )}
+            columns={[
+              {
+                name: '',
+                options: {
+                  sort: false,
+                  sortThirdClickReset: false,
+                  filter: false,
+                  customBodyRenderLite: (dataIndex) => (
+                    rows[dataIndex] && rows[dataIndex].note
+                      ? (
+                        <HtmlTooltip
+                          TransitionComponent={Fade}
+                          TransitionProps={{ timeout: 600 }}
+                          placement="bottom-start"
+                          title={<Typography>{rows[dataIndex].note}</Typography>}
+                        >
+                          <NoteIcon />
+                        </HtmlTooltip>
+                      ) : <></>
+                  ),
+                },
+              },
+              {
+                name: 'name',
+                label: 'Shipment Name',
+                options: {
+                  sort: true,
+                  sortThirdClickReset: true,
+                  filter: true,
+                  customBodyRenderLite: (dataIndex) => (
+                    <Typography
+                      className={classes.shipmentName}
+                      onClick={(e) => {
+                        history.push(routes.CREATE_SHIPMENT, { ship: rows[dataIndex] });
+                      }}
+                    >
+                      {rows[dataIndex].name}
+                    </Typography>
+                  ),
+                },
+              },
+              ...shipmentColumns(
+                timezone,
+                _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                  ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                  : '',
+              ),
+            ]}
             extraOptions={{
               expandableRows: true,
               expandableRowsHeader: false,
               expandableRowsOnClick: true,
               customToolbar: () => (<HeaderElements style={{ right: '180%' }} />),
-              isRowExpandable: (dataIndex, expandedRows) => {
-                if (dataIndex === 3 || dataIndex === 4) return false;
-                // Prevent expand/collapse of any row if there are 4 rows expanded
-                // already (but allow those already expanded to be collapsed)
-                return !((
-                  expandedRows.data.length > 4 && expandedRows.data.filter(
-                    (d) => d.dataIndex === dataIndex,
-                  ).length === 0
-                ));
-              },
+              setRowProps: (row, dataIndex, rowIndex) => ({
+                style: { color: _.isEqual(row[2], 'Planned') ? muiTheme.palette.background.light : 'inherit' },
+              }),
               renderExpandableRow: (rowData, rowMeta) => {
                 const colSpan = rowData.length + 1;
                 const ship = rows[rowMeta.rowIndex];
@@ -311,7 +384,7 @@ const Shipment = ({
                       <Grid container spacing={2}>
                         <Grid item xs={2}>
                           <Grid container rowGap={1}>
-                            <Grid item>
+                            <Grid item xs={12}>
                               <Typography fontWeight={700}>
                                 Order ID:
                               </Typography>
@@ -320,7 +393,7 @@ const Shipment = ({
                               </Typography>
                             </Grid>
 
-                            <Grid item>
+                            <Grid item xs={12}>
                               <Typography fontWeight={700}>
                                 Items:
                               </Typography>
@@ -329,7 +402,7 @@ const Shipment = ({
                               ))}
                             </Grid>
 
-                            <Grid item>
+                            <Grid item xs={12}>
                               <Typography fontWeight={700}>
                                 Status:
                               </Typography>
@@ -343,7 +416,7 @@ const Shipment = ({
                         <Grid item xs={2}>
                           <Grid container rowGap={1}>
                             {_.map(ship.carriers, (carr, idx) => (
-                              <Grid key={`${carr}-${idx}`} item>
+                              <Grid key={`${carr}-${idx}`} item xs={12}>
                                 <Typography fontWeight={700}>
                                   {`Logistics company ${idx + 1}:`}
                                 </Typography>
@@ -352,13 +425,100 @@ const Shipment = ({
                                 </Typography>
                               </Grid>
                             ))}
-                            <Grid item>
+
+                            <Grid item xs={12}>
                               <Typography fontWeight={700}>
                                 Receiver:
                               </Typography>
                               <Typography>
                                 {ship.destination}
                               </Typography>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          {_.isEqual(ship.status, 'Enroute') && (
+                            <Grid container rowGap={1}>
+                              <Grid item xs={12}>
+                                <Typography fontWeight={700}>
+                                  Last location:
+                                </Typography>
+                                <Typography>
+                                  Put location here
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          )}
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          {_.isEqual(ship.status, 'Enroute') && (
+                            <Grid container rowGap={1}>
+                              <Grid item xs={12}>
+                                <Typography fontWeight={700}>
+                                  Last Reading:
+                                </Typography>
+                                <Typography>
+                                  {'Temp: '}
+                                </Typography>
+                                <Typography>
+                                  {'Humidity: '}
+                                </Typography>
+                                <Typography>
+                                  {'Shock: '}
+                                </Typography>
+                                <Typography>
+                                  {'Light: '}
+                                </Typography>
+                                <Typography>
+                                  {'Battery: '}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          )}
+                        </Grid>
+
+                        <Grid item xs={4} alignItems="end" justifyContent="end">
+                          <Grid container rowGap={1}>
+                            <Grid item xs={12}>
+                              <TextField
+                                variant="outlined"
+                                disabled
+                                multiline
+                                fullWidth
+                                maxRows={4}
+                                id="note"
+                                name="note"
+                                label="Note"
+                                autoComplete="note"
+                                value={ship.note}
+                              />
+                            </Grid>
+
+                            <Grid item xs={12}>
+                              <FormControl
+                                fullWidth
+                                component="fieldset"
+                                variant="outlined"
+                                className={classes.attachedFiles}
+                                style={{
+                                  padding: _.isEmpty(ship.uploaded_pdf)
+                                    ? muiTheme.spacing(3)
+                                    : muiTheme.spacing(1.5),
+                                }}
+                              >
+                                <FormLabel component="legend" className={classes.legend}>
+                                  Attached Files
+                                </FormLabel>
+
+                                <Stack direction="row" spacing={1}>
+                                  {!_.isEmpty(ship.uploaded_pdf)
+                                  && _.map(ship.uploaded_pdf, (file, idx) => (
+                                    <Chip key={`${file}-${idx}`} variant="outlined" label={file} />
+                                  ))}
+                                </Stack>
+                              </FormControl>
                             </Grid>
                           </Grid>
                         </Grid>
@@ -369,7 +529,6 @@ const Shipment = ({
               },
             }}
             filename="ShipmentData"
-            components={components}
             hideAddButton
           />
         </Grid>
