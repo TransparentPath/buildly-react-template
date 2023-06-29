@@ -8,7 +8,7 @@ export const routes = {
   USER_GROUPS: '/app/profile/users/groups',
   MY_ACCOUNT: '/app/account',
   ITEMS: '/app/items',
-  SENSORS_GATEWAY: '/app/sensors-gateway',
+  TRACKERS: '/app/trackers',
   SHIPMENT: '/app/shipment',
   RESET_PASSWORD: '/reset-password',
   RESET_PASSWORD_CONFIRM: '/reset-password-confirm',

@@ -7,9 +7,8 @@ const initialState = {
   error: null,
   gatewayData: [],
   gatewayTypeList: [],
-  sensorData: [],
-  sensorTypeList: [],
   allSensorAlerts: [],
+  sensorReports: [],
 };
 
 describe('Get Gateway reducer', () => {
@@ -346,305 +345,6 @@ describe('Delete Gateway type reducer', () => {
   });
 });
 
-describe('Get Sensor reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_SENSORS },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('get Sensors success Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_SENSORS_SUCCESS, data: [] },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      sensorData: [],
-    });
-  });
-
-  it('get Sensor fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_SENSORS_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Add Sensor reducer', () => {
-  it('Empty reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_SENSOR },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Add Sensor success Reducer', () => {
-    const data = { id: 1, name: 'Test data' };
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_SENSOR_SUCCESS, sensor: data },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      sensorData: [data],
-    });
-  });
-
-  it('Add Sensor fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_SENSOR_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Edit Sensor reducer', () => {
-  it('Empty reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_SENSOR },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Edit Sensor success Reducer', () => {
-    const data = { id: 1, name: 'Test data' };
-    const editedData = { id: 1, name: 'Test data edited' };
-    expect(reducer.default(
-      { ...initialState, sensorData: [data] },
-      { type: actions.EDIT_SENSOR_SUCCESS, sensor: editedData },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      sensorData: [editedData],
-    });
-  });
-
-  it('Edit Sensor fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_SENSOR_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Delete Sensor reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_SENSOR },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Delete Sensor success Reducer', () => {
-    const data = { id: 1, name: 'Test data' };
-    expect(reducer.default(
-      { ...initialState, sensorData: [data] },
-      { type: actions.DELETE_SENSOR_SUCCESS, id: data.id },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      sensorData: [],
-    });
-  });
-
-  it('Delete Gateway fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_SENSOR_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Get Sensor type reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_SENSORS_TYPE },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Get Sensor type success Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_SENSORS_TYPE_SUCCESS, data: [] },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      sensorTypeList: [],
-    });
-  });
-
-  it('Get Sensor type fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.GET_SENSORS_TYPE_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Add Sensor type reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_SENSORS_TYPE },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Add Sensor type success Reducer', () => {
-    const data = { id: 1, name: 'Test data' };
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_SENSORS_TYPE_SUCCESS, sensorType: data },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      sensorTypeList: [data],
-    });
-  });
-
-  it('Add Sensor type fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.ADD_SENSORS_TYPE_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Edit Sensor type reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_SENSORS_TYPE },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Edit Sensor type success Reducer', () => {
-    const data = { id: 1, name: 'Test data' };
-    const editedData = { id: 1, name: 'Test data edited' };
-    expect(reducer.default(
-      {
-        ...initialState,
-        sensorTypeList: [data],
-      },
-      { type: actions.EDIT_SENSORS_TYPE_SUCCESS, sensorType: editedData },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      sensorTypeList: [editedData],
-    });
-  });
-
-  it('Edit Sensor type fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.EDIT_SENSORS_TYPE_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
-describe('Delete Sensor type reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_SENSORS_TYPE },
-    )).toEqual({
-      ...initialState,
-      loading: true,
-    });
-  });
-
-  it('Delete Sensor type success Reducer', () => {
-    const data = { id: 1, name: 'Test data' };
-    expect(reducer.default(
-      { ...initialState, sensorTypeList: [data] },
-      { type: actions.DELETE_SENSORS_TYPE_SUCCESS, id: data.id },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      loading: false,
-      sensorTypeList: [],
-    });
-  });
-
-  it('Delete Sensor type fail Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.DELETE_SENSORS_TYPE_FAILURE },
-    )).toEqual({
-      ...initialState,
-      error: undefined,
-      loaded: true,
-      loading: false,
-    });
-  });
-});
-
 describe('Get All Sensor Alerts reducer', () => {
   it('Empty Reducer', () => {
     expect(reducer.default(
@@ -672,6 +372,42 @@ describe('Get All Sensor Alerts reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.GET_ALL_SENSOR_ALERTS_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Get Sensor Reports reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_SENSOR_REPORTS },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Get Sensor Reports success Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_SENSOR_REPORTS_SUCCESS, reports: [] },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      sensorReports: [],
+    });
+  });
+
+  it('Get Sensor Reports fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.GET_SENSOR_REPORTS_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,

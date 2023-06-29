@@ -33,7 +33,7 @@ import {
 import { getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
 import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
-import { getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
+import { getShipmentFormattedRow, shipmentColumns, tempUnit } from '../../utils/constants';
 import { routes } from '@routes/routesConstants';
 
 const useStyles = makeStyles((theme) => ({
@@ -93,8 +93,8 @@ const Shipment = ({
   timezone,
   unitOfMeasure,
   allSensorAlerts,
-  aggregateReportData,
   history,
+  sensorReports,
 }) => {
   const classes = useStyles();
   const muiTheme = useTheme();
@@ -110,6 +110,7 @@ const Shipment = ({
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
+  const [allMarkers, setAllMarkers] = useState([]);
 
   const organization = useContext(UserContext).organization.organization_uuid;
 
@@ -141,7 +142,7 @@ const Shipment = ({
   }));
 
   useEffect(() => {
-    dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
+    dispatch(getShipmentDetails(organization, 'Planned,Enroute', true, true));
     dispatch(getCustodians(organization));
     dispatch(getContact(organization));
     dispatch(getItems(organization));
@@ -157,110 +158,151 @@ const Shipment = ({
       itemData,
       gatewayData,
       allSensorAlerts,
+      muiTheme.palette.error.main,
+      muiTheme.palette.info.main,
+      sensorReports,
     );
 
     const filteredRows = _.filter(formattedRows, { type: shipmentFilter });
     setRows(filteredRows);
+    setAllMarkers(_.map(filteredRows, 'allMarkers'));
   }, [shipmentFilter, shipmentData, custodianData, custodyData,
-    itemData, gatewayData, allSensorAlerts]);
+    itemData, gatewayData, allSensorAlerts, sensorReports]);
 
-  // useEffect(() => {
-  //   const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
-  //   const timeFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
-  //   let markersToSet = [];
+  useEffect(() => {
+    if (selectedShipment) {
+      processMarkers(selectedShipment);
+    }
+  }, [allSensorAlerts, sensorReports]);
 
-  //   if (!_.isEmpty(aggregateReportData)) {
-  //     let counter = 0;
-  //     _.forEach(aggregateReportData, (report) => {
-  //       _.forEach(report.report_entries, (report_entry) => {
-  //         try {
-  //           counter += 1;
-  //           let marker = {};
-  //           const temperature = report_entry.report_temp;
-  //           let dateTime = '';
-  //           if ('report_timestamp' in report_entry) {
-  //             if (report_entry.report_timestamp !== null) {
-  //               dateTime = moment(report_entry.report_timestamp)
-  //                 .tz(timezone).format(`${dateFormat} ${timeFormat}`);
-  //             }
-  //           } else if ('report_location' in report_entry) {
-  //             dateTime = moment(
-  //               report_entry.report_location.timeOfPosition,
-  //             ).tz(timezone).format(`${dateFormat} ${timeFormat}`);
-  //           }
+  const processMarkers = (shipment) => {
+    const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
+    const timeFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
+    const tempMeasure = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'));
+    let markersToSet = [];
+    const filteredReports = _.filter(sensorReports, {
+      shipment_id: shipment.partner_shipment_id,
+    });
+    const filteredAlerts = _.filter(allSensorAlerts, { shipment_id: shipment.partner_shipment_id });
 
-  //           // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
-  //           if (report_entry.report_location !== null
-  //             && report_entry.report_latitude !== null
-  //             && report_entry.report_longitude !== null) {
-  //             const latitude = report_entry.report_latitude
-  //               || report_entry.report_location.latitude;
-  //             const longitude = report_entry.report_longitude
-  //               || report_entry.report_location.longitude;
-  //             if (
-  //               (latitude >= -90
-  //                 && latitude <= 90)
-  //               && (longitude >= -180
-  //                 && longitude <= 180)
-  //               && dateTime !== ''
-  //             ) {
-  //               marker = {
-  //                 lat: latitude,
-  //                 lng: longitude,
-  //                 location: report_entry.report_location,
-  //                 label: 'Clustered',
-  //                 temperature,
-  //                 light: report_entry.report_light,
-  //                 shock: report_entry.report_shock,
-  //                 tilt: report_entry.report_tilt,
-  //                 humidity: report_entry.report_humidity,
-  //                 battery: report_entry.report_battery,
-  //                 pressure: report_entry.report_pressure,
-  //                 probe: report_entry.report_probe,
-  //                 color: 'green',
-  //                 timestamp: dateTime,
-  //               };
-  //               // Considered use case: If a shipment stays at some
-  //               // position for long, other value changes can be
-  //               // critical
-  //               const markerFound = _.find(markersToSet, {
-  //                 lat: marker.lat,
-  //                 lng: marker.lng,
-  //               });
+    if (!_.isEmpty(filteredReports)) {
+      _.forEach(filteredReports, (report) => {
+        const { report_entry } = report;
+        const alert = _.find(filteredAlerts, { report_id: _.toString(report.id) });
+        let marker = {};
+        let date = '';
+        let time = '';
+        let color = 'green';
+        let alertFor = '';
 
-  //               if (!markerFound) {
-  //                 markersToSet = [...markersToSet, marker];
-  //               }
-  //             }
-  //           } else {
-  //             marker = {
-  //               lat: '*',
-  //               lng: '*',
-  //               location: 'N/A',
-  //               label: 'Clustered',
-  //               temperature,
-  //               light: report_entry.report_light,
-  //               shock: report_entry.report_shock,
-  //               tilt: report_entry.report_tilt,
-  //               humidity: report_entry.report_humidity,
-  //               battery: report_entry.report_battery,
-  //               pressure: report_entry.report_pressure,
-  //               probe: report_entry.report_probe,
-  //               color: 'green',
-  //               timestamp: dateTime,
-  //             };
-  //           }
-  //         } catch (e) {
-  //           // eslint-disable-next-line no-console
-  //           console.log(e);
-  //         }
-  //       });
-  //     });
-  //   }
+        const temperature = _.toLower(tempUnit(tempMeasure)) === 'fahrenheit'
+          ? report_entry.report_temp_fah
+          : _.round(report_entry.report_temp_cel, 2).toFixed(2);
+        const probe = _.toLower(tempUnit(tempMeasure)) === 'fahrenheit'
+          ? report_entry.report_probe_fah
+          : _.round(report_entry.report_temp_cel, 2).toFixed(2);
 
-  //   setMarkers(markersToSet);
-  //   setSelectedMarker(markersToSet[0]);
-  // }, [aggregateReportData, unitOfMeasure]);
+        if (alert) {
+          switch (true) {
+            case _.includes(_.toLower(alert.alert_type), 'max'):
+              color = muiTheme.palette.error.main;
+              alertFor = alert.parameter_type;
+              break;
+
+            case _.includes(_.toLower(alert.alert_type), 'min'):
+              color = muiTheme.palette.info.main;
+              alertFor = alert.parameter_type;
+              break;
+
+            default:
+              break;
+          }
+        }
+
+        if ('report_timestamp' in report_entry) {
+          if (report_entry.report_timestamp !== null) {
+            date = moment(report_entry.report_timestamp).tz(timezone).format(dateFormat);
+            time = moment(report_entry.report_timestamp).tz(timezone).format(timeFormat);
+          }
+        } else if ('report_location' in report_entry) {
+          date = moment(
+            report_entry.report_location.timeOfPosition,
+          ).tz(timezone).format(dateFormat);
+          time = moment(
+            report_entry.report_location.timeOfPosition,
+          ).tz(timezone).format(timeFormat);
+        }
+
+        // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
+        if (report_entry.report_location !== null
+          && report_entry.report_latitude !== null
+          && report_entry.report_longitude !== null) {
+          const latitude = report_entry.report_latitude
+            || report_entry.report_location.latitude;
+          const longitude = report_entry.report_longitude
+            || report_entry.report_location.longitude;
+          if (
+            (latitude >= -90 && latitude <= 90)
+            && (longitude >= -180 && longitude <= 180)
+            && date && time
+          ) {
+            marker = {
+              lat: latitude,
+              lng: longitude,
+              location: report_entry.report_location,
+              label: 'Clustered',
+              temperature,
+              light: report_entry.report_light,
+              shock: report_entry.report_shock,
+              tilt: report_entry.report_tilt,
+              humidity: report_entry.report_humidity,
+              battery: report_entry.report_battery,
+              pressure: report_entry.report_pressure,
+              probe,
+              color,
+              alertFor,
+              date,
+              time,
+            };
+            // Considered use case: If a shipment stays at some
+            // position for long, other value changes can be
+            // critical
+            const markerFound = _.find(markersToSet, {
+              lat: marker.lat,
+              lng: marker.lng,
+            }) && color === 'green';
+
+            if (!markerFound) {
+              markersToSet = [...markersToSet, marker];
+            }
+          }
+        } else {
+          marker = {
+            lat: '*',
+            lng: '*',
+            location: 'N/A',
+            label: 'Clustered',
+            temperature,
+            light: report_entry.report_light,
+            shock: report_entry.report_shock,
+            tilt: report_entry.report_tilt,
+            humidity: report_entry.report_humidity,
+            battery: report_entry.report_battery,
+            pressure: report_entry.report_pressure,
+            probe,
+            color,
+            alertFor,
+            date,
+            time,
+          };
+        }
+      });
+    }
+
+    setSelectedShipment(shipment);
+    setMarkers(markersToSet);
+    setSelectedMarker(markersToSet[0]);
+  };
 
   const filterTabClicked = (event, filter) => {
     let shipmentStatus = '';
@@ -278,7 +320,7 @@ const Shipment = ({
         break;
     }
 
-    dispatch(getShipmentDetails(organization, shipmentStatus, true));
+    dispatch(getShipmentDetails(organization, shipmentStatus, true, true));
   };
 
   return (
@@ -295,12 +337,12 @@ const Shipment = ({
 
         <Grid item xs={12}>
           <MapComponent
-            isMarkerShown={isMapLoaded}
+            allMarkers={allMarkers}
+            isMarkerShown={!_.isEmpty(markers)}
             showPath
             markers={markers}
-            shipmentFilter={shipmentFilter}
             googleMapURL={window.env.MAP_API_URL}
-            zoom={12}
+            zoom={_.isEmpty(markers) ? 2 : 12}
             setSelectedMarker={setSelectedMarker}
             loadingElement={
               <div style={{ height: '100%' }} />
@@ -374,6 +416,16 @@ const Shipment = ({
               setRowProps: (row, dataIndex, rowIndex) => ({
                 style: { color: _.isEqual(row[2], 'Planned') ? muiTheme.palette.background.light : 'inherit' },
               }),
+              onRowClick: (rowData, rowMeta) => {
+                if (_.isEmpty(markers)) {
+                  processMarkers(rows[rowMeta.dataIndex]);
+                } else {
+                  setAllMarkers(_.map(rows, 'allMarkers'));
+                  setSelectedShipment(null);
+                  setMarkers([]);
+                  setSelectedMarker({});
+                }
+              },
               renderExpandableRow: (rowData, rowMeta) => {
                 const colSpan = rowData.length + 1;
                 const ship = rows[rowMeta.rowIndex];

@@ -17,7 +17,6 @@ import {
   getItemsOptions,
   getProductsOptions,
   getGatewayOptions,
-  getSensorOptions,
 } from '../../../../redux/options/actions/options.actions';
 import {
   getApiResponse,
@@ -78,7 +77,6 @@ const AddFromAPI = ({
   dispatch,
   itemOptions,
   productOptions,
-  sensorOptions,
   gatewayOptions,
   apiResponse,
 }) => {
@@ -94,12 +92,6 @@ const AddFromAPI = ({
       name: 'Products',
       value: 'product',
       option: productOptions,
-      externalProvider: [],
-    },
-    {
-      name: 'Sensors',
-      value: 'sensor',
-      option: sensorOptions,
       externalProvider: [],
     },
     {
@@ -141,9 +133,6 @@ const AddFromAPI = ({
     }
     if (_.isEmpty(gatewayOptions)) {
       dispatch(getGatewayOptions());
-    }
-    if (_.isEmpty(sensorOptions)) {
-      dispatch(getSensorOptions());
     }
   }, []);
 

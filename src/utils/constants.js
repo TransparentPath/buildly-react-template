@@ -1,21 +1,17 @@
 import React from 'react';
 import moment from 'moment-timezone';
 import _ from 'lodash';
+import { SvgIcon, Typography } from '@mui/material';
 import {
   AccessTime as AccessTimeIcon,
+  BatteryStdOutlined as BatteryIcon,
+  BoltOutlined as ShockIcon,
+  DeviceThermostatOutlined as TempIcon,
+  LightModeOutlined as LightIcon,
+  OpacityOutlined as HumidIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
-import {
-  TempIcon,
-  HumidIcon,
-  LightIcon,
-  BatteryIcon,
-  PressureIcon,
-  TiltIcon,
-  ShockIcon,
-} from '../components/Icons/Icons';
 import { numberWithCommas } from './utilMethods';
-import { Typography } from '@mui/material';
 
 const showValue = (value, timezone, dateFormat, timeFormat) => (
   value && value !== '-'
@@ -33,8 +29,38 @@ export const ORG_SETTINGS_TOOLTIP = 'Setting(s) for the Organization';
 export const ORGANIZATION_TYPE_TOOLTIP = 'Organization Type(s) available in the system';
 export const PRODUCT_TOOLTIP = 'Product(s) available in the system';
 export const PRODUCT_TYPE_TOOLTIP = 'Product Type(s) available in the system';
-export const SENSOR_TYPE_TOOLTIP = 'Sensor Type(s) available in the system';
 export const SHIPMENT_OVERVIEW_TOOL_TIP = 'Select a shipment to view reporting data';
+
+export const TiltIcon = (color) => (
+  <SvgIcon
+    style={{ color }}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M 23.726562 22.398438 L 1.601562 0.273438 C 1.234375 -0.0898438 0.640625 -0.0898438 0.273438 0.273438 C -0.0898438 0.640625 -0.0898438 1.234375 0.273438 1.601562 L 4.078125 5.402344 L 0.269531 13.394531 L 0.265625 13.402344 C -0.230469 14.457031 -0.0117188 15.730469 0.804688 16.5625 L 7.257812 23.15625 C 7.796875 23.707031 8.53125 24 9.273438 24 C 9.660156 24 10.050781 23.917969 10.421875 23.753906 L 18.75 20.078125 L 22.398438 23.726562 C 22.582031 23.910156 22.824219 24 23.0625 24 C 23.300781 24 23.542969 23.910156 23.726562 23.726562 C 24.089844 23.359375 24.089844 22.765625 23.726562 22.398438 Z M 9.007812 10.332031 L 2.371094 13.335938 L 5.484375 6.808594 Z M 9.660156 22.039062 L 9.652344 22.042969 C 9.296875 22.203125 8.871094 22.125 8.597656 21.84375 L 2.3125 15.421875 L 10.421875 11.75 L 17.328125 18.65625 Z M 7.585938 4.003906 C 7.367188 3.535156 7.574219 2.976562 8.042969 2.757812 L 13.402344 0.265625 C 14.457031 -0.230469 15.730469 -0.0117188 16.5625 0.804688 L 23.15625 7.257812 C 23.996094 8.082031 24.234375 9.351562 23.75 10.421875 L 21.292969 15.945312 C 21.136719 16.292969 20.796875 16.5 20.4375 16.5 C 20.308594 16.5 20.179688 16.472656 20.054688 16.417969 C 19.582031 16.207031 19.371094 15.652344 19.582031 15.179688 L 22.042969 9.652344 C 22.203125 9.296875 22.125 8.871094 21.84375 8.597656 L 15.421875 2.3125 L 13.089844 7.464844 C 12.929688 7.8125 12.589844 8.015625 12.234375 8.015625 C 12.105469 8.015625 11.972656 7.988281 11.847656 7.933594 C 11.375 7.71875 11.167969 7.164062 11.378906 6.691406 L 13.34375 2.359375 L 8.832031 4.460938 C 8.363281 4.679688 7.804688 4.472656 7.585938 4.003906 Z M 7.585938 4.003906 "
+    />
+  </SvgIcon>
+);
+
+export const PressureIcon = (color) => (
+  <SvgIcon
+    style={{ color }}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M 12.007812 2.546875 C 5.386719 2.546875 0 7.621094 0 13.855469 C 0 16.527344 1.007812 19.117188 2.835938 21.15625 C 3.015625 21.355469 3.273438 21.472656 3.542969 21.472656 L 20.472656 21.472656 C 20.746094 21.472656 21.003906 21.355469 21.183594 21.15625 C 23.011719 19.117188 24.019531 16.527344 24.019531 13.855469 C 24.019531 7.621094 18.632812 2.546875 12.007812 2.546875 Z M 18.910156 16.0625 C 18.816406 16.015625 18.710938 15.988281 18.601562 15.988281 C 18.339844 15.988281 18.101562 16.136719 17.980469 16.375 C 17.898438 16.539062 17.886719 16.730469 17.945312 16.90625 C 18.003906 17.082031 18.128906 17.222656 18.292969 17.304688 L 20.769531 18.539062 C 20.574219 18.851562 20.363281 19.15625 20.132812 19.445312 L 20.039062 19.566406 L 3.980469 19.566406 L 3.886719 19.445312 C 3.632812 19.125 3.445312 18.855469 3.25 18.539062 L 5.726562 17.304688 C 5.890625 17.222656 6.015625 17.082031 6.074219 16.90625 C 6.132812 16.730469 6.121094 16.539062 6.039062 16.375 C 5.917969 16.136719 5.679688 15.988281 5.414062 15.988281 C 5.308594 15.988281 5.203125 16.015625 5.105469 16.0625 L 2.613281 17.304688 C 2.152344 16.210938 1.90625 15.035156 1.90625 13.855469 C 1.90625 13.421875 1.9375 12.996094 2 12.578125 L 4.40625 12.945312 C 4.441406 12.949219 4.476562 12.953125 4.511719 12.953125 C 4.851562 12.953125 5.148438 12.699219 5.199219 12.363281 C 5.253906 11.984375 4.996094 11.628906 4.617188 11.574219 L 2.3125 11.222656 C 2.804688 9.652344 3.726562 8.25 4.949219 7.136719 L 6.617188 8.851562 C 6.75 8.984375 6.925781 9.0625 7.117188 9.0625 C 7.296875 9.0625 7.46875 8.992188 7.597656 8.863281 C 7.734375 8.734375 7.808594 8.5625 7.808594 8.375 C 7.8125 8.191406 7.742188 8.015625 7.613281 7.882812 L 6.046875 6.273438 C 7.542969 5.25 9.351562 4.601562 11.316406 4.476562 L 11.316406 6.828125 C 11.316406 7.210938 11.625 7.523438 12.007812 7.523438 C 12.390625 7.523438 12.703125 7.210938 12.703125 6.828125 L 12.703125 4.476562 C 14.664062 4.601562 16.476562 5.25 17.972656 6.273438 L 16.40625 7.882812 C 16.277344 8.015625 16.207031 8.191406 16.210938 8.375 C 16.210938 8.5625 16.285156 8.734375 16.417969 8.863281 C 16.550781 8.992188 16.722656 9.0625 16.902344 9.0625 C 17.09375 9.0625 17.269531 8.988281 17.402344 8.851562 L 19.066406 7.136719 C 20.292969 8.25 21.214844 9.652344 21.707031 11.222656 L 19.402344 11.574219 C 19.023438 11.628906 18.761719 11.984375 18.820312 12.363281 C 18.871094 12.699219 19.167969 12.953125 19.503906 12.953125 C 19.539062 12.953125 19.578125 12.949219 19.609375 12.945312 L 22.019531 12.578125 C 22.078125 12.996094 22.113281 13.421875 22.113281 13.855469 C 22.113281 15.035156 21.867188 16.210938 21.402344 17.304688 Z M 18.910156 16.0625 "
+    />
+    <path
+      d="M 12.40625 13.554688 L 10.226562 8.71875 C 10.179688 8.613281 10.0625 8.554688 9.945312 8.582031 C 9.8125 8.613281 9.734375 8.746094 9.765625 8.878906 L 11.007812 14.03125 C 10.699219 14.398438 10.589844 14.914062 10.753906 15.398438 C 11.007812 16.140625 11.816406 16.535156 12.558594 16.28125 C 13.300781 16.027344 13.695312 15.222656 13.441406 14.480469 C 13.277344 13.992188 12.871094 13.65625 12.40625 13.554688 Z M 12.40625 13.554688 "
+    />
+  </SvgIcon>
+);
 
 export const getColumns = (timezone, dateFormat, timeFormat) => ([
   {
@@ -618,32 +644,33 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
   },
 ];
 
-export const getIcon = (item, color) => {
-  switch (item.id) {
+export const getIcon = (item) => {
+  const { id, color } = item;
+  switch (id) {
     case 'temperature':
     case 'probe':
-      return <TempIcon color={color} name={item.name} />;
+      return <TempIcon fill={color} />;
 
     case 'light':
-      return <LightIcon color={color} name={item.name} />;
+      return <LightIcon fill={color} />;
 
     case 'shock':
-      return <ShockIcon color={color} name={item.name} />;
+      return <ShockIcon fill={color} />;
 
     case 'tilt':
-      return <TiltIcon color={color} name={item.name} />;
+      return <TiltIcon fill={color} />;
 
     case 'humidity':
-      return <HumidIcon color={color} name={item.name} />;
+      return <HumidIcon fill={color} />;
 
     case 'battery':
-      return <BatteryIcon color={color} name={item.name} />;
+      return <BatteryIcon fill={color} />;
 
     case 'pressure':
-      return <PressureIcon color={color} name={item.name} />;
+      return <PressureIcon fill={color} />;
 
     case 'time':
-      return <AccessTimeIcon />;
+      return <AccessTimeIcon fill={color} />;
 
     default:
       return null;
@@ -689,6 +716,7 @@ export const getShipmentOverview = (
     editedShipment.sensor_report = [];
     const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
     const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
+    const tempMeasure = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'));
 
     const alerts = _.filter(
       alertsData,
@@ -752,10 +780,10 @@ export const getShipmentOverview = (
             try {
               counter += 1;
               let marker = {};
-              const temperature = _.toLower(tempUnit) === 'fahrenheit'
+              const temperature = _.toLower(tempUnit(tempMeasure)) === 'fahrenheit'
                 ? report_entry.report_temp_fah
                 : _.round(report_entry.report_temp_cel, 2).toFixed(2);
-              const probe = _.toLower(tempUnit) === 'fahrenheit'
+              const probe = _.toLower(tempUnit(tempMeasure)) === 'fahrenheit'
                 ? report_entry.report_probe_fah
                 : _.round(report_entry.report_temp_cel, 2).toFixed(2);
               let dateTime = '';
@@ -959,14 +987,21 @@ export const tempUnit = (uomt) => {
 };
 
 export const REPORT_TYPES = (unitOfMeasure) => ([
-  { id: 'temperature', name: 'Temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
-  { id: 'light', name: 'Light', unit: 'LUX' },
-  { id: 'shock', name: 'Shock', unit: 'G' },
-  { id: 'tilt', name: 'Tilt', unit: 'deg' },
-  { id: 'humidity', name: 'Humidity', unit: '%' },
-  { id: 'battery', name: 'Battery', unit: '%' },
-  { id: 'pressure', name: 'Pressure', unit: 'Pa' },
-  { id: 'probe', name: 'Probe Temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
+  { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
+  { id: 'light', unit: 'LUX' },
+  { id: 'shock', unit: 'G' },
+  { id: 'tilt', unit: 'deg' },
+  { id: 'humidity', unit: '%' },
+  { id: 'battery', unit: '%' },
+  { id: 'pressure', unit: 'Pa' },
+  { id: 'probe', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
+]);
+
+export const MARKER_DATA = (unitOfMeasure) => ([
+  { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
+  { id: 'shock', unit: 'G' },
+  { id: 'humidity', unit: '%' },
+  { id: 'light', unit: 'LUX' },
 ]);
 
 export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
@@ -1239,7 +1274,7 @@ export const getAlertsReportColumns = (aggregateReport, timezone, dateFormat, ti
 export const gatewayColumns = (timezone, dateFormat) => ([
   {
     name: 'name',
-    label: 'Gateway Name',
+    label: 'Tracker Identifier',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1382,86 +1417,6 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
   return data;
 };
 
-export const sensorsColumns = (timezone, dateFormat) => ([
-  {
-    name: 'name',
-    label: 'Sensor Name',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-    },
-  },
-  {
-    name: 'sensor_type_value',
-    label: 'Type',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-      customBodyRender: (value) => _.upperCase(value),
-    },
-  },
-  {
-    name: 'activation_date',
-    label: 'Activated',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-      customBodyRender: (value) => (
-        value && value !== '-'
-          ? moment(value).tz(timezone).format(`${dateFormat}`)
-          : value
-      ),
-    },
-  },
-  {
-    name: 'associated_gateway',
-    label: 'Associated Gateway',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-    },
-  },
-]);
-
-export const getSensorFormattedRow = (data, sensorTypeList, gatewayData) => {
-  if (data && sensorTypeList) {
-    let formattedData = [];
-    _.forEach(data, (element) => {
-      let edited = element;
-      _.forEach(sensorTypeList, (type) => {
-        if (type.url === element.sensor_type) {
-          edited = {
-            ...edited,
-            sensor_type_value: type.name,
-          };
-        }
-      });
-      if (gatewayData && gatewayData.length) {
-        _.forEach(gatewayData, (gateway) => {
-          if (gateway.url === element.gateway) {
-            edited = {
-              ...edited,
-              associated_gateway: gateway.name,
-            };
-          }
-        });
-      }
-      formattedData = [...formattedData, edited];
-    });
-
-    return _.orderBy(
-      formattedData,
-      (dataRow) => moment(dataRow.create_date),
-      ['asc'],
-    );
-  }
-  return data;
-};
-
 export const GATEWAY_STATUS = [
   { value: 'available', name: 'Available' },
   { value: 'unavailable', name: 'Unavailable' },
@@ -1596,6 +1551,9 @@ export const getShipmentFormattedRow = (
   itemData,
   gatewayData,
   allAlerts,
+  maxColor,
+  minColor,
+  sensorReports,
 ) => {
   let shipmentList = [];
   let custodyRows = [];
@@ -1668,7 +1626,20 @@ export const getShipmentFormattedRow = (
         && !alert.recovered_alert_id
       ));
 
-      editedShipment.alerts = _.map(filteredAlerts, (alert) => ({ id: alert.parameter_type }));
+      editedShipment.alerts = _.map(filteredAlerts, (alert) => ({
+        id: alert.parameter_type,
+        color: (_.includes(alert.alert_type, 'max') && maxColor) || (_.includes(alert.alert_type, 'min') && minColor),
+      }));
+    }
+
+    if (!_.isEmpty(sensorReports)) {
+      editedShipment.allMarkers = _.map(
+        _.filter(sensorReports, { shipment_id: editedShipment.partner_shipment_id }),
+        (report) => ({
+          lat: report.report_entry.report_latitude,
+          lng: report.report_entry.report_longitude,
+        }),
+      );
     }
 
     shipmentList = [...shipmentList, editedShipment];

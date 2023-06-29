@@ -15,7 +15,7 @@ import Items from '../../pages/Items/Items';
 import MyAccount from '../../pages/MyAccount/MyAccount';
 import PushNotification from '../../pages/PushNotification/PushNotification';
 import Reporting from '../../pages/Reporting/Reporting';
-import SensorsGateway from '../../pages/SensorsGateway/SensorsGateway';
+import Gateway from '../../pages/SensorsGateway/Gateway';
 import CreateShipment from '../../pages/Shipment/CreateShipment';
 import Shipment from '../../pages/Shipment/Shipment';
 import UserManagement from '../../pages/UserManagement/UserManagement';
@@ -109,8 +109,8 @@ const ContainerDashboard = ({ location, history }) => {
             component={Items}
           />
           <Route
-            path={routes.SENSORS_GATEWAY}
-            component={SensorsGateway}
+            path={routes.TRACKERS}
+            component={Gateway}
           />
           <Route
             path={routes.SHIPMENT}

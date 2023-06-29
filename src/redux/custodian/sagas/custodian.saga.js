@@ -62,7 +62,7 @@ function* getCustodiansList(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load custodians due to some error!',
         }),
       ),
       yield put({ type: GET_CUSTODIANS_FAILURE, error }),
@@ -116,7 +116,7 @@ function* addCustodian(action) {
             showAlert({
               type: 'success',
               open: true,
-              message: 'Successfully Added Custodian. Please ensure your organization admin assigns an organization to this custodian',
+              message: 'Successfully added custodian. Please ensure your organization admin assigns an organization to this custodian',
             }),
           ),
           yield put(getContact(data.data.organization_uuid)),
@@ -168,7 +168,7 @@ function* editCustodian(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Custodian successfully Edited!',
+            message: 'Custodian successfully edited!',
           }),
         ),
       ];
@@ -182,7 +182,7 @@ function* editCustodian(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t edit Custodian!',
+          message: 'Couldn\'t edit custodian!',
         }),
       ),
       yield put({ type: EDIT_CUSTODIANS_FAILURE, error }),
@@ -222,7 +222,7 @@ function* deleteCustodian(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Error in deleting Custodian!',
+          message: 'Error in deleting custodian!',
         }),
       ),
       yield put({ type: DELETE_CUSTODIANS_FAILURE, error }),
@@ -244,7 +244,7 @@ function* getCustodyList(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load custodies due to some error!',
         }),
       ),
       yield put({ type: GET_CUSTODY_FAILURE, error }),
@@ -268,7 +268,7 @@ function* addCustody(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Added Custody',
+            message: 'Successfully added custody',
           }),
         ),
       ];
@@ -279,7 +279,7 @@ function* addCustody(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Add Custody due to some error!',
+          message: 'Couldn\'t add custody due to some error!',
         }),
       ),
       yield put({ type: ADD_CUSTODY_FAILURE, error }),
@@ -303,7 +303,7 @@ function* editCustody(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Edited Custody',
+            message: 'Successfully edited custody',
           }),
         ),
       ];
@@ -314,7 +314,7 @@ function* editCustody(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Edit Custody due to some error!',
+          message: 'Couldn\'t edit custody due to some error!',
         }),
       ),
       yield put({ type: EDIT_CUSTODY_FAILURE, error }),
@@ -371,7 +371,7 @@ function* getCustodianType() {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load custodian types due to some error!',
         }),
       ),
       yield put({ type: GET_CUSTODIAN_TYPE_FAILURE, error }),
@@ -398,7 +398,7 @@ function* addCustodianType(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Added Custodian Type',
+            message: 'Successfully added custodian type',
           }),
         ),
       ];
@@ -409,7 +409,7 @@ function* addCustodianType(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Add Custodian Type due to some error!',
+          message: 'Couldn\'t add custodian type due to some error!',
         }),
       ),
       yield put({ type: ADD_CUSTODIAN_TYPE_FAILURE, error }),
@@ -436,7 +436,7 @@ function* editCustodianType(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Edited Custodian Type',
+            message: 'Successfully edited custodian type',
           }),
         ),
       ];
@@ -447,7 +447,7 @@ function* editCustodianType(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Edit Custodian Type due to some error!',
+          message: 'Couldn\'t edit custodian type due to some error!',
         }),
       ),
       yield put({ type: EDIT_CUSTODIAN_TYPE_FAILURE, error }),
@@ -471,7 +471,7 @@ function* deleteCustodianType(payload) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully Deleted Custodian Type',
+          message: 'Successfully deleted custodian type',
         }),
       ),
     ];
@@ -481,7 +481,7 @@ function* deleteCustodianType(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Delete Custodian Type due to some error!',
+          message: 'Couldn\'t delete custodian type due to some error!',
         }),
       ),
       yield put({ type: DELETE_CUSTODIAN_TYPE_FAILURE, error }),

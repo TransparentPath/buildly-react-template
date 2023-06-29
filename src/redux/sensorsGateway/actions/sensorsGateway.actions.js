@@ -35,42 +35,13 @@ export const DELETE_GATEWAYS_TYPE = 'SENSORS/DELETE_GATEWAYS_TYPE';
 export const DELETE_GATEWAYS_TYPE_SUCCESS = 'SENSORS/DELETE_GATEWAYS_TYPE_SUCCESS';
 export const DELETE_GATEWAYS_TYPE_FAILURE = 'SENSORS/DELETE_GATEWAYS_TYPE_FAILURE';
 
-// Sensors Actions
-export const GET_SENSORS = 'SENSORS/GET_SENSORS';
-export const GET_SENSORS_SUCCESS = 'SENSORS/GET_SENSORS_SUCCESS';
-export const GET_SENSORS_FAILURE = 'SENSORS/GET_SENSORS_FAILURE';
-
-export const ADD_SENSOR = 'SENSORS/ADD_SENSOR';
-export const ADD_SENSOR_SUCCESS = 'SENSORS/ADD_SENSOR_SUCCESS';
-export const ADD_SENSOR_FAILURE = 'SENSORS/ADD_SENSOR_FAILURE';
-
-export const EDIT_SENSOR = 'SENSORS/EDIT_SENSOR';
-export const EDIT_SENSOR_SUCCESS = 'SENSORS/EDIT_SENSOR_SUCCESS';
-export const EDIT_SENSOR_FAILURE = 'SENSORS/EDIT_SENSOR_FAILURE';
-
-export const DELETE_SENSOR = 'SENSORS/DELETE_SENSOR';
-export const DELETE_SENSOR_SUCCESS = 'SENSORS/DELETE_SENSOR_SUCCESS';
-export const DELETE_SENSOR_FAILURE = 'SENSORS/DELETE_SENSOR_FAILURE';
-
-export const GET_SENSORS_TYPE = 'SENSORS/GET_SENSORS_TYPE';
-export const GET_SENSORS_TYPE_SUCCESS = 'SENSORS/GET_SENSORS_TYPE_SUCCESS';
-export const GET_SENSORS_TYPE_FAILURE = 'SENSORS/GET_SENSORS_TYPE_FAILURE';
-
-export const ADD_SENSORS_TYPE = 'SENSORS/ADD_SENSORS_TYPE';
-export const ADD_SENSORS_TYPE_SUCCESS = 'SENSORS/ADD_SENSORS_TYPE_SUCCESS';
-export const ADD_SENSORS_TYPE_FAILURE = 'SENSORS/ADD_SENSORS_TYPE_FAILURE';
-
-export const EDIT_SENSORS_TYPE = 'SENSORS/EDIT_SENSORS_TYPE';
-export const EDIT_SENSORS_TYPE_SUCCESS = 'SENSORS/EDIT_SENSORS_TYPE_SUCCESS';
-export const EDIT_SENSORS_TYPE_FAILURE = 'SENSORS/EDIT_SENSORS_TYPE_FAILURE';
-
-export const DELETE_SENSORS_TYPE = 'SENSORS/DELETE_SENSORS_TYPE';
-export const DELETE_SENSORS_TYPE_SUCCESS = 'SENSORS/DELETE_SENSORS_TYPE_SUCCESS';
-export const DELETE_SENSORS_TYPE_FAILURE = 'SENSORS/DELETE_SENSORS_TYPE_FAILURE';
-
 export const GET_ALL_SENSOR_ALERTS = 'SENSORS/GET_ALL_SENSOR_ALERTS';
 export const GET_ALL_SENSOR_ALERTS_SUCCESS = 'SENSORS/GET_ALL_SENSOR_ALERTS_SUCCESS';
 export const GET_ALL_SENSOR_ALERTS_FAILURE = 'SENSORS/GET_ALL_SENSOR_ALERTS_FAILURE';
+
+export const GET_SENSOR_REPORTS = 'SENSORS/GET_SENSOR_REPORTS';
+export const GET_SENSOR_REPORTS_SUCCESS = 'SENSORS/GET_SENSOR_REPORTS_SUCCESS';
+export const GET_SENSOR_REPORTS_FAILURE = 'SENSORS/GET_SENSOR_REPORTS_FAILURE';
 
 // Gateway action functions
 /**
@@ -139,73 +110,20 @@ export const editGatewayType = (payload) => ({ type: EDIT_GATEWAYS_TYPE, payload
  */
 export const deleteGatewayType = (id) => ({ type: DELETE_GATEWAYS_TYPE, id });
 
-// Sensor Action functions
-/**
- * Get Sensor List
- * @param {String} organization_uuid
- */
-export const getSensors = (organization_uuid) => ({ type: GET_SENSORS, organization_uuid });
-
-/**
- * Add Sensor
- * @param {Object} payload
- * @param {Object} history
- * @param {String} redirectTo
- */
-export const addSensor = (payload, history, redirectTo) => ({
-  type: ADD_SENSOR,
-  payload,
-  history,
-  redirectTo,
-});
-
-/**
- * Edit Sensor
- * @param {Object} payload
- * @param {Object} history
- * @param {String} redirectTo
- */
-export const editSensor = (payload, history, redirectTo) => ({
-  type: EDIT_SENSOR,
-  payload,
-  history,
-  redirectTo,
-});
-
-/**
- * Delete Sensor
- * @param {Number} id
- */
-export const deleteSensor = (id) => ({ type: DELETE_SENSOR, id });
-
-/**
- * Get Sensor Type
- */
-export const getSensorType = () => ({ type: GET_SENSORS_TYPE });
-
-/**
- * Add Sensor Type
- * @param {Object} payload
- */
-export const addSensorType = (payload) => ({ type: ADD_SENSORS_TYPE, payload });
-
-/**
- * Edit Sensor Type
- * @param {Object} payload
- */
-export const editSensorType = (payload) => ({ type: EDIT_SENSORS_TYPE, payload });
-
-/**
- * Delete Sensor Type
- * @param {Number} id
- */
-export const deleteSensorType = (id) => ({ type: DELETE_SENSORS_TYPE, id });
-
 /**
  * Get All Sensor Alerts
  * @param {Array} partnerShipmentIds
  */
 export const getAllSensorAlerts = (partnerShipmentIds) => ({
   type: GET_ALL_SENSOR_ALERTS,
+  partnerShipmentIds,
+});
+
+/**
+ * Get Sensor Reports
+ * @param {Array} partnerShipmentIds
+ */
+export const getSensorReports = (partnerShipmentIds) => ({
+  type: GET_SENSOR_REPORTS,
   partnerShipmentIds,
 });

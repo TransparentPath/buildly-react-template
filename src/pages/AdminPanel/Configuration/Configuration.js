@@ -17,7 +17,6 @@ import {
   ORGANIZATION_TYPE_TOOLTIP,
   PRODUCT_TOOLTIP,
   PRODUCT_TYPE_TOOLTIP,
-  SENSOR_TYPE_TOOLTIP,
   ORG_SETTINGS_TOOLTIP,
 } from '../../../utils/constants';
 import { checkForGlobalAdmin } from '../../../utils/utilMethods';
@@ -27,7 +26,6 @@ import ItemType from './components/ItemType';
 import OrganizationType from './components/OrganizationType';
 import Product from './components/Product';
 import ProductType from './components/ProductType';
-import SensorType from './components/SensorType';
 import OrganizationSettings from './components/OrganizationSettings';
 import Forbidden from '../Forbidden';
 
@@ -166,21 +164,6 @@ const Configuration = (props) => {
           </AccordionSummary>
           <AccordionDetails>
             <ProductType {...props} />
-          </AccordionDetails>
-        </Accordion>
-        <Accordion className={classes.accordion}>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="sensor-type-content"
-            id="sensor-type-header"
-          >
-            <Typography variant="h5">
-              Sensor Type
-              <CustomizedTooltips toolTipText={SENSOR_TYPE_TOOLTIP} />
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <SensorType {...props} />
           </AccordionDetails>
         </Accordion>
       </div>

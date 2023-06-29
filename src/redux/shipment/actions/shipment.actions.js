@@ -53,11 +53,13 @@ export const getShipmentDetails = (
   organization_uuid = null,
   status = null,
   fetchRelatedData = false,
+  fetchSensorReports = false,
 ) => ({
   type: GET_SHIPMENTS,
   organization_uuid,
   status,
   fetchRelatedData,
+  fetchSensorReports,
 });
 
 /**

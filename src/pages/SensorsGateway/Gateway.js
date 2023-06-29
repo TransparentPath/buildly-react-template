@@ -2,21 +2,21 @@ import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
 import _ from 'lodash';
-import DataTableWrapper from '../../../components/DataTableWrapper/DataTableWrapper';
-import { UserContext } from '../../../context/User.context';
-import { getContact, getCustodians } from '../../../redux/custodian/actions/custodian.actions';
-import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
+import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
+import { UserContext } from '../../context/User.context';
+import { getContact, getCustodians } from '../../redux/custodian/actions/custodian.actions';
+import { getUnitOfMeasure } from '../../redux/items/actions/items.actions';
 import {
   getGateways,
   getGatewayType,
   deleteGateway,
-} from '../../../redux/sensorsGateway/actions/sensorsGateway.actions';
+} from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
-} from '../../../redux/shipment/actions/shipment.actions';
-import { routes } from '../../../routes/routesConstants';
-import { gatewayColumns, getGatewayFormattedRow } from '../../../utils/constants';
-import AddGateway from '../forms/AddGateway';
+} from '../../redux/shipment/actions/shipment.actions';
+import { routes } from '../../routes/routesConstants';
+import { gatewayColumns, getGatewayFormattedRow } from '../../utils/constants';
+import AddGateway from './forms/AddGateway';
 
 const Gateway = ({
   dispatch,

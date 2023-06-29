@@ -27,33 +27,12 @@ import {
   DELETE_GATEWAYS_TYPE,
   DELETE_GATEWAYS_TYPE_SUCCESS,
   DELETE_GATEWAYS_TYPE_FAILURE,
-  GET_SENSORS,
-  GET_SENSORS_SUCCESS,
-  GET_SENSORS_FAILURE,
-  ADD_SENSOR,
-  ADD_SENSOR_SUCCESS,
-  ADD_SENSOR_FAILURE,
-  EDIT_SENSOR,
-  EDIT_SENSOR_SUCCESS,
-  EDIT_SENSOR_FAILURE,
-  DELETE_SENSOR,
-  DELETE_SENSOR_SUCCESS,
-  DELETE_SENSOR_FAILURE,
-  GET_SENSORS_TYPE,
-  GET_SENSORS_TYPE_SUCCESS,
-  GET_SENSORS_TYPE_FAILURE,
-  ADD_SENSORS_TYPE,
-  ADD_SENSORS_TYPE_SUCCESS,
-  ADD_SENSORS_TYPE_FAILURE,
-  EDIT_SENSORS_TYPE,
-  EDIT_SENSORS_TYPE_SUCCESS,
-  EDIT_SENSORS_TYPE_FAILURE,
-  DELETE_SENSORS_TYPE,
-  DELETE_SENSORS_TYPE_SUCCESS,
-  DELETE_SENSORS_TYPE_FAILURE,
   GET_ALL_SENSOR_ALERTS,
   GET_ALL_SENSOR_ALERTS_SUCCESS,
   GET_ALL_SENSOR_ALERTS_FAILURE,
+  GET_SENSOR_REPORTS,
+  GET_SENSOR_REPORTS_SUCCESS,
+  GET_SENSOR_REPORTS_FAILURE,
 } from '../actions/sensorsGateway.actions';
 
 const initialState = {
@@ -62,9 +41,8 @@ const initialState = {
   error: null,
   gatewayData: [],
   gatewayTypeList: [],
-  sensorData: [],
-  sensorTypeList: [],
   allSensorAlerts: [],
+  sensorReports: [],
 };
 
 // Reducer
@@ -78,16 +56,9 @@ export default (state = initialState, action) => {
     case ADD_GATEWAYS_TYPE:
     case EDIT_GATEWAYS_TYPE:
     case DELETE_GATEWAYS_TYPE:
-    case GET_SENSORS:
-    case ADD_SENSOR:
-    case EDIT_SENSOR:
-    case DELETE_SENSOR:
-    case GET_SENSORS_TYPE:
-    case ADD_SENSORS_TYPE:
-    case EDIT_SENSORS_TYPE:
-    case DELETE_SENSORS_TYPE:
     case GET_NEW_GATEWAYS:
     case GET_ALL_SENSOR_ALERTS:
+    case GET_SENSOR_REPORTS:
       return {
         ...state,
         loading: true,
@@ -103,16 +74,9 @@ export default (state = initialState, action) => {
     case ADD_GATEWAYS_TYPE_FAILURE:
     case EDIT_GATEWAYS_TYPE_FAILURE:
     case DELETE_GATEWAYS_TYPE_FAILURE:
-    case GET_SENSORS_FAILURE:
-    case ADD_SENSOR_FAILURE:
-    case EDIT_SENSOR_FAILURE:
-    case DELETE_SENSOR_FAILURE:
-    case GET_SENSORS_TYPE_FAILURE:
-    case ADD_SENSORS_TYPE_FAILURE:
-    case EDIT_SENSORS_TYPE_FAILURE:
-    case DELETE_SENSORS_TYPE_FAILURE:
     case GET_NEW_GATEWAYS_FAILURE:
     case GET_ALL_SENSOR_ALERTS_FAILURE:
+    case GET_SENSOR_REPORTS_FAILURE:
       return {
         ...state,
         loading: false,
@@ -209,94 +173,20 @@ export default (state = initialState, action) => {
       };
     }
 
-    case GET_SENSORS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorData: action.data,
-      };
-
-    case ADD_SENSOR_SUCCESS:
-    case EDIT_SENSOR_SUCCESS: {
-      const found = _.find(
-        state.sensorData,
-        { id: action.sensor.id },
-      );
-      const sensorData = found
-        ? _.map(state.sensorData, (sensor) => (
-          sensor.id === action.sensor.id
-            ? action.sensor
-            : sensor
-        ))
-        : [...state.sensorData, action.sensor];
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorData,
-      };
-    }
-
-    case DELETE_SENSOR_SUCCESS: {
-      const sensorData = _.filter(state.sensorData, (sensor) => sensor.id !== action.id);
-
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorData,
-      };
-    }
-
-    case GET_SENSORS_TYPE_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorTypeList: action.data,
-      };
-
-    case ADD_SENSORS_TYPE_SUCCESS:
-    case EDIT_SENSORS_TYPE_SUCCESS: {
-      const found = _.find(
-        state.sensorTypeList,
-        { id: action.sensorType.id },
-      );
-      const sensorTypeList = found
-        ? _.map(state.sensorTypeList, (snsrType) => (
-          snsrType.id === action.sensorType.id
-            ? action.sensorType
-            : snsrType
-        ))
-        : [...state.sensorTypeList, action.sensorType];
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorTypeList,
-      };
-    }
-
-    case DELETE_SENSORS_TYPE_SUCCESS: {
-      const sensorTypeList = _.filter(state.sensorTypeList, (sensorType) => (
-        sensorType.id !== action.id
-      ));
-
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        sensorTypeList,
-      };
-    }
-
     case GET_ALL_SENSOR_ALERTS_SUCCESS:
       return {
         ...state,
         loading: false,
         loaded: true,
         allSensorAlerts: action.alerts,
+      };
+
+    case GET_SENSOR_REPORTS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        sensorReports: action.reports,
       };
 
     default:

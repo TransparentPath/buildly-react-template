@@ -22,6 +22,7 @@ describe('Get Shipment Details action', () => {
       organization_uuid,
       status: null,
       fetchRelatedData: false,
+      fetchSensorReports: false,
     };
     expect(actions.getShipmentDetails(organization_uuid)).toEqual(expectedAction);
   });

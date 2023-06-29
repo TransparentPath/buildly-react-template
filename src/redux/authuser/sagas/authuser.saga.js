@@ -239,8 +239,8 @@ function* updateUser(payload) {
     if (history) {
       const route = window.location.pathname;
       yield put({ type: LOGOUT_SUCCESS });
-      history.push('/')
-      history.push(route)
+      history.push('/');
+      history.push(route);
     } else {
       yield [
         yield put({ type: UPDATE_USER_SUCCESS, user }),

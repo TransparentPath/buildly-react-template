@@ -2,11 +2,11 @@ import {
   put, takeLatest, all, call,
 } from 'redux-saga/effects';
 import Geocode from 'react-geocode';
-import _, { update } from 'lodash';
+import _ from 'lodash';
 import { httpService } from '../../../modules/http/http.service';
 import { showAlert } from '../../alert/actions/alert.actions';
 import { addCustody, editCustody, getCustody } from '../../custodian/actions/custodian.actions';
-import { editGateway, getAllSensorAlerts } from '../../sensorsGateway/actions/sensorsGateway.actions';
+import { editGateway, getAllSensorAlerts, getSensorReports } from '../../sensorsGateway/actions/sensorsGateway.actions';
 import {
   GET_SHIPMENTS,
   GET_SHIPMENTS_SUCCESS,
@@ -55,7 +55,9 @@ function* getLocations(carrierLocations) {
 }
 
 function* getShipmentList(payload) {
-  const { organization_uuid, status, fetchRelatedData } = payload;
+  const {
+    organization_uuid, status, fetchRelatedData, fetchSensorReports,
+  } = payload;
   try {
     let query_params = `?organization_uuid=${organization_uuid}`;
 
@@ -79,30 +81,22 @@ function* getShipmentList(payload) {
     );
     if (data && data.data) {
       const shipments = _.filter(data.data, (shipment) => _.toLower(shipment.platform_name) !== 'iclp');
-      if (fetchRelatedData) {
-        const uuids = _.toString(_.without(_.map(shipments, 'shipment_uuid'), null));
-        const partnerIds = _.toString(_.without(_.map(shipments, 'partner_shipment_id'), null));
-        const encodedUUIDs = encodeURIComponent(uuids);
-        const encodedPartnerIds = encodeURIComponent(partnerIds);
+      const uuids = _.toString(_.without(_.map(shipments, 'shipment_uuid'), null));
+      const partnerIds = _.toString(_.without(_.map(shipments, 'partner_shipment_id'), null));
+      const encodedUUIDs = encodeURIComponent(uuids);
+      const encodedPartnerIds = encodeURIComponent(partnerIds);
 
-        if (encodedUUIDs) {
-          yield put(getCustody(encodedUUIDs));
-        }
-        if (encodedPartnerIds) {
-          yield put(getAllSensorAlerts(encodedPartnerIds));
-        }
+      if (encodedUUIDs && fetchRelatedData) {
+        yield put(getCustody(encodedUUIDs));
+      }
+      if (encodedPartnerIds && fetchRelatedData) {
+        yield put(getAllSensorAlerts(encodedPartnerIds));
+      }
+      if (encodedPartnerIds && fetchSensorReports) {
+        yield put(getSensorReports(encodedPartnerIds));
       }
 
-      yield [
-        yield put({ type: GET_SHIPMENTS_SUCCESS, data: shipments }),
-        yield put(
-          showAlert({
-            type: 'success',
-            open: true,
-            message: 'Successfully fetched shipment(s) data',
-          }),
-        ),
-      ];
+      yield put({ type: GET_SHIPMENTS_SUCCESS, data: shipments });
     }
   } catch (error) {
     yield [
@@ -110,7 +104,7 @@ function* getShipmentList(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load shipments due to some error!',
         }),
       ),
       yield put({ type: GET_SHIPMENTS_FAILURE, error }),
@@ -204,7 +198,7 @@ function* addShipment(action) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully Added Shipment',
+          message: 'Successfully added shipment',
         }),
       ),
       yield put({ type: ADD_SHIPMENT_SUCCESS, shipment: data.data }),
@@ -218,7 +212,7 @@ function* addShipment(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Error in creating Shipment',
+          message: 'Error in creating shipment',
         }),
       ),
       yield put({ type: ADD_SHIPMENT_FAILURE, error }),
@@ -350,7 +344,7 @@ function* editShipment(action) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Shipment successfully Edited!',
+          message: 'Shipment successfully edited!',
         }),
       ),
     ];
@@ -363,7 +357,7 @@ function* editShipment(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Error in Updating Shipment!',
+          message: 'Error in updating Shipment!',
         }),
       ),
       yield put({ type: EDIT_SHIPMENT_FAILURE, error }),
@@ -394,7 +388,7 @@ function* deleteShipment(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Error in deleting Shipment!',
+          message: 'Error in deleting shipment!',
         }),
       ),
       yield put({ type: DELETE_SHIPMENT_FAILURE, error }),
@@ -517,7 +511,7 @@ function* addShipmentTemplate(action) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully Added Shipment Template',
+          message: 'Successfully added shipment template',
         }),
       ),
       yield put({ type: ADD_SHIPMENT_TEMPLATE_SUCCESS, template: response.data }),

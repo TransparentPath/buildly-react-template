@@ -96,96 +96,20 @@ describe('Delete Gateway Type action', () => {
   });
 });
 
-// Test Get Sensors
-describe('Get Sensors action', () => {
-  it('should create an action to get Sensor', () => {
-    const organization_uuid = '224761f5-0010-4a46-d92a4fdc1d21';
-    const expectedAction = { type: actions.GET_SENSORS, organization_uuid };
-    expect(actions.getSensors(organization_uuid)).toEqual(expectedAction);
-  });
-});
-
-// Test Add Sensor
-describe('Add Sensor action', () => {
-  it('should create an action to add Sensor', () => {
-    const payload = { id: 123, name: 'Abc' };
-    const history = {};
-    const redirectTo = '/test';
-    const expectedAction = {
-      type: actions.ADD_SENSOR,
-      payload,
-      history,
-      redirectTo,
-    };
-    expect(actions.addSensor(payload, history, redirectTo)).toEqual(expectedAction);
-  });
-});
-
-// Test Edit Sensor
-describe('Edit Sensor action', () => {
-  it('should create an action to update Sensor', () => {
-    const payload = { id: 123, name: 'Abc Edited' };
-    const history = {};
-    const redirectTo = '/test';
-    const expectedAction = {
-      type: actions.EDIT_SENSOR,
-      payload,
-      history,
-      redirectTo,
-    };
-    expect(actions.editSensor(payload, history, redirectTo)).toEqual(expectedAction);
-  });
-});
-
-// Test Delete Sensor
-describe('Delete Sensor action', () => {
-  it('should create an action to delete Sensor', () => {
-    const id = '123';
-    const expectedAction = { type: actions.DELETE_SENSOR, id };
-    expect(actions.deleteSensor(id)).toEqual(expectedAction);
-  });
-});
-
-// Test Get Sensor Type
-describe('Get Sensor Type action', () => {
-  it('should create an action to get Sensor type', () => {
-    const expectedAction = { type: actions.GET_SENSORS_TYPE };
-    expect(actions.getSensorType()).toEqual(expectedAction);
-  });
-});
-
-// Test Add Sensor Type
-describe('Add Sensor Type action', () => {
-  it('should create an action to add Sensor type', () => {
-    const payload = { name: 'test sensor' };
-    const expectedAction = { type: actions.ADD_SENSORS_TYPE, payload };
-    expect(actions.addSensorType(payload)).toEqual(expectedAction);
-  });
-});
-
-// Test Edit Sensor Type
-describe('Edit Sensor Type action', () => {
-  it('should create an action to edit Sensor type', () => {
-    const payload = { name: 'test sensor - edited' };
-    const expectedAction = { type: actions.EDIT_SENSORS_TYPE, payload };
-    expect(actions.editSensorType(payload)).toEqual(expectedAction);
-  });
-});
-
-// Test Delete Sensor Type
-describe('Delete Sensor Type action', () => {
-  it('should create an action to delete Sensor type', () => {
-    const id = 1;
-    const expectedAction = { type: actions.DELETE_SENSORS_TYPE, id };
-    expect(actions.deleteSensorType(id)).toEqual(expectedAction);
-  });
-});
-
 // Test Get All Sensor Alerts
 describe('Get All Sensor Alerts action', () => {
   it('should create an action to get all sensor alerts', () => {
     const partnerShipmentIds = ['1', '2', '3'];
     const expectedAction = { type: actions.GET_ALL_SENSOR_ALERTS, partnerShipmentIds };
     expect(actions.getAllSensorAlerts(partnerShipmentIds)).toEqual(expectedAction);
+  });
+});
+
+// Test Get Sensor Reports
+describe('Get Sensor Reports action', () => {
+  it('should create an action to get sensor reports', () => {
+    const partnerShipmentIds = ['1', '2', '3'];
+    const expectedAction = { type: actions.GET_SENSOR_REPORTS, partnerShipmentIds };
+    expect(actions.getSensorReports(partnerShipmentIds)).toEqual(expectedAction);
   });
 });

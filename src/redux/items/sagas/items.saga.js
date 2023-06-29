@@ -85,7 +85,7 @@ function* getItemsList(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load items due to some error!',
         }),
       ),
       yield put({
@@ -111,7 +111,7 @@ function* addItem(action) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully Added Item',
+          message: 'Successfully added item',
         }),
       ),
     ];
@@ -124,7 +124,7 @@ function* addItem(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Error in creating Item',
+          message: 'Error in creating item',
         }),
       ),
       yield put({
@@ -150,7 +150,7 @@ function* editItem(action) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Item successfully Edited!',
+          message: 'Item successfully edited!',
         }),
       ),
     ];
@@ -163,7 +163,7 @@ function* editItem(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t edit Item!',
+          message: 'Couldn\'t edit item!',
         }),
       ),
       yield put({
@@ -199,7 +199,7 @@ function* deleteItem(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Error in deleting Item!',
+          message: 'Error in deleting item!',
         }),
       ),
       yield put({
@@ -227,7 +227,7 @@ function* getItemType(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load item types due to some error!',
         }),
       ),
       yield put({
@@ -257,7 +257,7 @@ function* addItemType(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Added Item Type',
+            message: 'Successfully added item type',
           }),
         ),
       ];
@@ -268,7 +268,7 @@ function* addItemType(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Add Item Type due to some error!',
+          message: 'Couldn\'t add item type due to some error!',
         }),
       ),
       yield put({
@@ -298,7 +298,7 @@ function* editItemType(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Edited Item Type',
+            message: 'Successfully edited item type',
           }),
         ),
       ];
@@ -309,7 +309,7 @@ function* editItemType(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Edit Item Type due to some error!',
+          message: 'Couldn\'t edit item type due to some error!',
         }),
       ),
       yield put({
@@ -336,7 +336,7 @@ function* deleteItemType(payload) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully Deleted Item Type',
+          message: 'Successfully deleted item type',
         }),
       ),
     ];
@@ -346,7 +346,7 @@ function* deleteItemType(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Delete Item Type due to some error!',
+          message: 'Couldn\'t delete item type due to some error!',
         }),
       ),
       yield put({
@@ -371,7 +371,7 @@ function* getProductList(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load products due to some error!',
         }),
       ),
       yield put({
@@ -401,7 +401,7 @@ function* addProducts(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Added Product',
+            message: 'Successfully added product',
           }),
         ),
       ];
@@ -412,7 +412,7 @@ function* addProducts(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Add Product due to some error!',
+          message: 'Couldn\'t add product due to some error!',
         }),
       ),
       yield put({
@@ -442,7 +442,7 @@ function* editProducts(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Edited Product',
+            message: 'Successfully edited product',
           }),
         ),
       ];
@@ -453,7 +453,7 @@ function* editProducts(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Edit Product due to some error!',
+          message: 'Couldn\'t edit product due to some error!',
         }),
       ),
       yield put({
@@ -480,7 +480,7 @@ function* deleteProducts(payload) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully Deleted Product',
+          message: 'Successfully deleted product',
         }),
       ),
     ];
@@ -490,7 +490,7 @@ function* deleteProducts(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Delete Product due to some error!',
+          message: 'Couldn\'t delete product due to some error!',
         }),
       ),
       yield put({
@@ -515,7 +515,7 @@ function* getProductTypeList(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load product types due to some error!',
         }),
       ),
       yield put({
@@ -545,7 +545,7 @@ function* addProductType(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Added Product Type',
+            message: 'Successfully added product type',
           }),
         ),
       ];
@@ -556,7 +556,7 @@ function* addProductType(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Add Product Type due to some error!',
+          message: 'Couldn\'t add product type due to some error!',
         }),
       ),
       yield put({
@@ -586,7 +586,7 @@ function* editProductType(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Edited Product Type',
+            message: 'Successfully edited product type',
           }),
         ),
       ];
@@ -597,7 +597,7 @@ function* editProductType(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Edit Product Type due to some error!',
+          message: 'Couldn\'t edit product type due to some error!',
         }),
       ),
       yield put({
@@ -624,7 +624,7 @@ function* deleteProductType(payload) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully Deleted Product Type',
+          message: 'Successfully deleted product type',
         }),
       ),
     ];
@@ -634,7 +634,7 @@ function* deleteProductType(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Delete Product Type due to some error!',
+          message: 'Couldn\'t delete product type due to some error!',
         }),
       ),
       yield put({
@@ -662,7 +662,7 @@ function* getUnit(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t load data due to some error!',
+          message: 'Couldn\'t load unit of measurements due to some error!',
         }),
       ),
       yield put({
@@ -692,7 +692,7 @@ function* addUnitOfMeasure(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Added Unit of Measure',
+            message: 'Successfully added unit of measure',
           }),
         ),
       ];
@@ -703,7 +703,7 @@ function* addUnitOfMeasure(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Add Unit of Measure due to some error!',
+          message: 'Couldn\'t add unit of measure due to some error!',
         }),
       ),
       yield put({
@@ -733,7 +733,7 @@ function* editUnitOfMeasure(action) {
           showAlert({
             type: 'success',
             open: true,
-            message: 'Successfully Edited Unit of Measure',
+            message: 'Successfully edited unit of measure',
           }),
         ),
       ];
@@ -744,7 +744,7 @@ function* editUnitOfMeasure(action) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Edit Unit of Measure due to some error!',
+          message: 'Couldn\'t edit unit of measure due to some error!',
         }),
       ),
       yield put({
@@ -771,7 +771,7 @@ function* deleteUnitOfMeasure(payload) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully Deleted Unit of Measure',
+          message: 'Successfully deleted unit of measure',
         }),
       ),
     ];
@@ -781,7 +781,7 @@ function* deleteUnitOfMeasure(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Delete Unit of Measure due to some error!',
+          message: 'Couldn\'t delete unit of measure due to some error!',
         }),
       ),
       yield put({
@@ -807,7 +807,7 @@ function* createDefaultUnits(payload) {
         showAlert({
           type: 'error',
           open: true,
-          message: 'Couldn\'t Create Default Unit of Measures due to some error!',
+          message: 'Couldn\'t create default unit of measures due to some error!',
         }),
       ),
       yield put({

@@ -482,7 +482,7 @@ const Reporting = ({
                   selected={selectedGraph === item.id}
                   onClick={() => setSelectedGraph(item.id)}
                 >
-                  {getIcon(item, theme.palette.background.dark)}
+                  {getIcon({ ...item, color: theme.palette.background.dark })}
                 </ListItem>
               </React.Fragment>
             ))}
