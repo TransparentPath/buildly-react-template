@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
 
 const SensorReport = ({
   loading,
-  aggregateReport,
+  sensorReport,
   shipmentName,
   selectedMarker,
   unitOfMeasure,
@@ -65,12 +65,12 @@ const SensorReport = ({
 
   useEffect(() => {
     const sortedData = _.orderBy(
-      aggregateReport,
+      sensorReport,
       (item) => moment(item.timestamp),
       ['desc'],
     );
     setRows(sortedData);
-  }, [aggregateReport]);
+  }, [sensorReport]);
 
   useEffect(() => {
     if (selectedMarker) {
@@ -114,7 +114,7 @@ const SensorReport = ({
           loading={loading}
           rows={rows}
           columns={columns}
-          filename="AggregateReportData"
+          filename="SensorReportData"
           tableHeight="500px"
           hideAddButton
           selectable={{

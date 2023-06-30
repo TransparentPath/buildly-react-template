@@ -25,7 +25,7 @@ import {
 
 export const MapComponent = (props) => {
   const {
-    allMarkers, markers, setSelectedMarker, geofence, unitOfMeasure,
+    markers, setSelectedMarker, geofence, unitOfMeasure,
   } = props;
   const [center, setCenter] = useState({
     lat: 47.606209,
@@ -142,9 +142,6 @@ const RenderedMap = withScriptjs(
                     }}
                     alignItems="center"
                   >
-                    {/* <Grid item xs={12}>
-                      {JSON.stringify(mark)}
-                    </Grid> */}
                     {_.map(MARKER_DATA(props.unitOfMeasure), (item, idx) => (
                       <Grid
                         item

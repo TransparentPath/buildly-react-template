@@ -104,7 +104,6 @@ const Shipment = ({
     { label: 'Cancelled', value: 'Cancelled' },
   ];
 
-  const [isMapLoaded, setMapLoaded] = useState(false);
   const [shipmentFilter, setShipmentFilter] = useState('Active');
   const [rows, setRows] = useState([]);
   const [selectedShipment, setSelectedShipment] = useState(null);
@@ -188,7 +187,10 @@ const Shipment = ({
     if (!_.isEmpty(filteredReports)) {
       _.forEach(filteredReports, (report) => {
         const { report_entry } = report;
-        const alert = _.find(filteredAlerts, { report_id: _.toString(report.id) });
+        const alert = _.find(filteredAlerts, {
+          report_id: _.toString(report.id),
+          recovered_alert_id: null,
+        });
         let marker = {};
         let date = '';
         let time = '';
@@ -205,6 +207,8 @@ const Shipment = ({
         if (alert) {
           switch (true) {
             case _.includes(_.toLower(alert.alert_type), 'max'):
+            case _.includes(_.toLower(alert.alert_type), 'shock'):
+            case _.includes(_.toLower(alert.alert_type), 'light'):
               color = muiTheme.palette.error.main;
               alertFor = alert.parameter_type;
               break;

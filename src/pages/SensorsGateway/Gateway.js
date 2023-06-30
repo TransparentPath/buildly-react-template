@@ -37,11 +37,11 @@ const Gateway = ({
 
   const addPath = redirectTo
     ? `${redirectTo}/gateways`
-    : `${routes.SENSORS_GATEWAY}/gateway/add`;
+    : `${routes.TRACKERS}/gateway/add`;
 
   const editPath = redirectTo
     ? `${redirectTo}/gateways`
-    : `${routes.SENSORS_GATEWAY}/gateway/edit`;
+    : `${routes.TRACKERS}/gateway/edit`;
 
   useEffect(() => {
     dispatch(getGateways(organization));
@@ -61,7 +61,7 @@ const Gateway = ({
   const editGatewayAction = (item) => {
     history.push(`${editPath}/:${item.id}`, {
       type: 'edit',
-      from: redirectTo || routes.SENSORS_GATEWAY,
+      from: redirectTo || routes.TRACKERS,
       data: item,
     });
   };
@@ -78,7 +78,7 @@ const Gateway = ({
 
   const onAddButtonClick = () => {
     history.push(addPath, {
-      from: redirectTo || routes.SENSORS_GATEWAY,
+      from: redirectTo || routes.TRACKERS,
     });
   };
 

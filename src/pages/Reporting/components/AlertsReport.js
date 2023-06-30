@@ -45,7 +45,7 @@ const AlertsReport = ({
   timezone,
   dispatch,
   unitOfMeasure,
-  aggregateReport,
+  sensorReport,
 }) => {
   const classes = useStyles();
   const [rows, setRows] = useState([]);
@@ -92,7 +92,7 @@ const AlertsReport = ({
           loading={loading}
           rows={rows}
           columns={getAlertsReportColumns(
-            aggregateReport,
+            sensorReport,
             timezone,
             _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
               ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure

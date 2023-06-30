@@ -32,17 +32,19 @@ import {
   getContact,
 } from '../../redux/custodian/actions/custodian.actions';
 import {
-  getShipmentDetails,
-} from '../../redux/shipment/actions/shipment.actions';
-import {
   getUnitOfMeasure,
 } from '../../redux/items/actions/items.actions';
+import { getSensorReports } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
+import {
+  getShipmentDetails,
+} from '../../redux/shipment/actions/shipment.actions';
 import {
   getShipmentOverview,
   SHIPMENT_OVERVIEW_COLUMNS,
   SHIPMENT_OVERVIEW_TOOL_TIP,
   REPORT_TYPES,
   getIcon,
+  processReportsAndMarkers,
 } from '../../utils/constants';
 import AlertsReport from './components/AlertsReport';
 import SensorReport from './components/SensorReport';
@@ -104,7 +106,6 @@ const useStyles = makeStyles((theme) => ({
 const Reporting = ({
   dispatch,
   loading,
-  aggregateReportData,
   shipmentData,
   custodianData,
   custodyData,
@@ -112,6 +113,7 @@ const Reporting = ({
   unitOfMeasure,
   timezone,
   allAlerts,
+  sensorReports,
 }) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -121,10 +123,75 @@ const Reporting = ({
   const [selectedGraph, setSelectedGraph] = useState('temperature');
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [shipmentOverview, setShipmentOverview] = useState([]);
-  const [isMapLoaded, setMapLoaded] = useState(true);
+  const [reports, setReports] = useState([]);
+  const [allGraphs, setAllGraphs] = useState([]);
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
-  const [formattedShipmentData, setFormattedShipmentData] = useState([]);
+
+  useEffect(() => {
+    dispatch(getUnitOfMeasure(organization));
+    dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
+  }, []);
+
+  useEffect(() => {
+    if (_.isEmpty(shipmentData) || shipmentFilter === 'Active') {
+      dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
+    } else {
+      const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
+      // const cancelledShipments =
+      // _.filter(shipmentData, (shipment) => shipment.type === 'Cancelled');
+
+      if (_.isEmpty(completedShipments) || shipmentFilter === 'Completed') {
+        dispatch(getShipmentDetails(organization, 'Completed', true));
+      }
+      // if (_.isEmpty(cancelledShipments) || shipmentFilter === 'Completed') {
+      //   dispatch(getShipmentDetails(organization, 'Cancelled', true));
+      // }
+    }
+    if (_.isEmpty(custodianData)) {
+      dispatch(getCustodians(organization));
+      dispatch(getContact(organization));
+    }
+  }, [shipmentFilter]);
+
+  useEffect(() => {
+    if (shipmentData && custodianData && custodyData && contactInfo) {
+      const overview = getShipmentOverview(
+        shipmentData,
+        custodianData,
+        custodyData,
+        contactInfo,
+      );
+      if (!_.isEmpty(overview)) {
+        setShipmentOverview(overview);
+        if (selectedShipment) {
+          const selected = _.find(overview, { id: selectedShipment.id });
+          setSelectedShipment(selected);
+        }
+      }
+    }
+  }, [shipmentData, custodianData, custodyData, contactInfo]);
+
+  useEffect(() => {
+    const alerts = _.filter(
+      allAlerts,
+      (alert) => alert.parameter_type !== 'location' && alert.shipment_id === selectedShipment?.partner_shipment_id,
+    );
+    if (selectedShipment && !_.isEmpty(sensorReports)) {
+      const { sensorReportInfo, markersToSet, graphs } = processReportsAndMarkers(
+        sensorReports,
+        alerts,
+        timezone,
+        unitOfMeasure,
+        theme.palette.error.main,
+        theme.palette.info.main,
+      );
+
+      setReports(sensorReportInfo);
+      setAllGraphs(graphs);
+      setMarkers(markersToSet);
+    }
+  }, [sensorReports, allAlerts]);
 
   const getShipmentValue = (value) => {
     let returnValue;
@@ -151,109 +218,18 @@ const Reporting = ({
 
   const handleShipmentSelection = (shipment) => {
     setSelectedShipment(shipment);
-    // if (shipment.partner_shipment_id) {
-    //   dispatch(getReportAndAlerts(shipment.partner_shipment_id));
-    // }
+    if (shipment.partner_shipment_id) {
+      dispatch(getSensorReports(encodeURIComponent(shipment.partner_shipment_id)));
+    }
   };
 
   const makeFilterSelection = (value) => {
     setShipmentFilter(value);
     setSelectedShipment(null);
+    setReports([]);
+    setAllGraphs([]);
     setMarkers([]);
   };
-
-  useEffect(() => {
-    dispatch(getUnitOfMeasure(organization));
-    if (_.isEmpty(markers)) {
-      setTimeout(() => setMapLoaded(true), 1000);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (_.isEmpty(shipmentData) || shipmentFilter === 'Active') {
-      dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
-    } else {
-      const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
-      // const cancelledShipments =
-      // _.filter(shipmentData, (shipment) => shipment.type === 'Cancelled');
-
-      if (!completedShipments.length || shipmentFilter === 'Completed') {
-        dispatch(getShipmentDetails(organization, 'Completed', true));
-      }
-      // if (!cancelledShipments.length) {
-      //   dispatch(getShipmentDetails(organization, 'Cancelled', true));
-      // }
-    }
-    if (_.isEmpty(custodianData)) {
-      dispatch(getCustodians(organization));
-      dispatch(getContact(organization));
-    }
-  }, [shipmentFilter]);
-
-  useEffect(() => {
-    if (selectedShipment && selectedShipment.markers_to_set) {
-      setMarkers(selectedShipment.markers_to_set);
-    }
-  }, [selectedShipment, shipmentOverview]);
-
-  useEffect(() => {
-    if (aggregateReportData
-      && shipmentData
-      && allAlerts
-      && custodianData
-      && custodyData
-      && contactInfo) {
-      const overview = getShipmentOverview(
-        shipmentData,
-        custodianData,
-        custodyData,
-        aggregateReportData,
-        allAlerts,
-        contactInfo,
-        timezone,
-        unitOfMeasure,
-      );
-      if (overview.length > 0) {
-        setShipmentOverview(overview);
-        if (selectedShipment) {
-          const selected = _.find(overview, { id: selectedShipment.id });
-          setSelectedShipment(selected);
-        }
-      }
-    }
-  }, [aggregateReportData, allAlerts]);
-
-  useEffect(() => {
-    if (shipmentData) {
-      let shipmentList = [];
-      _.forEach(shipmentData, (shipment) => {
-        const editedShipment = shipment;
-
-        switch (_.lowerCase(shipment.status)) {
-          case 'planned':
-          case 'enroute':
-            editedShipment.type = 'Active';
-            break;
-
-          case 'completed':
-            editedShipment.type = 'Completed';
-            break;
-
-          case 'cancelled':
-            editedShipment.type = 'Cancelled';
-            break;
-
-          default:
-            break;
-        }
-        shipmentList = [...shipmentList, editedShipment];
-      });
-      setFormattedShipmentData(_.orderBy(shipmentList,
-        (shipment) => moment(shipment.estimated_time_of_departure)
-          && moment(shipment.create_date),
-        ['desc']));
-    }
-  }, [shipmentData]);
 
   return (
     <Box mt={5} mb={5}>
@@ -292,7 +268,7 @@ const Reporting = ({
             </IconButton>
           </div>
           <MapComponent
-            isMarkerShown={isMapLoaded}
+            isMarkerShown={!_.isEmpty(markers)}
             showPath
             markers={markers}
             googleMapURL={window.env.MAP_API_URL}
@@ -353,15 +329,14 @@ const Reporting = ({
                   : ''
               }
               onChange={(e) => {
-                const selected = _.find(formattedShipmentData, { id: e.target.value });
+                const selected = _.find(shipmentOverview, { id: e.target.value });
                 handleShipmentSelection(selected);
               }}
             >
               <MenuItem value="">Select</MenuItem>
-              {formattedShipmentData
-              && formattedShipmentData.length > 0
+              {shipmentOverview && !_.isEmpty(shipmentOverview)
               && _.map(
-                _.filter(formattedShipmentData, { type: shipmentFilter }),
+                _.filter(shipmentOverview, { type: shipmentFilter }),
                 (shipment, index) => (
                   <MenuItem
                     key={index}
@@ -489,11 +464,10 @@ const Reporting = ({
           </List>
         </Grid>
         <Grid item xs={10} md={10}>
-          {selectedShipment
-          && selectedShipment[selectedGraph]
+          {selectedGraph && allGraphs && !_.isEmpty(allGraphs) && allGraphs[selectedGraph]
             ? (
               <GraphComponent
-                data={selectedShipment[selectedGraph]}
+                data={allGraphs[selectedGraph]}
                 selectedGraph={selectedGraph}
                 unitOfMeasure={unitOfMeasure}
               />
@@ -510,7 +484,7 @@ const Reporting = ({
       </Grid>
       <SensorReport
         loading={loading}
-        aggregateReport={(!loading && selectedShipment && selectedShipment.sensor_report) || []}
+        sensorReport={reports}
         alerts={_.filter(
           allAlerts,
           { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
@@ -522,7 +496,7 @@ const Reporting = ({
       />
       <AlertsReport
         loading={loading}
-        aggregateReport={(!loading && selectedShipment && selectedShipment.sensor_report) || []}
+        sensorReport={reports}
         alerts={_.filter(
           allAlerts,
           { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },

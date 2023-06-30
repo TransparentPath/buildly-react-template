@@ -279,7 +279,7 @@ export const custodianColumns = [
 export const getUniqueContactInfo = (rowItem, contactInfo) => {
   let obj = '';
   _.forEach(contactInfo, (info) => {
-    if (rowItem.contact_data[0] === info.url) {
+    if (_.isEqual(rowItem.contact_data[0], info.url)) {
       obj = info;
     }
   });
@@ -417,7 +417,7 @@ export const getFormattedCustodyRows = (custodyData, custodianData) => {
       }
 
       _.forEach(custodianData, (custodian) => {
-        if (custody.custodian[0] === custodian.url) {
+        if (_.isEqual(custody.custodian[0], custodian.url)) {
           editedCustody.custodian_name = custodian.name;
           editedCustody.custodian_data = custodian;
         }
@@ -432,81 +432,6 @@ export const getFormattedCustodyRows = (custodyData, custodianData) => {
     ['custodian_name'],
     ['asc'],
   );
-};
-
-export const getFormattedShipmentRow = (
-  shipmentData,
-  custodianData,
-  itemData,
-  custodyData,
-  aggregateReportData,
-) => {
-  let shipmentList = [];
-  let custodyRows = [];
-  if (
-    custodyData
-    && custodianData
-    && custodyData.length
-    && custodianData.length
-  ) {
-    custodyRows = getFormattedCustodyRows(custodyData, custodianData);
-  }
-
-  _.forEach(shipmentData, (shipment) => {
-    const editedShipment = shipment;
-    let itemName = '';
-    let custodyInfo = [];
-    let custodianName = '';
-    let aggregateReportInfo = [];
-
-    if (custodyRows.length > 0) {
-      _.forEach(custodyRows, (custody) => {
-        if (
-          custody.shipment_id === shipment.shipment_uuid
-          && custody.has_current_custody
-        ) {
-          custodianName = custodianName
-            ? `${custodianName}, ${custody.custodian_data.name}`
-            : custody.custodian_data.name;
-          custodyInfo = [...custodyInfo, custody];
-        }
-      });
-    }
-    editedShipment.custodian_name = custodianName;
-    editedShipment.custody_info = custodyInfo;
-
-    if (
-      aggregateReportData
-      && aggregateReportData.length > 0
-    ) {
-      _.forEach(aggregateReportData, (report) => {
-        if (report.shipment_id === shipment.partner_shipment_id) {
-          aggregateReportInfo = [
-            ...aggregateReportInfo,
-            report,
-          ];
-        }
-      });
-    }
-
-    editedShipment.sensor_report = aggregateReportInfo;
-
-    if (
-      itemData
-      && shipment.items
-      && shipment.items.length
-    ) {
-      _.forEach(itemData, (item) => {
-        if (_.indexOf(shipment.items, item.url) !== -1) {
-          itemName = `${itemName + item.name}, `;
-          editedShipment.itemNo = itemName;
-        }
-      });
-    }
-
-    shipmentList = [...shipmentList, editedShipment];
-  });
-  return shipmentList;
 };
 
 export const itemColumns = (currUnit) => ([
@@ -579,13 +504,13 @@ export const itemColumns = (currUnit) => ([
 export const getItemFormattedRow = (data, itemTypeList, unitOfMeasure) => {
   if (data && itemTypeList) {
     let formattedData = [];
-    const uomw = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')) || '';
+    const uomw = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'weight'))) || '';
     const uom = uomw ? uomw.unit_of_measure : '';
 
     _.forEach(data, (element) => {
       let editedData = element;
       _.forEach(itemTypeList, (type) => {
-        if (type.url === element.item_type) {
+        if (_.isEqual(type.url, element.item_type)) {
           editedData = {
             ...editedData,
             item_type_value: type.name,
@@ -649,28 +574,28 @@ export const getIcon = (item) => {
   switch (id) {
     case 'temperature':
     case 'probe':
-      return <TempIcon fill={color} />;
+      return <TempIcon style={{ fill: color }} />;
 
     case 'light':
-      return <LightIcon fill={color} />;
+      return <LightIcon style={{ fill: color }} />;
 
     case 'shock':
-      return <ShockIcon fill={color} />;
+      return <ShockIcon style={{ fill: color }} />;
 
     case 'tilt':
       return <TiltIcon fill={color} />;
 
     case 'humidity':
-      return <HumidIcon fill={color} />;
+      return <HumidIcon style={{ fill: color }} />;
 
     case 'battery':
-      return <BatteryIcon fill={color} />;
+      return <BatteryIcon style={{ fill: color }} />;
 
     case 'pressure':
       return <PressureIcon fill={color} />;
 
     case 'time':
-      return <AccessTimeIcon fill={color} />;
+      return <AccessTimeIcon style={{ fill: color }} />;
 
     default:
       return null;
@@ -681,11 +606,7 @@ export const getShipmentOverview = (
   shipmentData,
   custodianData,
   custodyData,
-  aggregateReportData,
-  alertsData,
   contactData,
-  timezone,
-  unitOfMeasure,
 ) => {
   let shipmentList = [];
   let custodyRows = [];
@@ -702,37 +623,18 @@ export const getShipmentOverview = (
     const editedShipment = shipment;
     let custodyInfo = [];
     let custodianName = '';
-    let aggregateReportInfo = [];
     let contactInfo = [];
-    let temperatureData = [];
-    let lightData = [];
-    let shockData = [];
-    let tiltData = [];
-    let humidityData = [];
-    let batteryData = [];
-    let pressureData = [];
-    let probeData = [];
-    let markersToSet = [];
-    editedShipment.sensor_report = [];
-    const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
-    const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
-    const tempMeasure = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'));
-
-    const alerts = _.filter(
-      alertsData,
-      (alert) => alert.parameter_type !== 'location' && alert.shipment_id === shipment.partner_shipment_id,
-    );
 
     if (custodyRows.length > 0) {
       _.forEach(custodyRows, (custody) => {
         const editedCustody = custody;
-        if (custody.shipment_id === shipment.shipment_uuid && custody.custodian_data) {
+        if (_.isEqual(custody.shipment_id, shipment.shipment_uuid) && custody.custodian_data) {
           custodianName = custodianName
             ? `${custodianName}, ${custody.custodian_data.name}`
             : custody.custodian_data.name;
           _.forEach(contactData, (contact) => {
             const editedContact = contact;
-            if (custody.custodian_data.contact_data[0] === contact.url) {
+            if (_.isEqual(custody.custodian_data.contact_data[0], contact.url)) {
               editedContact.name = [
                 contact.first_name,
                 contact.middle_name,
@@ -766,201 +668,23 @@ export const getShipmentOverview = (
     editedShipment.custody_info = custodyInfo;
     editedShipment.contact_info = contactInfo;
 
-    if (
-      aggregateReportData
-      && aggregateReportData.length > 0
-    ) {
-      let counter = 0;
-      _.forEach(aggregateReportData, (report) => {
-        if (
-          report.shipment_id === shipment.partner_shipment_id
-          && report.report_entries.length > 0
-        ) {
-          _.forEach(report.report_entries, (report_entry) => {
-            try {
-              counter += 1;
-              let marker = {};
-              const temperature = _.toLower(tempUnit(tempMeasure)) === 'fahrenheit'
-                ? report_entry.report_temp_fah
-                : _.round(report_entry.report_temp_cel, 2).toFixed(2);
-              const probe = _.toLower(tempUnit(tempMeasure)) === 'fahrenheit'
-                ? report_entry.report_probe_fah
-                : _.round(report_entry.report_temp_cel, 2).toFixed(2);
-              let dateTime = '';
-              let alert_status = '-';
-              if ('report_timestamp' in report_entry) {
-                if (report_entry.report_timestamp !== null) {
-                  dateTime = moment(report_entry.report_timestamp)
-                    .tz(timezone).format(`${dateFormat} ${timeFormat}`);
-                }
-              } else if ('report_location' in report_entry) {
-                dateTime = moment(
-                  report_entry.report_location.timeOfPosition,
-                ).tz(timezone).format(`${dateFormat} ${timeFormat}`);
-              }
+    switch (_.lowerCase(shipment.status)) {
+      case 'planned':
+      case 'enroute':
+        editedShipment.type = 'Active';
+        break;
 
-              _.forEach(alerts, (alert) => {
-                const alertTime = moment(alert.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`);
-                if (alertTime === dateTime) {
-                  if (alert.recovered_alert_id !== null) {
-                    alert_status = 'RECOVERED';
-                  } else {
-                    alert_status = 'YES';
-                  }
-                }
-              });
-              // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
-              if (report_entry.report_location !== null
-                && report_entry.report_latitude !== null
-                && report_entry.report_longitude !== null) {
-                const latitude = report_entry.report_latitude
-                  || report_entry.report_location.latitude;
-                const longitude = report_entry.report_longitude
-                  || report_entry.report_location.longitude;
-                if (
-                  (latitude >= -90
-                    && latitude <= 90)
-                  && (longitude >= -180
-                    && longitude <= 180)
-                  && dateTime !== ''
-                ) {
-                  marker = {
-                    lat: latitude,
-                    lng: longitude,
-                    location: report_entry.report_location,
-                    label: 'Clustered',
-                    temperature,
-                    light: report_entry.report_light,
-                    shock: report_entry.report_shock,
-                    tilt: report_entry.report_tilt,
-                    humidity: report_entry.report_humidity,
-                    battery: report_entry.report_battery,
-                    pressure: report_entry.report_pressure,
-                    probe,
-                    color: 'green',
-                    timestamp: dateTime,
-                    alert_status,
-                  };
-                  // Considered use case: If a shipment stays at some
-                  // position for long, other value changes can be
-                  // critical
-                  const markerFound = _.find(markersToSet, {
-                    lat: marker.lat,
-                    lng: marker.lng,
-                  });
+      case 'completed':
+        editedShipment.type = 'Completed';
+        break;
 
-                  if (!markerFound) {
-                    markersToSet = [...markersToSet, marker];
-                  }
-                }
-              } else {
-                marker = {
-                  lat: '*',
-                  lng: '*',
-                  location: 'N/A',
-                  label: 'Clustered',
-                  temperature,
-                  light: report_entry.report_light,
-                  shock: report_entry.report_shock,
-                  tilt: report_entry.report_tilt,
-                  humidity: report_entry.report_humidity,
-                  battery: report_entry.report_battery,
-                  pressure: report_entry.report_pressure,
-                  probe,
-                  color: 'green',
-                  timestamp: dateTime,
-                  alert_status,
-                };
-              }
-              aggregateReportInfo = [
-                ...aggregateReportInfo,
-                marker,
-              ];
+      case 'cancelled':
+        editedShipment.type = 'Cancelled';
+        break;
 
-              const graphPoint = _.find(temperatureData, {
-                x: dateTime,
-              });
-              if (!graphPoint) {
-                temperatureData = [
-                  ...temperatureData,
-                  {
-                    x: dateTime,
-                    y: temperature,
-                  },
-                ];
-                lightData = [
-                  ...lightData,
-                  {
-                    x: dateTime,
-                    y: report_entry.report_light,
-                  },
-                ];
-                shockData = [
-                  ...shockData,
-                  {
-                    x: dateTime,
-                    y: report_entry.report_shock,
-                  },
-                ];
-                tiltData = [
-                  ...tiltData,
-                  {
-                    x: dateTime,
-                    y: report_entry.report_tilt,
-                  },
-                ];
-                humidityData = [
-                  ...humidityData,
-                  {
-                    x: dateTime,
-                    y: report_entry.report_humidity,
-                  },
-                ];
-                batteryData = [
-                  ...batteryData,
-                  {
-                    x: dateTime,
-                    y: report_entry.report_battery,
-                  },
-                ];
-                pressureData = [
-                  ...pressureData,
-                  {
-                    x: dateTime,
-                    y: report_entry.report_pressure,
-                  },
-                ];
-                probeData = [
-                  ...probeData,
-                  {
-                    x: dateTime,
-                    y: probe,
-                  },
-                ];
-              }
-            } catch (e) {
-              // eslint-disable-next-line no-console
-              console.log(e);
-            }
-          });
-        }
-      });
+      default:
+        break;
     }
-
-    editedShipment.sensor_report = aggregateReportInfo;
-    editedShipment.markers_to_set = _.orderBy(
-      markersToSet,
-      (item) => moment(item.timestamp),
-      ['asc'],
-    );
-    editedShipment.temperature = temperatureData;
-    editedShipment.light = lightData;
-    editedShipment.shock = shockData;
-    editedShipment.tilt = tiltData;
-    editedShipment.humidity = humidityData;
-    editedShipment.battery = batteryData;
-    editedShipment.pressure = pressureData;
-    editedShipment.probe = probeData;
 
     shipmentList = [...shipmentList, editedShipment];
   });
@@ -973,12 +697,254 @@ export const getShipmentOverview = (
   );
 };
 
+export const processReportsAndMarkers = (
+  sensorReports, alerts, timezone, unitOfMeasure, maxColor, minColor,
+) => {
+  let sensorReportInfo = [];
+  let temperatureData = [];
+  let lightData = [];
+  let shockData = [];
+  let tiltData = [];
+  let humidityData = [];
+  let batteryData = [];
+  let pressureData = [];
+  let probeData = [];
+  let markersToSet = [];
+  const dateFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'date'))).unit_of_measure;
+  const timeFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'time'))).unit_of_measure;
+  const tempMeasure = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')));
+
+  if (!_.isEmpty(sensorReports)) {
+    _.forEach(sensorReports, (report) => {
+      try {
+        const { report_entry } = report;
+        let marker = {};
+        let dateTime = '';
+        let date = '';
+        let time = '';
+        let alert_status = '-';
+        let color = 'green';
+        let alertFor = '';
+
+        const temperature = _.isEqual(_.toLower(tempUnit(tempMeasure)), 'fahrenheit')
+          ? report_entry.report_temp_fah
+          : _.round(report_entry.report_temp_cel, 2).toFixed(2);
+        const probe = _.isEqual(_.toLower(tempUnit(tempMeasure)), 'fahrenheit')
+          ? report_entry.report_probe_fah
+          : _.round(report_entry.report_temp_cel, 2).toFixed(2);
+
+        if ('report_timestamp' in report_entry) {
+          if (report_entry.report_timestamp !== null) {
+            date = moment(report_entry.report_timestamp).tz(timezone).format(dateFormat);
+            time = moment(report_entry.report_timestamp).tz(timezone).format(timeFormat);
+            dateTime = moment(report_entry.report_timestamp)
+              .tz(timezone).format(`${dateFormat} ${timeFormat}`);
+          }
+        } else if ('report_location' in report_entry) {
+          date = moment(
+            report_entry.report_location.timeOfPosition,
+          ).tz(timezone).format(dateFormat);
+          time = moment(
+            report_entry.report_location.timeOfPosition,
+          ).tz(timezone).format(timeFormat);
+          dateTime = moment(
+            report_entry.report_location.timeOfPosition,
+          ).tz(timezone).format(`${dateFormat} ${timeFormat}`);
+        }
+
+        _.forEach(alerts, (alert) => {
+          const alertTime = moment(alert.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`);
+          if (_.isEqual(alertTime, dateTime)) {
+            if (alert.recovered_alert_id !== null) {
+              alert_status = 'RECOVERED';
+            } else {
+              alert_status = 'YES';
+              if (alert) {
+                switch (true) {
+                  case _.includes(_.toLower(alert.alert_type), 'max'):
+                  case _.includes(_.toLower(alert.alert_type), 'shock'):
+                  case _.includes(_.toLower(alert.alert_type), 'light'):
+                    color = maxColor;
+                    alertFor = alert.parameter_type;
+                    break;
+
+                  case _.includes(_.toLower(alert.alert_type), 'min'):
+                    color = minColor;
+                    alertFor = alert.parameter_type;
+                    break;
+
+                  default:
+                    break;
+                }
+              }
+            }
+          }
+        });
+
+        // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
+        if (report_entry.report_location !== null
+          && report_entry.report_latitude !== null
+          && report_entry.report_longitude !== null) {
+          const latitude = report_entry.report_latitude
+            || report_entry.report_location.latitude;
+          const longitude = report_entry.report_longitude
+            || report_entry.report_location.longitude;
+          if (
+            (latitude >= -90 && latitude <= 90)
+            && (longitude >= -180 && longitude <= 180)
+            && dateTime && date && time
+          ) {
+            marker = {
+              lat: latitude,
+              lng: longitude,
+              location: report_entry.report_location,
+              label: 'Clustered',
+              temperature,
+              light: report_entry.report_light,
+              shock: report_entry.report_shock,
+              tilt: report_entry.report_tilt,
+              humidity: report_entry.report_humidity,
+              battery: report_entry.report_battery,
+              pressure: report_entry.report_pressure,
+              probe,
+              color,
+              alertFor,
+              date,
+              time,
+              timestamp: dateTime,
+              alert_status,
+            };
+            // Considered use case: If a shipment stays at some
+            // position for long, other value changes can be
+            // critical
+            const markerFound = _.find(markersToSet, {
+              lat: marker.lat,
+              lng: marker.lng,
+            }) && color === 'green';
+
+            if (!markerFound) {
+              markersToSet = [...markersToSet, marker];
+            }
+          }
+        } else {
+          marker = {
+            lat: '*',
+            lng: '*',
+            location: 'N/A',
+            label: 'Clustered',
+            temperature,
+            light: report_entry.report_light,
+            shock: report_entry.report_shock,
+            tilt: report_entry.report_tilt,
+            humidity: report_entry.report_humidity,
+            battery: report_entry.report_battery,
+            pressure: report_entry.report_pressure,
+            probe,
+            color,
+            alertFor,
+            date,
+            time,
+            timestamp: dateTime,
+            alert_status,
+          };
+        }
+
+        sensorReportInfo = [...sensorReportInfo, marker];
+        const graphPoint = _.find(temperatureData, {
+          x: dateTime,
+        });
+
+        if (!graphPoint) {
+          temperatureData = [
+            ...temperatureData,
+            {
+              x: dateTime,
+              y: temperature,
+            },
+          ];
+          lightData = [
+            ...lightData,
+            {
+              x: dateTime,
+              y: report_entry.report_light,
+            },
+          ];
+          shockData = [
+            ...shockData,
+            {
+              x: dateTime,
+              y: report_entry.report_shock,
+            },
+          ];
+          tiltData = [
+            ...tiltData,
+            {
+              x: dateTime,
+              y: report_entry.report_tilt,
+            },
+          ];
+          humidityData = [
+            ...humidityData,
+            {
+              x: dateTime,
+              y: report_entry.report_humidity,
+            },
+          ];
+          batteryData = [
+            ...batteryData,
+            {
+              x: dateTime,
+              y: report_entry.report_battery,
+            },
+          ];
+          pressureData = [
+            ...pressureData,
+            {
+              x: dateTime,
+              y: report_entry.report_pressure,
+            },
+          ];
+          probeData = [
+            ...probeData,
+            {
+              x: dateTime,
+              y: probe,
+            },
+          ];
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
+    });
+  }
+
+  return {
+    sensorReportInfo,
+    markersToSet: _.orderBy(
+      markersToSet,
+      (item) => moment(item.timestamp),
+      ['asc'],
+    ),
+    graphs: {
+      temperature: temperatureData,
+      light: lightData,
+      shock: shockData,
+      tilt: tiltData,
+      humidity: humidityData,
+      battery: batteryData,
+      pressure: pressureData,
+      probe: probeData,
+    },
+  };
+};
+
 export const tempUnit = (uomt) => {
   let unit = '';
   if (uomt) {
-    if (_.toLower(uomt.unit_of_measure) === 'fahrenheit') {
+    if (_.isEqual(_.toLower(uomt.unit_of_measure), 'fahrenheit')) {
       unit = '\u00b0F';
-    } else if (_.toLower(uomt.unit_of_measure) === 'celsius') {
+    } else if (_.isEqual(_.toLower(uomt.unit_of_measure), 'celsius')) {
       unit = '\u00b0C';
     }
   }
@@ -987,18 +953,18 @@ export const tempUnit = (uomt) => {
 };
 
 export const REPORT_TYPES = (unitOfMeasure) => ([
-  { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
+  { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
   { id: 'light', unit: 'LUX' },
   { id: 'shock', unit: 'G' },
   { id: 'tilt', unit: 'deg' },
   { id: 'humidity', unit: '%' },
   { id: 'battery', unit: '%' },
   { id: 'pressure', unit: 'Pa' },
-  { id: 'probe', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
+  { id: 'probe', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
 ]);
 
 export const MARKER_DATA = (unitOfMeasure) => ([
-  { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))) },
+  { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
   { id: 'shock', unit: 'G' },
   { id: 'humidity', unit: '%' },
   { id: 'light', unit: 'LUX' },
@@ -1023,11 +989,11 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => {
-        const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+        const dateFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'date')))
+          ? _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'date'))).unit_of_measure
           : '';
-        const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+        const timeFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'time')))
+          ? _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'time'))).unit_of_measure
           : '';
 
         return (
@@ -1050,7 +1016,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
   },
   {
     name: 'temperature',
-    label: `TEMP ${tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')))}`,
+    label: `TEMP ${tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1123,7 +1089,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
   },
   {
     name: 'probe',
-    label: `PROBE TEMP ${tempUnit(_.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')))}`,
+    label: `PROBE TEMP ${tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1134,7 +1100,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
   },
 ]);
 
-export const getAlertsReportColumns = (aggregateReport, timezone, dateFormat, timeFormat) => ([
+export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeFormat) => ([
   // {
   //   name: 'id',
   //   label: 'Alert ID',
@@ -1244,7 +1210,7 @@ export const getAlertsReportColumns = (aggregateReport, timezone, dateFormat, ti
         let location = '';
         if (value && value !== '-') {
           const dt = moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`);
-          const report = _.find(aggregateReport, { timestamp: dt });
+          const report = _.find(sensorReport, { timestamp: dt });
           if (report) {
             location = report.location;
           }
@@ -1364,7 +1330,7 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
       if (!element) return;
       let edited = { ...element, shipment: [], custodian: [] };
       _.forEach(gatewayTypeList, (type) => {
-        if (type.url === element.gateway_type) {
+        if (_.isEqual(type.url, element.gateway_type)) {
           edited = {
             ...edited,
             gateway_type_value: type.name,
@@ -1388,7 +1354,9 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
       }
       if (custodianData && custodianData.length) {
         _.forEach(custodianData, (custodian) => {
-          if (element.custodian_uuid && element.custodian_uuid === custodian.custodian_uuid) {
+          if (element.custodian_uuid
+            && _.isEqual(element.custodian_uuid, custodian.custodian_uuid)
+          ) {
             edited = {
               ...edited,
               custodian: [
@@ -1399,10 +1367,10 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
           }
         });
       }
-      if (edited.shipment.length === 0) {
+      if (_.isEqual(edited.shipment.length, 0)) {
         edited.shipment = '-';
       }
-      if (edited.custodian.length === 0) {
+      if (_.isEqual(edited.custodian.length, 0)) {
         edited.custodian = '-';
       }
       formattedData = [...formattedData, edited];
@@ -1621,14 +1589,15 @@ export const getShipmentFormattedRow = (
     if (editedShipment.had_alert) {
       const recovered = _.map(allAlerts, 'recovered_alert_id');
       const filteredAlerts = _.filter(allAlerts, (alert) => (
-        alert.shipment_id === editedShipment.partner_shipment_id
+        _.isEqual(alert.shipment_id, editedShipment.partner_shipment_id)
         && !_.includes(recovered, _.toString(alert.id))
         && !alert.recovered_alert_id
       ));
 
       editedShipment.alerts = _.map(filteredAlerts, (alert) => ({
         id: alert.parameter_type,
-        color: (_.includes(alert.alert_type, 'max') && maxColor) || (_.includes(alert.alert_type, 'min') && minColor),
+        color: ((_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) && maxColor)
+          || (_.includes(alert.alert_type, 'min') && minColor),
       }));
     }
 
