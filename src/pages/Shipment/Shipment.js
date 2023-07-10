@@ -4,6 +4,7 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
   Box,
+  Button,
   Chip,
   Fade,
   FormControl,
@@ -33,7 +34,7 @@ import {
 import { getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
 import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
-import { getShipmentFormattedRow, shipmentColumns, tempUnit } from '../../utils/constants';
+import { getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
 import { routes } from '@routes/routesConstants';
 
 const useStyles = makeStyles((theme) => ({
@@ -79,6 +80,11 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'underline',
     textDecorationColor: theme.palette.background.light,
     cursor: 'pointer',
+  },
+  createButton: {
+    marginBottom: theme.spacing(3),
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.background.default,
   },
 }));
 
@@ -177,7 +183,7 @@ const Shipment = ({
   const processMarkers = (shipment) => {
     const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
     const timeFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
-    const tempMeasure = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'));
+    const tempMeasure = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure;
     let markersToSet = [];
     const filteredReports = _.filter(sensorReports, {
       shipment_id: shipment.partner_shipment_id,
@@ -197,12 +203,12 @@ const Shipment = ({
         let color = 'green';
         let alertFor = '';
 
-        const temperature = _.toLower(tempUnit(tempMeasure)) === 'fahrenheit'
+        const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_temp_fah
           : _.round(report_entry.report_temp_cel, 2).toFixed(2);
-        const probe = _.toLower(tempUnit(tempMeasure)) === 'fahrenheit'
+        const probe = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_probe_fah
-          : _.round(report_entry.report_temp_cel, 2).toFixed(2);
+          : _.round(report_entry.report_probe_cel, 2).toFixed(2);
 
         if (alert) {
           switch (true) {
@@ -305,7 +311,7 @@ const Shipment = ({
 
     setSelectedShipment(shipment);
     setMarkers(markersToSet);
-    setSelectedMarker(markersToSet[0]);
+    setSelectedMarker(_.last(markersToSet));
   };
 
   const filterTabClicked = (event, filter) => {
@@ -330,6 +336,9 @@ const Shipment = ({
   return (
     <Box mt={5} mb={5}>
       {loading && <Loader open={loading} />}
+      <Button type="button" onClick={(e) => history.push(routes.CREATE_SHIPMENT)} className={classes.createButton}>
+        + Create Shipment
+      </Button>
       <Grid container>
         <Grid item xs={12}>
           <div className={classes.title}>
@@ -420,14 +429,14 @@ const Shipment = ({
               setRowProps: (row, dataIndex, rowIndex) => ({
                 style: { color: _.isEqual(row[2], 'Planned') ? muiTheme.palette.background.light : 'inherit' },
               }),
-              onRowClick: (rowData, rowMeta) => {
-                if (_.isEmpty(markers)) {
-                  processMarkers(rows[rowMeta.dataIndex]);
-                } else {
+              onRowExpansionChange: (curExpanded, allExpanded, rowsExpanded) => {
+                if (_.isEmpty(allExpanded)) {
                   setAllMarkers(_.map(rows, 'allMarkers'));
                   setSelectedShipment(null);
                   setMarkers([]);
                   setSelectedMarker({});
+                } else {
+                  processMarkers(rows[_.last(allExpanded).dataIndex]);
                 }
               },
               renderExpandableRow: (rowData, rowMeta) => {
@@ -494,14 +503,14 @@ const Shipment = ({
                         </Grid>
 
                         <Grid item xs={2}>
-                          {_.isEqual(ship.status, 'Enroute') && (
+                          {_.isEqual(ship.status, 'Enroute') && _.last(markers) && (
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
                                   Last location:
                                 </Typography>
                                 <Typography>
-                                  Put location here
+                                  {_.last(markers).location}
                                 </Typography>
                               </Grid>
                             </Grid>
@@ -509,26 +518,26 @@ const Shipment = ({
                         </Grid>
 
                         <Grid item xs={2}>
-                          {_.isEqual(ship.status, 'Enroute') && (
+                          {_.isEqual(ship.status, 'Enroute') && _.last(markers) && (
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
                                   Last Reading:
                                 </Typography>
                                 <Typography>
-                                  {'Temp: '}
+                                  {`Temp: ${_.last(markers).temperature}`}
                                 </Typography>
                                 <Typography>
-                                  {'Humidity: '}
+                                  {`Humidity: ${_.last(markers).humidity}`}
                                 </Typography>
                                 <Typography>
-                                  {'Shock: '}
+                                  {`Shock: ${_.last(markers).shock}`}
                                 </Typography>
                                 <Typography>
-                                  {'Light: '}
+                                  {`Light: ${_.last(markers).light}`}
                                 </Typography>
                                 <Typography>
-                                  {'Battery: '}
+                                  {`Battery: ${_.last(markers).battery}`}
                                 </Typography>
                               </Grid>
                             </Grid>

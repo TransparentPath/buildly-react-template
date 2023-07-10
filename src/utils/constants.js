@@ -712,7 +712,7 @@ export const processReportsAndMarkers = (
   let markersToSet = [];
   const dateFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'date'))).unit_of_measure;
   const timeFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'time'))).unit_of_measure;
-  const tempMeasure = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')));
+  const tempMeasure = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))).unit_of_measure;
 
   if (!_.isEmpty(sensorReports)) {
     _.forEach(sensorReports, (report) => {
@@ -726,12 +726,12 @@ export const processReportsAndMarkers = (
         let color = 'green';
         let alertFor = '';
 
-        const temperature = _.isEqual(_.toLower(tempUnit(tempMeasure)), 'fahrenheit')
+        const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_temp_fah
           : _.round(report_entry.report_temp_cel, 2).toFixed(2);
-        const probe = _.isEqual(_.toLower(tempUnit(tempMeasure)), 'fahrenheit')
+        const probe = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_probe_fah
-          : _.round(report_entry.report_temp_cel, 2).toFixed(2);
+          : _.round(report_entry.report_probe_cel, 2).toFixed(2);
 
         if ('report_timestamp' in report_entry) {
           if (report_entry.report_timestamp !== null) {
@@ -1587,18 +1587,18 @@ export const getShipmentFormattedRow = (
     }
 
     if (editedShipment.had_alert) {
-      const recovered = _.map(allAlerts, 'recovered_alert_id');
       const filteredAlerts = _.filter(allAlerts, (alert) => (
         _.isEqual(alert.shipment_id, editedShipment.partner_shipment_id)
-        && !_.includes(recovered, _.toString(alert.id))
         && !alert.recovered_alert_id
       ));
 
-      editedShipment.alerts = _.map(filteredAlerts, (alert) => ({
+      const processedAlerts = _.map(filteredAlerts, (alert) => ({
         id: alert.parameter_type,
         color: ((_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) && maxColor)
           || (_.includes(alert.alert_type, 'min') && minColor),
       }));
+
+      editedShipment.alerts = _.uniq(processedAlerts);
     }
 
     if (!_.isEmpty(sensorReports)) {

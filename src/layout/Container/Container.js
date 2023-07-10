@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   },
   contentMaxWidth: {
     width: 'calc(100vw - 240px)',
-    maxWidth: theme.breakpoints.values.lg,
+    maxWidth: '100%',
   },
 }));
 

@@ -56,10 +56,13 @@ import { routes } from '../../routes/routesConstants';
 import { getCustodianFormattedRow, getItemFormattedRow, itemColumns } from '../../utils/constants';
 import { SHIPMENT_STATUS, TIVE_GATEWAY_TIMES, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
 import { validators } from '../../utils/validators';
+import ConfirmModal from '@components/Modal/ConfirmModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: '100%',
+    maxWidth: theme.breakpoints.values.lg,
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
   form: {
     width: '100%',
@@ -149,6 +152,10 @@ const useStyles = makeStyles((theme) => ({
   withHelperText: {
     paddingBottom: theme.spacing(2),
   },
+  actionButtons: {
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+  },
 }));
 
 const CreateShipment = ({
@@ -173,12 +180,13 @@ const CreateShipment = ({
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
   const { organization } = useContext(UserContext);
 
-  const formTitle = 'Create Shipment';
   const editData = (location.state && location.state.ship) || {};
+  const formTitle = location.state && location.state.ship ? 'Update Shipment' : 'Create Shipment';
 
   const [template, setTemplate] = useState('');
   const [confirmSaveTemplate, setConfirmSaveTemplate] = useState(false);
   const [confirmName, setConfirmName] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
   const [templateName, setTemplateName] = useState({ name: '', suffix: '' });
 
   const [custodianList, setCustodianList] = useState([]);
@@ -225,11 +233,11 @@ const CreateShipment = ({
   const note = useInput((!_.isEmpty(editData) && editData.note) || '');
   const [additionalCustodians, setAdditionalCustocations] = useState([]);
 
-  const gatewayType = useInput((!_.isEmpty(editData) && editData.platform_name) || '');
+  const gatewayType = useInput((!_.isEmpty(editData) && editData.platform_name) || 'tive');
   const [availableGateways, setAvailableGateways] = useState([]);
   const gateway = useInput('');
-  const transmissionInterval = useInput((!_.isEmpty(editData) && editData.transmission_time) || 5);
-  const measurementInterval = useInput((!_.isEmpty(editData) && editData.measurement_time) || 5);
+  const transmissionInterval = useInput((!_.isEmpty(editData) && editData.transmission_time) || 20);
+  const measurementInterval = useInput((!_.isEmpty(editData) && editData.measurement_time) || 20);
 
   const [formError, setFormError] = useState({});
 
@@ -435,16 +443,18 @@ const CreateShipment = ({
 
   const handleTemplateChange = (value) => {
     setTemplate(value);
-    onInputChange(value.origin_custodian, 'custodian', 'start');
-    onInputChange(value.destination_custodian, 'custodian', 'end');
-    setItems(value.items);
-    status.setValue(value.status);
-    min_excursion_temp.setValue(value.min_excursion_temp);
-    max_excursion_temp.setValue(value.max_excursion_temp);
-    min_excursion_humidity.setValue(value.min_excursion_humidity);
-    max_excursion_humidity.setValue(value.max_excursion_humidity);
-    shock_threshold.setValue(value.shock_threshold);
-    light_threshold.setValue(value.light_threshold);
+    if (value) {
+      onInputChange(value.origin_custodian, 'custodian', 'start');
+      onInputChange(value.destination_custodian, 'custodian', 'end');
+      setItems(value.items);
+      status.setValue(value.status);
+      min_excursion_temp.setValue(value.min_excursion_temp);
+      max_excursion_temp.setValue(value.max_excursion_temp);
+      min_excursion_humidity.setValue(value.min_excursion_humidity);
+      max_excursion_humidity.setValue(value.max_excursion_humidity);
+      shock_threshold.setValue(value.shock_threshold);
+      light_threshold.setValue(value.light_threshold);
+    }
   };
 
   const getTemplateName = () => {
@@ -467,10 +477,10 @@ const CreateShipment = ({
       destination_custodian: destinationCustodian,
       items,
       status: status.value,
-      min_excursion_temp: min_excursion_temp.value,
-      max_excursion_temp: max_excursion_temp.value,
-      min_excursion_humidity: min_excursion_humidity.value,
-      max_excursion_humidity: max_excursion_humidity.value,
+      max_excursion_temp: parseInt(max_excursion_temp.value, 10),
+      min_excursion_temp: parseInt(min_excursion_temp.value, 10),
+      max_excursion_humidity: parseInt(max_excursion_humidity.value, 10),
+      min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
       shock_threshold: shock_threshold.value,
       light_threshold: light_threshold.value,
       organization_uuid: organization.organization_uuid,
@@ -494,10 +504,10 @@ const CreateShipment = ({
       destination_custodian: destinationCustodian,
       items,
       status: status.value,
-      min_excursion_temp: min_excursion_temp.value,
-      max_excursion_temp: max_excursion_temp.value,
-      min_excursion_humidity: min_excursion_humidity.value,
-      max_excursion_humidity: max_excursion_humidity.value,
+      max_excursion_temp: parseInt(max_excursion_temp.value, 10),
+      min_excursion_temp: parseInt(min_excursion_temp.value, 10),
+      max_excursion_humidity: parseInt(max_excursion_humidity.value, 10),
+      min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
       shock_threshold: shock_threshold.value,
       light_threshold: light_threshold.value,
       organization_uuid: organization.organization_uuid,
@@ -542,7 +552,6 @@ const CreateShipment = ({
       || !destinationCustodian
       || _.isEmpty(items)
       || !shipmentName.value
-      || (gatewayType.value && !gateway.value)
     )) || (!_.isEmpty(editData) && (
       _.isEqual(originCustodian, _.find(custodianList, { name: editData.origin })?.url)
       && _.isEqual(destinationCustodian, _.find(custodianList, { name: editData.destination })?.url)
@@ -554,6 +563,8 @@ const CreateShipment = ({
       && !max_excursion_temp.hasChanged()
       && !min_excursion_humidity.hasChanged()
       && !max_excursion_humidity.hasChanged()
+      && !shock_threshold.hasChanged()
+      && !light_threshold.hasChanged()
       && !shipmentName.hasChanged()
       && !purchaseOrderNumber.hasChanged()
       && !billOfLading.hasChanged()
@@ -599,7 +610,11 @@ const CreateShipment = ({
       min_excursion_temp: parseInt(min_excursion_temp.value, 10),
       max_excursion_humidity: parseInt(max_excursion_humidity.value, 10),
       min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
+      shock_threshold: parseInt(shock_threshold.value, 10),
+      light_threshold: parseInt(light_threshold.value, 10),
       note: note.value,
+      transmission_time: parseInt(transmissionInterval.value, 10),
+      measurement_time: parseInt(measurementInterval.value, 10),
     };
     const startCustodyForm = {
       ...startCustody,
@@ -670,8 +685,49 @@ const CreateShipment = ({
     }
   };
 
+  const handleCancel = () => {
+    const dataChanged = (
+      (_.isEmpty(editData) && (
+        originCustodian || destinationCustodian || !_.isEmpty(items) || shipmentName.value
+      )) || (!_.isEmpty(editData) && (
+        !_.isEqual(originCustodian, _.find(custodianList, { name: editData.origin })?.url)
+        || !_.isEqual(destinationCustodian, _.find(custodianList, {
+          name: editData.destination,
+        })?.url)
+        || !_.isEqual(editData.estimated_time_of_departure, departureDateTime)
+        || !_.isEqual(editData.estimated_time_of_arrival, arrivalDateTime)
+        || status.hasChanged()
+        || !_.isEqual(editData.items, items)
+        || min_excursion_temp.hasChanged()
+        || max_excursion_temp.hasChanged()
+        || min_excursion_humidity.hasChanged()
+        || max_excursion_humidity.hasChanged()
+        || shock_threshold.hasChanged()
+        || light_threshold.hasChanged()
+        || shipmentName.hasChanged()
+        || purchaseOrderNumber.hasChanged()
+        || billOfLading.hasChanged()
+        || !_.isEmpty(files)
+        || note.hasChanged()
+        || !_.isEqual(additionalCustodians, _.map(editData.carriers, (carrier) => (
+          _.find(custodianList, { name: carrier }) || carrier
+        )))
+        || gatewayType.hasChanged()
+        || gatewayType.hasChanged()
+        || !_.isEqual(editData.transmission_time, transmissionInterval.value)
+        || !_.isEqual(editData.measurement_time, measurementInterval.value)
+      ))
+    );
+
+    if (dataChanged) {
+      setConfirmLeave(true);
+    } else {
+      history.push(routes.SHIPMENT);
+    }
+  };
+
   return (
-    <Box mt={5} mb={5}>
+    <Box mt={5} mb={5} className={classes.root}>
       {loading && <Loader open={loading} />}
       <Grid container spacing={2} alignItems="center" justifyContent="center">
         <Grid item xs={8}>
@@ -690,6 +746,8 @@ const CreateShipment = ({
             label="Templates"
             value={template}
             onChange={(e) => handleTemplateChange(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            SelectProps={{ displayEmpty: true }}
           >
             <MenuItem value="">Select</MenuItem>
             {!_.isEmpty(templates) && _.map(templates, (tmp) => (
@@ -722,6 +780,8 @@ const CreateShipment = ({
                       onBlur={(e) => handleBlur(e, 'required', originCustodian, 'origin-custodian')}
                       value={originCustodian}
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'start')}
+                      InputLabelProps={{ shrink: true }}
+                      SelectProps={{ displayEmpty: true }}
                     >
                       <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(custodianList) && _.map(custodianList, (cust) => (
@@ -793,6 +853,8 @@ const CreateShipment = ({
                       onBlur={(e) => handleBlur(e, 'required', destinationCustodian, 'destination-custodian')}
                       value={destinationCustodian}
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'end')}
+                      InputLabelProps={{ shrink: true }}
+                      SelectProps={{ displayEmpty: true }}
                     >
                       <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(custodianList) && _.map(custodianList, (cust) => (
@@ -901,6 +963,8 @@ const CreateShipment = ({
                   placeholder="Select..."
                   label="Shipment Status"
                   onBlur={(e) => handleBlur(e, 'required', status, 'status')}
+                  InputLabelProps={{ shrink: true }}
+                  SelectProps={{ displayEmpty: true }}
                   {...status.bind}
                 >
                   <MenuItem value="">Select</MenuItem>
@@ -1012,7 +1076,7 @@ const CreateShipment = ({
                     }}
                     onBlur={(e) => handleBlur(e, 'required', max_excursion_temp, 'max_excursion_temp')}
                     value={max_excursion_temp.value}
-                    onChange={(e) => max_excursion_temp.setValue(_.toNumber(e.target.value))}
+                    onChange={(e) => max_excursion_temp.setValue(_.toString(e.target.value))}
                   />
 
                   <Typography mt={3} className={classes.alertSettingText}>
@@ -1042,7 +1106,7 @@ const CreateShipment = ({
                     }}
                     onBlur={(e) => handleBlur(e, 'required', min_excursion_temp, 'min_excursion_temp')}
                     value={min_excursion_temp.value}
-                    onChange={(e) => min_excursion_temp.setValue(_.toNumber(e.target.value))}
+                    onChange={(e) => min_excursion_temp.setValue(_.toString(e.target.value))}
                   />
                 </div>
               </Grid>
@@ -1071,7 +1135,7 @@ const CreateShipment = ({
                     }}
                     onBlur={(e) => handleBlur(e, 'required', max_excursion_humidity, 'max_excursion_humidity')}
                     value={max_excursion_humidity.value}
-                    onChange={(e) => max_excursion_humidity.setValue(_.toNumber(e.target.value))}
+                    onChange={(e) => max_excursion_humidity.setValue(_.toString(e.target.value))}
                   />
 
                   <Typography mt={3} className={classes.alertSettingText}>
@@ -1092,7 +1156,7 @@ const CreateShipment = ({
                     }}
                     onBlur={(e) => handleBlur(e, 'required', min_excursion_humidity, 'min_excursion_humidity')}
                     value={min_excursion_humidity.value}
-                    onChange={(e) => min_excursion_humidity.setValue(_.toNumber(e.target.value))}
+                    onChange={(e) => min_excursion_humidity.setValue(_.toString(e.target.value))}
                   />
                 </div>
               </Grid>
@@ -1121,7 +1185,7 @@ const CreateShipment = ({
                     }}
                     onBlur={(e) => handleBlur(e, 'required', shock_threshold, 'shock_threshold')}
                     value={shock_threshold.value}
-                    onChange={(e) => shock_threshold.setValue(_.toNumber(e.target.value))}
+                    onChange={(e) => shock_threshold.setValue(_.toString(e.target.value))}
                   />
 
                   <Typography mt={3} className={classes.alertSettingText}>
@@ -1142,7 +1206,7 @@ const CreateShipment = ({
                     }}
                     onBlur={(e) => handleBlur(e, 'required', light_threshold, 'light_threshold')}
                     value={light_threshold.value}
-                    onChange={(e) => light_threshold.setValue(_.toNumber(e.target.value))}
+                    onChange={(e) => light_threshold.setValue(_.toString(e.target.value))}
                   />
                 </div>
               </Grid>
@@ -1189,8 +1253,6 @@ const CreateShipment = ({
                 <TextField
                   variant="outlined"
                   fullWidth
-                  type="number"
-                  className={classes.numberInput}
                   id="shipment-name"
                   name="shipment-name"
                   label="Shipment Name"
@@ -1335,6 +1397,8 @@ const CreateShipment = ({
                           );
                           setAdditionalCustocations(newList);
                         }}
+                        InputLabelProps={{ shrink: true }}
+                        SelectProps={{ displayEmpty: true }}
                       >
                         <MenuItem value="">Select</MenuItem>
                         {!_.isEmpty(custodianList)
@@ -1373,22 +1437,20 @@ const CreateShipment = ({
                       />
                     </Grid>
 
-                    {index > 0 && (
-                      <Grid item xs={0.5}>
-                        <Button
-                          type="button"
-                          onClick={(e) => {
-                            const newList = _.filter(
-                              additionalCustodians,
-                              (cust, idx) => (idx !== index),
-                            );
-                            setAdditionalCustocations(newList);
-                          }}
-                        >
-                          <CancelIcon fontSize="large" className={classes.cancel} />
-                        </Button>
-                      </Grid>
-                    )}
+                    <Grid item xs={0.5}>
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          const newList = _.filter(
+                            additionalCustodians,
+                            (cust, idx) => (idx !== index),
+                          );
+                          setAdditionalCustocations(newList);
+                        }}
+                      >
+                        <CancelIcon fontSize="large" className={classes.cancel} />
+                      </Button>
+                    </Grid>
                   </Grid>
                 </Grid>
               ))}
@@ -1406,6 +1468,8 @@ const CreateShipment = ({
                       setAdditionalCustocations([...additionalCustodians, e.target.value]);
                       setShowAddCustodian(false);
                     }}
+                    InputLabelProps={{ shrink: true }}
+                    SelectProps={{ displayEmpty: true }}
                   >
                     <MenuItem value="">Select</MenuItem>
                     {!_.isEmpty(custodianList)
@@ -1442,7 +1506,7 @@ const CreateShipment = ({
             </FormLabel>
 
             <Grid container spacing={isDesktop ? 4 : 0}>
-              <Grid item xs={gatewayType && gatewayType.value ? 5.5 : 5.75}>
+              <Grid item xs={5.5}>
                 <TextField
                   id="gateway-type"
                   select
@@ -1454,6 +1518,8 @@ const CreateShipment = ({
                     !_.isEmpty(editData)
                     && !!_.find(gatewayTypeList, { name: editData.platform_name })
                   }
+                  InputLabelProps={{ shrink: true }}
+                  SelectProps={{ displayEmpty: true }}
                   {...gatewayType.bind}
                 >
                   <MenuItem value="">Select</MenuItem>
@@ -1464,11 +1530,9 @@ const CreateShipment = ({
                   ))}
                 </TextField>
               </Grid>
-              {gatewayType && gatewayType.value && (
-                <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
-              )}
+              <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
 
-              <Grid item xs={gatewayType && gatewayType.value ? 5.5 : 5.75}>
+              <Grid item xs={5.75}>
                 <TextField
                   id="gateway"
                   select
@@ -1481,6 +1545,8 @@ const CreateShipment = ({
                     && !_.isEmpty(editData.gateway_imei)
                     && !!_.find(gatewayData, { imei_number: _.toNumber(editData.gateway_imei[0]) })
                   }
+                  InputLabelProps={{ shrink: true }}
+                  SelectProps={{ displayEmpty: true }}
                   {...gateway.bind}
                 >
                   <MenuItem value="">Select</MenuItem>
@@ -1490,10 +1556,11 @@ const CreateShipment = ({
                     </MenuItem>
                   ))}
                 </TextField>
+                <Typography variant="caption" component="div" fontStyle="italic" color={theme.palette.background.light} mt={1}>
+                  Note: If no trackers appear in the drop down list, please verify that the
+                  tracker is Available and associated to the origin custodian.
+                </Typography>
               </Grid>
-              {gatewayType && gatewayType.value && (
-                <Grid item xs={0.5} className={classes.outerAsterisk}>*</Grid>
-              )}
             </Grid>
             {gateway && gateway.value && (
               <Grid item xs={11.5} className={classes.gatewayDetails}>
@@ -1518,6 +1585,8 @@ const CreateShipment = ({
                       placeholder="Select..."
                       label="Transmission interval"
                       onBlur={(e) => handleBlur(e, 'required', transmissionInterval, 'transmission-interval')}
+                      InputLabelProps={{ shrink: true }}
+                      SelectProps={{ displayEmpty: true }}
                       {...transmissionInterval.bind}
                     >
                       <MenuItem value="">Select</MenuItem>
@@ -1537,6 +1606,8 @@ const CreateShipment = ({
                       placeholder="Select..."
                       label="Measurement interval"
                       onBlur={(e) => handleBlur(e, 'required', measurementInterval, 'measurement-interval')}
+                      InputLabelProps={{ shrink: true }}
+                      SelectProps={{ displayEmpty: true }}
                       {...measurementInterval.bind}
                     >
                       <MenuItem value="">Select</MenuItem>
@@ -1621,31 +1692,33 @@ const CreateShipment = ({
             </Grid>
 
             <Grid item xs={0.5} />
-            <Grid item xs={5.5}>
-              <Button type="button" variant="outlined" fullWidth onClick={(e) => history.push(routes.SHIPMENT)}>
+            <Grid item xs={5.5} mt={5}>
+              <Button type="button" variant="outlined" fullWidth onClick={handleCancel} className={classes.actionButtons}>
                 Cancel
               </Button>
             </Grid>
 
-            <Grid item xs={5.5}>
-              {!gateway.value && !gatewayType.value && (
+            <Grid item xs={5.5} mt={5}>
+              {!gateway.value && (
                 <Button
                   type="submit"
                   variant="contained"
                   fullWidth
                   disabled={loading || submitDisabled()}
                   onClick={(e) => handleSubmit(e, true)}
+                  className={classes.actionButtons}
                 >
                   Save as Draft
                 </Button>
               )}
-              {gateway && gatewayType.value && (
+              {gateway.value && (
                 <Button
                   type="submit"
                   variant="contained"
                   fullWidth
                   disabled={loading || submitDisabled()}
                   onClick={(e) => handleSubmit(e, false)}
+                  className={classes.actionButtons}
                 >
                   {_.isEmpty(editData) ? 'Create a shipment' : 'Update shipment'}
                 </Button>
@@ -1746,6 +1819,14 @@ const CreateShipment = ({
           </DialogActions>
         </Dialog>
       </div>
+
+      <ConfirmModal
+        open={confirmLeave}
+        setOpen={setConfirmLeave}
+        submitAction={(e) => history.push(routes.SHIPMENT)}
+        title="Your changes are unsaved and will be discarded. Are you sure to leave?"
+        submitText="Yes"
+      />
     </Box>
   );
 };
