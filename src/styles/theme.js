@@ -32,6 +32,9 @@ const theme = createTheme({
     error: {
       main: '#FF0033',
     },
+    cluster: {
+      main: '#ECDB54',
+    },
   },
   typography: {
     fontFamily: 'Roboto',

@@ -1591,14 +1591,20 @@ export const getShipmentFormattedRow = (
         _.isEqual(alert.shipment_id, editedShipment.partner_shipment_id)
         && !alert.recovered_alert_id
       ));
+      let processedAlerts = [];
 
-      const processedAlerts = _.map(filteredAlerts, (alert) => ({
-        id: alert.parameter_type,
-        color: ((_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) && maxColor)
-          || (_.includes(alert.alert_type, 'min') && minColor),
-      }));
-
-      editedShipment.alerts = _.uniq(processedAlerts);
+      _.forEach(filteredAlerts, (alert) => {
+        const alertObj = {
+          id: alert.parameter_type,
+          color: ((_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) && maxColor)
+            || (_.includes(alert.alert_type, 'min') && minColor),
+        };
+        const objFound = !!(_.find(processedAlerts, alertObj));
+        if (!objFound) {
+          processedAlerts = [...processedAlerts, alertObj];
+        }
+      });
+      editedShipment.alerts = processedAlerts;
     }
 
     if (!_.isEmpty(sensorReports)) {
@@ -1607,6 +1613,7 @@ export const getShipmentFormattedRow = (
         (report) => ({
           lat: report.report_entry.report_latitude,
           lng: report.report_entry.report_longitude,
+          name: editedShipment.name,
         }),
       );
     }

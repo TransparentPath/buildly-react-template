@@ -103,9 +103,40 @@ const RenderedMap = withScriptjs(
           averageCenter
           enableRetinaIcons
           gridSize={60}
+          title={!_.isEmpty(shipMarkers) ? _.first(shipMarkers).name : ''}
+          styles={[
+            {
+              url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+              height: 53,
+              width: 53,
+            },
+            {
+              url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+              height: 56,
+              width: 56,
+            },
+            {
+              url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+              height: 66,
+              width: 66,
+            },
+            {
+              url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+              height: 78,
+              width: 78,
+            },
+            {
+              url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+              height: 90,
+              width: 90,
+            },
+          ]}
+          // onClusteringEnd={(clusterer) => {
+          //   console.log(clusterer);
+          // }}
         >
           {_.map(shipMarkers, (marker, inx) => (
-            <Marker key={`${marker.lat}-${marker.lng}-${inx}`} position={marker} />
+            <Marker key={`${marker.lat}-${marker.lng}-${inx}`} position={{ lat: marker.lat, lng: marker.lng }} />
           ))}
         </MarkerClusterer>
       ))}

@@ -355,7 +355,7 @@ const Shipment = ({
             showPath
             markers={markers}
             googleMapURL={window.env.MAP_API_URL}
-            zoom={_.isEmpty(markers) ? 2 : 12}
+            zoom={_.isEmpty(markers) ? 4 : 12}
             setSelectedMarker={setSelectedMarker}
             loadingElement={
               <div style={{ height: '100%' }} />
