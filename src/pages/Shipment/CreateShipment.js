@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback, useContext, useEffect, useState,
+} from 'react';
 import { connect } from 'react-redux';
 import Geocode from 'react-geocode';
 import _ from 'lodash';
@@ -15,7 +17,6 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  FormHelperText,
   FormLabel,
   Grid,
   InputAdornment,
@@ -149,9 +150,6 @@ const useStyles = makeStyles((theme) => ({
       '-moz-appearance': 'textfield',
     },
   },
-  withHelperText: {
-    paddingBottom: theme.spacing(2),
-  },
   actionButtons: {
     paddingTop: theme.spacing(3),
     paddingBottom: theme.spacing(3),
@@ -187,6 +185,7 @@ const CreateShipment = ({
   const [confirmSaveTemplate, setConfirmSaveTemplate] = useState(false);
   const [confirmName, setConfirmName] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [triggerExit, setTriggerExit] = useState({ onOk: false, path: '' });
   const [templateName, setTemplateName] = useState({ name: '', suffix: '' });
 
   const [custodianList, setCustodianList] = useState([]);
@@ -228,6 +227,9 @@ const CreateShipment = ({
   const purchaseOrderNumber = useInput((!_.isEmpty(editData) && editData.purchase_order_number) || '');
   const billOfLading = useInput((!_.isEmpty(editData) && editData.bill_of_lading) || '');
   const [files, setFiles] = useState([]);
+  const [attachedFiles, setAttachedFiles] = useState(
+    (!_.isEmpty(editData) && editData.uploaded_pdf) || [],
+  );
   const [showNote, setShowNote] = useState(!_.isEmpty(editData) && !!editData.note);
   const [showAddCustodian, setShowAddCustodian] = useState(false);
   const note = useInput((!_.isEmpty(editData) && editData.note) || '');
@@ -240,6 +242,7 @@ const CreateShipment = ({
   const measurementInterval = useInput((!_.isEmpty(editData) && editData.measurement_time) || 20);
 
   const [formError, setFormError] = useState({});
+  let formEdited = false;
 
   const uncheckedIcon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -348,6 +351,78 @@ const CreateShipment = ({
       }
     }
   }, [templates]);
+
+  formEdited = (
+    !!(_.isEmpty(editData) && (
+      originCustodian || destinationCustodian || !_.isEmpty(items) || shipmentName.value
+    )) || !!(!_.isEmpty(editData) && (
+      !_.isEqual(
+        moment(editData.estimated_time_of_departure).toISOString(),
+        moment(departureDateTime).toISOString(),
+      ) || !_.isEqual(
+        moment(editData.estimated_time_of_arrival).toISOString(),
+        moment(arrivalDateTime).toISOString(),
+      ) || status.hasChanged()
+      || !_.isEqual(editData.items, items)
+      || min_excursion_temp.hasChanged()
+      || max_excursion_temp.hasChanged()
+      || min_excursion_humidity.hasChanged()
+      || max_excursion_humidity.hasChanged()
+      || shock_threshold.hasChanged()
+      || light_threshold.hasChanged()
+      || shipmentName.hasChanged()
+      || purchaseOrderNumber.hasChanged()
+      || billOfLading.hasChanged()
+      || !_.isEmpty(files)
+      || note.hasChanged()
+      || !_.isEqual(additionalCustodians, _.map(editData.carriers, (carrier) => (
+        _.find(custodianList, { name: carrier }) || carrier
+      )))
+      || gatewayType.hasChanged()
+      || gatewayType.hasChanged()
+      || !_.isEqual(editData.transmission_time, transmissionInterval.value)
+      || !_.isEqual(editData.measurement_time, measurementInterval.value)
+      || (
+        _.find(custodianList, { name: editData.origin })
+        && !_.isEqual(originCustodian, _.find(custodianList, { name: editData.origin }).url)
+      ) || (
+        _.find(custodianList, { name: editData.destination })
+        && !_.isEqual(destinationCustodian, _.find(custodianList, {
+          name: editData.destination,
+        }).url)
+      ) || (editData.uploaded_pdf && !_.isEqual(attachedFiles, editData.uploaded_pdf))
+    ))
+  );
+
+  const handleGoToIntendedPage = useCallback(
+    (loc) => history.push(loc),
+    [history],
+  );
+
+  useEffect(() => {
+    if (triggerExit.onOk) {
+      handleGoToIntendedPage(triggerExit.path);
+    }
+
+    const unblock = history.block((loc) => {
+      let trgObj = { ...triggerExit, path: loc.pathname };
+      if ((loc.pathname !== routes.CREATE_SHIPMENT) && formEdited) {
+        setConfirmLeave(true);
+      } else {
+        trgObj = { ...trgObj, onOk: true };
+      }
+
+      setTriggerExit(trgObj);
+      if (triggerExit.onOk) {
+        return true;
+      }
+      return false;
+    });
+
+    return () => {
+      unblock();
+    };
+  }, [handleGoToIntendedPage, history, triggerExit.onOk, triggerExit.path, formEdited]);
 
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
@@ -553,9 +628,7 @@ const CreateShipment = ({
       || _.isEmpty(items)
       || !shipmentName.value
     )) || (!_.isEmpty(editData) && (
-      _.isEqual(originCustodian, _.find(custodianList, { name: editData.origin })?.url)
-      && _.isEqual(destinationCustodian, _.find(custodianList, { name: editData.destination })?.url)
-      && _.isEqual(editData.estimated_time_of_departure, departureDateTime)
+      _.isEqual(editData.estimated_time_of_departure, departureDateTime)
       && _.isEqual(editData.estimated_time_of_arrival, arrivalDateTime)
       && !status.hasChanged()
       && _.isEqual(editData.items, items)
@@ -577,16 +650,25 @@ const CreateShipment = ({
       && _.isEqual(editData.measurement_time, measurementInterval.value)
       && (!_.isEmpty(editData.gateway_imei)
         || (_.isEmpty(editData.gateway_imei) && (!gateway.value || !gatewayType.value))
-      )
+      ) && (
+        _.find(custodianList, { name: editData.origin })
+        && _.isEqual(originCustodian, _.find(custodianList, { name: editData.origin }).url)
+      ) && (
+        _.find(custodianList, { name: editData.destination })
+        && _.isEqual(destinationCustodian, _.find(custodianList, {
+          name: editData.destination,
+        }).url)
+      ) && _.isEqual(attachedFiles, editData.uploaded_pdf)
     ))
   );
 
   const handleSubmit = (event, draft) => {
     event.preventDefault();
     const shipName = `${organization.abbrevation}-${shipmentName.value}-${originAbb}-${destinationAbb}`;
-    const uom_distance = _.find(unitOfMeasure, (unit) => (
+    const UOMDISTANCE = _.find(unitOfMeasure, (unit) => (
       _.toLower(unit.unit_of_measure_for) === 'distance'
-    ))?.unit_of_measure;
+    ));
+    const uom_distance = UOMDISTANCE ? UOMDISTANCE.unit_of_measure : '';
     const startCustody = (
       !_.isEmpty(editData) && _.find(custodyData, (custody) => custody.first_custody)
     ) || {};
@@ -678,51 +760,36 @@ const CreateShipment = ({
       savePayload = { ...savePayload, updateGateway };
     }
 
+    if (!_.isEqual(editData.uploaded_pdf, attachedFiles)) {
+      let pdfs = [];
+      let links = [];
+      let deleteFiles = [];
+
+      _.forEach(editData.uploaded_pdf, (f, index) => {
+        const found = _.includes(attachedFiles, f);
+        if (found) {
+          pdfs = [...pdfs, f];
+          links = [...links, editData.uploaded_pdf_link[index]];
+        } else {
+          deleteFiles = [...deleteFiles, f];
+        }
+      });
+
+      savePayload = {
+        ...savePayload,
+        shipment: {
+          ...shipmentFormValue,
+          uploaded_pdf: pdfs,
+          uploaded_pdf_link: links,
+        },
+        deleteFiles,
+      };
+    }
+
     if (_.isEmpty(editData)) {
       dispatch(addShipment(savePayload, history, routes.SHIPMENT));
     } else {
       dispatch(editShipment(savePayload, history, routes.SHIPMENT));
-    }
-  };
-
-  const handleCancel = () => {
-    const dataChanged = (
-      (_.isEmpty(editData) && (
-        originCustodian || destinationCustodian || !_.isEmpty(items) || shipmentName.value
-      )) || (!_.isEmpty(editData) && (
-        !_.isEqual(originCustodian, _.find(custodianList, { name: editData.origin })?.url)
-        || !_.isEqual(destinationCustodian, _.find(custodianList, {
-          name: editData.destination,
-        })?.url)
-        || !_.isEqual(editData.estimated_time_of_departure, departureDateTime)
-        || !_.isEqual(editData.estimated_time_of_arrival, arrivalDateTime)
-        || status.hasChanged()
-        || !_.isEqual(editData.items, items)
-        || min_excursion_temp.hasChanged()
-        || max_excursion_temp.hasChanged()
-        || min_excursion_humidity.hasChanged()
-        || max_excursion_humidity.hasChanged()
-        || shock_threshold.hasChanged()
-        || light_threshold.hasChanged()
-        || shipmentName.hasChanged()
-        || purchaseOrderNumber.hasChanged()
-        || billOfLading.hasChanged()
-        || !_.isEmpty(files)
-        || note.hasChanged()
-        || !_.isEqual(additionalCustodians, _.map(editData.carriers, (carrier) => (
-          _.find(custodianList, { name: carrier }) || carrier
-        )))
-        || gatewayType.hasChanged()
-        || gatewayType.hasChanged()
-        || !_.isEqual(editData.transmission_time, transmissionInterval.value)
-        || !_.isEqual(editData.measurement_time, measurementInterval.value)
-      ))
-    );
-
-    if (dataChanged) {
-      setConfirmLeave(true);
-    } else {
-      history.push(routes.SHIPMENT);
     }
   };
 
@@ -1287,15 +1354,7 @@ const CreateShipment = ({
                 />
               </Grid>
 
-              <Grid
-                item
-                xs={10}
-                className={
-                  !_.isEmpty(editData) && !_.isEmpty(editData.uploaded_pdf)
-                    ? classes.withHelperText
-                    : ''
-                }
-              >
+              <Grid item xs={10}>
                 <FormControl fullWidth component="fieldset" variant="outlined" className={classes.attachedFiles}>
                   <FormLabel component="legend" className={classes.legend}>
                     Attached Files
@@ -1310,18 +1369,19 @@ const CreateShipment = ({
                         onDelete={(e) => setFiles(_.filter(files, (f, index) => (index !== idx)))}
                       />
                     ))}
+
+                    {!_.isEmpty(attachedFiles) && _.map(attachedFiles, (pdf, idx) => (
+                      <Chip
+                        key={`${pdf}-${idx}`}
+                        variant="outlined"
+                        label={pdf}
+                        onDelete={(e) => setAttachedFiles(_.filter(attachedFiles, (f, index) => (
+                          index !== idx
+                        )))}
+                      />
+                    ))}
                   </Stack>
                 </FormControl>
-                {!_.isEmpty(editData) && !_.isEmpty(editData.uploaded_pdf) && (
-                  <FormHelperText>
-                    'Uploaded PDF(s): '
-                    {_.map(editData.uploaded_pdf, (pdf, index) => (
-                      <a key={`${pdf}-${index}`} href={editData.uploaded_pdf_link[index]} target="_blank" rel="noreferrer">
-                        {pdf}
-                      </a>
-                    ))}
-                  </FormHelperText>
-                )}
               </Grid>
               <Grid item xs={1.5} className={classes.fileButton}>
                 <TextField
@@ -1693,7 +1753,7 @@ const CreateShipment = ({
 
             <Grid item xs={0.5} />
             <Grid item xs={5.5} mt={5}>
-              <Button type="button" variant="outlined" fullWidth onClick={handleCancel} className={classes.actionButtons}>
+              <Button type="button" variant="outlined" fullWidth onClick={(e) => history.push(routes.SHIPMENT)} className={classes.actionButtons}>
                 Cancel
               </Button>
             </Grid>
@@ -1823,7 +1883,10 @@ const CreateShipment = ({
       <ConfirmModal
         open={confirmLeave}
         setOpen={setConfirmLeave}
-        submitAction={(e) => history.push(routes.SHIPMENT)}
+        submitAction={(e) => {
+          setTriggerExit((obj) => ({ ...obj, onOk: true }));
+          setConfirmLeave(false);
+        }}
         title="Your changes are unsaved and will be discarded. Are you sure to leave?"
         submitText="Yes"
       />

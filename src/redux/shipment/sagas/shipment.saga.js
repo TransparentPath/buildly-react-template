@@ -223,7 +223,7 @@ function* addShipment(action) {
 function* editShipment(action) {
   const { history, payload, redirectTo } = action;
   const {
-    start_custody, end_custody, files, carriers, updateGateway,
+    start_custody, end_custody, files, carriers, updateGateway, deleteFiles,
   } = payload;
 
   try {
@@ -252,6 +252,17 @@ function* editShipment(action) {
           ? [...shipmentPayload.uploaded_pdf_link, ..._.map(_.flatMap(_.map(responses, 'data')), 'aws url')]
           : _.map(_.flatMap(_.map(responses, 'data')), 'aws url'),
       };
+    }
+
+    if (!_.isEmpty(deleteFiles)) {
+      const responses = yield all(_.map(deleteFiles, (file) => (
+        call(
+          httpService.makeRequest,
+          'post',
+          `${window.env.API_URL}${shipmentApiEndPoint}delete_file/`,
+          { filename: file },
+        )
+      )));
     }
 
     if (updateGateway) {
@@ -472,16 +483,7 @@ function* getShipmentTemplates(payload) {
       'get',
       `${window.env.API_URL}${shipmentApiEndPoint}shipment_template/?organization_uuid=${organization_uuid}`,
     );
-    yield [
-      yield put({ type: GET_SHIPMENT_TEMPLATES_SUCCESS, data: response.data }),
-      yield put(
-        showAlert({
-          type: 'success',
-          open: true,
-          message: 'Successfully fetched shipment template(s)',
-        }),
-      ),
-    ];
+    yield put({ type: GET_SHIPMENT_TEMPLATES_SUCCESS, data: response.data });
   } catch (error) {
     yield [
       yield put(

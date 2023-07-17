@@ -560,6 +560,14 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
     label: 'Had Alerts(s)',
   },
   {
+    name: 'tracker',
+    label: 'Tracker',
+  },
+  {
+    name: 'battery_levels',
+    label: 'Tracker Battery Level(s)',
+  },
+  {
     name: 'custodian_name',
     label: 'Custodian Name',
   },
@@ -607,6 +615,7 @@ export const getShipmentOverview = (
   custodianData,
   custodyData,
   contactData,
+  gatewayData,
 ) => {
   let shipmentList = [];
   let custodyRows = [];
@@ -686,6 +695,14 @@ export const getShipmentOverview = (
         break;
     }
 
+    if (!_.isEmpty(gatewayData)) {
+      const gateways = _.filter(gatewayData, (gateway) => (
+        _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
+      ));
+      editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ','))) || 'N/A';
+      editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'last_known_battery_level'), '%,'))) || 'N/A';
+    }
+
     shipmentList = [...shipmentList, editedShipment];
   });
 
@@ -698,7 +715,7 @@ export const getShipmentOverview = (
 };
 
 export const processReportsAndMarkers = (
-  sensorReports, alerts, timezone, unitOfMeasure, maxColor, minColor,
+  sensorReports, alerts, timezone, unitOfMeasure, maxColor, minColor, selectedShipment,
 ) => {
   let sensorReportInfo = [];
   let temperatureData = [];
@@ -935,6 +952,12 @@ export const processReportsAndMarkers = (
       battery: batteryData,
       pressure: pressureData,
       probe: probeData,
+      minTemp: { y: selectedShipment.min_excursion_temp, color: minColor },
+      maxTemp: { y: selectedShipment.max_excursion_temp, color: maxColor },
+      minHumidity: { y: selectedShipment.min_excursion_humidity, color: minColor },
+      maxHumidity: { y: selectedShipment.max_excursion_humidity, color: maxColor },
+      shockThreshold: { y: selectedShipment.shock_threshold, color: maxColor },
+      lightThreshold: { y: selectedShipment.light_threshold, color: maxColor },
     },
   };
 };
@@ -1510,6 +1533,20 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       ),
     },
   },
+  {
+    name: 'battery_levels',
+    label: 'Tracker Battery Level(s)',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => (
+        <Typography sx={{ whiteSpace: 'nowrap' }}>
+          {value}
+        </Typography>
+      ),
+    },
+  },
 ]);
 
 export const getShipmentFormattedRow = (
@@ -1584,6 +1621,7 @@ export const getShipmentFormattedRow = (
         _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
       ));
       editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ','))) || 'N/A';
+      editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'last_known_battery_level'), '%,'))) || 'N/A';
     }
 
     if (editedShipment.had_alert) {

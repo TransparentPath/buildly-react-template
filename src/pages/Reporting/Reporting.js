@@ -34,7 +34,7 @@ import {
 import {
   getUnitOfMeasure,
 } from '../../redux/items/actions/items.actions';
-import { getSensorReports } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
+import { getGateways, getSensorReports } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
 } from '../../redux/shipment/actions/shipment.actions';
@@ -112,8 +112,9 @@ const Reporting = ({
   contactInfo,
   unitOfMeasure,
   timezone,
-  allAlerts,
+  allSensorAlerts,
   sensorReports,
+  gatewayData,
 }) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -130,6 +131,9 @@ const Reporting = ({
 
   useEffect(() => {
     dispatch(getUnitOfMeasure(organization));
+    dispatch(getCustodians(organization));
+    dispatch(getContact(organization));
+    dispatch(getGateways(organization));
     dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
   }, []);
 
@@ -161,6 +165,7 @@ const Reporting = ({
         custodianData,
         custodyData,
         contactInfo,
+        gatewayData,
       );
       if (!_.isEmpty(overview)) {
         setShipmentOverview(overview);
@@ -170,12 +175,12 @@ const Reporting = ({
         }
       }
     }
-  }, [shipmentData, custodianData, custodyData, contactInfo]);
+  }, [shipmentData, custodianData, custodyData, contactInfo, gatewayData]);
 
   useEffect(() => {
     const alerts = _.filter(
-      allAlerts,
-      (alert) => alert.parameter_type !== 'location' && alert.shipment_id === selectedShipment?.partner_shipment_id,
+      allSensorAlerts,
+      (alert) => alert.parameter_type !== 'location' && selectedShipment && alert.shipment_id === selectedShipment.partner_shipment_id,
     );
     if (selectedShipment && !_.isEmpty(sensorReports)) {
       const { sensorReportInfo, markersToSet, graphs } = processReportsAndMarkers(
@@ -185,13 +190,14 @@ const Reporting = ({
         unitOfMeasure,
         theme.palette.error.main,
         theme.palette.info.main,
+        selectedShipment,
       );
 
       setReports(sensorReportInfo);
       setAllGraphs(graphs);
       setMarkers(markersToSet);
     }
-  }, [sensorReports, allAlerts]);
+  }, [sensorReports, allSensorAlerts]);
 
   const getShipmentValue = (value) => {
     let returnValue;
@@ -470,6 +476,12 @@ const Reporting = ({
                 data={allGraphs[selectedGraph]}
                 selectedGraph={selectedGraph}
                 unitOfMeasure={unitOfMeasure}
+                minTemp={allGraphs.minTemp}
+                maxTemp={allGraphs.maxTemp}
+                minHumidity={allGraphs.minHumidity}
+                maxHumidity={allGraphs.maxHumidity}
+                shockThreshold={allGraphs.shockThreshold}
+                lightThreshold={allGraphs.lightThreshold}
               />
             )
             : (
@@ -486,7 +498,7 @@ const Reporting = ({
         loading={loading}
         sensorReport={reports}
         alerts={_.filter(
-          allAlerts,
+          allSensorAlerts,
           { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
         )}
         shipmentName={selectedShipment && selectedShipment.name}
@@ -498,7 +510,7 @@ const Reporting = ({
         loading={loading}
         sensorReport={reports}
         alerts={_.filter(
-          allAlerts,
+          allSensorAlerts,
           { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
         )}
         shipmentName={selectedShipment && selectedShipment.name}

@@ -85,6 +85,9 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.background.default,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+    },
   },
 }));
 
@@ -311,7 +314,7 @@ const Shipment = ({
 
     setSelectedShipment(shipment);
     setMarkers(markersToSet);
-    setSelectedMarker(_.last(markersToSet));
+    setSelectedMarker(markersToSet[0]);
   };
 
   const filterTabClicked = (event, filter) => {
@@ -503,14 +506,14 @@ const Shipment = ({
                         </Grid>
 
                         <Grid item xs={2}>
-                          {_.isEqual(ship.status, 'Enroute') && _.last(markers) && (
+                          {_.isEqual(ship.status, 'Enroute') && markers[0] && (
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
                                   Last location:
                                 </Typography>
                                 <Typography>
-                                  {_.last(markers).location}
+                                  {markers[0].location}
                                 </Typography>
                               </Grid>
                             </Grid>
@@ -518,26 +521,29 @@ const Shipment = ({
                         </Grid>
 
                         <Grid item xs={2}>
-                          {_.isEqual(ship.status, 'Enroute') && _.last(markers) && (
+                          {_.isEqual(ship.status, 'Enroute') && markers[0] && (
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
                                   Last Reading:
                                 </Typography>
                                 <Typography>
-                                  {`Temp: ${_.last(markers).temperature}`}
+                                  {`Recorded at: ${markers[0].date} ${markers[0].time}`}
                                 </Typography>
                                 <Typography>
-                                  {`Humidity: ${_.last(markers).humidity}`}
+                                  {`Temp: ${markers[0].temperature}`}
                                 </Typography>
                                 <Typography>
-                                  {`Shock: ${_.last(markers).shock}`}
+                                  {`Humidity: ${markers[0].humidity}`}
                                 </Typography>
                                 <Typography>
-                                  {`Light: ${_.last(markers).light}`}
+                                  {`Shock: ${markers[0].shock}`}
                                 </Typography>
                                 <Typography>
-                                  {`Battery: ${_.last(markers).battery}`}
+                                  {`Light: ${markers[0].light}`}
+                                </Typography>
+                                <Typography>
+                                  {`Battery: ${markers[0].battery}`}
                                 </Typography>
                               </Grid>
                             </Grid>

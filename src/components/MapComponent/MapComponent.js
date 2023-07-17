@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import Geocode from 'react-geocode';
 import {
   withScriptjs,
   withGoogleMap,
@@ -35,19 +36,23 @@ export const MapComponent = (props) => {
   const [polygon, setPolygon] = useState({});
 
   useEffect(() => {
-    if (!_.isEmpty(markers) && _.last(markers).lat && _.last(markers).lng) {
+    setMapCenter();
+  }, [unitOfMeasure]);
+
+  useEffect(() => {
+    if (!_.isEmpty(markers) && markers[0].lat && markers[0].lng) {
       setCenter({
-        lat: _.last(markers).lat,
-        lng: _.last(markers).lng,
+        lat: markers[0].lat,
+        lng: markers[0].lng,
       });
-      setShowInfoIndex(_.last(markers));
+      setShowInfoIndex(markers[0]);
       if (setSelectedMarker) {
-        setSelectedMarker(_.last(markers));
+        setSelectedMarker(markers[0]);
       }
     }
 
     if (_.isEmpty(markers)) {
-      setCenter({ lat: 47.606209, lng: -122.332069 });
+      setMapCenter();
     }
   }, [markers]);
 
@@ -64,6 +69,26 @@ export const MapComponent = (props) => {
       setPolygon(polygonPoints);
     }
   }, [geofence]);
+
+  const setMapCenter = () => {
+    const address = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+      && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure;
+
+    if (address) {
+      Geocode.setApiKey(window.env.GEO_CODE_API);
+      Geocode.setLanguage('en');
+      Geocode.fromAddress(address).then(
+        (response) => {
+          const { lat, lng } = response.results[0].geometry.location;
+          setCenter({ lat, lng });
+        },
+        (error) => {
+          // eslint-disable-next-line no-console
+          console.error(error);
+        },
+      );
+    }
+  };
 
   const onMarkerDrag = (e, onMarkerDragAction) => {
     if (onMarkerDragAction) {
