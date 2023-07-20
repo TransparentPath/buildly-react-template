@@ -29,7 +29,9 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
-  Battery4Bar as BatteryIcon,
+  BatteryFull as BatteryFullIcon,
+  Battery80 as Battery80Icon,
+  Battery50 as Battery50Icon,
   BoltOutlined as ShockIcon,
   DisabledByDefault as CancelIcon,
   CheckBox as CheckBoxIcon,
@@ -182,11 +184,10 @@ const CreateShipment = ({
   const formTitle = location.state && location.state.ship ? 'Update Shipment' : 'Create Shipment';
 
   const [template, setTemplate] = useState('');
-  const [confirmSaveTemplate, setConfirmSaveTemplate] = useState(false);
   const [confirmName, setConfirmName] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [triggerExit, setTriggerExit] = useState({ onOk: false, path: '' });
-  const [templateName, setTemplateName] = useState({ name: '', suffix: '' });
+  const [templateName, setTemplateName] = useState('');
 
   const [custodianList, setCustodianList] = useState([]);
   const [originCustodian, setOriginCustodian] = useState('');
@@ -545,36 +546,12 @@ const CreateShipment = ({
     setTemplateName({ name: tmpName, suffix });
   };
 
-  const overrideExisting = () => {
-    const templateFormValue = {
-      ...template,
-      origin_custodian: originCustodian,
-      destination_custodian: destinationCustodian,
-      items,
-      status: status.value,
-      max_excursion_temp: parseInt(max_excursion_temp.value, 10),
-      min_excursion_temp: parseInt(min_excursion_temp.value, 10),
-      max_excursion_humidity: parseInt(max_excursion_humidity.value, 10),
-      min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
-      shock_threshold: shock_threshold.value,
-      light_threshold: light_threshold.value,
-      organization_uuid: organization.organization_uuid,
-    };
-
-    dispatch(editShipmentTemplate(templateFormValue));
-    setConfirmSaveTemplate(false);
-  };
-
   const saveAsTemplate = () => {
-    // eslint-disable-next-line no-nested-ternary
-    const name = template
-      ? `${templateName.name}${templateName.suffix}`
-      : _.find(itemRows, { url: items[0] })
-        ? `${originAbb}-${destinationAbb}-${_.find(itemRows, { url: items[0] }).name}`
-        : `${originAbb}-${destinationAbb}-NoItems`;
+    const tmplt = _.find(templates, { name: templateName }) || {};
 
     const templateFormValue = {
-      name,
+      ...tmplt,
+      name: templateName,
       origin_custodian: originCustodian,
       destination_custodian: destinationCustodian,
       items,
@@ -588,7 +565,12 @@ const CreateShipment = ({
       organization_uuid: organization.organization_uuid,
     };
 
-    dispatch(addShipmentTemplate(templateFormValue));
+    if (_.isEmpty(tmplt)) {
+      dispatch(addShipmentTemplate(templateFormValue));
+    } else {
+      dispatch(editShipmentTemplate(templateFormValue));
+    }
+
     setConfirmName(false);
   };
 
@@ -785,7 +767,7 @@ const CreateShipment = ({
         deleteFiles,
       };
     }
-
+    setTriggerExit({ ...triggerExit, onOk: true });
     if (_.isEmpty(editData)) {
       dispatch(addShipment(savePayload, history, routes.SHIPMENT));
     } else {
@@ -1285,11 +1267,10 @@ const CreateShipment = ({
                   color="primary"
                   disabled={loading || saveTemplateDisabled()}
                   onClick={(e) => {
-                    if (template) {
-                      setConfirmSaveTemplate(true);
-                    } else {
-                      saveAsTemplate();
-                    }
+                    const name = !!_.find(itemRows, { url: items[0] })
+                      && `${originAbb}-${destinationAbb}-${_.find(itemRows, { url: items[0] }).name}`;
+                    setTemplateName(name);
+                    setConfirmName(true);
                   }}
                 >
                   Save as Template
@@ -1627,9 +1608,24 @@ const CreateShipment = ({
                 <Typography variant="body1" component="div">
                   Battery Level:
                 </Typography>
-                <BatteryIcon color="secondary" />
+                {gateway.value.last_known_battery_level
+                && _.gte(_.toNumber(gateway.value.last_known_battery_level), 90) && (
+                  <BatteryFullIcon htmlColor={theme.palette.success.main} />
+                )}
+                {gateway.value.last_known_battery_level
+                && _.lt(_.toNumber(gateway.value.last_known_battery_level), 90)
+                && _.gte(_.toNumber(gateway.value.last_known_battery_level), 60) && (
+                  <Battery80Icon htmlColor={theme.palette.warning.main} />
+                )}
+                {gateway.value.last_known_battery_level
+                && _.lt(_.toNumber(gateway.value.last_known_battery_level), 60) && (
+                  <Battery50Icon htmlColor={theme.palette.error.main} />
+                )}
+                {!gateway.value.last_known_battery_level && (
+                  <BatteryFullIcon />
+                )}
                 <Typography variant="body1" component="div">
-                  {`${gateway.value.last_known_battery_level}%`}
+                  {gateway.value.last_known_battery_level ? `${gateway.value.last_known_battery_level}%` : 'N/A'}
                 </Typography>
               </Grid>
             )}
@@ -1799,38 +1795,6 @@ const CreateShipment = ({
 
       <div>
         <Dialog
-          open={confirmSaveTemplate}
-          onClose={(e) => setConfirmSaveTemplate(false)}
-          aria-labelledby="confirm-dialog-title"
-          aria-describedby="confirm-dialog-description"
-        >
-          {loading && <Loader open={loading} />}
-          <DialogTitle id="confirm-dialog-title">
-            Do you want to override existing template or create a new one?
-          </DialogTitle>
-          <DialogContent />
-          <DialogActions>
-            <Button variant="outlined" onClick={overrideExisting} color="primary">
-              Override exisiting
-            </Button>
-            <Button
-              variant="contained"
-              onClick={(e) => {
-                getTemplateName();
-                setConfirmName(true);
-                setConfirmSaveTemplate(false);
-              }}
-              color="primary"
-              autoFocus
-            >
-              Save as a new template
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-
-      <div>
-        <Dialog
           open={confirmName}
           onClose={(e) => setConfirmName(false)}
           aria-labelledby="confirm-name-title"
@@ -1841,40 +1805,41 @@ const CreateShipment = ({
             Saving template named as
           </DialogTitle>
           <DialogContent>
-            <Grid container spacing={isDesktop ? 4 : 0}>
-              <Grid item xs={8}>
+            <Grid container>
+              <Grid item xs={12}>
                 <TextField
                   variant="outlined"
                   id="final-temp-name-1"
                   fullWidth
-                  disabled
-                  className={classes.finalNameDisplay}
-                  value={templateName.name}
-                />
-              </Grid>
-
-              <Grid item xs={4}>
-                <TextField
-                  variant="outlined"
-                  required
-                  id="final-temp-name-2"
-                  name="final-temp-name-2"
-                  autoComplete="final-temp-name-2"
-                  inputProps={{ maxLength: 16 }}
-                  value={templateName.suffix}
-                  onChange={(e) => setTemplateName({ ...templateName, suffix: e.target.value })}
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  helperText={
+                    _.find(templates, { name: templateName })
+                      ? (
+                        <span style={{ color: theme.palette.error.main }}>
+                          {`Template by the name ${templateName} already exists. Clicking save will override it.`}
+                        </span>
+                      )
+                      : ''
+                  }
                 />
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
             <Button
+              variant="outlined"
+              onClick={(e) => setConfirmName(false)}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
               variant="contained"
               onClick={saveAsTemplate}
               color="primary"
-              disabled={!templateName.suffix}
             >
-              Okay
+              Save
             </Button>
           </DialogActions>
         </Dialog>

@@ -119,6 +119,7 @@ const Shipment = ({
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
   const [allMarkers, setAllMarkers] = useState([]);
+  const [expandedRows, setExpandedRows] = useState([]);
 
   const organization = useContext(UserContext).organization.organization_uuid;
 
@@ -183,7 +184,7 @@ const Shipment = ({
     }
   }, [allSensorAlerts, sensorReports]);
 
-  const processMarkers = (shipment) => {
+  const processMarkers = (shipment, setExpanded = false) => {
     const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
     const timeFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
     const tempMeasure = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure;
@@ -312,6 +313,11 @@ const Shipment = ({
       });
     }
 
+    if (setExpanded) {
+      const rowIndex = _.findIndex(rows, shipment);
+      setExpandedRows([...expandedRows, rowIndex]);
+    }
+
     setSelectedShipment(shipment);
     setMarkers(markersToSet);
     setSelectedMarker(markersToSet[0]);
@@ -369,6 +375,7 @@ const Shipment = ({
             mapElement={
               <div style={{ height: '100%' }} />
             }
+            clusterClick={processMarkers}
           />
         </Grid>
 
@@ -432,6 +439,7 @@ const Shipment = ({
               setRowProps: (row, dataIndex, rowIndex) => ({
                 style: { color: _.isEqual(row[2], 'Planned') ? muiTheme.palette.background.light : 'inherit' },
               }),
+              rowsExpanded: expandedRows,
               onRowExpansionChange: (curExpanded, allExpanded, rowsExpanded) => {
                 if (_.isEmpty(allExpanded)) {
                   setAllMarkers(_.map(rows, 'allMarkers'));
@@ -441,6 +449,7 @@ const Shipment = ({
                 } else {
                   processMarkers(rows[_.last(allExpanded).dataIndex]);
                 }
+                setExpandedRows(_.map(allExpanded, 'dataIndex'));
               },
               renderExpandableRow: (rowData, rowMeta) => {
                 const colSpan = rowData.length + 1;

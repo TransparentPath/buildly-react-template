@@ -564,10 +564,6 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
     label: 'Tracker',
   },
   {
-    name: 'battery_levels',
-    label: 'Tracker Battery Level(s)',
-  },
-  {
     name: 'custodian_name',
     label: 'Custodian Name',
   },
@@ -700,7 +696,6 @@ export const getShipmentOverview = (
         _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
       ));
       editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ','))) || 'N/A';
-      editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'last_known_battery_level'), '%,'))) || 'N/A';
     }
 
     shipmentList = [...shipmentList, editedShipment];
@@ -941,7 +936,7 @@ export const processReportsAndMarkers = (
     markersToSet: _.orderBy(
       markersToSet,
       (item) => moment(item.timestamp),
-      ['asc'],
+      ['desc'],
     ),
     graphs: {
       temperature: temperatureData,
@@ -1044,7 +1039,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1054,7 +1049,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1064,7 +1059,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1074,7 +1069,17 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+    },
+  },
+  {
+    name: 'battery',
+    label: 'BATTERY',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? value : 'N/A'),
     },
   },
   {
@@ -1085,7 +1090,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1096,18 +1101,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
-    },
-  },
-  {
-    name: 'battery',
-    label: 'BATTERY',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-      display: false,
-      customBodyRender: (value) => (_.toNumber(value) ? value : 'N/A'),
+      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1118,7 +1112,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.toNumber(value) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
     },
   },
 ]);
@@ -1535,7 +1529,7 @@ export const shipmentColumns = (timezone, dateFormat) => ([
   },
   {
     name: 'battery_levels',
-    label: 'Tracker Battery Level(s)',
+    label: 'Tracker Battery Level',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1621,7 +1615,7 @@ export const getShipmentFormattedRow = (
         _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
       ));
       editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ','))) || 'N/A';
-      editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'last_known_battery_level'), '%,'))) || 'N/A';
+      editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, (g) => _.toString(_.toInteger(g.last_known_battery_level))), ','))) || 'N/A';
     }
 
     if (editedShipment.had_alert) {
@@ -1651,7 +1645,7 @@ export const getShipmentFormattedRow = (
         (report) => ({
           lat: report.report_entry.report_latitude,
           lng: report.report_entry.report_longitude,
-          name: editedShipment.name,
+          shipment: editedShipment,
         }),
       );
     }

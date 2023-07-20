@@ -16,7 +16,9 @@ import _ from 'lodash';
 import { Grid, useTheme } from '@mui/material';
 import {
   AccessTime as ClockIcon,
-  BatteryStd as BatteryIcon,
+  BatteryFull as BatteryFullIcon,
+  Battery80 as Battery80Icon,
+  Battery50 as Battery50Icon,
   CalendarToday as CalendarIcon,
 } from '@mui/icons-material';
 import {
@@ -127,38 +129,49 @@ const RenderedMap = withScriptjs(
           key={idx}
           averageCenter
           enableRetinaIcons
+          zoomOnClick={false}
           gridSize={60}
-          title={!_.isEmpty(shipMarkers) ? _.first(shipMarkers).name : ''}
+          title={!_.isEmpty(shipMarkers) ? _.first(shipMarkers).shipment.name : ''}
+          onClick={(e) => {
+            props.clusterClick(!_.isEmpty(shipMarkers) && _.first(shipMarkers).shipment, true);
+          }}
           styles={[
             {
               url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
               height: 53,
               width: 53,
+              anchor: [0, 0],
+              textSize: 0.001,
             },
             {
               url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
               height: 56,
               width: 56,
+              anchor: [0, 0],
+              textSize: 0.001,
             },
             {
               url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
               height: 66,
               width: 66,
+              anchor: [0, 0],
+              textSize: 0.001,
             },
             {
               url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
               height: 78,
               width: 78,
+              anchor: [0, 0],
+              textSize: 0.001,
             },
             {
               url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
               height: 90,
               width: 90,
+              anchor: [0, 0],
+              textSize: 0.001,
             },
           ]}
-          // onClusteringEnd={(clusterer) => {
-          //   console.log(clusterer);
-          // }}
         >
           {_.map(shipMarkers, (marker, inx) => (
             <Marker key={`${marker.lat}-${marker.lng}-${inx}`} position={{ lat: marker.lat, lng: marker.lng }} />
@@ -247,8 +260,20 @@ const RenderedMap = withScriptjs(
                           <div style={{ marginLeft: props.theme.spacing(0.5) }}>{mark.time}</div>
                         </Grid>
                         <Grid item xs={2} style={{ display: 'flex', alignItems: 'center' }}>
-                          <BatteryIcon />
-                          <div>{`${mark.battery}%`}</div>
+                          {mark.battery && _.gte(_.toNumber(mark.battery), 90) && (
+                            <BatteryFullIcon htmlColor={props.theme.palette.success.main} />
+                          )}
+                          {mark.battery && _.lt(_.toNumber(mark.battery), 90)
+                          && _.gte(_.toNumber(mark.battery), 60) && (
+                            <Battery80Icon htmlColor={props.theme.palette.warning.main} />
+                          )}
+                          {mark.battery && _.lt(_.toNumber(mark.battery), 60) && (
+                            <Battery50Icon htmlColor={props.theme.palette.error.main} />
+                          )}
+                          {!mark.battery && (
+                            <BatteryFullIcon />
+                          )}
+                          <div>{mark.battery ? `${mark.battery}%` : 'N/A'}</div>
                         </Grid>
                       </Grid>
                     </Grid>
