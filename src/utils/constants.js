@@ -9,7 +9,6 @@ import {
   DeviceThermostatOutlined as TempIcon,
   LightModeOutlined as LightIcon,
   OpacityOutlined as HumidIcon,
-  Warning as WarningIcon,
 } from '@mui/icons-material';
 import { numberWithCommas } from './utilMethods';
 
@@ -734,9 +733,9 @@ export const processReportsAndMarkers = (
         let dateTime = '';
         let date = '';
         let time = '';
-        let alert_status = '-';
         let color = 'green';
         let alertFor = '';
+        let alertObj = {};
 
         const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_temp_fah
@@ -768,26 +767,25 @@ export const processReportsAndMarkers = (
           const alertTime = moment(alert.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`);
           if (_.isEqual(alertTime, dateTime)) {
             if (alert.recovered_alert_id !== null) {
-              alert_status = 'RECOVERED';
-            } else {
-              alert_status = 'YES';
-              if (alert) {
-                switch (true) {
-                  case _.includes(_.toLower(alert.alert_type), 'max'):
-                  case _.includes(_.toLower(alert.alert_type), 'shock'):
-                  case _.includes(_.toLower(alert.alert_type), 'light'):
-                    color = maxColor;
-                    alertFor = alert.parameter_type;
-                    break;
+              alertObj = { id: alert.parameter_type, color };
+            } else if (alert) {
+              switch (true) {
+                case _.includes(_.toLower(alert.alert_type), 'max'):
+                case _.includes(_.toLower(alert.alert_type), 'shock'):
+                case _.includes(_.toLower(alert.alert_type), 'light'):
+                  color = maxColor;
+                  alertFor = alert.parameter_type;
+                  alertObj = { id: alertFor, color };
+                  break;
 
-                  case _.includes(_.toLower(alert.alert_type), 'min'):
-                    color = minColor;
-                    alertFor = alert.parameter_type;
-                    break;
+                case _.includes(_.toLower(alert.alert_type), 'min'):
+                  color = minColor;
+                  alertFor = alert.parameter_type;
+                  alertObj = { id: alertFor, color };
+                  break;
 
-                  default:
-                    break;
-                }
+                default:
+                  break;
               }
             }
           }
@@ -821,10 +819,10 @@ export const processReportsAndMarkers = (
               probe,
               color,
               alertFor,
+              alertObj,
               date,
               time,
               timestamp: dateTime,
-              alert_status,
             };
             // Considered use case: If a shipment stays at some
             // position for long, other value changes can be
@@ -854,10 +852,10 @@ export const processReportsAndMarkers = (
             probe,
             color,
             alertFor,
+            alertObj,
             date,
             time,
             timestamp: dateTime,
-            alert_status,
           };
         }
 
@@ -990,18 +988,28 @@ export const MARKER_DATA = (unitOfMeasure) => ([
 
 export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
   {
-    name: 'alert_status',
-    label: 'ALERT STATUS',
+    name: 'alertObj',
+    label: 'Alerts',
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customHeadLabelRender: () => <WarningIcon />,
+      customBodyRender: (value) => (
+        !_.isEmpty(value)
+          ? (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div>
+                {getIcon(value)}
+                {' '}
+              </div>
+            </div>
+          ) : ''
+      ),
     },
   },
   {
     name: 'timestamp',
-    label: 'DATE-TIME',
+    label: 'Date Time',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1660,3 +1668,77 @@ export const getShipmentFormattedRow = (
     ['desc'],
   );
 };
+
+export const getTemplateFormattedRow = (templates, custodianData, itemData) => {
+  let templateList = [];
+
+  _.forEach(templates, (template) => {
+    let editedTemplate = template;
+    const originCustodian = _.find(custodianData, { url: template.origin_custodian });
+    const destinationCustodian = _.find(custodianData, { url: template.destination_custodian });
+    const templateItems = _.map(template.items, (item) => _.find(itemData, { url: item }));
+
+    if (originCustodian) {
+      editedTemplate = { ...editedTemplate, origin_name: originCustodian.name };
+    }
+    if (destinationCustodian) {
+      editedTemplate = { ...editedTemplate, destination_name: destinationCustodian.name };
+    }
+    if (!_.isEmpty(templateItems)) {
+      editedTemplate = { ...editedTemplate, item_name: _.toString(_.join(_.map(templateItems, 'name'), ', ')) };
+    }
+
+    templateList = [...templateList, editedTemplate];
+  });
+
+  return _.orderBy(templateList, (tmp) => moment(tmp.create_date), ['desc']);
+};
+
+export const templateColumns = (timezone, dateFormat, timeFormat) => ([
+  {
+    name: 'name',
+    label: 'Template Name',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'create_date',
+    label: 'Created',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+    },
+  },
+  {
+    name: 'origin_name',
+    label: 'Origin',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'destination_name',
+    label: 'Destination',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'item_name',
+    label: 'Item(s)',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+]);

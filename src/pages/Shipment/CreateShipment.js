@@ -19,6 +19,7 @@ import {
   FormControl,
   FormLabel,
   Grid,
+  IconButton,
   InputAdornment,
   MenuItem,
   Stack,
@@ -36,6 +37,7 @@ import {
   DisabledByDefault as CancelIcon,
   CheckBox as CheckBoxIcon,
   CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
+  Close as CloseIcon,
   LightModeOutlined as LightIcon,
   LocationOn as LocationIcon,
   Opacity as HumidityIcon,
@@ -56,7 +58,13 @@ import {
   addShipment, addShipmentTemplate, editShipment, editShipmentTemplate, getShipmentTemplates,
 } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
-import { getCustodianFormattedRow, getItemFormattedRow, itemColumns } from '../../utils/constants';
+import {
+  getCustodianFormattedRow,
+  getItemFormattedRow,
+  getTemplateFormattedRow,
+  itemColumns,
+  templateColumns,
+} from '../../utils/constants';
 import { SHIPMENT_STATUS, TIVE_GATEWAY_TIMES, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
 import { validators } from '../../utils/validators';
 import ConfirmModal from '@components/Modal/ConfirmModal';
@@ -156,6 +164,21 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(3),
     paddingBottom: theme.spacing(3),
   },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.background.dark,
+  },
+  saveTemplateModal: {
+    '& .MuiPaper-root': {
+      maxWidth: 'fit-content',
+    },
+  },
+  modalActionButtons: {
+    padding: theme.spacing(2),
+    paddingTop: 0,
+  },
 }));
 
 const CreateShipment = ({
@@ -184,7 +207,8 @@ const CreateShipment = ({
   const formTitle = location.state && location.state.ship ? 'Update Shipment' : 'Create Shipment';
 
   const [template, setTemplate] = useState('');
-  const [confirmName, setConfirmName] = useState(false);
+  const [templateRows, setTemplateRows] = useState([]);
+  const [confirmSaveTemplate, setConfirmSaveTemplate] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [triggerExit, setTriggerExit] = useState({ onOk: false, path: '' });
   const [templateName, setTemplateName] = useState('');
@@ -352,6 +376,10 @@ const CreateShipment = ({
       }
     }
   }, [templates]);
+
+  useEffect(() => {
+    setTemplateRows(getTemplateFormattedRow(templates, custodianData, itemData));
+  }, [templates, custodianData, itemData]);
 
   formEdited = (
     !!(_.isEmpty(editData) && (
@@ -571,7 +599,7 @@ const CreateShipment = ({
       dispatch(editShipmentTemplate(templateFormValue));
     }
 
-    setConfirmName(false);
+    setConfirmSaveTemplate(false);
   };
 
   const fileChange = (event) => {
@@ -1270,7 +1298,7 @@ const CreateShipment = ({
                     const name = !!_.find(itemRows, { url: items[0] })
                       && `${originAbb}-${destinationAbb}-${_.find(itemRows, { url: items[0] }).name}`;
                     setTemplateName(name);
-                    setConfirmName(true);
+                    setConfirmSaveTemplate(true);
                   }}
                 >
                   Save as Template
@@ -1795,52 +1823,79 @@ const CreateShipment = ({
 
       <div>
         <Dialog
-          open={confirmName}
-          onClose={(e) => setConfirmName(false)}
-          aria-labelledby="confirm-name-title"
-          aria-describedby="confirm-name-description"
+          open={confirmSaveTemplate}
+          onClose={(e) => setConfirmSaveTemplate(false)}
+          aria-labelledby="save-template-title"
+          aria-describedby="save-template-description"
+          className={classes.saveTemplateModal}
         >
           {loading && <Loader open={loading} />}
-          <DialogTitle id="confirm-name-title">
-            Saving template named as
+          <DialogTitle id="save-template-title">
+            Save template as...
+            <IconButton
+              aria-label="save-template-close"
+              className={classes.closeButton}
+              onClick={(e) => setConfirmSaveTemplate(false)}
+            >
+              <CloseIcon />
+            </IconButton>
           </DialogTitle>
           <DialogContent>
             <Grid container>
               <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  id="final-temp-name-1"
-                  fullWidth
-                  value={templateName}
-                  onChange={(e) => setTemplateName(e.target.value)}
-                  helperText={
-                    _.find(templates, { name: templateName })
-                      ? (
-                        <span style={{ color: theme.palette.error.main }}>
-                          {`Template by the name ${templateName} already exists. Clicking save will override it.`}
-                        </span>
-                      )
-                      : ''
-                  }
+                <DataTableWrapper
+                  loading={loading}
+                  rows={templateRows}
+                  columns={templateColumns(
+                    timezone,
+                    _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                      ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                      : '',
+                    _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+                      ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+                      : '',
+                  )}
+                  hideAddButton
+                  noOptionsIcon
+                  noSpace
                 />
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
-            <Button
-              variant="outlined"
-              onClick={(e) => setConfirmName(false)}
-              color="primary"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={saveAsTemplate}
-              color="primary"
-            >
-              Save
-            </Button>
+            <Grid container spacing={2} className={classes.modalActionButtons}>
+              <Grid item xs={8}>
+                <TextField
+                  variant="outlined"
+                  id="template-name"
+                  fullWidth
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  fullWidth
+                  style={{ height: '100%' }}
+                  onClick={(e) => setConfirmSaveTemplate(false)}
+                >
+                  Cancel
+                </Button>
+              </Grid>
+              <Grid item xs={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  style={{ height: '100%' }}
+                  onClick={saveAsTemplate}
+                >
+                  Save
+                </Button>
+              </Grid>
+            </Grid>
           </DialogActions>
         </Dialog>
       </div>

@@ -138,17 +138,17 @@ const Reporting = ({
   }, []);
 
   useEffect(() => {
-    if (_.isEmpty(shipmentData) || shipmentFilter === 'Active') {
+    if (shipmentFilter === 'Active') {
       dispatch(getShipmentDetails(organization, 'Planned,Enroute', true));
     } else {
       const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
       // const cancelledShipments =
       // _.filter(shipmentData, (shipment) => shipment.type === 'Cancelled');
 
-      if (_.isEmpty(completedShipments) || shipmentFilter === 'Completed') {
+      if (_.isEmpty(completedShipments) && shipmentFilter === 'Completed') {
         dispatch(getShipmentDetails(organization, 'Completed', true));
       }
-      // if (_.isEmpty(cancelledShipments) || shipmentFilter === 'Completed') {
+      // if (_.isEmpty(cancelledShipments) && shipmentFilter === 'Completed') {
       //   dispatch(getShipmentDetails(organization, 'Cancelled', true));
       // }
     }
