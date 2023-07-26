@@ -1,18 +1,5 @@
 import * as actions from './shipment.actions';
 
-// Test Save Shipment Form Data action
-describe('Save Shipment Form Data action', () => {
-  it('should create an action to save shipment form data', () => {
-    const formData = { name: 'Test Shipment' };
-    const expectedAction = {
-      type: actions.SAVE_SHIPMENT_FORM_DATA,
-      formData,
-    };
-    expect(actions.saveShipmentFormData(formData))
-      .toEqual(expectedAction);
-  });
-});
-
 // Test Get Shipment Details action
 describe('Get Shipment Details action', () => {
   it('should create an action to get shipment details', () => {
@@ -103,11 +90,20 @@ describe('Add Shipment Template action', () => {
   });
 });
 
-// Test Add Shipment Template action
-describe('Add Shipment Template action', () => {
-  it('should create an action to add shipment template', () => {
+// Test Edit Shipment Template action
+describe('Edit Shipment Template action', () => {
+  it('should create an action to edit shipment template', () => {
     const payload = { id: 1, name: 'Test template-01' };
     const expectedAction = { type: actions.EDIT_SHIPMENT_TEMPLATE, payload };
     expect(actions.editShipmentTemplate(payload)).toEqual(expectedAction);
+  });
+});
+
+// Test Delete Shipment Template action
+describe('Delete Shipment Template action', () => {
+  it('should create an action to delete shipment template', () => {
+    const id = 1;
+    const expectedAction = { type: actions.DELETE_SHIPMENT_TEMPLATE, id };
+    expect(actions.deleteShipmentTemplate(id)).toEqual(expectedAction);
   });
 });

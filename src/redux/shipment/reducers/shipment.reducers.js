@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import {
-  SAVE_SHIPMENT_FORM_DATA,
   GET_SHIPMENTS,
   GET_SHIPMENTS_FAILURE,
   GET_SHIPMENTS_SUCCESS,
@@ -28,13 +27,15 @@ import {
   EDIT_SHIPMENT_TEMPLATE,
   EDIT_SHIPMENT_TEMPLATE_SUCCESS,
   EDIT_SHIPMENT_TEMPLATE_FAILURE,
+  DELETE_SHIPMENT_TEMPLATE,
+  DELETE_SHIPMENT_TEMPLATE_SUCCESS,
+  DELETE_SHIPMENT_TEMPLATE_FAILURE,
 } from '../actions/shipment.actions';
 
 const initialState = {
   loading: false,
   loaded: false,
   error: null,
-  shipmentFormData: null,
   shipmentData: [],
   countries: [],
   currencies: [],
@@ -44,15 +45,6 @@ const initialState = {
 // Reducer
 export default (state = initialState, action) => {
   switch (action.type) {
-    case SAVE_SHIPMENT_FORM_DATA:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        error: null,
-        shipmentFormData: action.formData,
-      };
-
     case GET_SHIPMENTS:
     case ADD_SHIPMENT:
     case EDIT_SHIPMENT:
@@ -62,6 +54,7 @@ export default (state = initialState, action) => {
     case GET_SHIPMENT_TEMPLATES:
     case ADD_SHIPMENT_TEMPLATE:
     case EDIT_SHIPMENT_TEMPLATE:
+    case DELETE_SHIPMENT_TEMPLATE:
       return {
         ...state,
         loading: true,
@@ -78,6 +71,7 @@ export default (state = initialState, action) => {
     case GET_SHIPMENT_TEMPLATES_FAILURE:
     case ADD_SHIPMENT_TEMPLATE_FAILURE:
     case EDIT_SHIPMENT_TEMPLATE_FAILURE:
+    case DELETE_SHIPMENT_TEMPLATE_FAILURE:
       return {
         ...state,
         loading: false,
@@ -162,6 +156,17 @@ export default (state = initialState, action) => {
             : template
         ))
         : [...state.templates, action.template];
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        templates,
+      };
+    }
+
+    case DELETE_SHIPMENT_TEMPLATE_SUCCESS: {
+      const templates = _.filter(state.templates, (tmp) => tmp.id !== action.id);
+
       return {
         ...state,
         loading: false,

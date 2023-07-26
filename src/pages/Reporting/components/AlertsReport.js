@@ -5,16 +5,13 @@ import moment from 'moment-timezone';
 import {
   Grid,
   Typography,
+  useTheme,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import DataTableWrapper from '../../../components/DataTableWrapper/DataTableWrapper';
 import { UserContext } from '../../../context/User.context';
 import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
-import {
-  getAlertsReportColumns,
-  ALERTS_REPORT_TOOLTIP,
-} from '../../../utils/constants';
+import { getAlertsReportColumns } from '../../../utils/constants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,6 +45,7 @@ const AlertsReport = ({
   sensorReport,
 }) => {
   const classes = useStyles();
+  const theme = useTheme();
   const [rows, setRows] = useState([]);
   const organization = useContext(UserContext).organization.organization_uuid;
 
@@ -59,12 +57,38 @@ const AlertsReport = ({
 
   useEffect(() => {
     if (alerts) {
+      let editedAlerts = [];
+
       const filteredData = _.filter(
         alerts,
         (alert) => alert.parameter_type !== 'location',
       );
+      _.forEach(filteredData, (alert) => {
+        let alertObj = {};
+        if (alert.recovered_alert_id !== null) {
+          alertObj = { id: alert.parameter_type, color: 'green' };
+        } else if (alert) {
+          switch (true) {
+            case _.includes(_.toLower(alert.alert_type), 'max'):
+            case _.includes(_.toLower(alert.alert_type), 'shock'):
+            case _.includes(_.toLower(alert.alert_type), 'light'):
+              alertObj = { id: alert.parameter_type, color: theme.palette.error.main };
+              break;
+
+            case _.includes(_.toLower(alert.alert_type), 'min'):
+              alertObj = { id: alert.parameter_type, color: theme.palette.info.main };
+              break;
+
+            default:
+              break;
+          }
+        }
+
+        editedAlerts = [...editedAlerts, { ...alert, alertObj }];
+      });
+
       const sortedData = _.orderBy(
-        filteredData,
+        editedAlerts,
         (item) => moment(item.create_date),
         ['desc'],
       );
@@ -81,14 +105,14 @@ const AlertsReport = ({
             variant="h5"
           >
             {shipmentName
-            && `Alerts Report - Shipment: ${shipmentName}`}
-            <CustomizedTooltips
-              toolTipText={ALERTS_REPORT_TOOLTIP}
-            />
+              ? `Alerts Report - Shipment: ${shipmentName}`
+              : 'Alerts Report'}
           </Typography>
         </div>
         <DataTableWrapper
           noSpace
+          hideAddButton
+          filename="ShipmentAlerts"
           loading={loading}
           rows={rows}
           columns={getAlertsReportColumns(
@@ -101,8 +125,6 @@ const AlertsReport = ({
               ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
               : '',
           )}
-          filename="ShipmentAlerts"
-          hideAddButton
         />
       </Grid>
     </Grid>

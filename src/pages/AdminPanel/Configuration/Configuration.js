@@ -8,17 +8,7 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
-import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { UserContext } from '../../../context/User.context';
-import {
-  CUSTODIAN_TYPE_TOOLTIP,
-  GATEWAY_TYPE_TOOLTIP,
-  ITEM_TYPE_TOOLTIP,
-  ORGANIZATION_TYPE_TOOLTIP,
-  PRODUCT_TOOLTIP,
-  PRODUCT_TYPE_TOOLTIP,
-  ORG_SETTINGS_TOOLTIP,
-} from '../../../utils/constants';
 import { checkForGlobalAdmin } from '../../../utils/utilMethods';
 import CustodianType from './components/CustodianType';
 import GatewayType from './components/GatewayType';
@@ -67,7 +57,6 @@ const Configuration = (props) => {
           >
             <Typography variant="h5">
               Organization Settings
-              <CustomizedTooltips toolTipText={ORG_SETTINGS_TOOLTIP} />
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -82,7 +71,6 @@ const Configuration = (props) => {
           >
             <Typography variant="h5">
               Custodian Type
-              <CustomizedTooltips toolTipText={CUSTODIAN_TYPE_TOOLTIP} />
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -97,7 +85,6 @@ const Configuration = (props) => {
           >
             <Typography variant="h5">
               Gateway Type
-              <CustomizedTooltips toolTipText={GATEWAY_TYPE_TOOLTIP} />
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -112,7 +99,6 @@ const Configuration = (props) => {
           >
             <Typography variant="h5">
               Item Type
-              <CustomizedTooltips toolTipText={ITEM_TYPE_TOOLTIP} />
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -127,9 +113,6 @@ const Configuration = (props) => {
           >
             <Typography variant="h5">
               Organization Type
-              <CustomizedTooltips
-                toolTipText={ORGANIZATION_TYPE_TOOLTIP}
-              />
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -144,7 +127,6 @@ const Configuration = (props) => {
           >
             <Typography variant="h5">
               Products
-              <CustomizedTooltips toolTipText={PRODUCT_TOOLTIP} />
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -159,7 +141,6 @@ const Configuration = (props) => {
           >
             <Typography variant="h5">
               Product Type
-              <CustomizedTooltips toolTipText={PRODUCT_TYPE_TOOLTIP} />
             </Typography>
           </AccordionSummary>
           <AccordionDetails>

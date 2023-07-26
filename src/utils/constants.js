@@ -18,18 +18,6 @@ const showValue = (value, timezone, dateFormat, timeFormat) => (
     : value
 );
 
-export const ALERTS_REPORT_TOOLTIP = 'Shipment Alerts till current time';
-export const CONSORTIUM_TOOLTIP = 'Consortium(s) available in this Organization';
-export const CUSTODIAN_TYPE_TOOLTIP = 'Custodian Type(s) available in the system';
-export const GATEWAY_TYPE_TOOLTIP = 'Gateway Type(s) available in the system';
-export const ITEM_TYPE_TOOLTIP = 'Item Type(s) available in the system';
-export const MAPPING_TOOLTIP = 'Mapping Custodian to Organization(s)';
-export const ORG_SETTINGS_TOOLTIP = 'Setting(s) for the Organization';
-export const ORGANIZATION_TYPE_TOOLTIP = 'Organization Type(s) available in the system';
-export const PRODUCT_TOOLTIP = 'Product(s) available in the system';
-export const PRODUCT_TYPE_TOOLTIP = 'Product Type(s) available in the system';
-export const SHIPMENT_OVERVIEW_TOOL_TIP = 'Select a shipment to view reporting data';
-
 export const TiltIcon = (color) => (
   <SvgIcon
     style={{ color }}
@@ -403,7 +391,7 @@ export const getFormattedCustodyRows = (custodyData, custodianData) => {
   if (custodyData && custodianData) {
     const custodyLength = custodyData.length;
     _.forEach(custodyData, (custody) => {
-      const editedCustody = custody;
+      const editedCustody = { ...custody };
       if (!custody.load_id) {
         if (custody.first_custody) {
           editedCustody.load_id = 1;
@@ -568,7 +556,7 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
   },
   {
     name: 'custody_info',
-    label: 'Custody Details',
+    label: 'Custody Details (Current)',
   },
 ];
 
@@ -624,20 +612,20 @@ export const getShipmentOverview = (
   }
 
   _.forEach(shipmentData, (shipment) => {
-    const editedShipment = shipment;
+    const editedShipment = { ...shipment };
     let custodyInfo = [];
     let custodianName = '';
     let contactInfo = [];
 
     if (custodyRows.length > 0) {
       _.forEach(custodyRows, (custody) => {
-        const editedCustody = custody;
+        const editedCustody = { ...custody };
         if (_.isEqual(custody.shipment_id, shipment.shipment_uuid) && custody.custodian_data) {
           custodianName = custodianName
             ? `${custodianName}, ${custody.custodian_data.name}`
             : custody.custodian_data.name;
           _.forEach(contactData, (contact) => {
-            const editedContact = contact;
+            const editedContact = { ...contact };
             if (_.isEqual(custody.custodian_data.contact_data[0], contact.url)) {
               editedContact.name = [
                 contact.first_name,
@@ -1126,25 +1114,23 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
 ]);
 
 export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeFormat) => ([
-  // {
-  //   name: 'id',
-  //   label: 'Alert ID',
-  //   options: {
-  // sort: true,
-  // sortThirdClickReset: true,
-  //   },
-  // },
   {
-    name: 'parameter_type',
-    label: 'Condition',
+    name: 'alertObj',
+    label: 'Condiiton',
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => (
-        value && value !== '-'
-          ? _.capitalize(value)
-          : '-'
+        !_.isEmpty(value)
+          ? (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div>
+                {getIcon(value)}
+                {' '}
+              </div>
+            </div>
+          ) : ''
       ),
     },
   },
@@ -1170,60 +1156,19 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
     },
   },
   {
-    name: 'alert_type',
-    label: 'Alert Message',
+    name: 'create_date',
+    label: 'Date/Time stamp',
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => {
-        let returnValue = value;
-        if (value && value !== '-') {
-          switch (value) {
-            case 'min-warning':
-              returnValue = 'Minimum Warning';
-              break;
-
-            case 'min-excursion':
-              returnValue = 'Minimum Excursion';
-              break;
-
-            case 'max-warning':
-              returnValue = 'Maximum Excursion';
-              break;
-
-            case 'max-excursion':
-              returnValue = 'Maximum Excursion';
-              break;
-
-            default:
-              break;
-          }
-        }
-        return returnValue;
-      },
+      customBodyRender: (value) => (
+        value && value !== '-'
+          ? moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`)
+          : value
+      ),
     },
   },
-  {
-    name: 'recovered_alert_id',
-    label: 'Recovered',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-      customBodyRender: (value) => (value ? 'YES' : 'NO'),
-    },
-  },
-  // {
-  //   name: 'recovered_alert_id',
-  //   label: 'Recovered Alert ID',
-  //   options: {
-  // sort: true,
-  // sortThirdClickReset: true,
-  // filter: true,
-  // customBodyRender: (value) => (value || '-'),
-  //   },
-  // },
   {
     name: 'create_date',
     label: 'Location',
@@ -1244,20 +1189,6 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
         return location;
       },
       setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
-    },
-  },
-  {
-    name: 'create_date',
-    label: 'Date/Time stamp',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-      customBodyRender: (value) => (
-        value && value !== '-'
-          ? moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`)
-          : value
-      ),
     },
   },
 ]);
@@ -1570,7 +1501,7 @@ export const getShipmentFormattedRow = (
   }
 
   _.forEach(shipmentData, (shipment) => {
-    const editedShipment = shipment;
+    const editedShipment = { ...shipment };
     let firstCustody = null;
     let lastCustody = null;
     let origin = null;
@@ -1694,7 +1625,7 @@ export const getTemplateFormattedRow = (templates, custodianData, itemData) => {
   return _.orderBy(templateList, (tmp) => moment(tmp.create_date), ['desc']);
 };
 
-export const templateColumns = (timezone, dateFormat, timeFormat) => ([
+export const templateColumns = (timezone, dateFormat) => ([
   {
     name: 'name',
     label: 'Template Name',
@@ -1711,7 +1642,11 @@ export const templateColumns = (timezone, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+      customBodyRender: (value) => (
+        value && value !== '-'
+          ? moment(value).tz(timezone).format(dateFormat)
+          : value
+      ),
     },
   },
   {
@@ -1734,7 +1669,7 @@ export const templateColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'item_name',
-    label: 'Item(s)',
+    label: 'Items',
     options: {
       sort: true,
       sortThirdClickReset: true,

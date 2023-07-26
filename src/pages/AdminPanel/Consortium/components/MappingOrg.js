@@ -45,8 +45,8 @@ const MappingOrg = ({
   return (
     <DataTableWrapper
       noSpace
-      loading={loading}
       hideAddButton
+      loading={loading}
       rows={custodianData || []}
       columns={getMappingOrg(allOrgs)}
       filename="Mapping Custodian to Organization"

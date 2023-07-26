@@ -5,25 +5,11 @@ const initialState = {
   loading: false,
   loaded: false,
   error: null,
-  shipmentFormData: null,
   shipmentData: [],
   countries: [],
   currencies: [],
   templates: [],
 };
-
-describe('Save Shipment Form Data reducer', () => {
-  it('Empty Reducer', () => {
-    expect(reducer.default(
-      initialState,
-      { type: actions.SAVE_SHIPMENT_FORM_DATA },
-    )).toEqual({
-      ...initialState,
-      loaded: true,
-      shipmentFormData: undefined,
-    });
-  });
-});
 
 describe('Get Shipment Details reducer', () => {
   it('Empty Reducer', () => {
@@ -347,6 +333,43 @@ describe('Edit Shipment Template reducer', () => {
     expect(reducer.default(
       initialState,
       { type: actions.EDIT_SHIPMENT_TEMPLATE_FAILURE },
+    )).toEqual({
+      ...initialState,
+      error: undefined,
+      loaded: true,
+      loading: false,
+    });
+  });
+});
+
+describe('Delete Shipment Template reducer', () => {
+  it('Empty Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.DELETE_SHIPMENT_TEMPLATE },
+    )).toEqual({
+      ...initialState,
+      loading: true,
+    });
+  });
+
+  it('Delete Shipment Template success Reducer', () => {
+    const data = { id: 1, name: 'Test data' };
+    expect(reducer.default(
+      { ...initialState, templates: [data] },
+      { type: actions.DELETE_SHIPMENT_TEMPLATE_SUCCESS, id: data.id },
+    )).toEqual({
+      ...initialState,
+      loaded: true,
+      loading: false,
+      templates: [],
+    });
+  });
+
+  it('Delete Shipment Template fail Reducer', () => {
+    expect(reducer.default(
+      initialState,
+      { type: actions.DELETE_SHIPMENT_TEMPLATE_FAILURE },
     )).toEqual({
       ...initialState,
       error: undefined,

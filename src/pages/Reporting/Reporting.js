@@ -25,7 +25,6 @@ import {
 import GraphComponent from '../../components/GraphComponent/GraphComponent';
 import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
-import CustomizedTooltips from '../../components/ToolTip/ToolTip';
 import { UserContext } from '../../context/User.context';
 import {
   getCustodians,
@@ -41,7 +40,6 @@ import {
 import {
   getShipmentOverview,
   SHIPMENT_OVERVIEW_COLUMNS,
-  SHIPMENT_OVERVIEW_TOOL_TIP,
   REPORT_TYPES,
   getIcon,
   processReportsAndMarkers,
@@ -91,8 +89,12 @@ const useStyles = makeStyles((theme) => ({
     height: '100px',
   },
   infoContainer: {
-    height: '525px',
+    height: '550px',
     overflowX: 'auto',
+    overflowY: 'hidden',
+    '& .MuiPaper-root': {
+      boxShadow: 'none',
+    },
   },
   reportContainer: {
     marginTop: theme.spacing(4),
@@ -253,9 +255,7 @@ const Reporting = ({
               {selectedShipment
               && selectedShipment.name
               && `Map View - Shipment: ${selectedShipment.name}`}
-              <CustomizedTooltips
-                toolTipText={SHIPMENT_OVERVIEW_TOOL_TIP}
-              />
+              {!selectedShipment && 'Map View'}
             </Typography>
             <IconButton
               onClick={() => setTileView(!tileView)}
@@ -278,13 +278,13 @@ const Reporting = ({
             showPath
             markers={markers}
             googleMapURL={window.env.MAP_API_URL}
-            zoom={12}
+            zoom={_.isEmpty(markers) ? 4 : 12}
             setSelectedMarker={setSelectedMarker}
             loadingElement={
               <div style={{ height: '100%' }} />
             }
             containerElement={
-              <div style={{ height: '550px' }} />
+              <div style={{ height: '625px' }} />
             }
             mapElement={
               <div style={{ height: '100%' }} />
@@ -353,9 +353,6 @@ const Reporting = ({
                 ),
               )}
             </TextField>
-            <CustomizedTooltips
-              toolTipText={SHIPMENT_OVERVIEW_TOOL_TIP}
-            />
             <IconButton
               onClick={() => setTileView(!tileView)}
               color="default"
@@ -390,28 +387,22 @@ const Reporting = ({
                           <Typography variant="h6">
                             {column.label}
                           </Typography>
-                          {column.name === 'custody_info'
-                      && selectedShipment[column.name]
-                            ? _.map(
-                              selectedShipment[column.name],
-                              (value, idx) => (
-                                <div
-                                  key={`custody_info_${idx}`}
-                                  style={{
-                                    marginBottom: 10,
-                                    color: value.custody_type === 'Current'
-                                      ? theme.palette.primary.main
-                                      : theme.palette.background.dark,
-                                  }}
-                                >
-                                  <Typography variant="body1">
-                                    {`Custody Type: ${value.custody_type}`}
-                                  </Typography>
-                                  <Typography variant="body1">
-                                    {`Custodian Address: ${selectedShipment.contact_info[idx].address}`}
-                                  </Typography>
-                                </div>
-                              ),
+                          {column.name === 'custody_info' && selectedShipment[column.name]
+                            ? (
+                              <div
+                                key="custody_info_last"
+                                style={{
+                                  marginBottom: 10,
+                                  color: theme.palette.background.dark,
+                                }}
+                              >
+                                <Typography variant="body1">
+                                  {`Name: ${_.find(selectedShipment[column.name], { has_current_custody: true }).custodian_name}`}
+                                </Typography>
+                                <Typography variant="body1">
+                                  {`Custodian Address: ${selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })].address}`}
+                                </Typography>
+                              </div>
                             ) : (
                               <Typography variant="body1">
                                 {getShipmentValue(column.name)}
@@ -425,7 +416,7 @@ const Reporting = ({
                         variant="h6"
                         align="center"
                       >
-                        {SHIPMENT_OVERVIEW_TOOL_TIP}
+                        Select a shipment to view reporting data
                       </Typography>
                     )}
                 </Grid>
@@ -443,9 +434,7 @@ const Reporting = ({
             {selectedShipment
             && selectedShipment.name
             && `Graph View - Shipment: ${selectedShipment.name}`}
-            <CustomizedTooltips
-              toolTipText={SHIPMENT_OVERVIEW_TOOL_TIP}
-            />
+            {!selectedShipment && 'Graph View'}
           </Typography>
         </div>
         <Grid item xs={1} md={1}>
@@ -489,7 +478,7 @@ const Reporting = ({
                 variant="h6"
                 align="center"
               >
-                {SHIPMENT_OVERVIEW_TOOL_TIP}
+                Select a shipment to view reporting data
               </Typography>
             )}
         </Grid>

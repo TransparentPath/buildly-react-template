@@ -107,16 +107,17 @@ const SensorReport = ({
           >
             {shipmentName
             && `Sensor Report - Shipment: ${shipmentName}`}
+            {!shipmentName && 'Sensor Report'}
           </Typography>
         </div>
         <DataTableWrapper
           noSpace
+          hideAddButton
+          filename="SensorReportData"
+          tableHeight="500px"
           loading={loading}
           rows={rows}
           columns={columns}
-          filename="SensorReportData"
-          tableHeight="500px"
-          hideAddButton
           selectable={{
             rows: 'multiple',
             rowsHeader: false,

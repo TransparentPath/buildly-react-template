@@ -43,6 +43,7 @@ import {
   Opacity as HumidityIcon,
   Thermostat as TemperatureIcon,
 } from '@mui/icons-material';
+import ConfirmModal from '../../components/Modal/ConfirmModal';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import DatePickerComponent from '../../components/DatePicker/DatePicker';
 import Loader from '../../components/Loader/Loader';
@@ -67,7 +68,7 @@ import {
 } from '../../utils/constants';
 import { SHIPMENT_STATUS, TIVE_GATEWAY_TIMES, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
 import { validators } from '../../utils/validators';
-import ConfirmModal from '@components/Modal/ConfirmModal';
+import TemplatesModal from './components/TemplatesModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -172,7 +173,7 @@ const useStyles = makeStyles((theme) => ({
   },
   saveTemplateModal: {
     '& .MuiPaper-root': {
-      maxWidth: 'fit-content',
+      maxWidth: 'min-content',
     },
   },
   modalActionButtons: {
@@ -267,7 +268,10 @@ const CreateShipment = ({
   const measurementInterval = useInput((!_.isEmpty(editData) && editData.measurement_time) || 20);
 
   const [formError, setFormError] = useState({});
+  const [formSubmitted, setFormSubmitted] = useState(false);
   let formEdited = false;
+
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
 
   const uncheckedIcon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -408,7 +412,7 @@ const CreateShipment = ({
         _.find(custodianList, { name: carrier }) || carrier
       )))
       || gatewayType.hasChanged()
-      || gatewayType.hasChanged()
+      || gateway.hasChanged()
       || !_.isEqual(editData.transmission_time, transmissionInterval.value)
       || !_.isEqual(editData.measurement_time, measurementInterval.value)
       || (
@@ -435,7 +439,7 @@ const CreateShipment = ({
 
     const unblock = history.block((loc) => {
       let trgObj = { ...triggerExit, path: loc.pathname };
-      if ((loc.pathname !== routes.CREATE_SHIPMENT) && formEdited) {
+      if ((loc.pathname !== routes.CREATE_SHIPMENT) && formEdited && !formSubmitted) {
         setConfirmLeave(true);
       } else {
         trgObj = { ...trgObj, onOk: true };
@@ -451,7 +455,8 @@ const CreateShipment = ({
     return () => {
       unblock();
     };
-  }, [handleGoToIntendedPage, history, triggerExit.onOk, triggerExit.path, formEdited]);
+  }, [handleGoToIntendedPage, history, triggerExit.onOk, triggerExit.path,
+    formEdited, formSubmitted]);
 
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
@@ -546,32 +551,23 @@ const CreateShipment = ({
   );
 
   const handleTemplateChange = (value) => {
-    setTemplate(value);
-    if (value) {
-      onInputChange(value.origin_custodian, 'custodian', 'start');
-      onInputChange(value.destination_custodian, 'custodian', 'end');
-      setItems(value.items);
-      status.setValue(value.status);
-      min_excursion_temp.setValue(value.min_excursion_temp);
-      max_excursion_temp.setValue(value.max_excursion_temp);
-      min_excursion_humidity.setValue(value.min_excursion_humidity);
-      max_excursion_humidity.setValue(value.max_excursion_humidity);
-      shock_threshold.setValue(value.shock_threshold);
-      light_threshold.setValue(value.light_threshold);
+    if (!_.isEqual(value, 'all')) {
+      setTemplate(value);
+      if (value) {
+        onInputChange(value.origin_custodian, 'custodian', 'start');
+        onInputChange(value.destination_custodian, 'custodian', 'end');
+        setItems(value.items);
+        status.setValue(value.status);
+        min_excursion_temp.setValue(value.min_excursion_temp);
+        max_excursion_temp.setValue(value.max_excursion_temp);
+        min_excursion_humidity.setValue(value.min_excursion_humidity);
+        max_excursion_humidity.setValue(value.max_excursion_humidity);
+        shock_threshold.setValue(value.shock_threshold);
+        light_threshold.setValue(value.light_threshold);
+      }
+    } else {
+      setShowTemplatesModal(true);
     }
-  };
-
-  const getTemplateName = () => {
-    let suffix = '-01';
-    const tmpName = `${originAbb}-${destinationAbb}-${_.find(itemRows, { url: items[0] }).name}`;
-    const latest = _.find(_.orderBy(templates, 'create_date', 'desc'), (tmp) => _.includes(tmp.name, `${tmpName}-`));
-
-    if (latest) {
-      const [name, nsuffix] = _.split(latest.name, `${tmpName}-`);
-      suffix = `-${_.padStart(_.toString((_.toNumber(nsuffix) || 0) + 1), 2, '0')}`;
-    }
-
-    setTemplateName({ name: tmpName, suffix });
   };
 
   const saveAsTemplate = () => {
@@ -795,7 +791,7 @@ const CreateShipment = ({
         deleteFiles,
       };
     }
-    setTriggerExit({ ...triggerExit, onOk: true });
+    setFormSubmitted(true);
     if (_.isEmpty(editData)) {
       dispatch(addShipment(savePayload, history, routes.SHIPMENT));
     } else {
@@ -832,6 +828,11 @@ const CreateShipment = ({
                 {tmp.name}
               </MenuItem>
             ))}
+            <MenuItem value="all">
+              <Typography style={{ color: theme.palette.primary.main, textDecoration: 'underline' }}>
+                See all templates...
+              </Typography>
+            </MenuItem>
           </TextField>
         </Grid>
       </Grid>
@@ -1106,6 +1107,9 @@ const CreateShipment = ({
               {!_.isEmpty(itemRows) && (
                 <Grid item xs={11.5} pt={0}>
                   <DataTableWrapper
+                    hideAddButton
+                    noOptionsIcon
+                    noSpace
                     loading={loading}
                     rows={itemRows}
                     columns={itemColumns(
@@ -1113,9 +1117,6 @@ const CreateShipment = ({
                         ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
                         : '',
                     )}
-                    hideAddButton
-                    noOptionsIcon
-                    noSpace
                   />
                 </Grid>
               )}
@@ -1532,7 +1533,7 @@ const CreateShipment = ({
                     select
                     fullWidth
                     placeholder="Select..."
-                    label="Add additional carrier"
+                    label="Add carriers/warehouses"
                     onChange={(e) => {
                       setAdditionalCustocations([...additionalCustodians, e.target.value]);
                       setShowAddCustodian(false);
@@ -1562,7 +1563,7 @@ const CreateShipment = ({
                     color="primary"
                     onClick={(e) => setShowAddCustodian(true)}
                   >
-                    + Add additional carrier
+                    + Add carriers/warehouses
                   </Button>
                 )}
               </Grid>
@@ -1841,9 +1842,12 @@ const CreateShipment = ({
             </IconButton>
           </DialogTitle>
           <DialogContent>
-            <Grid container>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
                 <DataTableWrapper
+                  hideAddButton
+                  noOptionsIcon
+                  noSpace
                   loading={loading}
                   rows={templateRows}
                   columns={templateColumns(
@@ -1851,26 +1855,44 @@ const CreateShipment = ({
                     _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
                       ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
                       : '',
-                    _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-                      ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
-                      : '',
                   )}
-                  hideAddButton
-                  noOptionsIcon
-                  noSpace
+                  extraOptions={{
+                    rowHover: true,
+                    onRowClick: (rowData) => {
+                      setTemplateName(rowData[0]);
+                    },
+                    setRowProps: (row, dataIndex, rowIndex) => ({
+                      style: { cursor: 'pointer' },
+                    }),
+                  }}
                 />
               </Grid>
+
+              {!!_.find(templates, (tmp) => (
+                _.isEqual(_.toLower(tmp.name), _.toLower(templateName))
+              )) && (
+                <Grid item xs={12}>
+                  <Typography variant="body1" color={theme.palette.error.main}>
+                    A template already has this name.
+                    Clicking save will override the existing template.
+                  </Typography>
+                </Grid>
+              )}
             </Grid>
           </DialogContent>
           <DialogActions>
             <Grid container spacing={2} className={classes.modalActionButtons}>
-              <Grid item xs={8}>
+              <Grid item xs={6}>
                 <TextField
                   variant="outlined"
                   id="template-name"
                   fullWidth
+                  label="Template Name"
+                  placeholder="32 characters maximum"
                   value={templateName}
                   onChange={(e) => setTemplateName(e.target.value)}
+                  helperText="There is a 32-character limit on template names"
+                  inputProps={{ maxLength: 32 }}
                 />
               </Grid>
               <Grid item xs={2}>
@@ -1878,7 +1900,7 @@ const CreateShipment = ({
                   variant="outlined"
                   color="primary"
                   fullWidth
-                  style={{ height: '100%' }}
+                  style={{ height: '72.4%' }}
                   onClick={(e) => setConfirmSaveTemplate(false)}
                 >
                   Cancel
@@ -1889,7 +1911,7 @@ const CreateShipment = ({
                   variant="contained"
                   color="primary"
                   fullWidth
-                  style={{ height: '100%' }}
+                  style={{ height: '72.4%' }}
                   onClick={saveAsTemplate}
                 >
                   Save
@@ -1899,6 +1921,17 @@ const CreateShipment = ({
           </DialogActions>
         </Dialog>
       </div>
+
+      <TemplatesModal
+        open={showTemplatesModal}
+        setOpen={setShowTemplatesModal}
+        columns={templateColumns(
+          timezone,
+          _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+            ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+            : '',
+        )}
+      />
 
       <ConfirmModal
         open={confirmLeave}

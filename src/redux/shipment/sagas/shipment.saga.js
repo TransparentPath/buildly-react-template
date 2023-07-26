@@ -35,6 +35,9 @@ import {
   EDIT_SHIPMENT_TEMPLATE,
   EDIT_SHIPMENT_TEMPLATE_SUCCESS,
   EDIT_SHIPMENT_TEMPLATE_FAILURE,
+  DELETE_SHIPMENT_TEMPLATE,
+  DELETE_SHIPMENT_TEMPLATE_SUCCESS,
+  DELETE_SHIPMENT_TEMPLATE_FAILURE,
 } from '../actions/shipment.actions';
 
 const shipmentApiEndPoint = 'shipment/';
@@ -183,7 +186,7 @@ function* addShipment(action) {
         {
           ...shipmentPayload,
           gateway_ids: [updateGateway.gateway_uuid],
-          gateway_imei: [updateGateway.imei_number],
+          gateway_imei: [_.toString(updateGateway.imei_number)],
         },
       );
       yield put(editGateway({
@@ -265,11 +268,11 @@ function* editShipment(action) {
       )));
     }
 
-    if (updateGateway) {
+    if (!_.isEmpty(updateGateway)) {
       shipmentPayload = {
         ...shipmentPayload,
         gateway_ids: [updateGateway.gateway_uuid],
-        gateway_imei: [updateGateway.imei_number],
+        gateway_imei: [_.toString(updateGateway.imei_number)],
       };
     }
 
@@ -513,7 +516,7 @@ function* addShipmentTemplate(action) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Successfully added shipment template',
+          message: `Successfully added template ${response.data.name}`,
         }),
       ),
       yield put({ type: ADD_SHIPMENT_TEMPLATE_SUCCESS, template: response.data }),
@@ -548,7 +551,7 @@ function* editShipmentTemplate(action) {
         showAlert({
           type: 'success',
           open: true,
-          message: 'Shipment template successfully edited!',
+          message: `Successfully edited template ${data.data.name}`,
         }),
       ),
     ];
@@ -562,6 +565,39 @@ function* editShipmentTemplate(action) {
         }),
       ),
       yield put({ type: EDIT_SHIPMENT_TEMPLATE_FAILURE, error }),
+    ];
+  }
+}
+
+function* deleteShipmentTemplate(action) {
+  const { id } = action;
+  try {
+    const data = yield call(
+      httpService.makeRequest,
+      'delete',
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment_template/${id}/`,
+    );
+
+    yield [
+      yield put({ type: DELETE_SHIPMENT_TEMPLATE_SUCCESS, id }),
+      yield put(
+        showAlert({
+          type: 'success',
+          open: true,
+          message: 'Successfully deleted template',
+        }),
+      ),
+    ];
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Error in deleting shipment template!',
+        }),
+      ),
+      yield put({ type: DELETE_SHIPMENT_TEMPLATE_FAILURE, error }),
     ];
   }
 }
@@ -602,6 +638,10 @@ function* watchEditShipmentTemplate() {
   yield takeLatest(EDIT_SHIPMENT_TEMPLATE, editShipmentTemplate);
 }
 
+function* watchDeleteShipmentTemplate() {
+  yield takeLatest(DELETE_SHIPMENT_TEMPLATE, deleteShipmentTemplate);
+}
+
 export default function* shipmentSaga() {
   yield all([
     watchGetShipment(),
@@ -613,5 +653,6 @@ export default function* shipmentSaga() {
     watchGetShipmentTemplates(),
     watchAddShipmentTemplate(),
     watchEditShipmentTemplate(),
+    watchDeleteShipmentTemplate(),
   ]);
 }

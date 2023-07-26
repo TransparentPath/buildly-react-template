@@ -84,6 +84,10 @@ const Gateway = ({
 
   return (
     <DataTableWrapper
+      hideAddButton
+      centerLabel
+      filename="GatewayData"
+      tableHeader="Gateway"
       loading={loading}
       rows={rows || []}
       columns={gatewayColumns(
@@ -92,7 +96,6 @@ const Gateway = ({
           ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
           : '',
       )}
-      filename="GatewayData"
       addButtonHeading="Add Gateway"
       onAddButtonClick={onAddButtonClick}
       editAction={editGatewayAction}
@@ -101,9 +104,6 @@ const Gateway = ({
       setDeleteModal={setDeleteModal}
       handleDeleteModal={handleDeleteModal}
       deleteModalTitle="Are you sure you want to delete this Gateway?"
-      tableHeader="Gateway"
-      hideAddButton
-      centerLabel
     >
       <Route path={`${addPath}`} component={AddGateway} />
       <Route path={`${editPath}/:id`} component={AddGateway} />

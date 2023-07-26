@@ -34,8 +34,8 @@ import {
 import { getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
 import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
+import { routes } from '../../routes/routesConstants';
 import { getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
-import { routes } from '@routes/routesConstants';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -381,6 +381,8 @@ const Shipment = ({
 
         <Grid item xs={12} className={classes.dataTable}>
           <DataTableWrapper
+            hideAddButton
+            filename="ShipmentData"
             loading={loading}
             rows={rows}
             columns={[
@@ -416,7 +418,9 @@ const Shipment = ({
                     <Typography
                       className={classes.shipmentName}
                       onClick={(e) => {
-                        history.push(routes.CREATE_SHIPMENT, { ship: rows[dataIndex] });
+                        history.push(routes.CREATE_SHIPMENT, {
+                          ship: _.omit(rows[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
+                        });
                       }}
                     >
                       {rows[dataIndex].name}
@@ -608,8 +612,6 @@ const Shipment = ({
                 );
               },
             }}
-            filename="ShipmentData"
-            hideAddButton
           />
         </Grid>
       </Grid>

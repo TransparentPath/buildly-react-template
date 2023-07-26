@@ -8,11 +8,6 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
-import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
-import {
-  MAPPING_TOOLTIP,
-  CONSORTIUM_TOOLTIP,
-} from '../../../utils/constants';
 import Consortium from './components/Consortium';
 import MappingOrg from './components/MappingOrg';
 
@@ -45,7 +40,6 @@ const Configuration = (props) => {
         >
           <Typography variant="h5">
             Mapping Custodian Organization
-            <CustomizedTooltips toolTipText={MAPPING_TOOLTIP} />
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -61,7 +55,6 @@ const Configuration = (props) => {
         >
           <Typography variant="h5">
             Consortium
-            <CustomizedTooltips toolTipText={CONSORTIUM_TOOLTIP} />
           </Typography>
         </AccordionSummary>
         <AccordionDetails>

@@ -1,5 +1,3 @@
-export const SAVE_SHIPMENT_FORM_DATA = 'SHIPMENT/SAVE_SHIPMENT_FORM_DATA';
-
 export const GET_SHIPMENTS = 'SHIPMENT/GET_SHIPMENTS';
 export const GET_SHIPMENTS_SUCCESS = 'SHIPMENT/GET_SHIPMENTS_SUCCESS';
 export const GET_SHIPMENTS_FAILURE = 'SHIPMENT/GET_SHIPMENTS_FAILURE';
@@ -36,14 +34,9 @@ export const EDIT_SHIPMENT_TEMPLATE = 'SHIPMENT/EDIT_SHIPMENT_TEMPLATE';
 export const EDIT_SHIPMENT_TEMPLATE_SUCCESS = 'SHIPMENT/EDIT_SHIPMENT_TEMPLATE_SUCCESS';
 export const EDIT_SHIPMENT_TEMPLATE_FAILURE = 'SHIPMENT/EDIT_SHIPMENT_TEMPLATE_FAILURE';
 
-/**
- * Save Shipment Form Data
- * @param {Object} formData
- */
-export const saveShipmentFormData = (formData) => ({
-  type: SAVE_SHIPMENT_FORM_DATA,
-  formData,
-});
+export const DELETE_SHIPMENT_TEMPLATE = 'SHIPMENT/DELETE_SHIPMENT_TEMPLATE';
+export const DELETE_SHIPMENT_TEMPLATE_SUCCESS = 'SHIPMENT/DELETE_SHIPMENT_TEMPLATE_SUCCESS';
+export const DELETE_SHIPMENT_TEMPLATE_FAILURE = 'SHIPMENT/DELETE_SHIPMENT_TEMPLATE_FAILURE';
 
 /**
  * Get Shipment Details
@@ -124,3 +117,9 @@ export const addShipmentTemplate = (payload) => ({ type: ADD_SHIPMENT_TEMPLATE, 
  * @param {Object} payload
  */
 export const editShipmentTemplate = (payload) => ({ type: EDIT_SHIPMENT_TEMPLATE, payload });
+
+/**
+ * Delete Shipment Template
+ * @param {Number} id
+ */
+export const deleteShipmentTemplate = (id) => ({ type: DELETE_SHIPMENT_TEMPLATE, id });
