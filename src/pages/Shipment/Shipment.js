@@ -519,7 +519,7 @@ const Shipment = ({
                         </Grid>
 
                         <Grid item xs={2}>
-                          {_.isEqual(ship.status, 'Enroute') && markers[0] && (
+                          {!_.isEmpty(markers) && markers[0] && (
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
@@ -534,7 +534,7 @@ const Shipment = ({
                         </Grid>
 
                         <Grid item xs={2}>
-                          {_.isEqual(ship.status, 'Enroute') && markers[0] && (
+                          {!_.isEmpty(markers) && markers[0] && (
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>

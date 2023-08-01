@@ -224,7 +224,7 @@ const RenderedMap = withScriptjs(
                             ? mark.color
                             : 'inherit',
                         })}
-                        {mark[item.id] ? (
+                        {!_.isEqual(mark[item.id], null) ? (
                           <div
                             style={{
                               marginLeft: props.theme.spacing(0.5),

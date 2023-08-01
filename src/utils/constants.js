@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment-timezone';
 import _ from 'lodash';
-import { SvgIcon, Typography } from '@mui/material';
+import { SvgIcon, Tooltip, Typography } from '@mui/material';
 import {
   AccessTime as AccessTimeIcon,
   BatteryStdOutlined as BatteryIcon,
@@ -565,28 +565,60 @@ export const getIcon = (item) => {
   switch (id) {
     case 'temperature':
     case 'probe':
-      return <TempIcon style={{ fill: color }} />;
+      return (
+        <Tooltip title={_.capitalize(id)} placement="right">
+          <TempIcon style={{ fill: color }} />
+        </Tooltip>
+      );
 
     case 'light':
-      return <LightIcon style={{ fill: color }} />;
+      return (
+        <Tooltip title={_.capitalize(id)} placement="right">
+          <LightIcon style={{ fill: color }} />
+        </Tooltip>
+      );
 
     case 'shock':
-      return <ShockIcon style={{ fill: color }} />;
+      return (
+        <Tooltip title={_.capitalize(id)} placement="right">
+          <ShockIcon style={{ fill: color }} />
+        </Tooltip>
+      );
 
     case 'tilt':
-      return <TiltIcon fill={color} />;
+      return (
+        <Tooltip title={_.capitalize(id)} placement="right">
+          <TiltIcon fill={color} />
+        </Tooltip>
+      );
 
     case 'humidity':
-      return <HumidIcon style={{ fill: color }} />;
+      return (
+        <Tooltip title={_.capitalize(id)} placement="right">
+          <HumidIcon style={{ fill: color }} />
+        </Tooltip>
+      );
 
     case 'battery':
-      return <BatteryIcon style={{ fill: color }} />;
+      return (
+        <Tooltip title={_.capitalize(id)} placement="right">
+          <BatteryIcon style={{ fill: color }} />
+        </Tooltip>
+      );
 
     case 'pressure':
-      return <PressureIcon fill={color} />;
+      return (
+        <Tooltip title={_.capitalize(id)} placement="right">
+          <PressureIcon fill={color} />
+        </Tooltip>
+      );
 
     case 'time':
-      return <AccessTimeIcon style={{ fill: color }} />;
+      return (
+        <Tooltip title={_.capitalize(id)} placement="right">
+          <AccessTimeIcon style={{ fill: color }} />
+        </Tooltip>
+      );
 
     default:
       return null;
@@ -1035,7 +1067,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (!_.isEqual(value, null) ? _.round(_.toNumber(value), 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1045,7 +1077,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (!_.isEqual(value, null) ? _.round(_.toNumber(value), 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1055,7 +1087,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (!_.isEqual(value, null) ? _.round(_.toNumber(value), 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1065,17 +1097,17 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (!_.isEqual(value, null) ? _.round(_.toNumber(value), 2).toFixed(2) : 'N/A'),
     },
   },
   {
     name: 'battery',
-    label: 'BATTERY',
+    label: 'BATTERY (%)',
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? value : 'N/A'),
+      customBodyRender: (value) => (!_.isEqual(value, null) ? _.round(_.toNumber(value), 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1086,7 +1118,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (!_.isEqual(value, null) ? _.round(_.toNumber(value), 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1097,7 +1129,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (!_.isEqual(value, null) ? _.round(_.toNumber(value), 2).toFixed(2) : 'N/A'),
     },
   },
   {
@@ -1108,7 +1140,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sortThirdClickReset: true,
       filter: true,
       display: false,
-      customBodyRender: (value) => (_.gte(_.toNumber(value), 0) ? _.round(value, 2).toFixed(2) : 'N/A'),
+      customBodyRender: (value) => (!_.isEqual(value, null) ? _.round(_.toNumber(value), 2).toFixed(2) : 'N/A'),
     },
   },
 ]);
@@ -1116,7 +1148,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
 export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeFormat) => ([
   {
     name: 'alertObj',
-    label: 'Condiiton',
+    label: 'Condition',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1215,7 +1247,7 @@ export const gatewayColumns = (timezone, dateFormat) => ([
   },
   {
     name: 'last_known_battery_level',
-    label: 'Battery',
+    label: 'Battery (%)',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1468,7 +1500,7 @@ export const shipmentColumns = (timezone, dateFormat) => ([
   },
   {
     name: 'battery_levels',
-    label: 'Tracker Battery Level',
+    label: 'Tracker Battery Level (%)',
     options: {
       sort: true,
       sortThirdClickReset: true,
