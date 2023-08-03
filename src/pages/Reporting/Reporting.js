@@ -77,6 +77,7 @@ const useStyles = makeStyles((theme) => ({
   },
   iconBar: {
     backgroundColor: theme.palette.primary.light,
+    height: '100%',
     '& svg': {
       margin: '0 auto',
     },
@@ -444,17 +445,15 @@ const Reporting = ({
             className={classes.iconBar}
           >
             {_.map(REPORT_TYPES(unitOfMeasure), (item, index) => (
-              <React.Fragment
+              <ListItem
                 key={`iconItem${index}${item.id}`}
+                button
+                selected={selectedGraph === item.id}
+                onClick={() => setSelectedGraph(item.id)}
+                style={{ margin: '12px 0' }}
               >
-                <ListItem
-                  button
-                  selected={selectedGraph === item.id}
-                  onClick={() => setSelectedGraph(item.id)}
-                >
-                  {getIcon({ ...item, color: theme.palette.background.dark })}
-                </ListItem>
-              </React.Fragment>
+                {getIcon({ ...item, color: theme.palette.background.dark })}
+              </ListItem>
             ))}
           </List>
         </Grid>

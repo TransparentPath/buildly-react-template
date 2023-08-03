@@ -990,13 +990,10 @@ export const tempUnit = (uomt) => {
 
 export const REPORT_TYPES = (unitOfMeasure) => ([
   { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
-  { id: 'light', unit: 'LUX' },
-  { id: 'shock', unit: 'G' },
-  { id: 'tilt', unit: 'deg' },
   { id: 'humidity', unit: '%' },
+  { id: 'shock', unit: 'G' },
+  { id: 'light', unit: 'LUX' },
   { id: 'battery', unit: '%' },
-  { id: 'pressure', unit: 'Pa' },
-  { id: 'probe', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
 ]);
 
 export const MARKER_DATA = (unitOfMeasure) => ([
