@@ -284,7 +284,8 @@ const Shipment = ({
             const markerFound = _.find(markersToSet, {
               lat: marker.lat,
               lng: marker.lng,
-            }) && color === 'green';
+              color: 'green',
+            });
 
             if (!markerFound) {
               markersToSet = [...markersToSet, marker];

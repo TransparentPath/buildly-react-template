@@ -193,7 +193,6 @@ const RenderedMap = withScriptjs(
               scale: 1.4,
               anchor: { x: 12, y: 24 },
             }}
-            label={`${index + 1}`}
             onClick={() => props.onMarkerSelect(mark)}
           >
             {_.isEqual(props.showInfoIndex, mark) && (

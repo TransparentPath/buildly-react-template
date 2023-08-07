@@ -412,7 +412,6 @@ const CreateShipment = ({
         _.find(custodianList, { name: carrier }) || carrier
       )))
       || gatewayType.hasChanged()
-      || gateway.hasChanged()
       || !_.isEqual(editData.transmission_time, transmissionInterval.value)
       || !_.isEqual(editData.measurement_time, measurementInterval.value)
       || (
@@ -1940,7 +1939,7 @@ const CreateShipment = ({
           setTriggerExit((obj) => ({ ...obj, onOk: true }));
           setConfirmLeave(false);
         }}
-        title="Your changes are unsaved and will be discarded. Are you sure to leave?"
+        title="Your changes are unsaved and will be discarded. Are you sure you want to leave?"
         submitText="Yes"
       />
     </Box>
