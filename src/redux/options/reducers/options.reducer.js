@@ -1,4 +1,4 @@
-import moment from 'moment-timezone';
+import { getUser } from '../../../context/User.context';
 import {
   SET_TIMEZONE,
   GET_USER_OPTIONS,
@@ -34,7 +34,7 @@ const initialState = {
   loading: false,
   loaded: false,
   error: null,
-  timezone: moment.tz.guess(),
+  timezone: getUser() ? getUser().user_timezone : null,
   userOptions: null,
   orgOptions: null,
   custodianOptions: null,

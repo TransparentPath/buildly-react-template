@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment-timezone';
+import { useTimezoneSelect, allTimezones } from 'react-timezone-select';
 import _ from 'lodash';
 import {
   AppBar,
@@ -88,6 +88,7 @@ const TopBar = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [settingEl, setSettingEl] = useState(null);
   const [organization, setOrganization] = useState(null);
+  const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
 
   let user;
   let isAdmin = false;
@@ -194,9 +195,9 @@ const TopBar = ({
             value={timezone}
             onChange={(e) => dispatch(setTimezone(e.target.value))}
           >
-            {_.map(moment.tz.names(), (name, index) => (
-              <MenuItem key={`${name}-${index}`} value={name}>
-                {name}
+            {_.map(tzOptions, (tzOption, index) => (
+              <MenuItem key={`${tzOption.value}-${index}`} value={tzOption.value}>
+                {tzOption.label}
               </MenuItem>
             ))}
           </TextField>

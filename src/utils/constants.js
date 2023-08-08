@@ -1032,20 +1032,6 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => {
-        const dateFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'date')))
-          ? _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'date'))).unit_of_measure
-          : '';
-        const timeFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'time')))
-          ? _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'time'))).unit_of_measure
-          : '';
-
-        return (
-          value && value !== '-'
-            ? moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`)
-            : value
-        );
-      },
     },
   },
   {

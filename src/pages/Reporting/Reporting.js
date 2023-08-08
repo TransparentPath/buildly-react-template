@@ -200,7 +200,7 @@ const Reporting = ({
       setAllGraphs(graphs);
       setMarkers(markersToSet);
     }
-  }, [sensorReports, allSensorAlerts]);
+  }, [sensorReports, allSensorAlerts, timezone]);
 
   const getShipmentValue = (value) => {
     let returnValue;

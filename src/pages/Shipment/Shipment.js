@@ -182,7 +182,7 @@ const Shipment = ({
     if (selectedShipment) {
       processMarkers(selectedShipment);
     }
-  }, [allSensorAlerts, sensorReports]);
+  }, [allSensorAlerts, sensorReports, timezone]);
 
   const processMarkers = (shipment, setExpanded = false) => {
     const dateFormat = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;

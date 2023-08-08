@@ -58,6 +58,7 @@ import {
   DELETE_ORG_TYPE_FAILURE,
 } from '../actions/authuser.actions';
 import { createDefaultUnits } from '../../items/actions/items.actions';
+import { setTimezone } from '../../options/actions/options.actions';
 import { routes } from '../../../routes/routesConstants';
 
 function* logout() {
@@ -92,6 +93,7 @@ function* login(payload) {
     yield call(oauthService.setCurrentCoreUser, coreuser, user);
     yield [
       yield put({ type: LOGIN_SUCCESS, user }),
+      yield put(setTimezone(user.data.user_timezone)),
       yield call(history.push, routes.SHIPMENT),
     ];
   } catch (error) {
