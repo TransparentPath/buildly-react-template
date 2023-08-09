@@ -103,7 +103,7 @@ describe('Edit Shipment Template action', () => {
 describe('Delete Shipment Template action', () => {
   it('should create an action to delete shipment template', () => {
     const id = 1;
-    const expectedAction = { type: actions.DELETE_SHIPMENT_TEMPLATE, id };
+    const expectedAction = { type: actions.DELETE_SHIPMENT_TEMPLATE, id, showMessage: true };
     expect(actions.deleteShipmentTemplate(id)).toEqual(expectedAction);
   });
 });

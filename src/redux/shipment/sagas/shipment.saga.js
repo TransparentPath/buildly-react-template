@@ -570,7 +570,7 @@ function* editShipmentTemplate(action) {
 }
 
 function* deleteShipmentTemplate(action) {
-  const { id } = action;
+  const { id, showMessage } = action;
   try {
     const data = yield call(
       httpService.makeRequest,
@@ -578,16 +578,16 @@ function* deleteShipmentTemplate(action) {
       `${window.env.API_URL}${shipmentApiEndPoint}shipment_template/${id}/`,
     );
 
-    yield [
-      yield put({ type: DELETE_SHIPMENT_TEMPLATE_SUCCESS, id }),
+    yield put({ type: DELETE_SHIPMENT_TEMPLATE_SUCCESS, id });
+    if (showMessage) {
       yield put(
         showAlert({
           type: 'success',
           open: true,
           message: 'Successfully deleted template',
         }),
-      ),
-    ];
+      );
+    }
   } catch (error) {
     yield [
       yield put(

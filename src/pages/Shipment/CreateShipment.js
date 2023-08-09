@@ -42,6 +42,8 @@ import {
   LocationOn as LocationIcon,
   Opacity as HumidityIcon,
   Thermostat as TemperatureIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import ConfirmModal from '../../components/Modal/ConfirmModal';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
@@ -56,7 +58,12 @@ import {
 import { getItemType, getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
 import { getGatewayType, getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
-  addShipment, addShipmentTemplate, editShipment, editShipmentTemplate, getShipmentTemplates,
+  addShipment,
+  addShipmentTemplate,
+  deleteShipmentTemplate,
+  editShipment,
+  editShipmentTemplate,
+  getShipmentTemplates,
 } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
 import {
@@ -68,7 +75,6 @@ import {
 } from '../../utils/constants';
 import { SHIPMENT_STATUS, TIVE_GATEWAY_TIMES, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
 import { validators } from '../../utils/validators';
-import TemplatesModal from './components/TemplatesModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -173,12 +179,30 @@ const useStyles = makeStyles((theme) => ({
   },
   saveTemplateModal: {
     '& .MuiPaper-root': {
-      maxWidth: 'min-content',
+      minWidth: '70%',
     },
   },
   modalActionButtons: {
     padding: theme.spacing(2),
     paddingTop: 0,
+  },
+  nameContainer: {
+    margin: `${theme.spacing(4)} 0`,
+    border: `1px solid ${theme.palette.background.light}`,
+    borderRadius: theme.spacing(1),
+  },
+  nameHeader: {
+    padding: theme.spacing(2),
+    backgroundColor: theme.palette.primary.light,
+    borderBottom: `1px solid ${theme.palette.background.light}`,
+  },
+  nameData: {
+    padding: theme.spacing(2),
+  },
+  DTTemplatetName: {
+    textDecoration: 'underline',
+    textDecorationColor: theme.palette.background.light,
+    cursor: 'pointer',
   },
 }));
 
@@ -208,11 +232,15 @@ const CreateShipment = ({
   const formTitle = location.state && location.state.ship ? 'Update Shipment' : 'Create Shipment';
 
   const [template, setTemplate] = useState('');
+  const [templateName, setTemplateName] = useState('');
   const [templateRows, setTemplateRows] = useState([]);
-  const [confirmSaveTemplate, setConfirmSaveTemplate] = useState(false);
+  const [saveAsName, setSaveAsName] = useState('');
+  const [confirmReplace, setConfirmReplace] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showTemplateDT, setShowTemplateDT] = useState(false);
+
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [triggerExit, setTriggerExit] = useState({ onOk: false, path: '' });
-  const [templateName, setTemplateName] = useState('');
 
   const [custodianList, setCustodianList] = useState([]);
   const [originCustodian, setOriginCustodian] = useState('');
@@ -270,8 +298,6 @@ const CreateShipment = ({
   const [formError, setFormError] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   let formEdited = false;
-
-  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
 
   const uncheckedIcon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -372,12 +398,9 @@ const CreateShipment = ({
 
   useEffect(() => {
     if (template) {
-      if (templateName.name && templateName.suffix) {
-        setTemplate(_.find(templates, { name: `${templateName.name}${templateName.suffix}` }));
-        setTemplateName({ name: '', suffix: '' });
-      } else {
-        setTemplate(_.find(templates, { id: template.id }));
-      }
+      handleTemplateChange(_.find(templates, { id: template.id }) || '');
+    } else if (saveAsName) {
+      handleTemplateChange(_.find(templates, { name: saveAsName }) || '');
     }
   }, [templates]);
 
@@ -552,6 +575,7 @@ const CreateShipment = ({
   const handleTemplateChange = (value) => {
     if (!_.isEqual(value, 'all')) {
       setTemplate(value);
+      setTemplateName('');
       if (value) {
         onInputChange(value.origin_custodian, 'custodian', 'start');
         onInputChange(value.destination_custodian, 'custodian', 'end');
@@ -565,16 +589,15 @@ const CreateShipment = ({
         light_threshold.setValue(value.light_threshold);
       }
     } else {
-      setShowTemplatesModal(true);
+      setShowTemplateDT(true);
     }
   };
 
   const saveAsTemplate = () => {
-    const tmplt = _.find(templates, { name: templateName }) || {};
-
+    const tmplt = _.find(templates, { name: saveAsName }) || {};
     const templateFormValue = {
       ...tmplt,
-      name: templateName,
+      name: saveAsName,
       origin_custodian: originCustodian,
       destination_custodian: destinationCustodian,
       items,
@@ -590,11 +613,59 @@ const CreateShipment = ({
 
     if (_.isEmpty(tmplt)) {
       dispatch(addShipmentTemplate(templateFormValue));
+      setShowTemplateDT(false);
     } else {
-      dispatch(editShipmentTemplate(templateFormValue));
+      setConfirmReplace(true);
+    }
+  };
+
+  const saveTemplateName = () => {
+    const exists = _.find(templates, { name: templateName });
+    if (exists) {
+      setConfirmReplace(true);
+    } else {
+      const tmp = { ...template, name: templateName };
+      dispatch(editShipmentTemplate(tmp));
+      setTemplateName('');
+      setTemplate(tmp);
+    }
+  };
+
+  const replaceTemplate = () => {
+    const tmplt = (templateName && _.find(templates, { name: templateName }))
+    || (saveAsName && _.find(templates, { name: saveAsName }))
+    || {};
+    const newTemplate = {
+      ...tmplt,
+      name: templateName || saveAsName,
+      origin_custodian: originCustodian,
+      destination_custodian: destinationCustodian,
+      items,
+      status: status.value,
+      max_excursion_temp: parseInt(max_excursion_temp.value, 10),
+      min_excursion_temp: parseInt(min_excursion_temp.value, 10),
+      max_excursion_humidity: parseInt(max_excursion_humidity.value, 10),
+      min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
+      shock_threshold: shock_threshold.value,
+      light_threshold: light_threshold.value,
+      organization_uuid: organization.organization_uuid,
+    };
+
+    if (template && (
+      !_.isEqual(template.name, templateName) && !_.isEqual(template.name, saveAsName)
+    )) {
+      dispatch(deleteShipmentTemplate(template.id, false));
     }
 
-    setConfirmSaveTemplate(false);
+    dispatch(editShipmentTemplate(newTemplate));
+    setConfirmReplace(false);
+    setTemplateName('');
+    setTemplate(newTemplate);
+
+    if (saveAsName) {
+      setSaveAsName('');
+      setShowTemplateDT(false);
+    }
   };
 
   const fileChange = (event) => {
@@ -835,6 +906,94 @@ const CreateShipment = ({
           </TextField>
         </Grid>
       </Grid>
+
+      {!!template && (
+        <Grid container className={classes.nameContainer}>
+          <Grid item xs={8} className={classes.nameHeader}>
+            <Typography variant="body1" fontWeight={800}>
+              Template name
+            </Typography>
+          </Grid>
+          <Grid item xs={4} className={classes.nameHeader}>
+            <Typography variant="body1" fontWeight={800}>
+              Actions
+            </Typography>
+          </Grid>
+
+          <Grid item xs={8} className={classes.nameData}>
+            {!templateName && (
+              <Typography component="div" style={{ padding: `${theme.spacing(1)} 0` }}>
+                {template.name}
+              </Typography>
+            )}
+
+            {templateName && (
+              <TextField
+                variant="outlined"
+                id="template-name"
+                fullWidth
+                placeholder="32 characters maximum"
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                helperText="There is a 32-character limit on template names"
+                inputProps={{ maxLength: 32 }}
+              />
+            )}
+          </Grid>
+          <Grid item xs={4} className={classes.nameData}>
+            {!templateName && (
+              <div>
+                <IconButton
+                  style={{
+                    border: `1px solid ${theme.palette.primary.main}`,
+                    borderRadius: theme.spacing(1),
+                  }}
+                  onClick={(e) => setTemplateName(template.name)}
+                >
+                  <EditIcon htmlColor={theme.palette.primary.main} />
+                </IconButton>
+
+                <IconButton
+                  style={{
+                    border: `1px solid ${theme.palette.primary.main}`,
+                    borderRadius: theme.spacing(1),
+                    marginLeft: theme.spacing(2),
+                  }}
+                  onClick={(e) => setConfirmDelete(true)}
+                >
+                  <DeleteIcon htmlColor={theme.palette.primary.main} />
+                </IconButton>
+              </div>
+            )}
+
+            {templateName && (
+              <div>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  style={{ padding: `${theme.spacing(1.75)} ${theme.spacing(5)}` }}
+                  onClick={(e) => setTemplateName('')}
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="contained"
+                  style={{
+                    padding: `${theme.spacing(1.75)} ${theme.spacing(5)}`,
+                    marginLeft: theme.spacing(2),
+                  }}
+                  disabled={_.isEqual(template.name, templateName)}
+                  onClick={saveTemplateName}
+                >
+                  Save
+                </Button>
+              </div>
+            )}
+          </Grid>
+        </Grid>
+      )}
 
       <form className={classes.form} noValidate>
         <Box mt={2}>
@@ -1297,8 +1456,8 @@ const CreateShipment = ({
                   onClick={(e) => {
                     const name = !!_.find(itemRows, { url: items[0] })
                       && `${originAbb}-${destinationAbb}-${_.find(itemRows, { url: items[0] }).name}`;
-                    setTemplateName(name);
-                    setConfirmSaveTemplate(true);
+                    setSaveAsName(name);
+                    setShowTemplateDT(true);
                   }}
                 >
                   Save as Template
@@ -1823,113 +1982,120 @@ const CreateShipment = ({
 
       <div>
         <Dialog
-          open={confirmSaveTemplate}
-          onClose={(e) => setConfirmSaveTemplate(false)}
+          open={showTemplateDT}
+          onClose={(e) => setShowTemplateDT(false)}
           aria-labelledby="save-template-title"
           aria-describedby="save-template-description"
           className={classes.saveTemplateModal}
         >
           {loading && <Loader open={loading} />}
           <DialogTitle id="save-template-title">
-            Save template as...
+            {!saveAsName && 'All Templates'}
+            {saveAsName && 'Save template as...'}
             <IconButton
               aria-label="save-template-close"
               className={classes.closeButton}
-              onClick={(e) => setConfirmSaveTemplate(false)}
+              onClick={(e) => setShowTemplateDT(false)}
             >
               <CloseIcon />
             </IconButton>
           </DialogTitle>
-          <DialogContent>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <DataTableWrapper
-                  hideAddButton
-                  noOptionsIcon
-                  noSpace
-                  loading={loading}
-                  rows={templateRows}
-                  columns={templateColumns(
-                    timezone,
-                    _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-                      ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-                      : '',
-                  )}
-                  extraOptions={{
-                    rowHover: true,
-                    onRowClick: (rowData) => {
-                      setTemplateName(rowData[0]);
-                    },
-                    setRowProps: (row, dataIndex, rowIndex) => ({
-                      style: { cursor: 'pointer' },
-                    }),
-                  }}
-                />
-              </Grid>
 
-              {!!_.find(templates, (tmp) => (
-                _.isEqual(_.toLower(tmp.name), _.toLower(templateName))
-              )) && (
-                <Grid item xs={12}>
-                  <Typography variant="body1" color={theme.palette.error.main}>
-                    A template already has this name.
-                    Clicking save will override the existing template.
-                  </Typography>
-                </Grid>
+          <DialogContent>
+            <DataTableWrapper
+              hideAddButton
+              noOptionsIcon
+              noSpace
+              loading={loading}
+              rows={templateRows}
+              columns={templateColumns(
+                timezone,
+                _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                  ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                  : '',
               )}
-            </Grid>
+              extraOptions={{
+                rowHover: true,
+                onRowClick: (rowData) => {
+                  if (saveAsName) {
+                    setSaveAsName(rowData[0]);
+                    setConfirmReplace(true);
+                  } else {
+                    setShowTemplateDT(false);
+                    handleTemplateChange(_.find(templates, { name: rowData[0] }) || '');
+                  }
+                },
+                setRowProps: (row, dataIndex, rowIndex) => ({
+                  style: { cursor: 'pointer' },
+                }),
+              }}
+            />
           </DialogContent>
-          <DialogActions>
-            <Grid container spacing={2} className={classes.modalActionButtons}>
-              <Grid item xs={6}>
-                <TextField
-                  variant="outlined"
-                  id="template-name"
-                  fullWidth
-                  label="Template Name"
-                  placeholder="32 characters maximum"
-                  value={templateName}
-                  onChange={(e) => setTemplateName(e.target.value)}
-                  helperText="There is a 32-character limit on template names"
-                  inputProps={{ maxLength: 32 }}
-                />
+
+          {saveAsName && (
+            <DialogActions>
+              <Grid container spacing={2} className={classes.modalActionButtons}>
+                <Grid item xs={6}>
+                  <TextField
+                    variant="outlined"
+                    id="template-name"
+                    fullWidth
+                    label="Template Name"
+                    placeholder="32 characters maximum"
+                    value={saveAsName}
+                    onChange={(e) => setSaveAsName(e.target.value)}
+                    helperText="There is a 32-character limit on template names"
+                    inputProps={{ maxLength: 32 }}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    fullWidth
+                    style={{ height: '72.4%' }}
+                    onClick={(e) => setShowTemplateDT(false)}
+                  >
+                    Cancel
+                  </Button>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    style={{ height: '72.4%' }}
+                    onClick={saveAsTemplate}
+                  >
+                    Save
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={2}>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  fullWidth
-                  style={{ height: '72.4%' }}
-                  onClick={(e) => setConfirmSaveTemplate(false)}
-                >
-                  Cancel
-                </Button>
-              </Grid>
-              <Grid item xs={2}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  style={{ height: '72.4%' }}
-                  onClick={saveAsTemplate}
-                >
-                  Save
-                </Button>
-              </Grid>
-            </Grid>
-          </DialogActions>
+            </DialogActions>
+          )}
         </Dialog>
       </div>
 
-      <TemplatesModal
-        open={showTemplatesModal}
-        setOpen={setShowTemplatesModal}
-        columns={templateColumns(
-          timezone,
-          _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-            ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-            : '',
-        )}
+      <ConfirmModal
+        open={confirmReplace}
+        setOpen={setConfirmReplace}
+        submitAction={replaceTemplate}
+        title={`"${templateName || saveAsName}" already exists. Do you want to replace it?`}
+        msg1="A template with the same name already exists."
+        msg2="Replacing it will overwrite its current contents."
+        submitText="Rename template"
+      />
+
+      <ConfirmModal
+        open={confirmDelete}
+        setOpen={setConfirmDelete}
+        submitAction={(e) => {
+          dispatch(deleteShipmentTemplate(template.id));
+          setConfirmDelete(false);
+        }}
+        title={`Are you sure you want to delete the template "${templateName}"?`}
+        msg1="This action cannot be undone."
+        submitText="Delete template"
       />
 
       <ConfirmModal

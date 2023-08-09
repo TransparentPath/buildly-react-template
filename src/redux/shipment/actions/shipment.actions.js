@@ -122,4 +122,8 @@ export const editShipmentTemplate = (payload) => ({ type: EDIT_SHIPMENT_TEMPLATE
  * Delete Shipment Template
  * @param {Number} id
  */
-export const deleteShipmentTemplate = (id) => ({ type: DELETE_SHIPMENT_TEMPLATE, id });
+export const deleteShipmentTemplate = (id, showMessage = true) => ({
+  type: DELETE_SHIPMENT_TEMPLATE,
+  id,
+  showMessage,
+});
