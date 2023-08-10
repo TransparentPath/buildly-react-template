@@ -783,33 +783,61 @@ export const processReportsAndMarkers = (
           ).tz(timezone).format(`${dateFormat} ${timeFormat}`);
         }
 
-        _.forEach(alerts, (alert) => {
-          const alertTime = moment(alert.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`);
-          if (_.isEqual(alertTime, dateTime)) {
-            if (alert.recovered_alert_id !== null) {
-              alertObj = { id: alert.parameter_type, color };
-            } else if (alert) {
-              switch (true) {
-                case _.includes(_.toLower(alert.alert_type), 'max'):
-                case _.includes(_.toLower(alert.alert_type), 'shock'):
-                case _.includes(_.toLower(alert.alert_type), 'light'):
-                  color = maxColor;
-                  alertFor = alert.parameter_type;
-                  alertObj = { id: alertFor, color };
-                  break;
+        const postAlert = _.last(
+          _.filter(alerts, (alert) => _.gte(_.toNumber(alert.report_id), report.id)),
+        );
+        const preAlert = _.first(
+          _.filter(alerts, (alert) => _.lt(_.toNumber(alert.report_id), report.id)),
+        );
+        if (preAlert) {
+          if (!preAlert.recovered_alert_id) {
+            switch (true) {
+              case _.includes(_.toLower(preAlert.alert_type), 'max'):
+              case _.includes(_.toLower(preAlert.alert_type), 'shock'):
+              case _.includes(_.toLower(preAlert.alert_type), 'light'):
+                color = maxColor;
+                alertFor = preAlert.parameter_type;
+                alertObj = { id: alertFor, color };
+                break;
 
-                case _.includes(_.toLower(alert.alert_type), 'min'):
-                  color = minColor;
-                  alertFor = alert.parameter_type;
-                  alertObj = { id: alertFor, color };
-                  break;
+              case _.includes(_.toLower(preAlert.alert_type), 'min'):
+                color = minColor;
+                alertFor = preAlert.parameter_type;
+                alertObj = { id: alertFor, color };
+                break;
 
-                default:
-                  break;
-              }
+              default:
+                break;
+            }
+
+            if (postAlert && !!postAlert.recovered_alert_id
+            && _.isEqual(postAlert.report_id, _.toString(report.id))) {
+              color = 'green';
+              alertFor = postAlert.parameter_type;
+              alertObj = { id: alertFor, color };
+            }
+          } else if (postAlert && !postAlert.recovered_alert_id
+          && _.isEqual(postAlert.report_id, _.toString(report.id))) {
+            switch (true) {
+              case _.includes(_.toLower(preAlert.alert_type), 'max'):
+              case _.includes(_.toLower(preAlert.alert_type), 'shock'):
+              case _.includes(_.toLower(preAlert.alert_type), 'light'):
+                color = maxColor;
+                alertFor = preAlert.parameter_type;
+                alertObj = { id: alertFor, color };
+                break;
+
+              case _.includes(_.toLower(preAlert.alert_type), 'min'):
+                color = minColor;
+                alertFor = preAlert.parameter_type;
+                alertObj = { id: alertFor, color };
+                break;
+
+              default:
+                break;
             }
           }
-        });
+        }
 
         // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
         if (report_entry.report_location !== null
@@ -844,18 +872,8 @@ export const processReportsAndMarkers = (
               time,
               timestamp: dateTime,
             };
-            // Considered use case: If a shipment stays at some
-            // position for long, other value changes can be
-            // critical
-            const markerFound = _.find(markersToSet, {
-              lat: marker.lat,
-              lng: marker.lng,
-              color: 'green',
-            });
 
-            if (!markerFound) {
-              markersToSet = [...markersToSet, marker];
-            }
+            markersToSet = [...markersToSet, marker];
           }
         } else {
           marker = {

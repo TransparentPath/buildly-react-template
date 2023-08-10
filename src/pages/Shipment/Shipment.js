@@ -197,15 +197,62 @@ const Shipment = ({
     if (!_.isEmpty(filteredReports)) {
       _.forEach(filteredReports, (report) => {
         const { report_entry } = report;
-        const alert = _.find(filteredAlerts, {
-          report_id: _.toString(report.id),
-          recovered_alert_id: null,
-        });
         let marker = {};
         let date = '';
         let time = '';
         let color = 'green';
         let alertFor = '';
+
+        const postAlert = _.last(
+          _.filter(filteredAlerts, (alert) => _.gte(_.toNumber(alert.report_id), report.id)),
+        );
+        const preAlert = _.first(
+          _.filter(filteredAlerts, (alert) => _.lt(_.toNumber(alert.report_id), report.id)),
+        );
+        if (preAlert) {
+          if (!preAlert.recovered_alert_id) {
+            switch (true) {
+              case _.includes(_.toLower(preAlert.alert_type), 'max'):
+              case _.includes(_.toLower(preAlert.alert_type), 'shock'):
+              case _.includes(_.toLower(preAlert.alert_type), 'light'):
+                color = muiTheme.palette.error.main;
+                alertFor = preAlert.parameter_type;
+                break;
+
+              case _.includes(_.toLower(preAlert.alert_type), 'min'):
+                color = muiTheme.palette.info.main;
+                alertFor = preAlert.parameter_type;
+                break;
+
+              default:
+                break;
+            }
+
+            if (postAlert && !!postAlert.recovered_alert_id
+            && _.isEqual(postAlert.report_id, _.toString(report.id))) {
+              color = 'green';
+              alertFor = '';
+            }
+          } else if (postAlert && !postAlert.recovered_alert_id
+          && _.isEqual(postAlert.report_id, _.toString(report.id))) {
+            switch (true) {
+              case _.includes(_.toLower(preAlert.alert_type), 'max'):
+              case _.includes(_.toLower(preAlert.alert_type), 'shock'):
+              case _.includes(_.toLower(preAlert.alert_type), 'light'):
+                color = muiTheme.palette.error.main;
+                alertFor = preAlert.parameter_type;
+                break;
+
+              case _.includes(_.toLower(preAlert.alert_type), 'min'):
+                color = muiTheme.palette.info.main;
+                alertFor = preAlert.parameter_type;
+                break;
+
+              default:
+                break;
+            }
+          }
+        }
 
         const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_temp_fah
@@ -213,25 +260,6 @@ const Shipment = ({
         const probe = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_probe_fah
           : _.round(report_entry.report_probe_cel, 2).toFixed(2);
-
-        if (alert) {
-          switch (true) {
-            case _.includes(_.toLower(alert.alert_type), 'max'):
-            case _.includes(_.toLower(alert.alert_type), 'shock'):
-            case _.includes(_.toLower(alert.alert_type), 'light'):
-              color = muiTheme.palette.error.main;
-              alertFor = alert.parameter_type;
-              break;
-
-            case _.includes(_.toLower(alert.alert_type), 'min'):
-              color = muiTheme.palette.info.main;
-              alertFor = alert.parameter_type;
-              break;
-
-            default:
-              break;
-          }
-        }
 
         if ('report_timestamp' in report_entry) {
           if (report_entry.report_timestamp !== null) {
@@ -278,18 +306,8 @@ const Shipment = ({
               date,
               time,
             };
-            // Considered use case: If a shipment stays at some
-            // position for long, other value changes can be
-            // critical
-            const markerFound = _.find(markersToSet, {
-              lat: marker.lat,
-              lng: marker.lng,
-              color: 'green',
-            });
 
-            if (!markerFound) {
-              markersToSet = [...markersToSet, marker];
-            }
+            markersToSet = [...markersToSet, marker];
           }
         } else {
           marker = {
