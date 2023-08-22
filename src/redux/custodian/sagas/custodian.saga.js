@@ -93,7 +93,7 @@ function* addCustodian(action) {
           httpService.makeRequest,
           'post',
           `${window.env.API_URL}organization/`,
-          { name: custodianPayload.name },
+          { name: custodianPayload.name, organization_type: 1 },
         );
         if (response && response.data) {
           custodianPayload = {

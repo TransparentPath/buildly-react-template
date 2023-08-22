@@ -1661,15 +1661,6 @@ export const getTemplateFormattedRow = (templates, custodianData, itemData) => {
 
 export const templateColumns = (timezone, dateFormat) => ([
   {
-    name: 'name',
-    label: 'Template Name',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-    },
-  },
-  {
     name: 'create_date',
     label: 'Created',
     options: {

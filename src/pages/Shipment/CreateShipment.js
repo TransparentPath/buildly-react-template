@@ -397,10 +397,10 @@ const CreateShipment = ({
   }, [gatewayData, gatewayType.value, originCustodian]);
 
   useEffect(() => {
-    if (template) {
-      handleTemplateChange(_.find(templates, { id: template.id }) || '');
-    } else if (saveAsName) {
+    if (saveAsName) {
       handleTemplateChange(_.find(templates, { name: saveAsName }) || '');
+    } else if (template) {
+      handleTemplateChange(_.find(templates, { id: template.id }) || '');
     }
   }, [templates]);
 
@@ -589,6 +589,7 @@ const CreateShipment = ({
         light_threshold.setValue(value.light_threshold);
       }
     } else {
+      setSaveAsName('');
       setShowTemplateDT(true);
     }
   };
@@ -2008,12 +2009,24 @@ const CreateShipment = ({
               noSpace
               loading={loading}
               rows={templateRows}
-              columns={templateColumns(
-                timezone,
-                _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-                  ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-                  : '',
-              )}
+              columns={[
+                {
+                  name: 'name',
+                  label: 'Template Name',
+                  options: {
+                    sort: true,
+                    sortThirdClickReset: true,
+                    filter: true,
+                    setCellProps: () => ({ style: { textDecoration: !saveAsName && 'underline', textDecoractionColor: !saveAsName && theme.palette.background.light } }),
+                  },
+                },
+                ...templateColumns(
+                  timezone,
+                  _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                    ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                    : '',
+                ),
+              ]}
               extraOptions={{
                 rowHover: true,
                 onRowClick: (rowData) => {
@@ -2021,8 +2034,8 @@ const CreateShipment = ({
                     setSaveAsName(rowData[0]);
                     setConfirmReplace(true);
                   } else {
-                    setShowTemplateDT(false);
                     handleTemplateChange(_.find(templates, { name: rowData[0] }) || '');
+                    setShowTemplateDT(false);
                   }
                 },
                 setRowProps: (row, dataIndex, rowIndex) => ({
