@@ -200,59 +200,58 @@ const Shipment = ({
         let marker = {};
         let date = '';
         let time = '';
-        let color = 'green';
-        let alertFor = '';
+        let color = muiTheme.palette.success.main;
+        let allAlerts = [];
 
-        const postAlert = _.last(
-          _.filter(filteredAlerts, (alert) => _.gte(_.toNumber(alert.report_id), report.id)),
+        const preAlerts = _.orderBy(
+          _.filter(filteredAlerts, (alert) => _.lte(_.toNumber(alert.report_id), report.id)),
+          'create_date',
         );
-        const preAlert = _.first(
-          _.filter(filteredAlerts, (alert) => _.lt(_.toNumber(alert.report_id), report.id)),
-        );
-        if (preAlert) {
-          if (!preAlert.recovered_alert_id) {
-            switch (true) {
-              case _.includes(_.toLower(preAlert.alert_type), 'max'):
-              case _.includes(_.toLower(preAlert.alert_type), 'shock'):
-              case _.includes(_.toLower(preAlert.alert_type), 'light'):
-                color = muiTheme.palette.error.main;
-                alertFor = preAlert.parameter_type;
-                break;
+        const recovered = _.uniq(_.without(_.map(preAlerts, 'recovered_alert_id'), null));
+        const alertsTillNow = _.filter(preAlerts, (alert) => (
+          !alert.recovered_alert_id && !_.includes(recovered, _.toString(alert.id))
+        ));
 
-              case _.includes(_.toLower(preAlert.alert_type), 'min'):
-                color = muiTheme.palette.info.main;
-                alertFor = preAlert.parameter_type;
-                break;
-
-              default:
-                break;
-            }
-
-            if (postAlert && !!postAlert.recovered_alert_id
-            && _.isEqual(postAlert.report_id, _.toString(report.id))) {
-              color = 'green';
-              alertFor = '';
-            }
-          } else if (postAlert && !postAlert.recovered_alert_id
-          && _.isEqual(postAlert.report_id, _.toString(report.id))) {
-            switch (true) {
-              case _.includes(_.toLower(preAlert.alert_type), 'max'):
-              case _.includes(_.toLower(preAlert.alert_type), 'shock'):
-              case _.includes(_.toLower(preAlert.alert_type), 'light'):
-                color = muiTheme.palette.error.main;
-                alertFor = preAlert.parameter_type;
-                break;
-
-              case _.includes(_.toLower(preAlert.alert_type), 'min'):
-                color = muiTheme.palette.info.main;
-                alertFor = preAlert.parameter_type;
-                break;
-
-              default:
-                break;
-            }
+        if (_.find(preAlerts, { report_id: _.toString(report.id) })) {
+          const current = _.find(preAlerts, { report_id: _.toString(report.id) });
+          if (current.recovered_alert_id) {
+            allAlerts = [...allAlerts, { id: current.parameter_type, color, title: `${_.capitalize(current.parameter_type)} Excursion Recovered` }];
           }
         }
+
+        _.forEach(alertsTillNow, (alert) => {
+          if (alert) {
+            let alertColor = '';
+            let title = '';
+            const found = _.find(allAlerts, { id: alert.parameter_type });
+            if (found) {
+              _.remove(allAlerts, { id: alert.parameter_type });
+            }
+
+            switch (true) {
+              case _.includes(_.toLower(alert.alert_type), 'max'):
+              case _.includes(_.toLower(alert.alert_type), 'shock'):
+              case _.includes(_.toLower(alert.alert_type), 'light'):
+                color = muiTheme.palette.error.main;
+                alertColor = muiTheme.palette.error.main;
+                title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
+                break;
+
+              case _.includes(_.toLower(alert.alert_type), 'min'):
+                if (color !== muiTheme.palette.error.main) {
+                  color = muiTheme.palette.info.main;
+                }
+                alertColor = muiTheme.palette.info.main;
+                title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
+                break;
+
+              default:
+                break;
+            }
+
+            allAlerts = [...allAlerts, { id: alert.parameter_type, color: alertColor, title }];
+          }
+        });
 
         const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_temp_fah
@@ -302,7 +301,7 @@ const Shipment = ({
               pressure: report_entry.report_pressure,
               probe,
               color,
-              alertFor,
+              allAlerts,
               date,
               time,
             };
@@ -324,7 +323,7 @@ const Shipment = ({
             pressure: report_entry.report_pressure,
             probe,
             color,
-            alertFor,
+            allAlerts,
             date,
             time,
           };
@@ -595,7 +594,7 @@ const Shipment = ({
                                 name="note"
                                 label="Note"
                                 autoComplete="note"
-                                value={ship.note}
+                                value={ship.note || ''}
                               />
                             </Grid>
 

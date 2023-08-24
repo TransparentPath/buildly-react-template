@@ -66,17 +66,17 @@ const AlertsReport = ({
       _.forEach(filteredData, (alert) => {
         let alertObj = {};
         if (alert.recovered_alert_id !== null) {
-          alertObj = { id: alert.parameter_type, color: 'green' };
+          alertObj = { id: alert.parameter_type, color: 'green', title: `${_.capitalize(alert.parameter_type)} Excursion Recovered` };
         } else if (alert) {
           switch (true) {
             case _.includes(_.toLower(alert.alert_type), 'max'):
             case _.includes(_.toLower(alert.alert_type), 'shock'):
             case _.includes(_.toLower(alert.alert_type), 'light'):
-              alertObj = { id: alert.parameter_type, color: theme.palette.error.main };
+              alertObj = { id: alert.parameter_type, color: theme.palette.error.main, title: `Maximum ${_.capitalize(alert.parameter_type)} Excursion` };
               break;
 
             case _.includes(_.toLower(alert.alert_type), 'min'):
-              alertObj = { id: alert.parameter_type, color: theme.palette.info.main };
+              alertObj = { id: alert.parameter_type, color: theme.palette.info.main, title: `Minimum ${_.capitalize(alert.parameter_type)} Excursion` };
               break;
 
             default:

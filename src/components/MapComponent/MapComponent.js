@@ -217,18 +217,15 @@ const RenderedMap = withScriptjs(
                         key={`${item.id}-${idx}`}
                         style={{ display: 'flex', alignItems: 'center' }}
                       >
-                        {getIcon({
-                          ...item,
-                          color: _.isEqual(mark.alertFor, item.id)
-                            ? mark.color
-                            : 'inherit',
-                        })}
+                        {_.find(mark.allAlerts, { id: item.id })
+                          ? getIcon(_.find(mark.allAlerts, { id: item.id }))
+                          : getIcon({ id: item.id, color: 'inherit' })}
                         {!_.isEqual(mark[item.id], null) ? (
                           <div
                             style={{
                               marginLeft: props.theme.spacing(0.5),
-                              color: _.isEqual(mark.alertFor, item.id)
-                                ? mark.color
+                              color: _.find(mark.allAlerts, { id: item.id })
+                                ? _.find(mark.allAlerts, { id: item.id }).color
                                 : 'inherit',
                             }}
                           >
@@ -238,8 +235,8 @@ const RenderedMap = withScriptjs(
                           <div
                             style={{
                               marginLeft: props.theme.spacing(0.5),
-                              color: _.isEqual(mark.alertFor, item.id)
-                                ? mark.color
+                              color: _.find(mark.allAlerts, { id: item.id })
+                                ? _.find(mark.allAlerts, { id: item.id }).color
                                 : 'inherit',
                             }}
                           >

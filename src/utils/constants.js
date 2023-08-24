@@ -561,61 +561,61 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
 ];
 
 export const getIcon = (item) => {
-  const { id, color } = item;
+  const { id, color, title } = item;
   switch (id) {
     case 'temperature':
     case 'probe':
       return (
-        <Tooltip title={_.capitalize(id)} placement="right">
+        <Tooltip title={title || _.capitalize(id)} placement="right">
           <TempIcon style={{ fill: color }} />
         </Tooltip>
       );
 
     case 'light':
       return (
-        <Tooltip title={_.capitalize(id)} placement="right">
+        <Tooltip title={title || _.capitalize(id)} placement="right">
           <LightIcon style={{ fill: color }} />
         </Tooltip>
       );
 
     case 'shock':
       return (
-        <Tooltip title={_.capitalize(id)} placement="right">
+        <Tooltip title={title || _.capitalize(id)} placement="right">
           <ShockIcon style={{ fill: color }} />
         </Tooltip>
       );
 
     case 'tilt':
       return (
-        <Tooltip title={_.capitalize(id)} placement="right">
+        <Tooltip title={title || _.capitalize(id)} placement="right">
           <TiltIcon fill={color} />
         </Tooltip>
       );
 
     case 'humidity':
       return (
-        <Tooltip title={_.capitalize(id)} placement="right">
+        <Tooltip title={title || _.capitalize(id)} placement="right">
           <HumidIcon style={{ fill: color }} />
         </Tooltip>
       );
 
     case 'battery':
       return (
-        <Tooltip title={_.capitalize(id)} placement="right">
+        <Tooltip title={title || _.capitalize(id)} placement="right">
           <BatteryIcon style={{ fill: color }} />
         </Tooltip>
       );
 
     case 'pressure':
       return (
-        <Tooltip title={_.capitalize(id)} placement="right">
+        <Tooltip title={title || _.capitalize(id)} placement="right">
           <PressureIcon fill={color} />
         </Tooltip>
       );
 
     case 'time':
       return (
-        <Tooltip title={_.capitalize(id)} placement="right">
+        <Tooltip title={title || _.capitalize(id)} placement="right">
           <AccessTimeIcon style={{ fill: color }} />
         </Tooltip>
       );
@@ -754,8 +754,7 @@ export const processReportsAndMarkers = (
         let date = '';
         let time = '';
         let color = 'green';
-        let alertFor = '';
-        let alertObj = {};
+        let allAlerts = [];
 
         const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_temp_fah
@@ -783,61 +782,55 @@ export const processReportsAndMarkers = (
           ).tz(timezone).format(`${dateFormat} ${timeFormat}`);
         }
 
-        const postAlert = _.last(
-          _.filter(alerts, (alert) => _.gte(_.toNumber(alert.report_id), report.id)),
+        const preAlerts = _.orderBy(
+          _.filter(alerts, (alert) => _.lte(_.toNumber(alert.report_id), report.id)),
+          'create_date',
         );
-        const preAlert = _.first(
-          _.filter(alerts, (alert) => _.lt(_.toNumber(alert.report_id), report.id)),
-        );
-        if (preAlert) {
-          if (!preAlert.recovered_alert_id) {
-            switch (true) {
-              case _.includes(_.toLower(preAlert.alert_type), 'max'):
-              case _.includes(_.toLower(preAlert.alert_type), 'shock'):
-              case _.includes(_.toLower(preAlert.alert_type), 'light'):
-                color = maxColor;
-                alertFor = preAlert.parameter_type;
-                alertObj = { id: alertFor, color };
-                break;
+        const recovered = _.uniq(_.without(_.map(preAlerts, 'recovered_alert_id'), null));
+        const alertsTillNow = _.filter(preAlerts, (alert) => (
+          !alert.recovered_alert_id && !_.includes(recovered, _.toString(alert.id))
+        ));
 
-              case _.includes(_.toLower(preAlert.alert_type), 'min'):
-                color = minColor;
-                alertFor = preAlert.parameter_type;
-                alertObj = { id: alertFor, color };
-                break;
-
-              default:
-                break;
-            }
-
-            if (postAlert && !!postAlert.recovered_alert_id
-            && _.isEqual(postAlert.report_id, _.toString(report.id))) {
-              color = 'green';
-              alertFor = postAlert.parameter_type;
-              alertObj = { id: alertFor, color };
-            }
-          } else if (postAlert && !postAlert.recovered_alert_id
-          && _.isEqual(postAlert.report_id, _.toString(report.id))) {
-            switch (true) {
-              case _.includes(_.toLower(preAlert.alert_type), 'max'):
-              case _.includes(_.toLower(preAlert.alert_type), 'shock'):
-              case _.includes(_.toLower(preAlert.alert_type), 'light'):
-                color = maxColor;
-                alertFor = preAlert.parameter_type;
-                alertObj = { id: alertFor, color };
-                break;
-
-              case _.includes(_.toLower(preAlert.alert_type), 'min'):
-                color = minColor;
-                alertFor = preAlert.parameter_type;
-                alertObj = { id: alertFor, color };
-                break;
-
-              default:
-                break;
-            }
+        if (_.find(preAlerts, { report_id: _.toString(report.id) })) {
+          const current = _.find(preAlerts, { report_id: _.toString(report.id) });
+          if (current.recovered_alert_id) {
+            allAlerts = [...allAlerts, { id: current.parameter_type, color, title: `${_.capitalize(current.parameter_type)} Excursion Recovered` }];
           }
         }
+
+        _.forEach(alertsTillNow, (alert) => {
+          if (alert) {
+            let alertColor = '';
+            let title = '';
+            const found = _.find(allAlerts, { id: alert.parameter_type });
+            if (found) {
+              _.remove(allAlerts, { id: alert.parameter_type });
+            }
+
+            switch (true) {
+              case _.includes(_.toLower(alert.alert_type), 'max'):
+              case _.includes(_.toLower(alert.alert_type), 'shock'):
+              case _.includes(_.toLower(alert.alert_type), 'light'):
+                color = maxColor;
+                alertColor = maxColor;
+                title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
+                break;
+
+              case _.includes(_.toLower(alert.alert_type), 'min'):
+                if (color !== maxColor) {
+                  color = minColor;
+                }
+                alertColor = minColor;
+                title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
+                break;
+
+              default:
+                break;
+            }
+
+            allAlerts = [...allAlerts, { id: alert.parameter_type, color: alertColor, title }];
+          }
+        });
 
         // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
         if (report_entry.report_location !== null
@@ -866,8 +859,7 @@ export const processReportsAndMarkers = (
               pressure: report_entry.report_pressure,
               probe,
               color,
-              alertFor,
-              alertObj,
+              allAlerts,
               date,
               time,
               timestamp: dateTime,
@@ -890,8 +882,7 @@ export const processReportsAndMarkers = (
             pressure: report_entry.report_pressure,
             probe,
             color,
-            alertFor,
-            alertObj,
+            allAlerts,
             date,
             time,
             timestamp: dateTime,
@@ -1024,7 +1015,7 @@ export const MARKER_DATA = (unitOfMeasure) => ([
 
 export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
   {
-    name: 'alertObj',
+    name: 'allAlerts',
     label: 'Alerts',
     options: {
       sort: true,
@@ -1034,10 +1025,12 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => ([
         !_.isEmpty(value)
           ? (
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div>
-                {getIcon(value)}
-                {' '}
-              </div>
+              {_.map(value, (item, idx) => (
+                <div key={`sensor-icon-${idx}-${item.id}`}>
+                  {getIcon(item)}
+                  {' '}
+                </div>
+              ))}
             </div>
           ) : ''
       ),
@@ -1599,11 +1592,18 @@ export const getShipmentFormattedRow = (
       let processedAlerts = [];
 
       _.forEach(filteredAlerts, (alert) => {
-        const alertObj = {
-          id: alert.parameter_type,
-          color: ((_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) && maxColor)
-            || (_.includes(alert.alert_type, 'min') && minColor),
-        };
+        let color = '';
+        let title = '';
+        if (_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) {
+          color = maxColor;
+          title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
+        }
+        if (_.includes(alert.alert_type, 'min')) {
+          color = minColor;
+          title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
+        }
+
+        const alertObj = { id: alert.parameter_type, color, title };
         const objFound = !!(_.find(processedAlerts, alertObj));
         if (!objFound) {
           processedAlerts = [...processedAlerts, alertObj];
