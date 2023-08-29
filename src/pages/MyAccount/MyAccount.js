@@ -162,7 +162,7 @@ const MyAccount = ({
                       </Typography>
                       <div className={classes.infoSection}>
                         <Typography variant="body2">
-                          GeoFence Alerts:
+                          Shipment Status Change Alerts:
                         </Typography>
                         <Typography variant="body1">
                           {user
@@ -195,7 +195,7 @@ const MyAccount = ({
                       </Typography>
                       <div className={classes.infoSection}>
                         <Typography variant="body2">
-                          GeoFence Alerts:
+                          Shipment Status Change Alerts:
                         </Typography>
                         <Typography variant="body1">
                           {user

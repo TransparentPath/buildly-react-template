@@ -2096,7 +2096,7 @@ const CreateShipment = ({
         title={`"${templateName || saveAsName}" already exists. Do you want to replace it?`}
         msg1="A template with the same name already exists."
         msg2="Replacing it will overwrite its current contents."
-        submitText="Rename template"
+        submitText={templateName || saveAsName ? 'Replace template' : 'Rename template'}
       />
 
       <ConfirmModal

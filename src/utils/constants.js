@@ -786,19 +786,45 @@ export const processReportsAndMarkers = (
           _.filter(alerts, (alert) => _.lte(_.toNumber(alert.report_id), report.id)),
           'create_date',
         );
-        const recovered = _.uniq(_.without(_.map(preAlerts, 'recovered_alert_id'), null));
-        const alertsTillNow = _.filter(preAlerts, (alert) => (
-          !alert.recovered_alert_id && !_.includes(recovered, _.toString(alert.id))
+        const recoveryAlerts = _.filter(preAlerts, (pa) => !!pa.recovered_alert_id);
+        const recoveredIDs = _.uniq(_.map(recoveryAlerts, 'recovered_alert_id'));
+        const recoveredTypeDateTime = _.map(recoveryAlerts, (ra) => (
+          { parameter_type: ra.parameter_type, create_date: ra.create_date }
         ));
+        const alertsTillNow = _.filter(preAlerts, (alert) => {
+          const found = _.find(recoveredTypeDateTime, (radt) => (
+            _.isEqual(radt.parameter_type, alert.parameter_type)
+            && !!_.gt(radt.create_date, alert.create_date)
+          ));
 
-        if (_.find(preAlerts, { report_id: _.toString(report.id) })) {
-          const current = _.find(preAlerts, { report_id: _.toString(report.id) });
-          if (current.recovered_alert_id) {
-            allAlerts = [...allAlerts, { id: current.parameter_type, color, title: `${_.capitalize(current.parameter_type)} Excursion Recovered` }];
-          }
+          return !found && !alert.recovered_alert_id
+            && !_.includes(recoveredIDs, _.toString(alert.id));
+        });
+
+        let uniqueAlerts = [];
+        if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'temperature' })) {
+          uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'temperature' })];
         }
+        if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'humidity' })) {
+          uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'humidity' })];
+        }
+        if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'shock' })) {
+          uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'shock' })];
+        }
+        if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'light' })) {
+          uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'light' })];
+        }
+        uniqueAlerts = _.orderBy(uniqueAlerts, 'create_date');
 
-        _.forEach(alertsTillNow, (alert) => {
+        const exactAlertID = _.filter(preAlerts, { report_id: _.toString(report.id) });
+        _.forEach(exactAlertID, (alert) => {
+          if (alert.recovered_alert_id) {
+            _.remove(uniqueAlerts, { parameter_type: alert.parameter_type });
+            allAlerts = [...allAlerts, { id: alert.parameter_type, color, title: `${_.capitalize(alert.parameter_type)} Excursion Recovered` }];
+          }
+        });
+
+        _.forEach(uniqueAlerts, (alert) => {
           if (alert) {
             let alertColor = '';
             let title = '';
