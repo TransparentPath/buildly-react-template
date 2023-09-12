@@ -138,6 +138,11 @@ const TopBar = ({
     setAnchorEl(null);
   };
 
+  const handleAboutClick = () => {
+    history.push(routes.ABOUT_PLATFORM);
+    setAnchorEl(null);
+  };
+
   const handleAdminPanelClick = () => {
     history.push(`${routes.ADMIN_PANEL}/configuration`);
     setSettingEl(null);
@@ -265,6 +270,7 @@ const TopBar = ({
             organizationData={organizationData}
             handleLogoutClick={handleLogoutClick}
             handleMyAccountClick={handleMyAccountClick}
+            handleAboutClick={handleAboutClick}
           />
         </div>
       </Toolbar>
