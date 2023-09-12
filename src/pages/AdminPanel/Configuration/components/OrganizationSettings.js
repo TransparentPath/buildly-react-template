@@ -15,6 +15,7 @@ import { makeStyles } from '@mui/styles';
 import Loader from '../../../../components/Loader/Loader';
 import { useInput } from '../../../../hooks/useInput';
 import {
+  getOrgTypes,
   updateOrganization,
 } from '../../../../redux/authuser/actions/authuser.actions';
 import { editUnitOfMeasure, getUnitOfMeasure } from '../../../../redux/items/actions/items.actions';
@@ -137,6 +138,9 @@ const OrganizationSettings = ({
     }
     if (_.isEmpty(currencies)) {
       dispatch(getCurrencies());
+    }
+    if (_.isEmpty(orgTypes)) {
+      dispatch(getOrgTypes());
     }
   }, []);
 
@@ -351,7 +355,7 @@ const OrganizationSettings = ({
                 style: { textTransform: 'uppercase' },
               }}
               {...orgAbb.bind}
-              />
+            />
           </Grid>
         </Grid>
 

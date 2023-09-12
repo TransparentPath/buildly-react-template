@@ -9,7 +9,7 @@ import {
 import { makeStyles } from '@mui/styles';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { UserContext } from '../../../context/User.context';
-import { checkForGlobalAdmin } from '../../../utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin } from '../../../utils/utilMethods';
 import CustodianType from './components/CustodianType';
 import GatewayType from './components/GatewayType';
 import ItemType from './components/ItemType';
@@ -17,7 +17,6 @@ import OrganizationType from './components/OrganizationType';
 import Product from './components/Product';
 import ProductType from './components/ProductType';
 import OrganizationSettings from './components/OrganizationSettings';
-import Forbidden from '../Forbidden';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,16 +36,30 @@ const useStyles = makeStyles((theme) => ({
 
 const Configuration = (props) => {
   const classes = useStyles();
+  const isAdmin = checkForAdmin(useContext(UserContext));
   const superAdmin = checkForGlobalAdmin(useContext(UserContext));
 
   return (
     <div>
-      {!superAdmin && (
-      <Forbidden
-        history={history}
-        location={location}
-      />
+      {isAdmin && (
+      <div className={classes.root}>
+        <Accordion className={classes.accordion}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="organization-setting-content"
+            id="organization-setting-header"
+          >
+            <Typography variant="h5">
+              Organization Settings
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <OrganizationSettings {...props} />
+          </AccordionDetails>
+        </Accordion>
+      </div>
       )}
+
       {superAdmin && (
       <div className={classes.root}>
         <Accordion className={classes.accordion}>
@@ -150,7 +163,6 @@ const Configuration = (props) => {
       </div>
       )}
     </div>
-
   );
 };
 

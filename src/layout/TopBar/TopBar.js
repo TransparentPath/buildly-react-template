@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   },
   timezone: {
     width: theme.spacing(24),
-    marginTop: theme.spacing(1.5),
+    marginTop: theme.spacing(1),
     marginLeft: theme.spacing(1.5),
     '& .MuiOutlinedInput-input': {
       padding: theme.spacing(1, 3.5, 1, 2),
@@ -245,15 +245,17 @@ const TopBar = ({
             handleAdminPanelClick={handleAdminPanelClick}
             handleUserManagementClick={handleUserManagementClick}
           />
-          <IconButton
-            aria-label="refresh-app"
-            aria-controls="menu-appbar"
-            aria-haspopup="false"
-            onClick={refreshPage}
-            color="primary"
-          >
-            <RefreshIcon fontSize="large" />
-          </IconButton>
+          {isAdmin && (
+            <IconButton
+              aria-label="refresh-app"
+              aria-controls="menu-appbar"
+              aria-haspopup="false"
+              onClick={refreshPage}
+              color="primary"
+            >
+              <RefreshIcon fontSize="large" />
+            </IconButton>
+          )}
           <IconButton
             aria-label="account of current user"
             aria-controls="menu-appbar"

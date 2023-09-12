@@ -36,6 +36,7 @@ import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.a
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
 import { getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
+import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -122,6 +123,9 @@ const Shipment = ({
   const [expandedRows, setExpandedRows] = useState([]);
 
   const organization = useContext(UserContext).organization.organization_uuid;
+  const isAdmin = checkForAdmin(useContext(UserContext))
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    || checkForGlobalAdmin(useContext(UserContext));
 
   const HeaderElements = () => (
     <Tabs
@@ -459,16 +463,21 @@ const Shipment = ({
                   sortThirdClickReset: true,
                   filter: true,
                   customBodyRenderLite: (dataIndex) => (
-                    <Typography
-                      className={classes.shipmentName}
-                      onClick={(e) => {
-                        history.push(routes.CREATE_SHIPMENT, {
-                          ship: _.omit(rows[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
-                        });
-                      }}
-                    >
-                      {rows[dataIndex].name}
-                    </Typography>
+                    isAdmin
+                      ? (
+                        <Typography
+                          className={classes.shipmentName}
+                          onClick={(e) => {
+                            history.push(routes.CREATE_SHIPMENT, {
+                              ship: _.omit(rows[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
+                            });
+                          }}
+                        >
+                          {rows[dataIndex].name}
+                        </Typography>
+                      ) : (
+                        <Typography>{rows[dataIndex].name}</Typography>
+                      )
                   ),
                 },
               },
