@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import _ from 'lodash';
 import {
@@ -11,7 +12,8 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { isMobile } from '../../utils/mediaQuery';
-import { NAVIGATION_ITEMS } from './NavBarConstants';
+import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
+import { ADMIN_NAVIGATION_ITEMS, USER_NAVIGATION_ITEMS } from './NavBarConstants';
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
@@ -55,10 +57,16 @@ const useStyles = makeStyles((theme) => ({
 /**
  * Component for the side navigation.
  */
-const NavBar = ({ navHidden, setNavHidden }) => {
+const NavBar = ({ navHidden, setNavHidden, data }) => {
   const classes = useStyles();
   const theme = useTheme();
   const isMobileDevice = isMobile();
+
+  let isAdmin = false;
+
+  if (data && data.data) {
+    isAdmin = checkForAdmin(data.data) || checkForGlobalAdmin(data.data);
+  }
 
   const handleListItemClick = (event, index, item) => {
     if (isMobileDevice) {
@@ -70,7 +78,7 @@ const NavBar = ({ navHidden, setNavHidden }) => {
     <div>
       <div className={classes.toolbar} />
       <List>
-        {_.map(NAVIGATION_ITEMS, (item, index) => (
+        {_.map(isAdmin ? ADMIN_NAVIGATION_ITEMS : USER_NAVIGATION_ITEMS, (item, index) => (
           <React.Fragment
             key={`navItem${index}${item.id}`}
           >
@@ -149,4 +157,9 @@ const NavBar = ({ navHidden, setNavHidden }) => {
   );
 };
 
-export default NavBar;
+const mapStateToProps = (state, ownProps) => ({
+  ...ownProps,
+  ...state.authReducer,
+});
+
+export default connect(mapStateToProps)(NavBar);

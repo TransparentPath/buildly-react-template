@@ -266,16 +266,36 @@ const CreateShipment = ({
   const [items, setItems] = useState((!_.isEmpty(editData) && editData.items) || []);
   const [itemRows, setItemRows] = useState([]);
 
-  const min_excursion_temp = useInput((!_.isEmpty(editData) && editData.min_excursion_temp) || 0);
-  const max_excursion_temp = useInput((!_.isEmpty(editData) && editData.max_excursion_temp) || 100);
+  const min_excursion_temp = useInput(
+    (!_.isEmpty(editData) && editData.min_excursion_temp)
+    || (organization && organization.default_min_temperature)
+    || 0,
+  );
+  const max_excursion_temp = useInput(
+    (!_.isEmpty(editData) && editData.max_excursion_temp)
+    || (organization && organization.default_max_temperature)
+    || 100,
+  );
   const min_excursion_humidity = useInput(
-    (!_.isEmpty(editData) && editData.min_excursion_humidity) || 0,
+    (!_.isEmpty(editData) && editData.min_excursion_humidity)
+    || (organization && organization.default_min_humidity)
+    || 0,
   );
   const max_excursion_humidity = useInput(
-    (!_.isEmpty(editData) && editData.max_excursion_humidity) || 100,
+    (!_.isEmpty(editData) && editData.max_excursion_humidity)
+    || (organization && organization.default_max_humidity)
+    || 100,
   );
-  const shock_threshold = useInput((!_.isEmpty(editData) && editData.shock_threshold) || 4);
-  const light_threshold = useInput((!_.isEmpty(editData) && editData.light_threshold) || 5);
+  const shock_threshold = useInput(
+    (!_.isEmpty(editData) && editData.shock_threshold)
+    || (organization && organization.default_shock)
+    || 4,
+  );
+  const light_threshold = useInput(
+    (!_.isEmpty(editData) && editData.light_threshold)
+    || (organization && organization.default_light)
+    || 5,
+  );
 
   const shipmentName = useInput((!_.isEmpty(editData) && editData.order_number) || '');
   const purchaseOrderNumber = useInput((!_.isEmpty(editData) && editData.purchase_order_number) || '');
@@ -292,8 +312,16 @@ const CreateShipment = ({
   const gatewayType = useInput((!_.isEmpty(editData) && editData.platform_name) || 'tive');
   const [availableGateways, setAvailableGateways] = useState([]);
   const gateway = useInput('');
-  const transmissionInterval = useInput((!_.isEmpty(editData) && editData.transmission_time) || 20);
-  const measurementInterval = useInput((!_.isEmpty(editData) && editData.measurement_time) || 20);
+  const transmissionInterval = useInput(
+    (!_.isEmpty(editData) && editData.transmission_time)
+    || (organization && organization.default_transmission_interval)
+    || 20,
+  );
+  const measurementInterval = useInput(
+    (!_.isEmpty(editData) && editData.measurement_time)
+    || (organization && organization.default_measurement_interval)
+    || 20,
+  );
 
   const [formError, setFormError] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);

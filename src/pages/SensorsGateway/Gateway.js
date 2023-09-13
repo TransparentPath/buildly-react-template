@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
 import _ from 'lodash';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
+import Forbidden from '../../components/Forbidden/Forbidden';
 import { UserContext } from '../../context/User.context';
 import { getContact, getCustodians } from '../../redux/custodian/actions/custodian.actions';
 import { getUnitOfMeasure } from '../../redux/items/actions/items.actions';
@@ -16,6 +17,7 @@ import {
 } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
 import { gatewayColumns, getGatewayFormattedRow } from '../../utils/constants';
+import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
 import AddGateway from './forms/AddGateway';
 
 const Gateway = ({
@@ -34,6 +36,9 @@ const Gateway = ({
   const [deleteGatewayId, setDeleteGatewayId] = useState('');
   const [rows, setRows] = useState([]);
   const organization = useContext(UserContext).organization.organization_uuid;
+  const isAdmin = checkForAdmin(useContext(UserContext))
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    || checkForGlobalAdmin(useContext(UserContext));
 
   const addPath = redirectTo
     ? `${redirectTo}/gateways`
@@ -83,31 +88,41 @@ const Gateway = ({
   };
 
   return (
-    <DataTableWrapper
-      hideAddButton
-      centerLabel
-      filename="GatewayData"
-      tableHeader="Gateway"
-      loading={loading}
-      rows={rows || []}
-      columns={gatewayColumns(
-        timezone,
-        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-          : '',
+    <>
+      {isAdmin && (
+        <DataTableWrapper
+          hideAddButton
+          centerLabel
+          filename="GatewayData"
+          tableHeader="Gateway"
+          loading={loading}
+          rows={rows || []}
+          columns={gatewayColumns(
+            timezone,
+            _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+              ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+              : '',
+          )}
+          addButtonHeading="Add Gateway"
+          onAddButtonClick={onAddButtonClick}
+          editAction={editGatewayAction}
+          deleteAction={deleteGatewayAction}
+          openDeleteModal={openDeleteModal}
+          setDeleteModal={setDeleteModal}
+          handleDeleteModal={handleDeleteModal}
+          deleteModalTitle="Are you sure you want to delete this Gateway?"
+        >
+          <Route path={`${addPath}`} component={AddGateway} />
+          <Route path={`${editPath}/:id`} component={AddGateway} />
+        </DataTableWrapper>
       )}
-      addButtonHeading="Add Gateway"
-      onAddButtonClick={onAddButtonClick}
-      editAction={editGatewayAction}
-      deleteAction={deleteGatewayAction}
-      openDeleteModal={openDeleteModal}
-      setDeleteModal={setDeleteModal}
-      handleDeleteModal={handleDeleteModal}
-      deleteModalTitle="Are you sure you want to delete this Gateway?"
-    >
-      <Route path={`${addPath}`} component={AddGateway} />
-      <Route path={`${editPath}/:id`} component={AddGateway} />
-    </DataTableWrapper>
+      {!isAdmin && (
+        <Forbidden
+          history={history}
+          location={location}
+        />
+      )}
+    </>
   );
 };
 

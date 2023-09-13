@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
 import _ from 'lodash';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
+import Forbidden from '../../components/Forbidden/Forbidden';
 import { UserContext } from '../../context/User.context';
 import {
   getCustodians,
@@ -17,6 +18,7 @@ import {
   getCustodianFormattedRow,
   getUniqueContactInfo,
 } from '../../utils/constants';
+import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
 import AddCustodians from './forms/AddCustodians';
 
 const Custodian = ({
@@ -32,6 +34,9 @@ const Custodian = ({
   const [deleteContactObjId, setDeleteContactObjId] = useState('');
   const [rows, setRows] = useState([]);
   const organization = useContext(UserContext).organization.organization_uuid;
+  const isAdmin = checkForAdmin(useContext(UserContext))
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    || checkForGlobalAdmin(useContext(UserContext));
 
   const addCustodianPath = redirectTo
     ? `${redirectTo}/custodian`
@@ -86,24 +91,34 @@ const Custodian = ({
   };
 
   return (
-    <DataTableWrapper
-      loading={loading}
-      rows={rows || []}
-      columns={custodianColumns}
-      filename="CustodianData"
-      addButtonHeading="Add Custodian"
-      onAddButtonClick={onAddButtonClick}
-      editAction={editItem}
-      deleteAction={deleteItem}
-      openDeleteModal={openDeleteModal}
-      setDeleteModal={setDeleteModal}
-      handleDeleteModal={handleDeleteModal}
-      deleteModalTitle="Are you sure you want to delete this Custodian?"
-      tableHeader="Custodians"
-    >
-      <Route path={addCustodianPath} component={AddCustodians} />
-      <Route path={`${editCustodianPath}/:id`} component={AddCustodians} />
-    </DataTableWrapper>
+    <>
+      {isAdmin && (
+        <DataTableWrapper
+          loading={loading}
+          rows={rows || []}
+          columns={custodianColumns}
+          filename="CustodianData"
+          addButtonHeading="Add Custodian"
+          onAddButtonClick={onAddButtonClick}
+          editAction={editItem}
+          deleteAction={deleteItem}
+          openDeleteModal={openDeleteModal}
+          setDeleteModal={setDeleteModal}
+          handleDeleteModal={handleDeleteModal}
+          deleteModalTitle="Are you sure you want to delete this Custodian?"
+          tableHeader="Custodians"
+        >
+          <Route path={addCustodianPath} component={AddCustodians} />
+          <Route path={`${editCustodianPath}/:id`} component={AddCustodians} />
+        </DataTableWrapper>
+      )}
+      {!isAdmin && (
+        <Forbidden
+          history={history}
+          location={location}
+        />
+      )}
+    </>
   );
 };
 

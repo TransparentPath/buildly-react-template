@@ -10,13 +10,13 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
+import Forbidden from '../../components/Forbidden/Forbidden';
 import { UserContext } from '../../context/User.context';
 import { routes } from '../../routes/routesConstants';
 import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
 import Configuration from './Configuration/Configuration';
 import ImportExport from './ImportExport/ImportExport';
 import ConsortiumSettings from './Consortium/ConsortiumSettings';
-import Forbidden from './Forbidden';
 
 const useStyles = makeStyles((theme) => ({
   heading: {
