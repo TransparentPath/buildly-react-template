@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment-timezone';
@@ -25,7 +25,7 @@ import {
 import GraphComponent from '../../components/GraphComponent/GraphComponent';
 import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
-import { UserContext } from '../../context/User.context';
+import { getUser } from '../../context/User.context';
 import {
   getCustodians,
   getContact,
@@ -121,7 +121,7 @@ const Reporting = ({
 }) => {
   const classes = useStyles();
   const theme = useTheme();
-  const organization = useContext(UserContext).organization.organization_uuid;
+  const organization = getUser().organization.organization_uuid;
   const [tileView, setTileView] = useState(true);
   const [shipmentFilter, setShipmentFilter] = useState('Active');
   const [selectedGraph, setSelectedGraph] = useState('temperature');

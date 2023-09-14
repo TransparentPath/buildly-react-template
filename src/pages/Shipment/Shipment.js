@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment-timezone';
@@ -26,7 +26,7 @@ import { makeStyles, styled } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
-import { UserContext } from '../../context/User.context';
+import { getUser } from '../../context/User.context';
 import {
   getContact,
   getCustodians,
@@ -122,10 +122,9 @@ const Shipment = ({
   const [allMarkers, setAllMarkers] = useState([]);
   const [expandedRows, setExpandedRows] = useState([]);
 
-  const organization = useContext(UserContext).organization.organization_uuid;
-  const isAdmin = checkForAdmin(useContext(UserContext))
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    || checkForGlobalAdmin(useContext(UserContext));
+  const user = getUser();
+  const organization = user.organization.organization_uuid;
+  const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
 
   const HeaderElements = () => (
     <Tabs

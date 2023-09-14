@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, {
-  useCallback, useContext, useEffect, useState,
+  useCallback, useEffect, useState,
 } from 'react';
 import { connect } from 'react-redux';
 import Geocode from 'react-geocode';
@@ -50,7 +50,7 @@ import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper
 import DatePickerComponent from '../../components/DatePicker/DatePicker';
 import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
-import { UserContext } from '../../context/User.context';
+import { getUser } from '../../context/User.context';
 import { useInput } from '../../hooks/useInput';
 import {
   deleteCustody, getContact, getCustodianType, getCustodians, getCustody,
@@ -226,7 +226,7 @@ const CreateShipment = ({
   const classes = useStyles();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
-  const { organization } = useContext(UserContext);
+  const { organization } = getUser();
 
   const editData = (location.state && location.state.ship) || {};
   const formTitle = location.state && location.state.ship ? 'Update Shipment' : 'Create Shipment';
@@ -1842,6 +1842,8 @@ const CreateShipment = ({
                 )}
                 <Typography variant="body1" component="div">
                   {gateway.value.last_known_battery_level ? `${gateway.value.last_known_battery_level}%` : 'N/A'}
+                  {' '}
+                  {gateway.value.estimated_battery_life && `(${gateway.value.estimated_battery_life})`}
                 </Typography>
               </Grid>
             )}

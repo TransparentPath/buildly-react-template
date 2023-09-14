@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -11,7 +11,7 @@ import {
 import { makeStyles } from '@mui/styles';
 import Loader from '../../components/Loader/Loader';
 import Forbidden from '../../components/Forbidden/Forbidden';
-import { UserContext } from '../../context/User.context';
+import { getUser } from '../../context/User.context';
 import { routes } from '../../routes/routesConstants';
 import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
 import Configuration from './Configuration/Configuration';
@@ -32,10 +32,8 @@ const AdminPanel = ({
   history, location, organizationData, loading,
 }) => {
   const classes = useStyles();
-  const isAdmin = checkForAdmin(useContext(UserContext))
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  || checkForGlobalAdmin(useContext(UserContext));
-  const superAdmin = checkForGlobalAdmin(useContext(UserContext));
+  const isAdmin = checkForAdmin(getUser()) || checkForGlobalAdmin(getUser());
+  const superAdmin = checkForGlobalAdmin(getUser());
 
   let subNav = [
     { label: 'Configuration', value: 'configuration' },

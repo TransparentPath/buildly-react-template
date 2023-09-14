@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import {
   Accordion,
@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
-import { UserContext } from '../../../context/User.context';
+import { getUser } from '../../../context/User.context';
 import { checkForAdmin, checkForGlobalAdmin } from '../../../utils/utilMethods';
 import CustodianType from './components/CustodianType';
 import GatewayType from './components/GatewayType';
@@ -36,8 +36,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Configuration = (props) => {
   const classes = useStyles();
-  const isAdmin = checkForAdmin(useContext(UserContext));
-  const superAdmin = checkForGlobalAdmin(useContext(UserContext));
+  const isAdmin = checkForAdmin(getUser());
+  const superAdmin = checkForGlobalAdmin(getUser());
 
   return (
     <div>

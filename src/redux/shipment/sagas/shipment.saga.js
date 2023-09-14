@@ -1,5 +1,5 @@
 import {
-  put, takeLatest, all, call,
+  put, takeLatest, all, call, delay,
 } from 'redux-saga/effects';
 import Geocode from 'react-geocode';
 import _ from 'lodash';
@@ -179,15 +179,18 @@ function* addShipment(action) {
       )));
     }
     if (updateGateway && data.data) {
+      shipmentPayload = {
+        ...shipmentPayload,
+        gateway_ids: [updateGateway.gateway_uuid],
+        gateway_imei: [_.toString(updateGateway.imei_number)],
+      };
+
+      yield delay(1000);
       yield call(
         httpService.makeRequest,
         'patch',
-        `${window.env.API_URL}${shipmentApiEndPoint}shipment/${data.data.id}`,
-        {
-          ...shipmentPayload,
-          gateway_ids: [updateGateway.gateway_uuid],
-          gateway_imei: [_.toString(updateGateway.imei_number)],
-        },
+        `${window.env.API_URL}${shipmentApiEndPoint}shipment/${data.data.id}/`,
+        shipmentPayload,
       );
       yield put(editGateway({
         ...updateGateway,
@@ -279,7 +282,7 @@ function* editShipment(action) {
     const data = yield call(
       httpService.makeRequest,
       'patch',
-      `${window.env.API_URL}${shipmentApiEndPoint}shipment/${shipmentPayload.id}`,
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment/${shipmentPayload.id}/`,
       shipmentPayload,
     );
 

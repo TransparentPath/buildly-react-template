@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
 import _ from 'lodash';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import Forbidden from '../../components/Forbidden/Forbidden';
-import { UserContext } from '../../context/User.context';
+import { getUser } from '../../context/User.context';
 import {
   getItems,
   deleteItem,
@@ -30,10 +30,10 @@ const Items = ({
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState('');
   const [rows, setRows] = useState([]);
-  const organization = useContext(UserContext).organization.organization_uuid;
-  const isAdmin = checkForAdmin(useContext(UserContext))
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    || checkForGlobalAdmin(useContext(UserContext));
+
+  const user = getUser();
+  const organization = user.organization.organization_uuid;
+  const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
 
   const addItemPath = redirectTo
     ? `${redirectTo}/items`
