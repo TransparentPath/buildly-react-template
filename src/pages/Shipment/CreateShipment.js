@@ -806,8 +806,7 @@ const CreateShipment = ({
     const startCustodyForm = {
       ...startCustody,
       custodian: [originCustodian],
-      start_of_custody_location: startingLocation,
-      end_of_custody_location: startingLocation,
+      location: startingLocation,
       has_current_custody: true,
       first_custody: true,
       last_custody: false,
@@ -819,8 +818,7 @@ const CreateShipment = ({
     const endCustodyForm = {
       ...endCustody,
       custodian: [destinationCustodian],
-      start_of_custody_location: endingLocation,
-      end_of_custody_location: endingLocation,
+      location: endingLocation,
       has_current_custody: false,
       first_custody: false,
       last_custody: true,

@@ -151,32 +151,51 @@ function* addShipment(action) {
       `${window.env.API_URL}${shipmentApiEndPoint}shipment/`,
       shipmentPayload,
     );
-    if (start_custody && data.data) {
-      yield put(addCustody({
-        ...start_custody,
-        shipment_id: data.data.shipment_uuid,
-        shipment: data.data.id,
-      }));
-    }
-    if (end_custody && data.data) {
-      yield put(addCustody({
-        ...end_custody,
-        shipment_id: data.data.shipment_uuid,
-        shipment: data.data.id,
-      }));
-    }
+    let startCustody = {
+      ...start_custody,
+      start_of_custody_location: start_custody.location,
+      end_of_custody_location: end_custody.location,
+    };
+    const endCustody = {
+      ...end_custody,
+      start_of_custody_location: end_custody.location,
+      end_of_custody_location: end_custody.location,
+    };
+
     if (!_.isEmpty(carriers) && data.data) {
       const locations = yield getLocations(_.map(carriers, 'location'));
+      const first_custody = _.first(locations);
+
+      startCustody = {
+        ...startCustody,
+        end_of_custody_location: first_custody,
+      };
 
       yield all(_.map(carriers, (carrier, index) => (
         put(addCustody({
           ...carrier,
           start_of_custody_location: locations[index],
-          end_of_custody_location: locations[index],
+          end_of_custody_location: _.lt(index + 1, _.size(locations))
+            ? locations[index + 1]
+            : end_custody.location,
           shipment_id: data.data.shipment_uuid,
           shipment: data.data.id,
         }))
       )));
+    }
+    if (startCustody && data.data) {
+      yield put(addCustody({
+        ...startCustody,
+        shipment_id: data.data.shipment_uuid,
+        shipment: data.data.id,
+      }));
+    }
+    if (endCustody && data.data) {
+      yield put(addCustody({
+        ...endCustody,
+        shipment_id: data.data.shipment_uuid,
+        shipment: data.data.id,
+      }));
     }
     if (updateGateway && data.data) {
       shipmentPayload = {
@@ -312,47 +331,77 @@ function* editShipment(action) {
         shipment_ids,
       }));
     }
-    if (start_custody && data.data) {
-      if (start_custody.id) {
-        yield put(editCustody(start_custody));
-      } else {
-        yield put(addCustody({
-          ...start_custody,
-          shipment_id: data.data.shipment_uuid,
-          shipment: data.data.id,
-        }));
-      }
-    }
-    if (end_custody && data.data) {
-      if (end_custody.id) {
-        yield put(editCustody(end_custody));
-      } else {
-        yield put(addCustody({
-          ...end_custody,
-          shipment_id: data.data.shipment_uuid,
-          shipment: data.data.id,
-        }));
-      }
-    }
+
+    let startCustody = {
+      ...start_custody,
+      start_of_custody_location: start_custody.id
+        ? start_custody.start_of_custody_location
+        : start_custody.location,
+      end_of_custody_location: start_custody.id
+        ? start_custody.end_of_custody_location
+        : end_custody.location,
+    };
+    const endCustody = {
+      ...end_custody,
+      start_of_custody_location: end_custody.id
+        ? end_custody.start_of_custody_location
+        : end_custody.location,
+      end_of_custody_location: end_custody.id
+        ? end_custody.end_of_custody_location
+        : end_custody.location,
+    };
     if (!_.isEmpty(carriers) && data.data) {
       const locations = yield getLocations(_.map(carriers, 'location'));
+      const first_custody = _.first(locations);
+
+      startCustody = {
+        ...startCustody,
+        end_of_custody_location: first_custody,
+      };
 
       yield all(_.map(carriers, (carrier, index) => {
         if (carrier.id) {
           return put(editCustody({
             ...carrier,
             start_of_custody_location: locations[index],
-            end_of_custody_location: locations[index],
+            end_of_custody_location: _.lt(index + 1, _.size(locations))
+              ? locations[index + 1]
+              : endCustody.start_of_custody_location,
           }));
         }
         return put(addCustody({
           ...carrier,
           start_of_custody_location: locations[index],
-          end_of_custody_location: locations[index],
+          end_of_custody_location: _.lt(index + 1, _.size(locations))
+            ? locations[index + 1]
+            : endCustody.start_of_custody_location,
           shipment_id: data.data.shipment_uuid,
           shipment: data.data.id,
         }));
       }));
+    }
+
+    if (startCustody && data.data) {
+      if (startCustody.id) {
+        yield put(editCustody(startCustody));
+      } else {
+        yield put(addCustody({
+          ...startCustody,
+          shipment_id: data.data.shipment_uuid,
+          shipment: data.data.id,
+        }));
+      }
+    }
+    if (endCustody && data.data) {
+      if (endCustody.id) {
+        yield put(editCustody(endCustody));
+      } else {
+        yield put(addCustody({
+          ...endCustody,
+          shipment_id: data.data.shipment_uuid,
+          shipment: data.data.id,
+        }));
+      }
     }
 
     yield [
