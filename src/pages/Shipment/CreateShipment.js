@@ -1841,7 +1841,7 @@ const CreateShipment = ({
                 <Typography variant="body1" component="div">
                   {gateway.value.last_known_battery_level ? `${gateway.value.last_known_battery_level}%` : 'N/A'}
                   {' '}
-                  {gateway.value.estimated_battery_life && `(${gateway.value.estimated_battery_life})`}
+                  {gateway.value.estimated_battery_life && `[${gateway.value.estimated_battery_life}]`}
                 </Typography>
               </Grid>
             )}
@@ -2134,7 +2134,7 @@ const CreateShipment = ({
           dispatch(deleteShipmentTemplate(template.id));
           setConfirmDelete(false);
         }}
-        title={`Are you sure you want to delete the template "${templateName}"?`}
+        title={`Are you sure you want to delete the template "${template.name}"?`}
         msg1="This action cannot be undone."
         submitText="Delete template"
       />
