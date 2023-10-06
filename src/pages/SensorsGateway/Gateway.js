@@ -53,7 +53,7 @@ const Gateway = ({
     dispatch(getGatewayType());
     dispatch(getCustodians(organization));
     dispatch(getContact(organization));
-    dispatch(getShipmentDetails(organization, 'Planned,Enroute'));
+    dispatch(getShipmentDetails(organization, 'Planned,Enroute,Arrived'));
     dispatch(getUnitOfMeasure(organization));
   }, []);
 
