@@ -341,21 +341,13 @@ function* editShipment(action) {
 
       let startCustody = {
         ...start_custody,
-        start_of_custody_location: start_custody.id
-          ? start_custody.start_of_custody_location
-          : start_custody.location,
-        end_of_custody_location: start_custody.id
-          ? start_custody.end_of_custody_location
-          : end_custody.location,
+        start_of_custody_location: start_custody.location,
+        end_of_custody_location: end_custody.location,
       };
       const endCustody = {
         ...end_custody,
-        start_of_custody_location: end_custody.id
-          ? end_custody.start_of_custody_location
-          : end_custody.location,
-        end_of_custody_location: end_custody.id
-          ? end_custody.end_of_custody_location
-          : end_custody.location,
+        start_of_custody_location: end_custody.location,
+        end_of_custody_location: end_custody.location,
       };
 
       if (!_.isEmpty(carriers)) {
