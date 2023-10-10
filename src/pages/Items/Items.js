@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
 import _ from 'lodash';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
-import Forbidden from '../../components/Forbidden/Forbidden';
 import { getUser } from '../../context/User.context';
 import {
   getItems,
@@ -15,7 +14,6 @@ import {
 } from '../../redux/items/actions/items.actions';
 import { routes } from '../../routes/routesConstants';
 import { itemColumns, getItemFormattedRow } from '../../utils/constants';
-import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
 import AddItems from './forms/AddItems';
 
 const Items = ({
@@ -33,7 +31,6 @@ const Items = ({
 
   const user = getUser();
   const organization = user.organization.organization_uuid;
-  const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
 
   const addItemPath = redirectTo
     ? `${redirectTo}/items`
@@ -86,39 +83,29 @@ const Items = ({
   };
 
   return (
-    <>
-      {isAdmin && (
-        <DataTableWrapper
-          loading={loading}
-          rows={rows || []}
-          columns={itemColumns(
-            _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
-              ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
-              : '',
-          )}
-          filename="ItemsData"
-          addButtonHeading="Add Item"
-          onAddButtonClick={onAddButtonClick}
-          editAction={editItems}
-          deleteAction={deleteItems}
-          openDeleteModal={openDeleteModal}
-          setDeleteModal={setDeleteModal}
-          handleDeleteModal={handleDeleteModal}
-          deleteModalTitle="Are you sure you want to delete this Item?"
-          tableHeader="Items"
-          centerLabel
-        >
-          <Route path={`${addItemPath}`} component={AddItems} />
-          <Route path={`${editItemPath}/:id`} component={AddItems} />
-        </DataTableWrapper>
+    <DataTableWrapper
+      loading={loading}
+      rows={rows || []}
+      columns={itemColumns(
+        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+          : '',
       )}
-      {!isAdmin && (
-        <Forbidden
-          history={history}
-          location={location}
-        />
-      )}
-    </>
+      filename="ItemsData"
+      addButtonHeading="Add Item"
+      onAddButtonClick={onAddButtonClick}
+      editAction={editItems}
+      deleteAction={deleteItems}
+      openDeleteModal={openDeleteModal}
+      setDeleteModal={setDeleteModal}
+      handleDeleteModal={handleDeleteModal}
+      deleteModalTitle="Are you sure you want to delete this Item?"
+      tableHeader="Items"
+      centerLabel
+    >
+      <Route path={`${addItemPath}`} component={AddItems} />
+      <Route path={`${editItemPath}/:id`} component={AddItems} />
+    </DataTableWrapper>
   );
 };
 

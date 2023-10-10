@@ -43,7 +43,7 @@ const Configuration = (props) => {
     <div>
       {isAdmin && (
       <div className={classes.root}>
-        <Accordion className={classes.accordion}>
+        <Accordion defaultExpanded className={classes.accordion}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="organization-setting-content"
@@ -62,7 +62,7 @@ const Configuration = (props) => {
 
       {superAdmin && (
       <div className={classes.root}>
-        <Accordion className={classes.accordion}>
+        <Accordion defaultExpanded className={classes.accordion}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="organization-setting-content"

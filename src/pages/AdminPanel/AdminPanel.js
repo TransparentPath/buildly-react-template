@@ -15,7 +15,7 @@ import { getUser } from '../../context/User.context';
 import { routes } from '../../routes/routesConstants';
 import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
 import Configuration from './Configuration/Configuration';
-import ImportExport from './ImportExport/ImportExport';
+// import ImportExport from './ImportExport/ImportExport';
 import ConsortiumSettings from './Consortium/ConsortiumSettings';
 
 const useStyles = makeStyles((theme) => ({
@@ -38,15 +38,15 @@ const AdminPanel = ({
   let subNav = [
     { label: 'Configuration', value: 'configuration' },
   ];
-  if (
-    organizationData
-    && organizationData.allow_import_export
-  ) {
-    subNav = [
-      ...subNav,
-      { label: 'Import/Export', value: 'import-export' },
-    ];
-  }
+  // if (
+  //   organizationData
+  //   && organizationData.allow_import_export
+  // ) {
+  //   subNav = [
+  //     ...subNav,
+  //     { label: 'Import/Export', value: 'import-export' },
+  //   ];
+  // }
   if (superAdmin) {
     subNav = [
       ...subNav,
@@ -92,12 +92,12 @@ const AdminPanel = ({
           </Box>
 
           <Route path={routes.CONFIGURATION} component={Configuration} />
-          {organizationData && organizationData.allow_import_export && (
+          {/* {organizationData && organizationData.allow_import_export && (
             <Route
               path={routes.IMPORT_EXPORT}
               component={ImportExport}
             />
-          )}
+          )} */}
           <Route path={routes.CONSORTIUM} component={ConsortiumSettings} />
         </Box>
       )}

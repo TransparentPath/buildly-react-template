@@ -13,20 +13,10 @@ import {
   InputAdornment,
 } from '@mui/material';
 import {
-  BatteryFull as BatteryFullIcon,
-  Battery80 as Battery80Icon,
-  Battery50 as Battery50Icon,
   BoltOutlined as ShockIcon,
-  DisabledByDefault as CancelIcon,
-  CheckBox as CheckBoxIcon,
-  CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
-  Close as CloseIcon,
   LightModeOutlined as LightIcon,
-  LocationOn as LocationIcon,
   Opacity as HumidityIcon,
   Thermostat as TemperatureIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 import Loader from '../../../../components/Loader/Loader';
@@ -376,7 +366,7 @@ const OrganizationSettings = ({
         noValidate
         onSubmit={handleSubmit}
       >
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <div className={classes.checkbox}>
             <Checkbox
               checked={allowImportExport.value}
@@ -386,7 +376,7 @@ const OrganizationSettings = ({
               Allow Import Export for this Organization?
             </Typography>
           </div>
-        </Grid>
+        </Grid> */}
         <Grid item xs={12}>
           <TextField
             variant="outlined"
@@ -595,7 +585,11 @@ const OrganizationSettings = ({
               autoComplete="default-transmission-interval"
               InputLabelProps={{ shrink: true }}
               SelectProps={{ displayEmpty: true }}
-              {...defaultTransmissionInterval.bind}
+              value={defaultTransmissionInterval.value}
+              onChange={(e) => {
+                defaultTransmissionInterval.setValue(e.target.value);
+                defaultMeasurementInterval.setValue(e.target.value);
+              }}
             >
               <MenuItem value="">Select</MenuItem>
               {!_.isEmpty(TIVE_GATEWAY_TIMES)

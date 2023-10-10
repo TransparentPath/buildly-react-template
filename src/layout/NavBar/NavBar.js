@@ -12,8 +12,7 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { isMobile } from '../../utils/mediaQuery';
-import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
-import { ADMIN_NAVIGATION_ITEMS, USER_NAVIGATION_ITEMS } from './NavBarConstants';
+import { NAVIGATION_ITEMS } from './NavBarConstants';
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
@@ -64,10 +63,6 @@ const NavBar = ({ navHidden, setNavHidden, data }) => {
 
   let isAdmin = false;
 
-  if (data && data.data) {
-    isAdmin = checkForAdmin(data.data) || checkForGlobalAdmin(data.data);
-  }
-
   const handleListItemClick = (event, index, item) => {
     if (isMobileDevice) {
       setNavHidden(!navHidden);
@@ -78,7 +73,7 @@ const NavBar = ({ navHidden, setNavHidden, data }) => {
     <div>
       <div className={classes.toolbar} />
       <List>
-        {_.map(isAdmin ? ADMIN_NAVIGATION_ITEMS : USER_NAVIGATION_ITEMS, (item, index) => (
+        {_.map(NAVIGATION_ITEMS, (item, index) => (
           <React.Fragment
             key={`navItem${index}${item.id}`}
           >

@@ -16,7 +16,7 @@ export const routes = {
   REPORTING: '/app/reporting',
   ADMIN_PANEL: '/app/admin-panel',
   CONFIGURATION: '/app/admin-panel/configuration',
-  IMPORT_EXPORT: '/app/admin-panel/import-export',
+  // IMPORT_EXPORT: '/app/admin-panel/import-export',
   CONSORTIUM: '/app/admin-panel/consortium',
   CREATE_SHIPMENT: '/app/create-shipment',
 };

@@ -1859,7 +1859,11 @@ const CreateShipment = ({
                       onBlur={(e) => handleBlur(e, 'required', transmissionInterval, 'transmission-interval')}
                       InputLabelProps={{ shrink: true }}
                       SelectProps={{ displayEmpty: true }}
-                      {...transmissionInterval.bind}
+                      value={transmissionInterval.value}
+                      onChange={(e) => {
+                        transmissionInterval.setValue(e.target.value);
+                        measurementInterval.setValue(e.target.value);
+                      }}
                     >
                       <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(TIVE_GATEWAY_TIMES)
