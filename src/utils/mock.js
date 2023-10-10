@@ -124,8 +124,10 @@ export const ADDRESS_TYPE = [
 export const SHIPMENT_STATUS = [
   { value: 'Planned', label: 'Planned' },
   { value: 'Enroute', label: 'Enroute' },
+  { value: 'Arrived', label: 'Arrived' },
   { value: 'Cancelled', label: 'Cancelled' },
   { value: 'Completed', label: 'Completed' },
+  { value: 'Damaged', label: 'Damaged' },
 ];
 
 export const TRANSPORT_MODE = [
