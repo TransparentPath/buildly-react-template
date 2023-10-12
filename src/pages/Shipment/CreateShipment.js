@@ -2170,6 +2170,7 @@ const mapStateToProps = (state, ownProps) => ({
     || state.optionsReducer.loading
     || state.itemsReducer.loading
     || state.sensorsGatewayReducer.loading
+    || state.authReducer.loading
   ),
 });
 

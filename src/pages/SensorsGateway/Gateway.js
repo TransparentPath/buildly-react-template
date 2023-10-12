@@ -126,6 +126,7 @@ const mapStateToProps = (state, ownProps) => ({
     || state.shipmentReducer.loading
     || state.custodianReducer.loading
     || state.itemsReducer.loading
+    || state.authReducer.loading
   ),
 });
 

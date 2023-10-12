@@ -112,6 +112,7 @@ const Custodian = ({
 const mapStateToProps = (state, ownProps) => ({
   ...ownProps,
   ...state.custodianReducer,
+  loading: state.custodianReducer.loading || state.authReducer.loading,
 });
 
 export default connect(mapStateToProps)(Custodian);

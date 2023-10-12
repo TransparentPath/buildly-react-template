@@ -1641,9 +1641,8 @@ export const getShipmentFormattedRow = (
     }
 
     if (!_.isEmpty(sensorReports)) {
-      editedShipment.allMarkers = _.map(
-        _.filter(sensorReports, { shipment_id: editedShipment.partner_shipment_id }),
-        (report) => ({
+      const reports = _.take(_.orderBy(_.filter(sensorReports, { shipment_id: editedShipment.partner_shipment_id }), 'create_date', 'desc'), 10);
+      editedShipment.allMarkers = _.map(reports, (report) => ({
           lat: report.report_entry.report_latitude,
           lng: report.report_entry.report_longitude,
           shipment: editedShipment,

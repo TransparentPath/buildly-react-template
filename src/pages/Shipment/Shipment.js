@@ -684,6 +684,7 @@ const mapStateToProps = (state, ownProps) => ({
     || state.itemsReducer.loading
     || state.sensorsGatewayReducer.loading
     || state.optionsReducer.loading
+    || state.authReducer.loading
   ),
 });
 

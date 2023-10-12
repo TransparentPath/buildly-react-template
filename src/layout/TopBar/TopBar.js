@@ -220,7 +220,7 @@ const TopBar = ({
               {_.map(allOrgs, (org) => (
                 <MenuItem
                   key={`organization-${org.id}`}
-                  value={org.name}
+                  value={org.name || ''}
                 >
                   {org.name}
                 </MenuItem>

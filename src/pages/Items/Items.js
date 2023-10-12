@@ -116,6 +116,7 @@ const mapStateToProps = (state, ownProps) => ({
   loading: (
     state.itemsReducer.loading
     || state.optionsReducer.loading
+    || state.authReducer.loading
   ),
 });
 export default connect(mapStateToProps)(Items);
