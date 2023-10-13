@@ -129,6 +129,10 @@ export const SHIPMENT_STATUS = [
   { value: 'Completed', label: 'Completed' },
   { value: 'Damaged', label: 'Damaged' },
 ];
+export const COMPLETED_SHIPMENT_STATUS = [
+  { value: 'Completed', label: 'Completed' },
+  { value: 'Damaged', label: 'Damaged' },
+];
 
 export const TRANSPORT_MODE = [
   { value: 'Air', label: 'Air' },

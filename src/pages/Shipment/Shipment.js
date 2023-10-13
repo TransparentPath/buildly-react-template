@@ -111,7 +111,7 @@ const Shipment = ({
   const subNav = [
     { label: 'Active', value: 'Active' },
     { label: 'Completed', value: 'Completed' },
-    { label: 'Cancelled', value: 'Cancelled' },
+    { label: 'Damaged', value: 'Damaged' },
   ];
 
   const [shipmentFilter, setShipmentFilter] = useState('Active');
@@ -381,7 +381,7 @@ const Shipment = ({
         break;
 
       case 'Completed':
-      case 'Cancelled':
+      case 'Damaged':
         shipmentStatus = filter;
         break;
     }

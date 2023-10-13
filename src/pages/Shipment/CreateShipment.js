@@ -73,7 +73,12 @@ import {
   itemColumns,
   templateColumns,
 } from '../../utils/constants';
-import { SHIPMENT_STATUS, TIVE_GATEWAY_TIMES, UOM_TEMPERATURE_CHOICES } from '../../utils/mock';
+import {
+  COMPLETED_SHIPMENT_STATUS,
+  SHIPMENT_STATUS,
+  TIVE_GATEWAY_TIMES,
+  UOM_TEMPERATURE_CHOICES,
+} from '../../utils/mock';
 import { validators } from '../../utils/validators';
 
 const useStyles = makeStyles((theme) => ({
@@ -262,6 +267,7 @@ const CreateShipment = ({
     || moment().startOf('day').hour(12).minute(0),
   );
   const status = useInput((!_.isEmpty(editData) && editData.status) || 'Planned');
+  const cannotEdit = (editData && _.includes(_.map(COMPLETED_SHIPMENT_STATUS, 'value'), editData.status));
 
   const [items, setItems] = useState((!_.isEmpty(editData) && editData.items) || []);
   const [itemRows, setItemRows] = useState([]);
@@ -918,6 +924,7 @@ const CreateShipment = ({
             onChange={(e) => handleTemplateChange(e.target.value)}
             InputLabelProps={{ shrink: true }}
             SelectProps={{ displayEmpty: true }}
+            disabled={cannotEdit}
           >
             <MenuItem value="">Select</MenuItem>
             {!_.isEmpty(templates) && _.map(templates, (tmp) => (
@@ -964,6 +971,7 @@ const CreateShipment = ({
                 onChange={(e) => setTemplateName(e.target.value)}
                 helperText="There is a 32-character limit on template names"
                 inputProps={{ maxLength: 32 }}
+                disabled={cannotEdit}
               />
             )}
           </Grid>
@@ -975,6 +983,7 @@ const CreateShipment = ({
                     border: `1px solid ${theme.palette.primary.main}`,
                     borderRadius: theme.spacing(1),
                   }}
+                  disabled={cannotEdit}
                   onClick={(e) => setTemplateName(template.name)}
                 >
                   <EditIcon htmlColor={theme.palette.primary.main} />
@@ -986,6 +995,7 @@ const CreateShipment = ({
                     borderRadius: theme.spacing(1),
                     marginLeft: theme.spacing(2),
                   }}
+                  disabled={cannotEdit}
                   onClick={(e) => setConfirmDelete(true)}
                 >
                   <DeleteIcon htmlColor={theme.palette.primary.main} />
@@ -999,6 +1009,7 @@ const CreateShipment = ({
                   type="button"
                   variant="outlined"
                   style={{ padding: `${theme.spacing(1.75)} ${theme.spacing(5)}` }}
+                  disabled={cannotEdit}
                   onClick={(e) => setTemplateName('')}
                 >
                   Cancel
@@ -1011,7 +1022,7 @@ const CreateShipment = ({
                     padding: `${theme.spacing(1.75)} ${theme.spacing(5)}`,
                     marginLeft: theme.spacing(2),
                   }}
-                  disabled={_.isEqual(template.name, templateName)}
+                  disabled={_.isEqual(template.name, templateName) || cannotEdit}
                   onClick={saveTemplateName}
                 >
                   Save
@@ -1045,6 +1056,7 @@ const CreateShipment = ({
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'start')}
                       InputLabelProps={{ shrink: true }}
                       SelectProps={{ displayEmpty: true }}
+                      disabled={cannotEdit}
                     >
                       <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(custodianList) && _.map(custodianList, (cust) => (
@@ -1118,6 +1130,7 @@ const CreateShipment = ({
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'end')}
                       InputLabelProps={{ shrink: true }}
                       SelectProps={{ displayEmpty: true }}
+                      disabled={cannotEdit}
                     >
                       <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(custodianList) && _.map(custodianList, (cust) => (
@@ -1180,6 +1193,7 @@ const CreateShipment = ({
                 <DatePickerComponent
                   label="Shipment start"
                   selectedDate={moment(departureDateTime).tz(timezone)}
+                  disabled={cannotEdit}
                   hasTime
                   handleDateChange={(value) => {
                     setDepartureDateTime(value);
@@ -1202,6 +1216,7 @@ const CreateShipment = ({
                 <DatePickerComponent
                   label="Shipment end"
                   selectedDate={moment(arrivalDateTime).tz(timezone)}
+                  disabled={cannotEdit}
                   hasTime
                   handleDateChange={setArrivalDateTime}
                   dateFormat={
@@ -1231,7 +1246,12 @@ const CreateShipment = ({
                   {...status.bind}
                 >
                   <MenuItem value="">Select</MenuItem>
-                  {_.map(SHIPMENT_STATUS, (st, idx) => (
+                  {!cannotEdit && _.map(SHIPMENT_STATUS, (st, idx) => (
+                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      {st.label}
+                    </MenuItem>
+                  ))}
+                  {cannotEdit && _.map(COMPLETED_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
@@ -1244,6 +1264,7 @@ const CreateShipment = ({
                 <Autocomplete
                   multiple
                   id="items-multiple"
+                  disabled={cannotEdit}
                   disableCloseOnSelect
                   filterSelectedOptions
                   options={_.orderBy(itemData, ['name'], ['asc'])}
@@ -1319,6 +1340,7 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    disabled={cannotEdit}
                     type="number"
                     className={classes.numberInput}
                     id="max_excursion_temp"
@@ -1349,6 +1371,7 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    disabled={cannotEdit}
                     type="number"
                     className={classes.numberInput}
                     id="min_excursion_temp"
@@ -1387,6 +1410,7 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    disabled={cannotEdit}
                     type="number"
                     className={classes.numberInput}
                     id="max_excursion_humidity"
@@ -1408,6 +1432,7 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    disabled={cannotEdit}
                     type="number"
                     className={classes.numberInput}
                     id="min_excursion_humidity"
@@ -1437,6 +1462,7 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    disabled={cannotEdit}
                     type="number"
                     className={classes.numberInput}
                     id="shock_threshold"
@@ -1458,6 +1484,7 @@ const CreateShipment = ({
                   <TextField
                     variant="outlined"
                     fullWidth
+                    disabled={cannotEdit}
                     type="number"
                     className={classes.numberInput}
                     id="light_threshold"
@@ -1479,7 +1506,7 @@ const CreateShipment = ({
                   type="button"
                   variant="contained"
                   color="primary"
-                  disabled={loading || saveTemplateDisabled()}
+                  disabled={loading || saveTemplateDisabled() || cannotEdit}
                   onClick={(e) => {
                     const name = !!_.find(itemRows, { url: items[0] })
                       && `${originAbb}-${destinationAbb}-${_.find(itemRows, { url: items[0] }).name}`;
@@ -1515,6 +1542,7 @@ const CreateShipment = ({
                 <TextField
                   variant="outlined"
                   fullWidth
+                  disabled={cannotEdit}
                   id="shipment-name"
                   name="shipment-name"
                   label="Shipment Name"
@@ -1529,6 +1557,7 @@ const CreateShipment = ({
                 <TextField
                   variant="outlined"
                   fullWidth
+                  disabled={cannotEdit}
                   id="purchase-order-number"
                   name="purchase-order-number"
                   label="Purchase Order Number"
@@ -1541,6 +1570,7 @@ const CreateShipment = ({
                 <TextField
                   variant="outlined"
                   fullWidth
+                  disabled={cannotEdit}
                   id="bill-of-lading"
                   name="bill-of-lading"
                   label="Bill Of Lading"
@@ -1597,6 +1627,7 @@ const CreateShipment = ({
                     type="button"
                     variant="contained"
                     color="primary"
+                    disabled={cannotEdit}
                     onClick={(e) => setShowNote(true)}
                   >
                     + Add a note
@@ -1609,6 +1640,7 @@ const CreateShipment = ({
                         variant="outlined"
                         multiline
                         fullWidth
+                        disabled={cannotEdit}
                         maxRows={4}
                         id="note"
                         name="note"
@@ -1621,6 +1653,7 @@ const CreateShipment = ({
                     <Grid item xs={0.5}>
                       <Button
                         type="button"
+                        disabled={cannotEdit}
                         onClick={(e) => {
                           note.setValue('');
                           setShowNote(false);
@@ -1642,6 +1675,7 @@ const CreateShipment = ({
                         id={`add-cust-${addCust.custodian_uuid}`}
                         select
                         fullWidth
+                        disabled={cannotEdit}
                         placeholder="Select..."
                         label={`Custodian ${index + 1}`}
                         value={addCust}
@@ -1695,6 +1729,7 @@ const CreateShipment = ({
                     <Grid item xs={0.5}>
                       <Button
                         type="button"
+                        disabled={cannotEdit}
                         onClick={(e) => {
                           const newList = _.filter(
                             additionalCustodians,
@@ -1717,6 +1752,7 @@ const CreateShipment = ({
                     id="additional-custodian"
                     select
                     fullWidth
+                    disabled={cannotEdit}
                     placeholder="Select..."
                     label="Add carriers/warehouses"
                     onChange={(e) => {
@@ -1746,6 +1782,7 @@ const CreateShipment = ({
                     type="button"
                     variant="contained"
                     color="primary"
+                    disabled={cannotEdit}
                     onClick={(e) => setShowAddCustodian(true)}
                   >
                     + Add carriers/warehouses
@@ -1770,8 +1807,9 @@ const CreateShipment = ({
                   label="Tracker platform"
                   onBlur={(e) => handleBlur(e, 'required', gatewayType, 'gateway-type')}
                   disabled={
-                    !_.isEmpty(editData)
-                    && !!_.find(gatewayTypeList, { name: editData.platform_name })
+                    (!_.isEmpty(editData)
+                    && !!_.find(gatewayTypeList, { name: editData.platform_name }))
+                    || cannotEdit
                   }
                   InputLabelProps={{ shrink: true }}
                   SelectProps={{ displayEmpty: true }}
@@ -1796,9 +1834,10 @@ const CreateShipment = ({
                   label="Tracker identifier"
                   onBlur={(e) => handleBlur(e, 'required', gateway, 'gateway')}
                   disabled={
-                    !_.isEmpty(editData)
+                    (!_.isEmpty(editData)
                     && !_.isEmpty(editData.gateway_imei)
-                    && !!_.find(gatewayData, { imei_number: _.toNumber(editData.gateway_imei[0]) })
+                    && !!_.find(gatewayData, { imei_number: _.toNumber(editData.gateway_imei[0]) }))
+                    || cannotEdit
                   }
                   InputLabelProps={{ shrink: true }}
                   SelectProps={{ displayEmpty: true }}
@@ -1854,6 +1893,7 @@ const CreateShipment = ({
                       id="transmission-interval"
                       select
                       fullWidth
+                      disabled={cannotEdit}
                       placeholder="Select..."
                       label="Transmission interval"
                       onBlur={(e) => handleBlur(e, 'required', transmissionInterval, 'transmission-interval')}
@@ -1879,6 +1919,7 @@ const CreateShipment = ({
                       id="measurement-interval"
                       select
                       fullWidth
+                      disabled={cannotEdit}
                       placeholder="Select..."
                       label="Measurement interval"
                       onBlur={(e) => handleBlur(e, 'required', measurementInterval, 'measurement-interval')}
@@ -1980,7 +2021,7 @@ const CreateShipment = ({
                   type="submit"
                   variant="contained"
                   fullWidth
-                  disabled={loading || submitDisabled()}
+                  disabled={loading || submitDisabled() || cannotEdit}
                   onClick={(e) => handleSubmit(e, true)}
                   className={classes.actionButtons}
                 >
