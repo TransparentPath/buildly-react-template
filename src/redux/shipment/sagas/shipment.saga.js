@@ -312,7 +312,6 @@ function* editShipment(action) {
     );
 
     if (data && data.data) {
-      console.log(data.data);
       if (updateGateway) {
         let gateway_status = '';
         let shipment_ids = [];
