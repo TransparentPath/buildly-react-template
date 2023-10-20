@@ -865,7 +865,7 @@ const CreateShipment = ({
       carriers,
     };
 
-    if (!draft) {
+    if (!draft && _.isEqual('available', updateGateway.gateway_status) && _.isEqual([], updateGateway.shipment_ids)) {
       savePayload = { ...savePayload, updateGateway };
     }
 
