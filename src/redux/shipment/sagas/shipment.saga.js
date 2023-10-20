@@ -312,6 +312,7 @@ function* editShipment(action) {
     );
 
     if (data && data.data) {
+      console.log(data.data);
       if (updateGateway) {
         let gateway_status = '';
         let shipment_ids = [];
@@ -325,7 +326,7 @@ function* editShipment(action) {
           case 'Planned':
           case 'Enroute':
             gateway_status = 'assigned';
-            shipment_ids = [data.data.partner_shipment_id];
+            shipment_ids = data.data.partner_shipment_id ? [data.data.partner_shipment_id] : [];
             break;
 
           default:
