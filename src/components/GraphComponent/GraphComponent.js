@@ -14,6 +14,7 @@ const GraphComponent = ({
   maxHumidity,
   shockThreshold,
   lightThreshold,
+  timeGap,
 }) => {
   const theme = useTheme();
   const [dataChart, setDataChart] = useState({});
@@ -32,7 +33,7 @@ const GraphComponent = ({
           type: 'time',
           time: {
             unit: 'minute',
-            unitStepSize: 1,
+            unitStepSize: timeGap,
             displayFormats: {
               minute: dateFormat,
             },

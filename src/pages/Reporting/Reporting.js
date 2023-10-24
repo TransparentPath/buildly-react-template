@@ -402,10 +402,16 @@ const Reporting = ({
                                 }}
                               >
                                 <Typography variant="body1">
-                                  {`Name: ${_.find(selectedShipment[column.name], { has_current_custody: true }).custodian_name}`}
+                                  {`Name: ${_.find(selectedShipment[column.name], { has_current_custody: true })
+                                    // eslint-disable-next-line max-len
+                                    ? _.find(selectedShipment[column.name], { has_current_custody: true }).custodian_name
+                                    : 'N/A'}`}
                                 </Typography>
                                 <Typography variant="body1">
-                                  {`Custodian Address: ${selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })].address}`}
+                                  {`Custodian Address: ${selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })]
+                                    // eslint-disable-next-line max-len
+                                    ? selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })].address
+                                    : 'N/A'}`}
                                 </Typography>
                               </div>
                             ) : (
@@ -474,6 +480,7 @@ const Reporting = ({
                 maxHumidity={allGraphs.maxHumidity}
                 shockThreshold={allGraphs.shockThreshold}
                 lightThreshold={allGraphs.lightThreshold}
+                timeGap={selectedShipment.measurement_time || 5}
               />
             )
             : (
