@@ -209,17 +209,20 @@ function* addShipment(action) {
           gateway_imei: [_.toString(updateGateway.imei_number)],
         };
 
-        yield call(
+        const shipment = yield call(
           httpService.makeRequest,
           'patch',
           `${window.env.API_URL}${shipmentApiEndPoint}shipment/${data.data.id}/`,
           shipmentPayload,
         );
-        yield put(editGateway({
-          ...updateGateway,
-          gateway_status: 'assigned',
-          shipment_ids: [data.data.partner_shipment_id],
-        }));
+
+        if (shipment && shipment.data) {
+          yield put(editGateway({
+            ...updateGateway,
+            gateway_status: 'assigned',
+            shipment_ids: shipment.data.partner_shipment_id ? [shipment.data.partner_shipment_id] : [],
+          }));
+        }
       }
 
       yield [
