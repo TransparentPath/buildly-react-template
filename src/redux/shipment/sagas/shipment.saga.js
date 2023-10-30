@@ -1,5 +1,5 @@
 import {
-  put, takeLatest, all, call, delay,
+  put, takeLatest, all, call,
 } from 'redux-saga/effects';
 import Geocode from 'react-geocode';
 import _ from 'lodash';
@@ -209,7 +209,6 @@ function* addShipment(action) {
           gateway_imei: [_.toString(updateGateway.imei_number)],
         };
 
-        yield delay(1000);
         yield call(
           httpService.makeRequest,
           'patch',
