@@ -353,6 +353,7 @@ const AddCustodians = ({
                 xs={12}
                 md={6}
                 sm={6}
+                style={{ paddingTop: theme.spacing(5) }}
               >
                 <TextField
                   variant="outlined"
@@ -366,6 +367,7 @@ const AddCustodians = ({
                     maxLength: 7,
                     style: { textTransform: 'uppercase' },
                   }}
+                  helperText="Maximum of 7 charcters"
                   {...abbrevation.bind}
                 />
                 {custodianMetaData.abbrevation

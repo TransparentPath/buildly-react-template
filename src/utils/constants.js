@@ -1643,11 +1643,10 @@ export const getShipmentFormattedRow = (
     if (!_.isEmpty(sensorReports)) {
       const reports = _.take(_.orderBy(_.filter(sensorReports, { shipment_id: editedShipment.partner_shipment_id }), 'create_date', 'desc'), 10);
       editedShipment.allMarkers = _.map(reports, (report) => ({
-          lat: report.report_entry.report_latitude,
-          lng: report.report_entry.report_longitude,
-          shipment: editedShipment,
-        }),
-      );
+        lat: report.report_entry.report_latitude,
+        lng: report.report_entry.report_longitude,
+        shipment: editedShipment,
+      }));
     }
 
     shipmentList = [...shipmentList, editedShipment];

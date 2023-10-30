@@ -441,7 +441,7 @@ const AboutPlatform = () => {
               support@transparentpath.com
             </Link>
             {` or in writing at 1700 Westlake Ave N
-            Suite 200, Seattle WA, 98109.`}
+            Suite 200, Seattle WA, USA, 98109.`}
           </Typography>
         </Grid>
       </Grid>
