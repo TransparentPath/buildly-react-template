@@ -23,9 +23,10 @@ import {
 } from '@mui/material';
 import { Assignment as NoteIcon } from '@mui/icons-material';
 import { makeStyles, styled } from '@mui/styles';
+import CustomizedSteppers from '../../components/CustomizedStepper/CustomizedStepper';
+import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
-import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import { getUser } from '../../context/User.context';
 import {
   getContact,
@@ -121,6 +122,7 @@ const Shipment = ({
   const [selectedMarker, setSelectedMarker] = useState({});
   const [allMarkers, setAllMarkers] = useState([]);
   const [expandedRows, setExpandedRows] = useState([]);
+  const [steps, setSteps] = useState([]);
 
   const user = getUser();
   const organization = user.organization.organization_uuid;
@@ -360,9 +362,41 @@ const Shipment = ({
       });
     }
 
+    const newSteps = [
+      {
+        title: shipment.origin,
+        label: 'Shipment created',
+        content: moment(shipment.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`),
+        active: true,
+        completed: true,
+      },
+      {
+        title: shipment.origin,
+        label: 'Shipment started',
+        content: shipment.actual_time_of_departure && moment(shipment.actual_time_of_departure).tz(timezone).format(`${dateFormat} ${timeFormat}`),
+        active: !!shipment.actual_time_of_departure,
+        completed: false,
+      },
+      {
+        title: shipment.destination,
+        label: 'Shipment arrived',
+        content: shipment.actual_time_of_arrival && moment(shipment.actual_time_of_arrival).tz(timezone).format(`${dateFormat} ${timeFormat}`),
+        active: !!shipment.actual_time_of_arrival,
+        completed: false,
+      },
+      {
+        title: shipment.destination,
+        label: 'Shipment completed',
+        content: moment(shipment.edit_date).tz(timezone).format(`${dateFormat} ${timeFormat}`),
+        active: shipment.status === 'Completed',
+        completed: false,
+      },
+    ];
+
     if (setExpanded) {
       const rowIndex = _.findIndex(rows, shipment);
       setExpandedRows([rowIndex]);
+      setSteps(newSteps);
     }
 
     setSelectedShipment(shipment);
@@ -387,6 +421,11 @@ const Shipment = ({
     }
 
     dispatch(getShipmentDetails(organization, shipmentStatus, true, true));
+    setSelectedShipment(null);
+    setMarkers([]);
+    setSelectedMarker({});
+    setExpandedRows([]);
+    setSteps([]);
   };
 
   return (
@@ -503,6 +542,7 @@ const Shipment = ({
                   setMarkers([]);
                   setSelectedMarker({});
                   setExpandedRows([]);
+                  setSteps([]);
                 } else {
                   processMarkers(rows[_.last(allExpanded).dataIndex], true);
                 }
@@ -512,155 +552,167 @@ const Shipment = ({
                 const ship = rows[rowMeta.rowIndex];
 
                 return (
-                  <TableRow>
-                    <TableCell colSpan={colSpan}>
-                      <Grid container spacing={2}>
-                        <Grid item xs={2}>
-                          <Grid container rowGap={1}>
-                            <Grid item xs={12}>
-                              <Typography fontWeight={700}>
-                                Order ID:
-                              </Typography>
-                              <Typography>
-                                {ship.order_number}
-                              </Typography>
-                            </Grid>
+                  <>
+                    <TableRow>
+                      <TableCell colSpan={colSpan}>
+                        <Grid container>
+                          <Grid item xs={12}>
+                            <CustomizedSteppers steps={steps} />
+                          </Grid>
+                        </Grid>
+                      </TableCell>
+                    </TableRow>
 
-                            <Grid item xs={12}>
-                              <Typography fontWeight={700}>
-                                Items:
-                              </Typography>
-                              {_.map(_.split(ship.itemNames, ','), (item, idx) => (
-                                <Typography key={`${item}-${idx}`}>{item}</Typography>
+                    <TableRow>
+                      <TableCell colSpan={colSpan}>
+                        <Grid container spacing={2}>
+                          <Grid item xs={2}>
+                            <Grid container rowGap={1}>
+                              <Grid item xs={12}>
+                                <Typography fontWeight={700}>
+                                  Order ID:
+                                </Typography>
+                                <Typography>
+                                  {ship.order_number}
+                                </Typography>
+                              </Grid>
+
+                              <Grid item xs={12}>
+                                <Typography fontWeight={700}>
+                                  Items:
+                                </Typography>
+                                {_.map(_.split(ship.itemNames, ','), (item, idx) => (
+                                  <Typography key={`${item}-${idx}`}>{item}</Typography>
+                                ))}
+                              </Grid>
+
+                              <Grid item xs={12}>
+                                <Typography fontWeight={700}>
+                                  Status:
+                                </Typography>
+                                <Typography>
+                                  {ship.type}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+
+                          <Grid item xs={2}>
+                            <Grid container rowGap={1}>
+                              {_.map(ship.carriers, (carr, idx) => (
+                                <Grid key={`${carr}-${idx}`} item xs={12}>
+                                  <Typography fontWeight={700}>
+                                    {`Logistics company ${idx + 1}:`}
+                                  </Typography>
+                                  <Typography>
+                                    {carr}
+                                  </Typography>
+                                </Grid>
                               ))}
-                            </Grid>
 
-                            <Grid item xs={12}>
-                              <Typography fontWeight={700}>
-                                Status:
-                              </Typography>
-                              <Typography>
-                                {ship.type}
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-
-                        <Grid item xs={2}>
-                          <Grid container rowGap={1}>
-                            {_.map(ship.carriers, (carr, idx) => (
-                              <Grid key={`${carr}-${idx}`} item xs={12}>
-                                <Typography fontWeight={700}>
-                                  {`Logistics company ${idx + 1}:`}
-                                </Typography>
-                                <Typography>
-                                  {carr}
-                                </Typography>
-                              </Grid>
-                            ))}
-
-                            <Grid item xs={12}>
-                              <Typography fontWeight={700}>
-                                Receiver:
-                              </Typography>
-                              <Typography>
-                                {ship.destination}
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-
-                        <Grid item xs={2}>
-                          {!_.isEmpty(markers) && markers[0] && (
-                            <Grid container rowGap={1}>
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
-                                  Last location:
+                                  Receiver:
                                 </Typography>
                                 <Typography>
-                                  {markers[0].location}
+                                  {ship.destination}
                                 </Typography>
                               </Grid>
                             </Grid>
-                          )}
-                        </Grid>
+                          </Grid>
 
-                        <Grid item xs={2}>
-                          {!_.isEmpty(markers) && markers[0] && (
+                          <Grid item xs={2}>
+                            {!_.isEmpty(markers) && markers[0] && (
+                              <Grid container rowGap={1}>
+                                <Grid item xs={12}>
+                                  <Typography fontWeight={700}>
+                                    Last location:
+                                  </Typography>
+                                  <Typography>
+                                    {markers[0].location}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            )}
+                          </Grid>
+
+                          <Grid item xs={2}>
+                            {!_.isEmpty(markers) && markers[0] && (
+                              <Grid container rowGap={1}>
+                                <Grid item xs={12}>
+                                  <Typography fontWeight={700}>
+                                    Last Reading:
+                                  </Typography>
+                                  <Typography>
+                                    {`Recorded at: ${markers[0].date} ${markers[0].time}`}
+                                  </Typography>
+                                  <Typography>
+                                    {`Temp: ${markers[0].temperature}`}
+                                  </Typography>
+                                  <Typography>
+                                    {`Humidity: ${markers[0].humidity}`}
+                                  </Typography>
+                                  <Typography>
+                                    {`Shock: ${markers[0].shock}`}
+                                  </Typography>
+                                  <Typography>
+                                    {`Light: ${markers[0].light}`}
+                                  </Typography>
+                                  <Typography>
+                                    {`Battery: ${markers[0].battery}`}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            )}
+                          </Grid>
+
+                          <Grid item xs={4} alignItems="end" justifyContent="end">
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
-                                <Typography fontWeight={700}>
-                                  Last Reading:
-                                </Typography>
-                                <Typography>
-                                  {`Recorded at: ${markers[0].date} ${markers[0].time}`}
-                                </Typography>
-                                <Typography>
-                                  {`Temp: ${markers[0].temperature}`}
-                                </Typography>
-                                <Typography>
-                                  {`Humidity: ${markers[0].humidity}`}
-                                </Typography>
-                                <Typography>
-                                  {`Shock: ${markers[0].shock}`}
-                                </Typography>
-                                <Typography>
-                                  {`Light: ${markers[0].light}`}
-                                </Typography>
-                                <Typography>
-                                  {`Battery: ${markers[0].battery}`}
-                                </Typography>
+                                <TextField
+                                  variant="outlined"
+                                  disabled
+                                  multiline
+                                  fullWidth
+                                  maxRows={4}
+                                  id="note"
+                                  name="note"
+                                  label="Note"
+                                  autoComplete="note"
+                                  value={ship.note || ''}
+                                />
                               </Grid>
-                            </Grid>
-                          )}
-                        </Grid>
 
-                        <Grid item xs={4} alignItems="end" justifyContent="end">
-                          <Grid container rowGap={1}>
-                            <Grid item xs={12}>
-                              <TextField
-                                variant="outlined"
-                                disabled
-                                multiline
-                                fullWidth
-                                maxRows={4}
-                                id="note"
-                                name="note"
-                                label="Note"
-                                autoComplete="note"
-                                value={ship.note || ''}
-                              />
-                            </Grid>
+                              <Grid item xs={12}>
+                                <FormControl
+                                  fullWidth
+                                  component="fieldset"
+                                  variant="outlined"
+                                  className={classes.attachedFiles}
+                                  style={{
+                                    padding: _.isEmpty(ship.uploaded_pdf)
+                                      ? muiTheme.spacing(3)
+                                      : muiTheme.spacing(1.5),
+                                  }}
+                                >
+                                  <FormLabel component="legend" className={classes.legend}>
+                                    Attached Files
+                                  </FormLabel>
 
-                            <Grid item xs={12}>
-                              <FormControl
-                                fullWidth
-                                component="fieldset"
-                                variant="outlined"
-                                className={classes.attachedFiles}
-                                style={{
-                                  padding: _.isEmpty(ship.uploaded_pdf)
-                                    ? muiTheme.spacing(3)
-                                    : muiTheme.spacing(1.5),
-                                }}
-                              >
-                                <FormLabel component="legend" className={classes.legend}>
-                                  Attached Files
-                                </FormLabel>
-
-                                <Stack direction="row" spacing={1}>
-                                  {!_.isEmpty(ship.uploaded_pdf)
-                                  && _.map(ship.uploaded_pdf, (file, idx) => (
-                                    <Chip key={`${file}-${idx}`} variant="outlined" label={file} />
-                                  ))}
-                                </Stack>
-                              </FormControl>
+                                  <Stack direction="row" spacing={1}>
+                                    {!_.isEmpty(ship.uploaded_pdf)
+                                    && _.map(ship.uploaded_pdf, (file, idx) => (
+                                      <Chip key={`${file}-${idx}`} variant="outlined" label={file} />
+                                    ))}
+                                  </Stack>
+                                </FormControl>
+                              </Grid>
                             </Grid>
                           </Grid>
                         </Grid>
-                      </Grid>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                    </TableRow>
+                  </>
                 );
               },
             }}
