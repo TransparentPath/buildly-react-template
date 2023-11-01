@@ -694,7 +694,7 @@ export const getShipmentOverview = (
 
     switch (_.lowerCase(shipment.status)) {
       case 'planned':
-      case 'enroute':
+      case 'en route':
       case 'arrived':
         editedShipment.type = 'Active';
         break;
@@ -1582,7 +1582,7 @@ export const getShipmentFormattedRow = (
 
     switch (_.lowerCase(shipment.status)) {
       case 'planned':
-      case 'enroute':
+      case 'en route':
       case 'arrived':
         editedShipment.type = 'Active';
         break;

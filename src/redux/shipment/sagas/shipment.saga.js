@@ -325,7 +325,7 @@ function* editShipment(action) {
             break;
 
           case 'Planned':
-          case 'Enroute':
+          case 'En Route':
             gateway_status = 'assigned';
             shipment_ids = data.data.partner_shipment_id ? [data.data.partner_shipment_id] : [];
             break;

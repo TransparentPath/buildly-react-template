@@ -123,11 +123,12 @@ export const ADDRESS_TYPE = [
 
 export const SHIPMENT_STATUS = [
   { value: 'Planned', label: 'Planned' },
-  { value: 'Enroute', label: 'Enroute' },
+  { value: 'En Route', label: 'En Route' },
   { value: 'Arrived', label: 'Arrived' },
   { value: 'Cancelled', label: 'Cancelled' },
   { value: 'Completed', label: 'Completed' },
   { value: 'Damaged', label: 'Damaged' },
+  { value: 'Battery Depleted', label: 'Battery Depleted' },
 ];
 export const COMPLETED_SHIPMENT_STATUS = [
   { value: 'Completed', label: 'Completed' },
