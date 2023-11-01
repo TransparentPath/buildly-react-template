@@ -123,6 +123,9 @@ const AddCustodians = ({
   const [contactMetaData, setProductMetaData] = useState({});
   const organization = getUser().organization.organization_uuid;
 
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
+
   useEffect(() => {
     if (_.isEmpty(unitOfMeasure)) {
       dispatch(getUnitOfMeasure(organization));
@@ -154,7 +157,6 @@ const AddCustodians = ({
       || custodianType.hasChanged()
       || city.hasChanged()
       || state.hasChanged()
-      || country.hasChanged()
       || zip.hasChanged()
       || address_1.hasChanged()
       || address_2.hasChanged()
@@ -176,6 +178,18 @@ const AddCustodians = ({
     if (location && location.state) {
       history.push(redirectTo);
     }
+  };
+
+  const acronym = (str) => {
+    let abbr = '';
+    const words = _.without(_.split(str, /\s+/), '');
+
+    _.forEach(words, (word) => { abbr += word[0]; });
+
+    if (_.size(abbrevation) > 7) {
+      abbr = _.join(_.slice(abbr, 0, 7), '');
+    }
+    return _.toUpper(abbr);
   };
 
   /**
@@ -282,9 +296,6 @@ const AddCustodians = ({
     return errorExists;
   };
 
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
-
   return (
     <div>
       {openFormModal && (
@@ -334,7 +345,7 @@ const AddCustodians = ({
                   value={company.value}
                   onChange={(e) => {
                     company.setValue(e.target.value);
-                    abbrevation.setValue(e.target.value.replace(/[^A-Z0-9]/g, ''));
+                    abbrevation.setValue(acronym(e.target.value));
                   }}
                 />
                 {custodianMetaData.name
@@ -481,7 +492,15 @@ const AddCustodians = ({
                           : ''
                       }
                       onBlur={(e) => handleBlur(e, 'required', country, 'country')}
-                      {...country.bind}
+                      value={country.value}
+                      onChange={(e) => {
+                        country.setValue(e.target.value);
+                        state.setValue('');
+                        address_1.setValue('');
+                        address_2.setValue('');
+                        city.setValue('');
+                        zip.setValue('');
+                      }}
                     >
                       <MenuItem value="">Select</MenuItem>
                       {countries && _.map(
