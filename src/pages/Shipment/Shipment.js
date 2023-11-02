@@ -36,7 +36,7 @@ import { getItems, getUnitOfMeasure } from '../../redux/items/actions/items.acti
 import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
-import { getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
+import { getIcon, getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
 import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 
 const useStyles = makeStyles((theme) => ({
@@ -198,6 +198,33 @@ const Shipment = ({
       shipment_id: shipment.partner_shipment_id,
     });
     const filteredAlerts = _.filter(allSensorAlerts, { shipment_id: shipment.partner_shipment_id });
+    let newSteps = [];
+
+    if (!_.isEmpty(filteredAlerts)) {
+      const alerts = _.filter(filteredAlerts, (alert) => !alert.recovered_alert_id);
+
+      newSteps = _.map(alerts, (a) => {
+        const error = _.includes(_.toLower(a.alert_type), 'max') || _.includes(_.toLower(a.alert_type), 'shock') || _.includes(_.toLower(a.alert_type), 'light');
+        const info = _.includes(_.toLower(a.alert_type), 'min');
+        const item = {
+          id: a.parameter_type,
+          color: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
+          title: error ? `Maximum ${_.capitalize(a.parameter_type)} Excursion` : `Minimum ${_.capitalize(a.parameter_type)} Excursion`,
+        };
+        return ({
+          id: moment(a.create_date).unix(),
+          titleIcon: getIcon(item),
+          title: a.parameter_value,
+          titleColor: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
+          label: 'Exception',
+          content: moment(a.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`),
+          active: false,
+          completed: false,
+          error,
+          info,
+        });
+      });
+    }
 
     if (!_.isEmpty(filteredReports)) {
       _.forEach(filteredReports, (report) => {
@@ -362,33 +389,55 @@ const Shipment = ({
       });
     }
 
-    const newSteps = [
+    newSteps = [
+      ...newSteps,
       {
+        id: moment(shipment.create_date).unix(),
         title: shipment.origin,
+        titleColor: 'inherit',
         label: 'Shipment created',
         content: moment(shipment.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`),
         active: true,
-        completed: true,
+        error: false,
+        info: false,
+        completed: false,
       },
       {
+        // eslint-disable-next-line max-len
+        id: moment(shipment.actual_time_of_departure || shipment.estimated_time_of_departure).unix(),
         title: shipment.origin,
+        titleColor: 'inherit',
         label: 'Shipment started',
-        content: shipment.actual_time_of_departure && moment(shipment.actual_time_of_departure).tz(timezone).format(`${dateFormat} ${timeFormat}`),
+        content: moment(shipment.actual_time_of_departure || shipment.estimated_time_of_departure).tz(timezone).format(`${dateFormat} ${timeFormat}`),
         active: !!shipment.actual_time_of_departure,
+        error: false,
+        info: false,
         completed: false,
       },
       {
+        id: moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).unix(),
         title: shipment.destination,
+        titleColor: 'inherit',
         label: 'Shipment arrived',
-        content: shipment.actual_time_of_arrival && moment(shipment.actual_time_of_arrival).tz(timezone).format(`${dateFormat} ${timeFormat}`),
+        content: moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).tz(timezone).format(`${dateFormat} ${timeFormat}`),
         active: !!shipment.actual_time_of_arrival,
+        error: false,
+        info: false,
         completed: false,
       },
       {
+        id: _.isEqual(shipment.status, 'Completed')
+          ? moment(shipment.edit_date).unix()
+          : moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).add(24, 'h').unix(),
         title: shipment.destination,
+        titleColor: 'inherit',
         label: 'Shipment completed',
-        content: moment(shipment.edit_date).tz(timezone).format(`${dateFormat} ${timeFormat}`),
-        active: shipment.status === 'Completed',
+        content: _.isEqual(shipment.status, 'Completed')
+          ? moment(shipment.edit_date).tz(timezone).format(`${dateFormat} ${timeFormat}`)
+          : moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).add(24, 'h').tz(timezone).format(`${dateFormat} ${timeFormat}`),
+        active: _.isEqual(shipment.status, 'Completed'),
+        error: false,
+        info: false,
         completed: false,
       },
     ];
@@ -396,7 +445,7 @@ const Shipment = ({
     if (setExpanded) {
       const rowIndex = _.findIndex(rows, shipment);
       setExpandedRows([rowIndex]);
-      setSteps(newSteps);
+      setSteps(_.orderBy(newSteps, 'id'));
     }
 
     setSelectedShipment(shipment);
@@ -555,11 +604,7 @@ const Shipment = ({
                   <>
                     <TableRow>
                       <TableCell colSpan={colSpan}>
-                        <Grid container>
-                          <Grid item xs={12}>
-                            <CustomizedSteppers steps={steps} />
-                          </Grid>
-                        </Grid>
+                        <CustomizedSteppers steps={steps} />
                       </TableCell>
                     </TableRow>
 
