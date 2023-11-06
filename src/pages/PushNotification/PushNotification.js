@@ -8,6 +8,7 @@ import moment from 'moment-timezone';
 import { AppContext } from '../../context/App.context';
 import { showAlert } from '../../redux/alert/actions/alert.actions';
 import { getSensorReports } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
+import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 
 const PushNotification = ({
   dispatch, loaded, user, timezone, sensorReports,
@@ -41,6 +42,7 @@ const PushNotification = ({
 
   useEffect(() => {
     const shipmentIDs = _.uniq(_.map(sensorReports, 'shipment_id')).toString();
+    const shipmentStatus = _.uniq(_.map(sensorReports, 'status')).toString();
     if (alertsSocket.current && shipmentIDs) {
       alertsSocket.current.onmessage = (message) => {
         const msg = JSON.parse(message.data);
@@ -78,7 +80,12 @@ const PushNotification = ({
           setAlerts([...alerts, ...pushAlerts]);
         }
         if (msg.command === 'reload_data') {
-          dispatch(getSensorReports(encodeURIComponent(shipmentIDs)));
+          dispatch(getShipmentDetails(
+            user.organization.organization_uuid,
+            shipmentStatus,
+            true,
+            true,
+          ));
         }
       };
     }
