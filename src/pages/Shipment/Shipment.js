@@ -230,10 +230,10 @@ const Shipment = ({
       _.forEach(filteredReports, (report) => {
         const { report_entry } = report;
         let marker = {};
-        let date = '';
-        let time = '';
         let color = muiTheme.palette.success.main;
         let allAlerts = [];
+        const date = moment(report.activation_date).tz(timezone).format(dateFormat);
+        const time = moment(report.activation_date).tz(timezone).format(timeFormat);
 
         const preAlerts = _.orderBy(
           _.filter(filteredAlerts, (alert) => _.lte(_.toNumber(alert.report_id), report.id)),
@@ -317,20 +317,6 @@ const Shipment = ({
         const probe = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_probe_fah
           : _.round(report_entry.report_probe_cel, 2).toFixed(2);
-
-        if ('report_timestamp' in report_entry) {
-          if (report_entry.report_timestamp !== null) {
-            date = moment(report_entry.report_timestamp).tz(timezone).format(dateFormat);
-            time = moment(report_entry.report_timestamp).tz(timezone).format(timeFormat);
-          }
-        } else if ('report_location' in report_entry) {
-          date = moment(
-            report_entry.report_location.timeOfPosition,
-          ).tz(timezone).format(dateFormat);
-          time = moment(
-            report_entry.report_location.timeOfPosition,
-          ).tz(timezone).format(timeFormat);
-        }
 
         // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
         if (report_entry.report_location !== null
