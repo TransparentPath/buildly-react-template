@@ -707,6 +707,14 @@ export const getShipmentOverview = (
         editedShipment.type = 'Cancelled';
         break;
 
+      case 'damaged':
+        editedShipment.type = 'Damaged';
+        break;
+
+      case 'battery depleted':
+        editedShipment.type = 'Battery Depleted';
+        break;
+
       default:
         break;
     }
@@ -1574,6 +1582,14 @@ export const getShipmentFormattedRow = (
 
       case 'cancelled':
         editedShipment.type = 'Cancelled';
+        break;
+
+      case 'damaged':
+        editedShipment.type = 'Damaged';
+        break;
+
+      case 'battery depleted':
+        editedShipment.type = 'Battery Depleted';
         break;
 
       default:

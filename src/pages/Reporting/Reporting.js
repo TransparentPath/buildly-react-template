@@ -145,15 +145,18 @@ const Reporting = ({
       dispatch(getShipmentDetails(organization, 'Planned,En Route,Arrived', true));
     } else {
       const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
-      // const cancelledShipments =
-      // _.filter(shipmentData, (shipment) => shipment.type === 'Cancelled');
+      const damagedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Damaged');
+      const depletedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Battery Depleted');
 
       if (_.isEmpty(completedShipments) && shipmentFilter === 'Completed') {
         dispatch(getShipmentDetails(organization, 'Completed', true));
       }
-      // if (_.isEmpty(cancelledShipments) && shipmentFilter === 'Completed') {
-      //   dispatch(getShipmentDetails(organization, 'Cancelled', true));
-      // }
+      if (_.isEmpty(damagedShipments) && shipmentFilter === 'Damaged') {
+        dispatch(getShipmentDetails(organization, 'Damaged', true));
+      }
+      if (_.isEmpty(depletedShipments) && shipmentFilter === 'Battery Depleted') {
+        dispatch(getShipmentDetails(organization, 'Battery Depleted', true));
+      }
     }
     if (_.isEmpty(custodianData)) {
       dispatch(getCustodians(organization));
@@ -320,6 +323,24 @@ const Reporting = ({
                 onClick={(event, value) => makeFilterSelection(value)}
               >
                 Completed
+
+              </ToggleButton>
+              <ToggleButton
+                value="Damaged"
+                size="medium"
+                selected={shipmentFilter === 'Damaged'}
+                onClick={(event, value) => makeFilterSelection(value)}
+              >
+                Damaged
+
+              </ToggleButton>
+              <ToggleButton
+                value="Battery Depleted"
+                size="medium"
+                selected={shipmentFilter === 'Battery Depleted'}
+                onClick={(event, value) => makeFilterSelection(value)}
+              >
+                Battery Depleted
 
               </ToggleButton>
             </ToggleButtonGroup>

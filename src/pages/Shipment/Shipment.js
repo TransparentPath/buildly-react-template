@@ -113,6 +113,7 @@ const Shipment = ({
     { label: 'Active', value: 'Active' },
     { label: 'Completed', value: 'Completed' },
     { label: 'Damaged', value: 'Damaged' },
+    { label: 'Battery Depleted', value: 'Battery Depleted' },
   ];
 
   const [shipmentFilter, setShipmentFilter] = useState('Active');
@@ -451,6 +452,7 @@ const Shipment = ({
 
       case 'Completed':
       case 'Damaged':
+      case 'Battery Depleted':
         shipmentStatus = filter;
         break;
     }
