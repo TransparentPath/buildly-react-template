@@ -1882,8 +1882,6 @@ const CreateShipment = ({
                 )}
                 <Typography variant="body1" component="div">
                   {gateway.value.last_known_battery_level ? `${gateway.value.last_known_battery_level}%` : 'N/A'}
-                  {' '}
-                  {gateway.value.estimated_battery_life && `[${gateway.value.estimated_battery_life}]`}
                 </Typography>
               </Grid>
             )}

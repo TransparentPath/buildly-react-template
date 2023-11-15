@@ -112,8 +112,8 @@ const Shipment = ({
   const subNav = [
     { label: 'Active', value: 'Active' },
     { label: 'Completed', value: 'Completed' },
-    { label: 'Damaged', value: 'Damaged' },
     { label: 'Battery Depleted', value: 'Battery Depleted' },
+    { label: 'Damaged', value: 'Damaged' },
   ];
 
   const [shipmentFilter, setShipmentFilter] = useState('Active');
