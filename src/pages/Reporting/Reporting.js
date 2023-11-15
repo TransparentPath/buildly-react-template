@@ -137,12 +137,12 @@ const Reporting = ({
     dispatch(getCustodians(organization));
     dispatch(getContact(organization));
     dispatch(getGateways(organization));
-    dispatch(getShipmentDetails(organization, 'Planned,En Route,Arrived', true));
+    dispatch(getShipmentDetails(organization, 'Planned,En route,Arrived', true));
   }, []);
 
   useEffect(() => {
     if (shipmentFilter === 'Active') {
-      dispatch(getShipmentDetails(organization, 'Planned,En Route,Arrived', true));
+      dispatch(getShipmentDetails(organization, 'Planned,En route,Arrived', true));
     } else {
       const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
       const damagedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Damaged');

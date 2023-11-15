@@ -157,7 +157,7 @@ const Shipment = ({
   }));
 
   useEffect(() => {
-    dispatch(getShipmentDetails(organization, 'Planned,En Route,Arrived', true, true));
+    dispatch(getShipmentDetails(organization, 'Planned,En route,Arrived', true, true));
     dispatch(getCustodians(organization));
     dispatch(getContact(organization));
     dispatch(getItems(organization));
@@ -447,7 +447,7 @@ const Shipment = ({
     switch (filter) {
       case 'Active':
       default:
-        shipmentStatus = 'Planned,En Route,Arrived';
+        shipmentStatus = 'Planned,En route,Arrived';
         break;
 
       case 'Completed':
