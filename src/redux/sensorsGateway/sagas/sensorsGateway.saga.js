@@ -5,6 +5,9 @@ import _ from 'lodash';
 import { httpService } from '../../../modules/http/http.service';
 import { showAlert } from '../../alert/actions/alert.actions';
 import {
+  GET_ALL_GATEWAYS,
+  GET_ALL_GATEWAYS_SUCCESS,
+  GET_ALL_GATEWAYS_FAILURE,
   GET_GATEWAYS,
   GET_GATEWAYS_SUCCESS,
   GET_GATEWAYS_FAILURE,
@@ -41,6 +44,28 @@ import {
 } from '../actions/sensorsGateway.actions';
 
 const sensorApiEndPoint = 'sensors/';
+
+function* getAllGatewayList(payload) {
+  try {
+    const data = yield call(
+      httpService.makeRequest,
+      'get',
+      `${window.env.API_URL}${sensorApiEndPoint}gateway/`,
+    );
+    yield put({ type: GET_ALL_GATEWAYS_SUCCESS, data: _.filter(data.data, (gateway) => !_.includes(gateway.name, 'ICLP')) });
+  } catch (error) {
+    yield [
+      yield put(
+        showAlert({
+          type: 'error',
+          open: true,
+          message: 'Couldn\'t load all gateways due to some error!',
+        }),
+      ),
+      yield put({ type: GET_ALL_GATEWAYS_FAILURE, error }),
+    ];
+  }
+}
 
 function* getGatewayList(payload) {
   try {
@@ -360,6 +385,10 @@ function* getSensorReportList(payload) {
   }
 }
 
+function* watchGetAllGateway() {
+  yield takeLatest(GET_ALL_GATEWAYS, getAllGatewayList);
+}
+
 function* watchGetGateway() {
   yield takeLatest(GET_GATEWAYS, getGatewayList);
 }
@@ -406,6 +435,7 @@ function* watchGetSensorReportList() {
 
 export default function* sensorsGatewaySaga() {
   yield all([
+    watchGetAllGateway(),
     watchGetGateway(),
     watchGetNewGateways(),
     watchAddGateway(),

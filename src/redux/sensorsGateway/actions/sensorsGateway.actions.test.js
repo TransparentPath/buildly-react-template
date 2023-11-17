@@ -1,5 +1,13 @@
 import * as actions from './sensorsGateway.actions';
 
+// Test Get All Gateways
+describe('Get All Gateways action', () => {
+  it('should create an action to get all Gateways', () => {
+    const expectedAction = { type: actions.GET_ALL_GATEWAYS };
+    expect(actions.getAllGateways()).toEqual(expectedAction);
+  });
+});
+
 // Test Get Gateways
 describe('Get Gateways action', () => {
   it('should create an action to get Gateways', () => {

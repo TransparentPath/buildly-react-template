@@ -1,4 +1,8 @@
 // Gateway actions
+export const GET_ALL_GATEWAYS = 'SENSORS/GET_ALL_GATEWAYS';
+export const GET_ALL_GATEWAYS_SUCCESS = 'SENSORS/GET_ALL_GATEWAYS_SUCCESS';
+export const GET_ALL_GATEWAYS_FAILURE = 'SENSORS/GET_ALL_GATEWAYS_FAILURE';
+
 export const GET_GATEWAYS = 'SENSORS/GET_GATEWAYS';
 export const GET_GATEWAYS_SUCCESS = 'SENSORS/GET_GATEWAYS_SUCCESS';
 export const GET_GATEWAYS_FAILURE = 'SENSORS/GET_GATEWAYS_FAILURE';
@@ -44,6 +48,11 @@ export const GET_SENSOR_REPORTS_SUCCESS = 'SENSORS/GET_SENSOR_REPORTS_SUCCESS';
 export const GET_SENSOR_REPORTS_FAILURE = 'SENSORS/GET_SENSOR_REPORTS_FAILURE';
 
 // Gateway action functions
+/**
+ *  Get All Gateway List
+ */
+export const getAllGateways = () => ({ type: GET_ALL_GATEWAYS });
+
 /**
  *  Get Gateway List
  * @param {String}organization_uuid

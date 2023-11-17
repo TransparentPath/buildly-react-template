@@ -33,7 +33,7 @@ import {
   getCustodians,
 } from '../../redux/custodian/actions/custodian.actions';
 import { getItems, getUnitOfMeasure } from '../../redux/items/actions/items.actions';
-import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
+import { getAllGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
 import { getIcon, getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
@@ -159,8 +159,8 @@ const Shipment = ({
     dispatch(getCustodians(organization));
     dispatch(getContact(organization));
     dispatch(getItems(organization));
-    dispatch(getGateways(organization));
     dispatch(getUnitOfMeasure(organization));
+    dispatch(getAllGateways());
   }, []);
 
   useEffect(() => {

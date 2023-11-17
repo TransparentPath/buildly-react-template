@@ -33,7 +33,7 @@ import {
 import {
   getUnitOfMeasure,
 } from '../../redux/items/actions/items.actions';
-import { getGateways, getSensorReports } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
+import { getAllGateways, getSensorReports } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import {
   getShipmentDetails,
 } from '../../redux/shipment/actions/shipment.actions';
@@ -136,8 +136,8 @@ const Reporting = ({
     dispatch(getUnitOfMeasure(organization));
     dispatch(getCustodians(organization));
     dispatch(getContact(organization));
-    dispatch(getGateways(organization));
     dispatch(getShipmentDetails(organization, 'Planned,En route,Arrived', true));
+    dispatch(getAllGateways());
   }, []);
 
   useEffect(() => {
