@@ -74,11 +74,13 @@ import {
   templateColumns,
 } from '../../utils/constants';
 import {
-  COMPLETED_SHIPMENT_STATUS,
-  SHIPMENT_STATUS,
+  ADMIN_SHIPMENT_STATUS,
+  CREATE_SHIPMENT_STATUS,
+  USER_SHIPMENT_STATUS,
   TIVE_GATEWAY_TIMES,
   UOM_TEMPERATURE_CHOICES,
 } from '../../utils/mock';
+import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
 import { validators } from '../../utils/validators';
 
 const useStyles = makeStyles((theme) => ({
@@ -231,7 +233,9 @@ const CreateShipment = ({
   const classes = useStyles();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
-  const { organization } = getUser();
+  const user = getUser();
+  const organization = user && user.organization;
+  const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
 
   const editData = (location.state && location.state.ship) || {};
   const formTitle = location.state && location.state.ship ? 'Update Shipment' : 'Create Shipment';
@@ -267,7 +271,7 @@ const CreateShipment = ({
     || moment().startOf('day').hour(12).minute(0),
   );
   const status = useInput((!_.isEmpty(editData) && editData.status) || 'Planned');
-  const cannotEdit = (editData && _.includes(_.map(COMPLETED_SHIPMENT_STATUS, 'value'), editData.status));
+  const cannotEdit = !_.isEmpty(editData) && _.includes(_.map(ADMIN_SHIPMENT_STATUS, 'value'), editData.status);
 
   const [items, setItems] = useState((!_.isEmpty(editData) && editData.items) || []);
   const [itemRows, setItemRows] = useState([]);
@@ -337,15 +341,17 @@ const CreateShipment = ({
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
   useEffect(() => {
-    dispatch(getShipmentTemplates(organization.organization_uuid));
-    dispatch(getCustodians(organization.organization_uuid));
-    dispatch(getCustodianType());
-    dispatch(getContact(organization.organization_uuid));
-    dispatch(getUnitOfMeasure(organization.organization_uuid));
-    dispatch(getItems(organization.organization_uuid));
-    dispatch(getItemType(organization.organization_uuid));
-    dispatch(getGateways(organization.organization_uuid));
-    dispatch(getGatewayType());
+    if (organization) {
+      dispatch(getShipmentTemplates(organization.organization_uuid));
+      dispatch(getCustodians(organization.organization_uuid));
+      dispatch(getCustodianType());
+      dispatch(getContact(organization.organization_uuid));
+      dispatch(getUnitOfMeasure(organization.organization_uuid));
+      dispatch(getItems(organization.organization_uuid));
+      dispatch(getItemType(organization.organization_uuid));
+      dispatch(getGateways(organization.organization_uuid));
+      dispatch(getGatewayType());
+    }
 
     if (!_.isEmpty(editData)) {
       const encodedUUID = encodeURIComponent(editData.shipment_uuid);
@@ -1110,7 +1116,7 @@ const CreateShipment = ({
                         {
                           lat: startingLocation && _.includes(startingLocation, ',') && parseFloat(startingLocation.split(',')[0]),
                           lng: startingLocation && _.includes(startingLocation, ',') && parseFloat(startingLocation.split(',')[1]),
-                          radius: organization.radius,
+                          radius: (organization && organization.radius) || 0,
                         },
                       ]}
                     />
@@ -1184,7 +1190,7 @@ const CreateShipment = ({
                         {
                           lat: endingLocation && _.includes(endingLocation, ',') && parseFloat(endingLocation.split(',')[0]),
                           lng: endingLocation && _.includes(endingLocation, ',') && parseFloat(endingLocation.split(',')[1]),
-                          radius: organization.radius,
+                          radius: (organization && organization.radius) || 0,
                         },
                       ]}
                     />
@@ -1247,18 +1253,32 @@ const CreateShipment = ({
                   InputLabelProps={{ shrink: true }}
                   SelectProps={{ displayEmpty: true }}
                   {...status.bind}
+                  disabled={cannotEdit && !isAdmin}
                 >
                   <MenuItem value="">Select</MenuItem>
-                  {!cannotEdit && _.map(SHIPMENT_STATUS, (st, idx) => (
+                  {_.isEmpty(editData) && _.map(CREATE_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
-                  {cannotEdit && _.map(COMPLETED_SHIPMENT_STATUS, (st, idx) => (
+                  {!cannotEdit && !isAdmin && _.map(USER_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
+                  {cannotEdit && isAdmin && _.map(ADMIN_SHIPMENT_STATUS, (st, idx) => (
+                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      {st.label}
+                    </MenuItem>
+                  ))}
+                  {((!cannotEdit && isAdmin) || (cannotEdit && !isAdmin)) && _.map(
+                    [...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS],
+                    (st, idx) => (
+                      <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                        {st.label}
+                      </MenuItem>
+                    ),
+                  )}
                 </TextField>
               </Grid>
               <Grid item xs={1} className={classes.outerAsterisk}>*</Grid>

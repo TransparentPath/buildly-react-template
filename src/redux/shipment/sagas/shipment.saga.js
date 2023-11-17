@@ -220,7 +220,9 @@ function* addShipment(action) {
           yield put(editGateway({
             ...updateGateway,
             gateway_status: 'assigned',
-            shipment_ids: shipment.data.partner_shipment_id ? [shipment.data.partner_shipment_id] : [],
+            shipment_ids: shipment.data.partner_shipment_id
+              ? [shipment.data.partner_shipment_id]
+              : [],
           }));
         }
       }
@@ -320,6 +322,8 @@ function* editShipment(action) {
         switch (data.data.status) {
           case 'Completed':
           case 'Cancelled':
+          case 'Damaged':
+          case 'Battery Depleted':
             gateway_status = 'unavailable';
             shipment_ids = [];
             break;

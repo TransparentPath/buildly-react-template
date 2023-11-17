@@ -121,18 +121,22 @@ export const ADDRESS_TYPE = [
   'mailing',
 ];
 
-export const SHIPMENT_STATUS = [
+export const CREATE_SHIPMENT_STATUS = [
+  { value: 'Planned', label: 'Planned' },
+  { value: 'En route', label: 'En route' },
+  { value: 'Arrived', label: 'Arrived' },
+];
+export const USER_SHIPMENT_STATUS = [
   { value: 'Planned', label: 'Planned' },
   { value: 'En route', label: 'En route' },
   { value: 'Arrived', label: 'Arrived' },
   { value: 'Cancelled', label: 'Cancelled' },
+];
+export const ADMIN_SHIPMENT_STATUS = [
+  { value: 'Cancelled', label: 'Cancelled' },
   { value: 'Completed', label: 'Completed' },
   { value: 'Damaged', label: 'Damaged' },
   { value: 'Battery Depleted', label: 'Battery Depleted' },
-];
-export const COMPLETED_SHIPMENT_STATUS = [
-  { value: 'Completed', label: 'Completed' },
-  { value: 'Damaged', label: 'Damaged' },
 ];
 
 export const TRANSPORT_MODE = [

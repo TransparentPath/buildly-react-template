@@ -43,7 +43,7 @@ const PushNotification = ({
   useEffect(() => {
     const shipmentIDs = _.uniq(_.map(shipmentData, 'partner_shipment_id')).toString();
     const shipmentStatus = _.uniq(_.map(shipmentData, 'status')).toString();
-    console.log(shipmentIDs, shipmentStatus);
+
     if (alertsSocket.current && shipmentIDs) {
       alertsSocket.current.onmessage = (message) => {
         const msg = JSON.parse(message.data);

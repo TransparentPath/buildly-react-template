@@ -37,7 +37,6 @@ import { getGateways } from '../../redux/sensorsGateway/actions/sensorsGateway.a
 import { getShipmentDetails } from '../../redux/shipment/actions/shipment.actions';
 import { routes } from '../../routes/routesConstants';
 import { getIcon, getShipmentFormattedRow, shipmentColumns } from '../../utils/constants';
-import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -127,7 +126,6 @@ const Shipment = ({
 
   const user = getUser();
   const organization = user.organization.organization_uuid;
-  const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
 
   const HeaderElements = () => (
     <Tabs
@@ -538,21 +536,16 @@ const Shipment = ({
                   sortThirdClickReset: true,
                   filter: true,
                   customBodyRenderLite: (dataIndex) => (
-                    isAdmin
-                      ? (
-                        <Typography
-                          className={classes.shipmentName}
-                          onClick={(e) => {
-                            history.push(routes.CREATE_SHIPMENT, {
-                              ship: _.omit(rows[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
-                            });
-                          }}
-                        >
-                          {rows[dataIndex].name}
-                        </Typography>
-                      ) : (
-                        <Typography>{rows[dataIndex].name}</Typography>
-                      )
+                    <Typography
+                      className={classes.shipmentName}
+                      onClick={(e) => {
+                        history.push(routes.CREATE_SHIPMENT, {
+                          ship: _.omit(rows[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
+                        });
+                      }}
+                    >
+                      {rows[dataIndex].name}
+                    </Typography>
                   ),
                 },
               },
