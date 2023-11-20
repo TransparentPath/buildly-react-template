@@ -1266,19 +1266,12 @@ const CreateShipment = ({
                       {st.label}
                     </MenuItem>
                   ))}
-                  {cannotEdit && isAdmin && _.map(ADMIN_SHIPMENT_STATUS, (st, idx) => (
+                  {((cannotEdit && isAdmin) || (!_.isEmpty(editData) && !cannotEdit && isAdmin))
+                  && _.map([...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS], (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
-                  {((!cannotEdit && isAdmin) || (cannotEdit && !isAdmin)) && _.map(
-                    [...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS],
-                    (st, idx) => (
-                      <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                        {st.label}
-                      </MenuItem>
-                    ),
-                  )}
                 </TextField>
               </Grid>
               <Grid item xs={1} className={classes.outerAsterisk}>*</Grid>
