@@ -262,6 +262,8 @@ const CreateShipment = ({
   const [endingAddress, setEndingAddress] = useState('');
   const [endingLocation, setEndingLocation] = useState('');
 
+  const [storageOnly, setStorageOnly] = useState(false);
+
   const [departureDateTime, setDepartureDateTime] = useState(
     (!_.isEmpty(editData) && editData.estimated_time_of_departure)
     || moment().startOf('day').hour(12).minute(0),
@@ -380,6 +382,10 @@ const CreateShipment = ({
         setDestinationAbb(getAbbreviation(destination.abbrevation));
         setEndingAddress(destination.location);
         getLatLong(destination.location, 'end');
+      }
+
+      if (origin && destination) {
+        setStorageOnly(_.isEqual(origin.url, destination.url) && _.isEqual(destination.type, 'Warehouse'));
       }
 
       if (carriers) {
@@ -570,16 +576,25 @@ const CreateShipment = ({
       case 'custodian':
         if (value) {
           const selectedCustodian = _.find(custodianList, { url: value });
+          const storage = _.isEqual(selectedCustodian.type, 'Warehouse');
           if (custody === 'start') {
             setOriginCustodian(value);
             setOriginAbb(getAbbreviation(selectedCustodian.abbrevation));
             setStartingAddress(selectedCustodian.location);
             getLatLong(selectedCustodian.location, 'start');
+
+            if (storage && destinationCustodian) {
+              setStorageOnly(storage && _.isEqual(destinationCustodian, value));
+            }
           } else if (custody === 'end') {
             setDestinationCustodian(value);
             setDestinationAbb(getAbbreviation(selectedCustodian.abbrevation));
             setEndingAddress(selectedCustodian.location);
             getLatLong(selectedCustodian.location, 'end');
+
+            if (storage && originCustodian) {
+              setStorageOnly(storage && _.isEqual(originCustodian, value));
+            }
           }
         }
         break;
@@ -873,7 +888,7 @@ const CreateShipment = ({
 
     if (!draft && (
       (_.isEqual('available', updateGateway.gateway_status) && _.isEqual([], updateGateway.shipment_ids))
-      || _.includes(['Completed', 'Cancelled', 'Damaged'], status.value)
+      || _.includes(_.map(ADMIN_SHIPMENT_STATUS, 'value'), status.value)
     )) {
       savePayload = { ...savePayload, updateGateway };
     }
@@ -903,7 +918,18 @@ const CreateShipment = ({
         deleteFiles,
       };
     }
+
+    if (storageOnly && _.includes(_.map(CREATE_SHIPMENT_STATUS, 'value'), status.value)) {
+      savePayload = {
+        ...savePayload,
+        shipment: {
+          ...savePayload.shipment,
+          status: 'Arrived',
+        },
+      };
+    }
     setFormSubmitted(true);
+
     if (_.isEmpty(editData)) {
       dispatch(addShipment(savePayload, history, routes.SHIPMENT));
     } else {
