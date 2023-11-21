@@ -121,3 +121,12 @@ describe('Get Sensor Reports action', () => {
     expect(actions.getSensorReports(partnerShipmentIds)).toEqual(expectedAction);
   });
 });
+
+// Test Configure Gateway
+describe('Configure Gateway action', () => {
+  it('should create an action to configure Gateway type', () => {
+    const payload = { gateway: 'TIVE-J318667' };
+    const expectedAction = { type: actions.CONFIGURE_GATEWAY, payload };
+    expect(actions.configureGateway(payload)).toEqual(expectedAction);
+  });
+});

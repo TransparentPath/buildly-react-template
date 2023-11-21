@@ -41,6 +41,7 @@ import {
   GET_SENSOR_REPORTS,
   GET_SENSOR_REPORTS_SUCCESS,
   GET_SENSOR_REPORTS_FAILURE,
+  CONFIGURE_GATEWAY,
 } from '../actions/sensorsGateway.actions';
 
 const sensorApiEndPoint = 'sensors/';
@@ -385,6 +386,20 @@ function* getSensorReportList(payload) {
   }
 }
 
+function* configureGateway(action) {
+  const { payload } = action;
+  try {
+    yield call(
+      httpService.makeRequest,
+      'post',
+      `${window.env.API_URL}${sensorApiEndPoint}gateway/configure_gateway/`,
+      payload,
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 function* watchGetAllGateway() {
   yield takeLatest(GET_ALL_GATEWAYS, getAllGatewayList);
 }
@@ -433,6 +448,10 @@ function* watchGetSensorReportList() {
   yield takeLatest(GET_SENSOR_REPORTS, getSensorReportList);
 }
 
+function* watchConfigureGateway() {
+  yield takeLatest(CONFIGURE_GATEWAY, configureGateway);
+}
+
 export default function* sensorsGatewaySaga() {
   yield all([
     watchGetAllGateway(),
@@ -447,5 +466,6 @@ export default function* sensorsGatewaySaga() {
     watchDeleteGatewayType(),
     watchGetAllSensorAlerts(),
     watchGetSensorReportList(),
+    watchConfigureGateway(),
   ]);
 }

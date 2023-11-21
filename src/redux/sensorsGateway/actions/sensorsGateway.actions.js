@@ -47,6 +47,8 @@ export const GET_SENSOR_REPORTS = 'SENSORS/GET_SENSOR_REPORTS';
 export const GET_SENSOR_REPORTS_SUCCESS = 'SENSORS/GET_SENSOR_REPORTS_SUCCESS';
 export const GET_SENSOR_REPORTS_FAILURE = 'SENSORS/GET_SENSOR_REPORTS_FAILURE';
 
+export const CONFIGURE_GATEWAY = 'SENSORS/CONFIGURE_GATEWAY';
+
 // Gateway action functions
 /**
  *  Get All Gateway List
@@ -136,3 +138,9 @@ export const getSensorReports = (partnerShipmentIds) => ({
   type: GET_SENSOR_REPORTS,
   partnerShipmentIds,
 });
+
+/**
+ * Configure Gateway
+ * @param {Object} payload
+ */
+export const configureGateway = (payload) => ({ type: CONFIGURE_GATEWAY, payload });

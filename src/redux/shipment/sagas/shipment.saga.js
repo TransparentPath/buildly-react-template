@@ -6,7 +6,9 @@ import _ from 'lodash';
 import { httpService } from '../../../modules/http/http.service';
 import { showAlert } from '../../alert/actions/alert.actions';
 import { addCustody, editCustody, getCustody } from '../../custodian/actions/custodian.actions';
-import { editGateway, getAllSensorAlerts, getSensorReports } from '../../sensorsGateway/actions/sensorsGateway.actions';
+import {
+  editGateway, configureGateway, getAllSensorAlerts, getSensorReports,
+} from '../../sensorsGateway/actions/sensorsGateway.actions';
 import {
   GET_SHIPMENTS,
   GET_SHIPMENTS_SUCCESS,
@@ -217,13 +219,21 @@ function* addShipment(action) {
         );
 
         if (shipment && shipment.data) {
-          yield put(editGateway({
-            ...updateGateway,
-            gateway_status: 'assigned',
-            shipment_ids: shipment.data.partner_shipment_id
-              ? [shipment.data.partner_shipment_id]
-              : [],
-          }));
+          yield [
+            yield put(editGateway({
+              ...updateGateway,
+              gateway_status: 'assigned',
+              shipment_ids: shipment.data.partner_shipment_id
+                ? [shipment.data.partner_shipment_id]
+                : [],
+            })),
+            yield put(configureGateway({
+              platform_type: shipment.data.platform_name,
+              gateway: updateGateway.imei_number,
+              transmission_interval: shipment.data.transmission_time,
+              measurement_interval: shipment.data.measurement_time,
+            })),
+          ];
         }
       }
 
@@ -319,6 +329,7 @@ function* editShipment(action) {
       if (updateGateway) {
         let gateway_status = '';
         let shipment_ids = [];
+        let configurePayload = {};
         switch (data.data.status) {
           case 'Completed':
           case 'Cancelled':
@@ -326,23 +337,38 @@ function* editShipment(action) {
           case 'Battery Depleted':
             gateway_status = 'unavailable';
             shipment_ids = [];
+            configurePayload = {
+              platform_type: data.data.platform_name,
+              gateway: updateGateway.imei_number,
+              transmission_interval: 300,
+              measurement_interval: 300,
+            };
             break;
 
           case 'Planned':
           case 'En route':
             gateway_status = 'assigned';
             shipment_ids = data.data.partner_shipment_id ? [data.data.partner_shipment_id] : [];
+            configurePayload = {
+              platform_type: data.data.platform_name,
+              gateway: updateGateway.imei_number,
+              transmission_interval: data.data.transmission_time,
+              measurement_interval: data.data.measurement_time,
+            };
             break;
 
           default:
             break;
         }
 
-        yield put(editGateway({
-          ...updateGateway,
-          gateway_status,
-          shipment_ids,
-        }));
+        yield [
+          yield put(editGateway({
+            ...updateGateway,
+            gateway_status,
+            shipment_ids,
+          })),
+          yield put(configureGateway(configurePayload)),
+        ];
       }
 
       let startCustody = {
