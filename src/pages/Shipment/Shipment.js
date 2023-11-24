@@ -218,7 +218,10 @@ const Shipment = ({
           label: 'Exception',
           content: moment(a.create_date).tz(timezone).format(`${dateFormat} ${timeFormat}`),
           active: false,
-          completed: false,
+          completed: shipment.last_fujitsu_verification_datetime && _.lte(
+            moment(a.create_date).unix(),
+            moment(shipment.last_fujitsu_verification_datetime).unix(),
+          ),
           error,
           info,
         });
@@ -385,7 +388,10 @@ const Shipment = ({
         active: true,
         error: false,
         info: false,
-        completed: false,
+        completed: shipment.last_fujitsu_verification_datetime && _.lte(
+          moment(shipment.create_date).unix(),
+          moment(shipment.last_fujitsu_verification_datetime).unix(),
+        ),
       },
       {
         // eslint-disable-next-line max-len
@@ -397,7 +403,10 @@ const Shipment = ({
         active: !!shipment.actual_time_of_departure,
         error: false,
         info: false,
-        completed: false,
+        completed: shipment.last_fujitsu_verification_datetime && _.lte(
+          moment(shipment.actual_time_of_departure || shipment.estimated_time_of_departure).unix(),
+          moment(shipment.last_fujitsu_verification_datetime).unix(),
+        ),
       },
       {
         id: moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).unix(),
@@ -408,7 +417,10 @@ const Shipment = ({
         active: !!shipment.actual_time_of_arrival,
         error: false,
         info: false,
-        completed: false,
+        completed: shipment.last_fujitsu_verification_datetime && _.lte(
+          moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).unix(),
+          moment(shipment.last_fujitsu_verification_datetime).unix(),
+        ),
       },
       {
         id: _.isEqual(shipment.status, 'Completed')
@@ -423,7 +435,12 @@ const Shipment = ({
         active: _.isEqual(shipment.status, 'Completed'),
         error: false,
         info: false,
-        completed: false,
+        completed: shipment.last_fujitsu_verification_datetime && _.lte(
+          _.isEqual(shipment.status, 'Completed')
+            ? moment(shipment.edit_date).unix()
+            : moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).add(24, 'h').unix(),
+          moment(shipment.last_fujitsu_verification_datetime).unix(),
+        ),
       },
     ];
 

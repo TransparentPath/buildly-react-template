@@ -884,6 +884,7 @@ const CreateShipment = ({
       end_custody: endCustodyForm,
       files,
       carriers,
+      fujitsuVerification: organization.enable_fujitsu_verification,
     };
 
     if (!draft && (

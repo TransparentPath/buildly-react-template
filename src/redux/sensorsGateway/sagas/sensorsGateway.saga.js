@@ -392,7 +392,7 @@ function* configureGateway(action) {
     yield call(
       httpService.makeRequest,
       'post',
-      `${window.env.API_URL}${sensorApiEndPoint}gateway/configure_gateway/`,
+      `${window.env.API_URL}${sensorApiEndPoint}configure_gateway/`,
       payload,
     );
   } catch (error) {

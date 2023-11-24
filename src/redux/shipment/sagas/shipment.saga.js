@@ -1,5 +1,5 @@
 import {
-  put, takeLatest, all, call,
+  put, takeLatest, all, call, delay,
 } from 'redux-saga/effects';
 import Geocode from 'react-geocode';
 import _ from 'lodash';
@@ -127,26 +127,6 @@ function* addShipment(action) {
     let shipmentPayload = payload.shipment;
     let uploadFile = null;
 
-    if (!_.isEmpty(files)) {
-      const responses = yield all(_.map(files, (file) => {
-        uploadFile = new FormData();
-        uploadFile.append('file', file, file.name);
-
-        return call(
-          httpService.makeRequest,
-          'post',
-          `${window.env.API_URL}${shipmentApiEndPoint}upload_file/`,
-          uploadFile,
-        );
-      }));
-
-      shipmentPayload = {
-        ...shipmentPayload,
-        uploaded_pdf: _.map(files, 'name'),
-        uploaded_pdf_link: _.map(_.flatMap(_.map(responses, 'data')), 'aws url'),
-      };
-    }
-
     const data = yield call(
       httpService.makeRequest,
       'post',
@@ -155,6 +135,45 @@ function* addShipment(action) {
     );
 
     if (data && data.data) {
+      if (!_.isEmpty(files)) {
+        const responses = yield all(_.map(files, (file) => {
+          uploadFile = new FormData();
+          uploadFile.append('file', file, file.name);
+          uploadFile.append('shipment_uuid', data.data.shipment_uuid);
+
+          return call(
+            httpService.makeRequest,
+            'post',
+            `${window.env.API_URL}${shipmentApiEndPoint}upload_file/`,
+            uploadFile,
+          );
+        }));
+
+        shipmentPayload = {
+          ...data.data,
+          uploaded_pdf: _.map(files, 'name'),
+          uploaded_pdf_link: _.map(_.flatMap(_.map(responses, 'data')), 'aws url'),
+        };
+        yield call(
+          httpService.makeRequest,
+          'patch',
+          `${window.env.API_URL}${shipmentApiEndPoint}shipment/${data.data.id}/`,
+          shipmentPayload,
+        );
+      }
+
+      // const verificationPayload = {
+      //   operation: 'created',
+      //   shipment_uuid: data.data.shipment_uuid,
+      //   enable_fujitsu_verification: payload.fujitsuVerification,
+      // };
+      // yield call(
+      //   httpService.makeRequest,
+      //   'post',
+      //   `${window.env.API_URL}${shipmentApiEndPoint}fujitsu_verification/`,
+      //   verificationPayload,
+      // );
+
       let startCustody = {
         ...start_custody,
         start_of_custody_location: start_custody.location,
@@ -205,8 +224,10 @@ function* addShipment(action) {
       }
 
       if (updateGateway) {
+        yield delay(100);
+
         shipmentPayload = {
-          ...shipmentPayload,
+          ...data.data,
           gateway_ids: [updateGateway.gateway_uuid],
           gateway_imei: [_.toString(updateGateway.imei_number)],
         };
@@ -279,6 +300,7 @@ function* editShipment(action) {
       const responses = yield all(_.map(files, (file) => {
         uploadFile = new FormData();
         uploadFile.append('file', file, file.name);
+        uploadFile.append('shipment_uuid', shipmentPayload.shipment_uuid);
 
         return call(
           httpService.makeRequest,
@@ -305,7 +327,7 @@ function* editShipment(action) {
           httpService.makeRequest,
           'post',
           `${window.env.API_URL}${shipmentApiEndPoint}delete_file/`,
-          { filename: file },
+          { filename: file, shipment_uuid: shipmentPayload.shipment_uuid },
         )
       )));
     }
@@ -326,10 +348,21 @@ function* editShipment(action) {
     );
 
     if (data && data.data) {
+      // const verificationPayload = {
+      //   operation: _.toLower(data.data.status),
+      //   shipment_uuid: data.data.shipment_uuid,
+      //   enable_fujitsu_verification: payload.fujitsuVerification,
+      // };
+      // yield call(
+      //   httpService.makeRequest,
+      //   'post',
+      //   `${window.env.API_URL}${shipmentApiEndPoint}fujitsu_verification/`,
+      //   verificationPayload,
+      // );
+
       if (updateGateway) {
         let gateway_status = '';
         let shipment_ids = [];
-        let configurePayload = {};
         switch (data.data.status) {
           case 'Completed':
           case 'Cancelled':
@@ -337,38 +370,33 @@ function* editShipment(action) {
           case 'Battery Depleted':
             gateway_status = 'unavailable';
             shipment_ids = [];
-            configurePayload = {
-              platform_type: data.data.platform_name,
-              gateway: updateGateway.imei_number,
-              transmission_interval: 300,
-              measurement_interval: 300,
-            };
             break;
 
           case 'Planned':
           case 'En route':
             gateway_status = 'assigned';
             shipment_ids = data.data.partner_shipment_id ? [data.data.partner_shipment_id] : [];
-            configurePayload = {
-              platform_type: data.data.platform_name,
-              gateway: updateGateway.imei_number,
-              transmission_interval: data.data.transmission_time,
-              measurement_interval: data.data.measurement_time,
-            };
             break;
 
           default:
             break;
         }
 
-        yield [
-          yield put(editGateway({
-            ...updateGateway,
-            gateway_status,
-            shipment_ids,
-          })),
-          yield put(configureGateway(configurePayload)),
-        ];
+        yield put(editGateway({
+          ...updateGateway,
+          gateway_status,
+          shipment_ids,
+        }));
+
+        if (_.includes(['Planned', 'En route'], data.data.status)) {
+          const configurePayload = {
+            platform_type: data.data.platform_name,
+            gateway: updateGateway.imei_number,
+            transmission_interval: data.data.transmission_time,
+            measurement_interval: data.data.measurement_time,
+          };
+          yield put(configureGateway(configurePayload));
+        }
       }
 
       let startCustody = {
