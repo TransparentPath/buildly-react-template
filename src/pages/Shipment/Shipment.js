@@ -64,8 +64,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '-40px',
     '& .MuiTableCell-root': {
       color: 'inherit',
-      maxWidth: theme.spacing(3),
-      overflowX: 'auto',
     },
     '& .MuiTableCell-paddingCheckbox': {
       display: 'none',

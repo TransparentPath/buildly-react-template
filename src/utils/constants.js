@@ -1489,7 +1489,7 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => (
-        <Typography sx={{ whiteSpace: 'nowrap' }}>
+        <Typography sx={{ whiteSpace: 'nowrap', maxWidth: '400px', overflowX: 'auto', }}>
           {value}
         </Typography>
       ),
