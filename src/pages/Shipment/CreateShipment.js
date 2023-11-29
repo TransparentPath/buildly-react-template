@@ -632,9 +632,14 @@ const CreateShipment = ({
       setTemplate(value);
       setTemplateName('');
       if (value) {
+        const oCustodian = _.find(custodianList, { url: value.origin_custodian });
+        const dCustodian = _.find(custodianList, { url: value.destination_custodian });
+        const storage = _.isEqual(oCustodian, dCustodian) && _.isEqual(dCustodian.type, 'Warehouse');
+
         onInputChange(value.origin_custodian, 'custodian', 'start');
         onInputChange(value.destination_custodian, 'custodian', 'end');
         setItems(value.items);
+        setStorageOnly(storage);
         status.setValue(value.status);
         min_excursion_temp.setValue(value.min_excursion_temp);
         max_excursion_temp.setValue(value.max_excursion_temp);
@@ -884,6 +889,7 @@ const CreateShipment = ({
       end_custody: endCustodyForm,
       files,
       carriers,
+      storageOnly,
       fujitsuVerification: organization.enable_fujitsu_verification,
     };
 
@@ -920,15 +926,6 @@ const CreateShipment = ({
       };
     }
 
-    if (storageOnly && _.includes(_.map(CREATE_SHIPMENT_STATUS, 'value'), status.value)) {
-      savePayload = {
-        ...savePayload,
-        shipment: {
-          ...savePayload.shipment,
-          status: 'Arrived',
-        },
-      };
-    }
     setFormSubmitted(true);
 
     if (_.isEmpty(editData)) {
@@ -1851,7 +1848,8 @@ const CreateShipment = ({
                   onBlur={(e) => handleBlur(e, 'required', gatewayType, 'gateway-type')}
                   disabled={
                     (!_.isEmpty(editData)
-                    && !!_.find(gatewayTypeList, { name: editData.platform_name }))
+                    && !_.isEmpty(editData.gateway_imei)
+                    && !!_.find(gatewayData, { imei_number: _.toNumber(editData.gateway_imei[0]) }))
                     || cannotEdit
                   }
                   InputLabelProps={{ shrink: true }}
@@ -1861,7 +1859,7 @@ const CreateShipment = ({
                   <MenuItem value="">Select</MenuItem>
                   {!_.isEmpty(gatewayTypeList) && _.map(gatewayTypeList, (gtype) => (
                     <MenuItem key={gtype.id} value={gtype.name}>
-                      {_.capitalize(gtype.name)}
+                      {_.upperFirst(gtype.name)}
                     </MenuItem>
                   ))}
                 </TextField>

@@ -120,7 +120,7 @@ function* getShipmentList(payload) {
 function* addShipment(action) {
   const { history, payload, redirectTo } = action;
   const {
-    start_custody, end_custody, files, carriers, updateGateway,
+    start_custody, end_custody, files, carriers, updateGateway, storageOnly,
   } = payload;
 
   try {
@@ -228,6 +228,7 @@ function* addShipment(action) {
 
         shipmentPayload = {
           ...data.data,
+          status: storageOnly ? 'Arrived' : data.data.status,
           gateway_ids: [updateGateway.gateway_uuid],
           gateway_imei: [_.toString(updateGateway.imei_number)],
         };
@@ -289,7 +290,7 @@ function* addShipment(action) {
 function* editShipment(action) {
   const { history, payload, redirectTo } = action;
   const {
-    start_custody, end_custody, files, carriers, updateGateway, deleteFiles,
+    start_custody, end_custody, files, carriers, updateGateway, deleteFiles, storageOnly,
   } = payload;
 
   try {
@@ -335,16 +336,23 @@ function* editShipment(action) {
     if (!_.isEmpty(updateGateway)) {
       shipmentPayload = {
         ...shipmentPayload,
+        status: storageOnly && _.includes(['Planned', 'En route'], shipmentPayload.status) ? 'Arrived' : shipmentPayload.status,
         gateway_ids: [updateGateway.gateway_uuid],
         gateway_imei: [_.toString(updateGateway.imei_number)],
       };
     }
 
-    const data = yield call(
+    yield call(
       httpService.makeRequest,
       'patch',
       `${window.env.API_URL}${shipmentApiEndPoint}shipment/${shipmentPayload.id}/`,
       shipmentPayload,
+    );
+
+    const data = yield call(
+      httpService.makeRequest,
+      'get',
+      `${window.env.API_URL}${shipmentApiEndPoint}shipment/${shipmentPayload.id}/`,
     );
 
     if (data && data.data) {
@@ -374,6 +382,7 @@ function* editShipment(action) {
 
           case 'Planned':
           case 'En route':
+          case storageOnly && 'Arrived':
             gateway_status = 'assigned';
             shipment_ids = data.data.partner_shipment_id ? [data.data.partner_shipment_id] : [];
             break;
