@@ -380,7 +380,7 @@ const Shipment = ({
     newSteps = [
       ...newSteps,
       {
-        id: moment(shipment.create_date).unix(),
+        id: 1,
         title: shipment.origin,
         titleColor: 'inherit',
         label: 'Shipment created',
