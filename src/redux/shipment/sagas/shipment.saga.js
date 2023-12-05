@@ -371,6 +371,7 @@ function* editShipment(action) {
       if (updateGateway) {
         let gateway_status = '';
         let shipment_ids = [];
+        let { battery_alert_level } = updateGateway;
         switch (data.data.status) {
           case 'Completed':
           case 'Cancelled':
@@ -378,6 +379,7 @@ function* editShipment(action) {
           case 'Battery Depleted':
             gateway_status = 'unavailable';
             shipment_ids = [];
+            battery_alert_level = 0;
             break;
 
           case 'Planned':
@@ -395,6 +397,7 @@ function* editShipment(action) {
           ...updateGateway,
           gateway_status,
           shipment_ids,
+          battery_alert_level,
         }));
 
         if (_.includes(['Planned', 'En route'], data.data.status)) {
