@@ -1644,6 +1644,10 @@ export const getShipmentFormattedRow = (
         lng: report.report_entry.report_longitude || '*',
         shipment: editedShipment,
       }));
+
+      if (reports[0]) {
+        editedShipment.battery_levels = reports[0].report_entry.report_battery;
+      }
     }
 
     shipmentList = [...shipmentList, editedShipment];
