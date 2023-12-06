@@ -262,8 +262,6 @@ const CreateShipment = ({
   const [endingAddress, setEndingAddress] = useState('');
   const [endingLocation, setEndingLocation] = useState('');
 
-  const [storageOnly, setStorageOnly] = useState(false);
-
   const [departureDateTime, setDepartureDateTime] = useState(
     (!_.isEmpty(editData) && editData.estimated_time_of_departure)
     || moment().startOf('day').hour(12).minute(0),
@@ -382,10 +380,6 @@ const CreateShipment = ({
         setDestinationAbb(getAbbreviation(destination.abbrevation));
         setEndingAddress(destination.location);
         getLatLong(destination.location, 'end');
-      }
-
-      if (origin && destination) {
-        setStorageOnly(_.isEqual(origin.url, destination.url) && _.isEqual(destination.type, 'Warehouse'));
       }
 
       if (carriers) {
@@ -582,19 +576,11 @@ const CreateShipment = ({
             setOriginAbb(getAbbreviation(selectedCustodian.abbrevation));
             setStartingAddress(selectedCustodian.location);
             getLatLong(selectedCustodian.location, 'start');
-
-            if (storage && destinationCustodian) {
-              setStorageOnly(storage && _.isEqual(destinationCustodian, value));
-            }
           } else if (custody === 'end') {
             setDestinationCustodian(value);
             setDestinationAbb(getAbbreviation(selectedCustodian.abbrevation));
             setEndingAddress(selectedCustodian.location);
             getLatLong(selectedCustodian.location, 'end');
-
-            if (storage && originCustodian) {
-              setStorageOnly(storage && _.isEqual(originCustodian, value));
-            }
           }
         }
         break;
@@ -639,7 +625,6 @@ const CreateShipment = ({
         onInputChange(value.origin_custodian, 'custodian', 'start');
         onInputChange(value.destination_custodian, 'custodian', 'end');
         setItems(value.items);
-        setStorageOnly(storage);
         status.setValue(value.status);
         min_excursion_temp.setValue(value.min_excursion_temp);
         max_excursion_temp.setValue(value.max_excursion_temp);
@@ -889,7 +874,6 @@ const CreateShipment = ({
       end_custody: endCustodyForm,
       files,
       carriers,
-      storageOnly,
       fujitsuVerification: organization.enable_fujitsu_verification,
     };
 
