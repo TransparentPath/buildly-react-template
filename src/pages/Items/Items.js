@@ -1,80 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { Route } from 'react-router-dom';
-import _ from 'lodash';
-import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
-import { getUser } from '../../context/User.context';
-import {
-  getItems,
-  deleteItem,
-  getItemType,
-  getUnitOfMeasure,
-  getProducts,
-  getProductType,
-} from '../../redux/items/actions/items.actions';
-import { routes } from '../../routes/routesConstants';
-import { itemColumns, getItemFormattedRow } from '../../utils/constants';
-import AddItems from './forms/AddItems';
+import React, { useState, useEffect } from "react";
+import { Route } from "react-router-dom";
+import _ from "lodash";
+import DataTableWrapper from "../../components/DataTableWrapper/DataTableWrapper";
+import { getUser } from "../../context/User.context";
+// import {
+//   deleteItem,
+// } from '../../redux/items/actions/items.actions';
+import { routes } from "../../routes/routesConstants";
+import { itemColumns, getItemFormattedRow } from "../../utils/constants";
+import AddItems from "./forms/AddItems";
+import { useQuery } from "react-query";
+import { useStore } from "../../zustand/items/itemStore";
 
-const Items = ({
-  dispatch,
-  history,
-  itemData,
-  loading,
-  itemTypeList,
-  redirectTo,
-  unitOfMeasure,
-}) => {
-  const [openDeleteModal, setDeleteModal] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState('');
-  const [rows, setRows] = useState([]);
-
+const Items = ({ history, redirectTo }) => {
+  const store = useStore();
   const user = getUser();
   const organization = user.organization.organization_uuid;
+
+  const [rows, setRows] = useState([]);
+
+  const { data: itemData, isLoading: isLoadingItems } = useQuery(
+    ["items", organization],
+    () => store.getItems(organization)
+  );
+
+  const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
+    ["itemTypes", organization],
+    () => store.getItemTypes(organization)
+  );
+
+  const { data: unitData, isLoading: isLoadingUnits } = useQuery(
+    ["unit", organization],
+    () => store.getUnit(organization)
+  );
+
+  const { data: productData, isLoading: isLoadingProducts } = useQuery(
+    ["products", organization],
+    () => store.getProducts(organization)
+  );
+
+  const { data: productTypesData, isLoading: isLoadingProductTypes } = useQuery(
+    ["productTypes", organization],
+    () => store.getProductTypes(organization)
+  );
+
+  // const [openDeleteModal, setDeleteModal] = useState(false);
+  // const [deleteItemId, setDeleteItemId] = useState('');
 
   const addItemPath = redirectTo
     ? `${redirectTo}/items`
     : `${routes.ITEMS}/add`;
 
-  const editItemPath = redirectTo
-    ? `${redirectTo}/items`
-    : `${routes.ITEMS}/edit`;
+  // const editItemPath = redirectTo
+  //   ? `${redirectTo}/items`
+  //   : `${routes.ITEMS}/edit`;
 
   useEffect(() => {
-    dispatch(getItems(organization));
-    dispatch(getItemType(organization));
-    dispatch(getProducts(organization));
-    dispatch(getProductType(organization));
-    dispatch(getUnitOfMeasure(organization));
-  }, []);
-
-  useEffect(() => {
-    if (!_.isEmpty(itemData) && !_.isEmpty(itemTypeList) && !_.isEmpty(unitOfMeasure)) {
-      setRows(getItemFormattedRow(
-        itemData,
-        itemTypeList,
-        unitOfMeasure,
-      ));
+    if (
+      !_.isEmpty(itemData) &&
+      !_.isEmpty(itemTypesData) &&
+      !_.isEmpty(unitData)
+    ) {
+      setRows(getItemFormattedRow(itemData, itemTypesData, unitData));
     }
-  }, [itemData, itemTypeList, unitOfMeasure]);
+  }, [itemData, itemTypesData, unitData]);
 
-  const editItems = (item) => {
-    history.push(`${editItemPath}/:${item.id}`, {
-      type: 'edit',
-      from: redirectTo || routes.ITEMS,
-      data: item,
-    });
-  };
+  // const editItems = (item) => {
+  //   history.push(`${editItemPath}/:${item.id}`, {
+  //     type: 'edit',
+  //     from: redirectTo || routes.ITEMS,
+  //     data: item,
+  //   });
+  // };
 
-  const deleteItems = (item) => {
-    setDeleteItemId(item.id);
-    setDeleteModal(true);
-  };
+  // const deleteItems = (item) => {
+  //   setDeleteItemId(item.id);
+  //   setDeleteModal(true);
+  // };
 
-  const handleDeleteModal = () => {
-    dispatch(deleteItem(deleteItemId, organization));
-    setDeleteModal(false);
-  };
+  // const handleDeleteModal = () => {
+  //   dispatch(deleteItem(deleteItemId, organization));
+  //   setDeleteModal(false);
+  // };
 
   const onAddButtonClick = () => {
     history.push(addItemPath, {
@@ -84,39 +91,41 @@ const Items = ({
 
   return (
     <DataTableWrapper
-      loading={loading}
+      loading={
+        isLoadingItems ||
+        isLoadingItemTypes ||
+        isLoadingUnits ||
+        isLoadingProducts ||
+        isLoadingProductTypes
+      }
       rows={rows || []}
       columns={itemColumns(
-        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
-          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
-          : '',
+        _.find(
+          unitData,
+          (unit) => _.toLower(unit.unit_of_measure_for) === "currency"
+        )
+          ? _.find(
+              unitData,
+              (unit) => _.toLower(unit.unit_of_measure_for) === "currency"
+            ).unit_of_measure
+          : ""
       )}
       filename="ItemsData"
       addButtonHeading="Add Item"
       onAddButtonClick={onAddButtonClick}
-      editAction={editItems}
-      deleteAction={deleteItems}
-      openDeleteModal={openDeleteModal}
-      setDeleteModal={setDeleteModal}
-      handleDeleteModal={handleDeleteModal}
+      // editAction={editItems}
+      // deleteAction={deleteItems}
+      // openDeleteModal={openDeleteModal}
+      // setDeleteModal={setDeleteModal}
+      // handleDeleteModal={handleDeleteModal}
       deleteModalTitle="Are you sure you want to delete this Item?"
       tableHeader="Items"
       centerLabel
     >
       <Route path={`${addItemPath}`} component={AddItems} />
-      <Route path={`${editItemPath}/:id`} component={AddItems} />
+      {/* <Route path={`${editItemPath}/:id`} component={AddItems} /> */}
     </DataTableWrapper>
   );
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  ...ownProps,
-  ...state.itemsReducer,
-  ...state.optionsReducer,
-  loading: (
-    state.itemsReducer.loading
-    || state.optionsReducer.loading
-    || state.authReducer.loading
-  ),
-});
-export default connect(mapStateToProps)(Items);
+export default Items;
