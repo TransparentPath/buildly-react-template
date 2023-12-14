@@ -3,57 +3,58 @@ import { Route } from "react-router-dom";
 import _ from "lodash";
 import DataTableWrapper from "../../components/DataTableWrapper/DataTableWrapper";
 import { getUser } from "../../context/User.context";
-// import {
-//   deleteItem,
-// } from '../../redux/items/actions/items.actions';
 import { routes } from "../../routes/routesConstants";
 import { itemColumns, getItemFormattedRow } from "../../utils/constants";
 import AddItems from "./forms/AddItems";
-import { useQuery } from "react-query";
-import { useStore } from "../../zustand/items/itemStore";
+import { useQuery, useMutation, useQueryClient } from "react-query";
+import * as itemsApi from "../../react-query/items/itemsApi";
+import * as itemTypesApi from "../../react-query/items/itemTypesApi";
+import * as unitApi from "../../react-query/items/unitApi";
+import * as productsApi from "../../react-query/items/productsApi";
+import * as productTypesApi from "../../react-query/items/productTypesApi";
+import { httpService } from "@modules/http/http.service";
+import { showAlert } from "../../redux/alert/actions/alert.actions";
 
 const Items = ({ history, redirectTo }) => {
-  const store = useStore();
   const user = getUser();
   const organization = user.organization.organization_uuid;
 
   const [rows, setRows] = useState([]);
+  const [openDeleteModal, setDeleteModal] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState("");
 
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ["items", organization],
-    () => store.getItems(organization)
+    () => itemsApi.getItems(organization)
   );
 
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
     ["itemTypes", organization],
-    () => store.getItemTypes(organization)
+    () => itemTypesApi.getItemTypes(organization)
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ["unit", organization],
-    () => store.getUnit(organization)
+    () => unitApi.getUnits(organization)
   );
 
   const { data: productData, isLoading: isLoadingProducts } = useQuery(
     ["products", organization],
-    () => store.getProducts(organization)
+    () => productsApi.getProducts(organization)
   );
 
   const { data: productTypesData, isLoading: isLoadingProductTypes } = useQuery(
     ["productTypes", organization],
-    () => store.getProductTypes(organization)
+    () => productTypesApi.getProductTypes(organization)
   );
-
-  // const [openDeleteModal, setDeleteModal] = useState(false);
-  // const [deleteItemId, setDeleteItemId] = useState('');
 
   const addItemPath = redirectTo
     ? `${redirectTo}/items`
     : `${routes.ITEMS}/add`;
 
-  // const editItemPath = redirectTo
-  //   ? `${redirectTo}/items`
-  //   : `${routes.ITEMS}/edit`;
+  const editItemPath = redirectTo
+    ? `${redirectTo}/items`
+    : `${routes.ITEMS}/edit`;
 
   useEffect(() => {
     if (
@@ -65,27 +66,63 @@ const Items = ({ history, redirectTo }) => {
     }
   }, [itemData, itemTypesData, unitData]);
 
-  // const editItems = (item) => {
-  //   history.push(`${editItemPath}/:${item.id}`, {
-  //     type: 'edit',
-  //     from: redirectTo || routes.ITEMS,
-  //     data: item,
-  //   });
-  // };
+  const editItems = (item) => {
+    history.push(`${editItemPath}/:${item.id}`, {
+      type: "edit",
+      from: redirectTo || routes.ITEMS,
+      data: item,
+      itemTypesData: itemTypesData,
+      productData: productData,
+      productTypesData: productTypesData,
+      unitData: unitData,
+    });
+  };
 
-  // const deleteItems = (item) => {
-  //   setDeleteItemId(item.id);
-  //   setDeleteModal(true);
-  // };
+  const deleteItems = (item) => {
+    setDeleteItemId(item.id);
+    setDeleteModal(true);
+  };
 
-  // const handleDeleteModal = () => {
-  //   dispatch(deleteItem(deleteItemId, organization));
-  //   setDeleteModal(false);
-  // };
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteItemMutation, isLoading: isDeletingItem } = useMutation(
+    async () => {
+      await httpService.makeRequest(
+        "delete",
+        `${window.env.API_URL}shipment/item/${deleteItemId}`
+      );
+    },
+    {
+      onSuccess: (data) => {
+        showAlert({
+          type: "success",
+          open: true,
+          message: "Successfully deleted item",
+        });
+        queryClient.invalidateQueries(["items", organization]);
+      },
+      onError: (error) => {
+        showAlert({
+          type: "error",
+          open: true,
+          message: "Error in deleting item",
+        });
+      },
+    }
+  );
+
+  const handleDeleteModal = () => {
+    setDeleteModal(false);
+    deleteItemMutation();
+  };
 
   const onAddButtonClick = () => {
     history.push(addItemPath, {
       from: redirectTo || routes.ITEMS,
+      itemTypesData: itemTypesData,
+      productData: productData,
+      productTypesData: productTypesData,
+      unitData: unitData,
     });
   };
 
@@ -96,7 +133,8 @@ const Items = ({ history, redirectTo }) => {
         isLoadingItemTypes ||
         isLoadingUnits ||
         isLoadingProducts ||
-        isLoadingProductTypes
+        isLoadingProductTypes ||
+        isDeletingItem
       }
       rows={rows || []}
       columns={itemColumns(
@@ -113,17 +151,17 @@ const Items = ({ history, redirectTo }) => {
       filename="ItemsData"
       addButtonHeading="Add Item"
       onAddButtonClick={onAddButtonClick}
-      // editAction={editItems}
-      // deleteAction={deleteItems}
-      // openDeleteModal={openDeleteModal}
-      // setDeleteModal={setDeleteModal}
-      // handleDeleteModal={handleDeleteModal}
+      editAction={editItems}
+      deleteAction={deleteItems}
+      openDeleteModal={openDeleteModal}
+      setDeleteModal={setDeleteModal}
+      handleDeleteModal={handleDeleteModal}
       deleteModalTitle="Are you sure you want to delete this Item?"
       tableHeader="Items"
       centerLabel
     >
       <Route path={`${addItemPath}`} component={AddItems} />
-      {/* <Route path={`${editItemPath}/:id`} component={AddItems} /> */}
+      <Route path={`${editItemPath}/:id`} component={AddItems} />
     </DataTableWrapper>
   );
 };
