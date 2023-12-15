@@ -20,8 +20,8 @@ import CustomizedTooltips from "../../../components/ToolTip/ToolTip";
 import { getUser } from "../../../context/User.context";
 import { useInput } from "../../../hooks/useInput";
 import { validators } from "../../../utils/validators";
-import { useMutation, useQueryClient } from "react-query";
-import { httpService } from "@modules/http/http.service";
+import { useAddItemMutation } from "../../../react-query/mutations/items/addItemMutation";
+import { useEditItemMutation } from "../../../react-query/mutations/items/editItemMutation";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -107,14 +107,6 @@ const AddItems = ({ history, location, productOptions, itemOptions }) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
 
-  let successMessage = useRef();
-  let errorMessage = useRef();
-
-  useEffect(() => {
-    successMessage.current = "";
-    errorMessage.current = "";
-  }, []);
-
   useEffect(() => {
     if (itemOptions && itemOptions.actions) {
       setItemMetaData(itemOptions.actions.POST);
@@ -166,59 +158,11 @@ const AddItems = ({ history, location, productOptions, itemOptions }) => {
     }
   };
 
-  const queryClient = useQueryClient();
+  const { mutate: addItemMutation, isLoading: isAddingItem } =
+    useAddItemMutation(organization, setFormModal, setConfirmModal);
 
-  const { mutate: addItemMutation, isLoading: isAddingItem } = useMutation(
-    async (itemData) => {
-      const response = await httpService.makeRequest(
-        "post",
-        `${window.env.API_URL}shipment/item/`,
-        itemData
-      );
-      return response.data;
-    },
-    {
-      onSuccess: async () => {
-        successMessage.current = "Successfully added item";
-        setFormModal(false);
-        setConfirmModal(false);
-        if (history && redirectTo) {
-          history.push(redirectTo, { successMessage: successMessage.current });
-          await queryClient.invalidateQueries(["items", organization]);
-        }
-      },
-      onError: () => {
-        errorMessage.current = "Error in creating item";
-        history.push(redirectTo, { errorMessage: errorMessage.current });
-      },
-    }
-  );
-
-  const { mutate: editItemMutation, isLoading: isEditingItem } = useMutation(
-    async (itemData) => {
-      const response = await httpService.makeRequest(
-        "patch",
-        `${window.env.API_URL}shipment/item/${itemData.id}`,
-        itemData
-      );
-      return response.data;
-    },
-    {
-      onSuccess: async () => {
-        successMessage.current = "Successfully edited item";
-        setFormModal(false);
-        setConfirmModal(false);
-        if (history && redirectTo) {
-          history.push(redirectTo, { successMessage: successMessage.current });
-          await queryClient.invalidateQueries(["items", organization]);
-        }
-      },
-      onError: () => {
-        errorMessage.current = "Error in editing item";
-        history.push(redirectTo, { errorMessage: errorMessage.current });
-      },
-    }
-  );
+  const { mutate: editItemMutation, isLoading: isEditingItem } =
+    useEditItemMutation(organization, setFormModal, setConfirmModal);
 
   /**
    * Submit The form and add/edit custodian

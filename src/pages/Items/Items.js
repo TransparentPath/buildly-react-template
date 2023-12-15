@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Route } from "react-router-dom";
 import _ from "lodash";
 import DataTableWrapper from "../../components/DataTableWrapper/DataTableWrapper";
@@ -6,14 +6,13 @@ import { getUser } from "../../context/User.context";
 import { routes } from "../../routes/routesConstants";
 import { itemColumns, getItemFormattedRow } from "../../utils/constants";
 import AddItems from "./forms/AddItems";
-import { useQuery, useMutation, useQueryClient } from "react-query";
-import * as itemsApi from "../../react-query/items/itemsApi";
-import * as itemTypesApi from "../../react-query/items/itemTypesApi";
-import * as unitApi from "../../react-query/items/unitApi";
-import * as productsApi from "../../react-query/items/productsApi";
-import * as productTypesApi from "../../react-query/items/productTypesApi";
-import { httpService } from "@modules/http/http.service";
-import CustomAlert from "../../components/CustomAlert/CustomAlert";
+import { useQuery } from "react-query";
+import { getItemQuery } from "../../react-query/queries/items/getItemQuery";
+import { getItemTypeQuery } from "../../react-query/queries/items/getItemTypeQuery";
+import { getUnitQuery } from "../../react-query/queries/items/getUnitQuery";
+import { getProductQuery } from "../../react-query/queries/items/getProductQuery";
+import { getProductTypeQuery } from "../../react-query/queries/items/getProductTypeQuery";
+import { useDeleteItemMutation } from "../../react-query/mutations/items/deleteItemMutation";
 
 const Items = ({ history, redirectTo }) => {
   const user = getUser();
@@ -22,14 +21,6 @@ const Items = ({ history, redirectTo }) => {
   const [rows, setRows] = useState([]);
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState("");
-
-  let successMessage = useRef();
-  let errorMessage = useRef();
-
-  useEffect(() => {
-    successMessage.current = "";
-    errorMessage.current = "";
-  }, []);
 
   useEffect(() => {
     const { state } = history.location;
@@ -42,27 +33,27 @@ const Items = ({ history, redirectTo }) => {
 
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ["items", organization],
-    () => itemsApi.getItems(organization)
+    () => getItemQuery(organization)
   );
 
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
     ["itemTypes", organization],
-    () => itemTypesApi.getItemTypes(organization)
+    () => getItemTypeQuery(organization)
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ["unit", organization],
-    () => unitApi.getUnits(organization)
+    () => getUnitQuery(organization)
   );
 
   const { data: productData, isLoading: isLoadingProducts } = useQuery(
     ["products", organization],
-    () => productsApi.getProducts(organization)
+    () => getProductQuery(organization)
   );
 
   const { data: productTypesData, isLoading: isLoadingProductTypes } = useQuery(
     ["productTypes", organization],
-    () => productTypesApi.getProductTypes(organization)
+    () => getProductTypeQuery(organization)
   );
 
   const addItemPath = redirectTo
@@ -100,29 +91,12 @@ const Items = ({ history, redirectTo }) => {
     setDeleteModal(true);
   };
 
-  const queryClient = useQueryClient();
-
-  const { mutate: deleteItemMutation, isLoading: isDeletingItem } = useMutation(
-    async () => {
-      await httpService.makeRequest(
-        "delete",
-        `${window.env.API_URL}shipment/item/${deleteItemId}`
-      );
-    },
-    {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries(["items", organization]);
-        successMessage.current = "Successfully deleted item";
-      },
-      onError: () => {
-        errorMessage.current = "Error in deleting item";
-      },
-    }
-  );
+  const { mutate: deleteItemMutation, isLoading: isDeletingItem } =
+    useDeleteItemMutation(organization, setDeleteModal);
 
   const handleDeleteModal = () => {
     setDeleteModal(false);
-    deleteItemMutation();
+    deleteItemMutation(deleteItemId);
   };
 
   const onAddButtonClick = () => {
@@ -137,24 +111,6 @@ const Items = ({ history, redirectTo }) => {
 
   return (
     <div>
-      {successMessage.current && (
-        <CustomAlert
-          data={{
-            type: "success",
-            open: true,
-            message: successMessage.current,
-          }}
-        />
-      )}
-      {errorMessage.current && (
-        <CustomAlert
-          data={{
-            type: "error",
-            open: true,
-            message: errorMessage.current,
-          }}
-        />
-      )}
       <DataTableWrapper
         loading={
           isLoadingItems ||

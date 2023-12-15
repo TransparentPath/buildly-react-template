@@ -1,6 +1,16 @@
 import { httpService } from "@modules/http/http.service";
+import { useStore } from "../../../zustand/alert/alertStore";
 
-export const getItems = async (organization) => {
+export const getItemQuery = async (organization) => {
+  const showErrorAlert = () => {
+    const { showAlert } = useStore();
+    showAlert({
+      type: "error",
+      message: "Couldn't load items due to some error!",
+      open: true,
+    });
+  };
+
   try {
     const response = await httpService.makeRequest(
       "get",
@@ -9,6 +19,7 @@ export const getItems = async (organization) => {
     return response.data;
   } catch (error) {
     console.error("Error fetching items:", error);
+    showErrorAlert();
     return [];
   }
 };

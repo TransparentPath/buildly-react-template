@@ -1,0 +1,25 @@
+import { httpService } from "@modules/http/http.service";
+import { useStore } from "../../../zustand/alert/alertStore";
+
+export const getUnitQuery = async (organization) => {
+  const showErrorAlert = () => {
+    const { showAlert } = useStore();
+    showAlert({
+      type: "error",
+      message: "Couldn't load unit of measurements due to some error!",
+      open: true,
+    });
+  };
+
+  try {
+    const response = await httpService.makeRequest(
+      "get",
+      `${window.env.API_URL}shipment/unit_of_measure/?organization_uuid=${organization}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching unit of measurements:", error);
+    showErrorAlert();
+    return [];
+  }
+};
