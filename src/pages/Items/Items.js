@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Route } from "react-router-dom";
 import _ from "lodash";
 import DataTableWrapper from "../../components/DataTableWrapper/DataTableWrapper";
@@ -13,7 +13,7 @@ import * as unitApi from "../../react-query/items/unitApi";
 import * as productsApi from "../../react-query/items/productsApi";
 import * as productTypesApi from "../../react-query/items/productTypesApi";
 import { httpService } from "@modules/http/http.service";
-import { showAlert } from "../../redux/alert/actions/alert.actions";
+import CustomAlert from "../../components/CustomAlert/CustomAlert";
 
 const Items = ({ history, redirectTo }) => {
   const user = getUser();
@@ -22,6 +22,23 @@ const Items = ({ history, redirectTo }) => {
   const [rows, setRows] = useState([]);
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState("");
+
+  let successMessage = useRef();
+  let errorMessage = useRef();
+
+  useEffect(() => {
+    successMessage.current = "";
+    errorMessage.current = "";
+  }, []);
+
+  useEffect(() => {
+    const { state } = history.location;
+    if (state && state.successMessage) {
+      successMessage.current = state.successMessage;
+    } else if (state && state.errorMessage) {
+      errorMessage.current = state.errorMessage;
+    }
+  }, [history.location.state]);
 
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ["items", organization],
@@ -93,20 +110,12 @@ const Items = ({ history, redirectTo }) => {
       );
     },
     {
-      onSuccess: (data) => {
-        showAlert({
-          type: "success",
-          open: true,
-          message: "Successfully deleted item",
-        });
-        queryClient.invalidateQueries(["items", organization]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(["items", organization]);
+        successMessage.current = "Successfully deleted item";
       },
-      onError: (error) => {
-        showAlert({
-          type: "error",
-          open: true,
-          message: "Error in deleting item",
-        });
+      onError: () => {
+        errorMessage.current = "Error in deleting item";
       },
     }
   );
@@ -127,42 +136,62 @@ const Items = ({ history, redirectTo }) => {
   };
 
   return (
-    <DataTableWrapper
-      loading={
-        isLoadingItems ||
-        isLoadingItemTypes ||
-        isLoadingUnits ||
-        isLoadingProducts ||
-        isLoadingProductTypes ||
-        isDeletingItem
-      }
-      rows={rows || []}
-      columns={itemColumns(
-        _.find(
-          unitData,
-          (unit) => _.toLower(unit.unit_of_measure_for) === "currency"
-        )
-          ? _.find(
-              unitData,
-              (unit) => _.toLower(unit.unit_of_measure_for) === "currency"
-            ).unit_of_measure
-          : ""
+    <div>
+      {successMessage.current && (
+        <CustomAlert
+          data={{
+            type: "success",
+            open: true,
+            message: successMessage.current,
+          }}
+        />
       )}
-      filename="ItemsData"
-      addButtonHeading="Add Item"
-      onAddButtonClick={onAddButtonClick}
-      editAction={editItems}
-      deleteAction={deleteItems}
-      openDeleteModal={openDeleteModal}
-      setDeleteModal={setDeleteModal}
-      handleDeleteModal={handleDeleteModal}
-      deleteModalTitle="Are you sure you want to delete this Item?"
-      tableHeader="Items"
-      centerLabel
-    >
-      <Route path={`${addItemPath}`} component={AddItems} />
-      <Route path={`${editItemPath}/:id`} component={AddItems} />
-    </DataTableWrapper>
+      {errorMessage.current && (
+        <CustomAlert
+          data={{
+            type: "error",
+            open: true,
+            message: errorMessage.current,
+          }}
+        />
+      )}
+      <DataTableWrapper
+        loading={
+          isLoadingItems ||
+          isLoadingItemTypes ||
+          isLoadingUnits ||
+          isLoadingProducts ||
+          isLoadingProductTypes ||
+          isDeletingItem
+        }
+        rows={rows || []}
+        columns={itemColumns(
+          _.find(
+            unitData,
+            (unit) => _.toLower(unit.unit_of_measure_for) === "currency"
+          )
+            ? _.find(
+                unitData,
+                (unit) => _.toLower(unit.unit_of_measure_for) === "currency"
+              ).unit_of_measure
+            : ""
+        )}
+        filename="ItemsData"
+        addButtonHeading="Add Item"
+        onAddButtonClick={onAddButtonClick}
+        editAction={editItems}
+        deleteAction={deleteItems}
+        openDeleteModal={openDeleteModal}
+        setDeleteModal={setDeleteModal}
+        handleDeleteModal={handleDeleteModal}
+        deleteModalTitle="Are you sure you want to delete this Item?"
+        tableHeader="Items"
+        centerLabel
+      >
+        <Route path={`${addItemPath}`} component={AddItems} />
+        <Route path={`${editItemPath}/:id`} component={AddItems} />
+      </DataTableWrapper>
+    </div>
   );
 };
 

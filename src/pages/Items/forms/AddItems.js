@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import _ from "lodash";
 import {
   useTheme,
@@ -22,7 +22,6 @@ import { useInput } from "../../../hooks/useInput";
 import { validators } from "../../../utils/validators";
 import { useMutation, useQueryClient } from "react-query";
 import { httpService } from "@modules/http/http.service";
-import { showAlert } from "../../../redux/alert/actions/alert.actions";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -108,6 +107,14 @@ const AddItems = ({ history, location, productOptions, itemOptions }) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
 
+  let successMessage = useRef();
+  let errorMessage = useRef();
+
+  useEffect(() => {
+    successMessage.current = "";
+    errorMessage.current = "";
+  }, []);
+
   useEffect(() => {
     if (itemOptions && itemOptions.actions) {
       setItemMetaData(itemOptions.actions.POST);
@@ -171,25 +178,18 @@ const AddItems = ({ history, location, productOptions, itemOptions }) => {
       return response.data;
     },
     {
-      onSuccess: (data) => {
+      onSuccess: async () => {
+        successMessage.current = "Successfully added item";
         setFormModal(false);
         setConfirmModal(false);
-        showAlert({
-          type: "success",
-          open: true,
-          message: "Successfully added item",
-        });
         if (history && redirectTo) {
-          history.push(redirectTo);
-          queryClient.invalidateQueries(["items", organization]);
+          history.push(redirectTo, { successMessage: successMessage.current });
+          await queryClient.invalidateQueries(["items", organization]);
         }
       },
-      onError: (error) => {
-        showAlert({
-          type: "error",
-          open: true,
-          message: "Error in creating item",
-        });
+      onError: () => {
+        errorMessage.current = "Error in creating item";
+        history.push(redirectTo, { errorMessage: errorMessage.current });
       },
     }
   );
@@ -204,25 +204,18 @@ const AddItems = ({ history, location, productOptions, itemOptions }) => {
       return response.data;
     },
     {
-      onSuccess: (data) => {
+      onSuccess: async () => {
+        successMessage.current = "Successfully edited item";
         setFormModal(false);
         setConfirmModal(false);
-        showAlert({
-          type: "success",
-          open: true,
-          message: "Item edited successfully",
-        });
         if (history && redirectTo) {
-          history.push(redirectTo);
-          queryClient.invalidateQueries(["items", organization]);
+          history.push(redirectTo, { successMessage: successMessage.current });
+          await queryClient.invalidateQueries(["items", organization]);
         }
       },
-      onError: (error) => {
-        showAlert({
-          type: "error",
-          open: true,
-          message: "Error in editing item",
-        });
+      onError: () => {
+        errorMessage.current = "Error in editing item";
+        history.push(redirectTo, { errorMessage: errorMessage.current });
       },
     }
   );
