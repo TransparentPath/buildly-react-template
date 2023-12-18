@@ -22,15 +22,6 @@ const Items = ({ history, redirectTo }) => {
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState("");
 
-  useEffect(() => {
-    const { state } = history.location;
-    if (state && state.successMessage) {
-      successMessage.current = state.successMessage;
-    } else if (state && state.errorMessage) {
-      errorMessage.current = state.errorMessage;
-    }
-  }, [history.location.state]);
-
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ["items", organization],
     () => getItemQuery(organization)
@@ -92,7 +83,7 @@ const Items = ({ history, redirectTo }) => {
   };
 
   const { mutate: deleteItemMutation, isLoading: isDeletingItem } =
-    useDeleteItemMutation(organization, setDeleteModal);
+    useDeleteItemMutation(organization);
 
   const handleDeleteModal = () => {
     setDeleteModal(false);

@@ -21,15 +21,15 @@ export const useAddItemMutation = (
     },
     {
       onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["items", organization],
+        });
         setFormModal(false);
         setConfirmModal(false);
         showAlert({
           type: "success",
           message: "Successfully added item",
           open: true,
-        });
-        await queryClient.invalidateQueries({
-          queryKey: ["items", organization],
         });
       },
       onError: () => {

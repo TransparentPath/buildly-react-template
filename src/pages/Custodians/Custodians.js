@@ -1,39 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { Route } from 'react-router-dom';
-import _ from 'lodash';
-import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
-import { getUser } from '../../context/User.context';
-import {
-  getCustodians,
-  deleteCustodian,
-  getContact,
-  getCustodianType,
-} from '../../redux/custodian/actions/custodian.actions';
-import { getCountries } from '../../redux/shipment/actions/shipment.actions';
-import { routes } from '../../routes/routesConstants';
+import React, { useState, useEffect } from "react";
+import { Route } from "react-router-dom";
+import _ from "lodash";
+import DataTableWrapper from "../../components/DataTableWrapper/DataTableWrapper";
+import { getUser } from "../../context/User.context";
+import { routes } from "../../routes/routesConstants";
 import {
   custodianColumns,
   getCustodianFormattedRow,
   getUniqueContactInfo,
-} from '../../utils/constants';
-import AddCustodians from './forms/AddCustodians';
+} from "../../utils/constants";
+import AddCustodians from "./forms/AddCustodians";
+import { useQuery } from "react-query";
+import { getCustodianQuery } from "../../react-query/queries/custodians/getCustodianQuery";
+import { getCustodianTypeQuery } from "../../react-query/queries/custodians/getCustodianTypeQuery";
+import { getContactQuery } from "../../react-query/queries/custodians/getContactQuery";
+import { getCountriesQuery } from "../../react-query/queries/shipments/getCountriesQuery";
+import { getUnitQuery } from "../../react-query/queries/items/getUnitQuery";
+import { getAllOrganizationQuery } from "../../react-query/queries/authUser/getAllOrganizationQuery";
+import { useDeleteCustodianMutation } from "../../react-query/mutations/custodians/deleteCustodianMutation";
 
-const Custodian = ({
-  dispatch,
-  history,
-  custodianData,
-  loading,
-  contactInfo,
-  redirectTo,
-}) => {
-  const [openDeleteModal, setDeleteModal] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState('');
-  const [deleteContactObjId, setDeleteContactObjId] = useState('');
-  const [rows, setRows] = useState([]);
-
+const Custodian = ({ history, redirectTo }) => {
   const user = getUser();
   const organization = user.organization.organization_uuid;
+
+  const [rows, setRows] = useState([]);
+  const [openDeleteModal, setDeleteModal] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState("");
+  const [deleteContactObjId, setDeleteContactObjId] = useState("");
+
+  const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
+    ["custodians", organization],
+    () => getCustodianQuery(organization)
+  );
+
+  const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } =
+    useQuery(["custodianTypes"], () => getCustodianTypeQuery());
+
+  const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
+    ["contact", organization],
+    () => getContactQuery(organization)
+  );
+
+  const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
+    ["countries"],
+    () => getCountriesQuery()
+  );
+
+  const { data: unitData, isLoading: isLoadingUnits } = useQuery(
+    ["unit", organization],
+    () => getUnitQuery(organization)
+  );
+
+  const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
+    ["organizations"],
+    () => getAllOrganizationQuery()
+  );
 
   const addCustodianPath = redirectTo
     ? `${redirectTo}/custodian`
@@ -44,13 +65,6 @@ const Custodian = ({
     : `${routes.CUSTODIANS}/edit`;
 
   useEffect(() => {
-    dispatch(getCustodians(organization));
-    dispatch(getCustodianType());
-    dispatch(getContact(organization));
-    dispatch(getCountries());
-  }, []);
-
-  useEffect(() => {
     if (!_.isEmpty(custodianData) && !_.isEmpty(contactInfo)) {
       setRows(getCustodianFormattedRow(custodianData, contactInfo));
     }
@@ -59,10 +73,14 @@ const Custodian = ({
   const editItem = (item) => {
     const contactObj = getUniqueContactInfo(item, contactInfo);
     history.push(`${editCustodianPath}/:${item.id}`, {
-      type: 'edit',
+      type: "edit",
       from: redirectTo || routes.CUSTODIANS,
       data: item,
       contactData: contactObj,
+      custodianTypesData: custodianTypesData,
+      countriesData: countriesData,
+      unitData: unitData,
+      orgData: orgData,
     });
   };
 
@@ -73,23 +91,35 @@ const Custodian = ({
     setDeleteModal(true);
   };
 
+  const { mutate: deleteCustodianMutation, isLoading: isDeletingCustodian } =
+    useDeleteCustodianMutation(organization);
+
   const handleDeleteModal = () => {
-    dispatch(deleteCustodian(
-      deleteItemId,
-      deleteContactObjId,
-    ));
     setDeleteModal(false);
+    deleteCustodianMutation([deleteItemId, deleteContactObjId]);
   };
 
   const onAddButtonClick = () => {
     history.push(addCustodianPath, {
       from: redirectTo || routes.CUSTODIANS,
+      custodianTypesData: custodianTypesData,
+      countriesData: countriesData,
+      unitData: unitData,
+      orgData: orgData,
     });
   };
 
   return (
     <DataTableWrapper
-      loading={loading}
+      loading={
+        isLoadingCustodians ||
+        isLoadingCustodianTypes ||
+        isLoadingContact ||
+        isLoadingCountries ||
+        isLoadingUnits ||
+        isLoadingOrgs ||
+        isDeletingCustodian
+      }
       rows={rows || []}
       columns={custodianColumns}
       filename="CustodianData"
@@ -109,10 +139,4 @@ const Custodian = ({
   );
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  ...ownProps,
-  ...state.custodianReducer,
-  loading: state.custodianReducer.loading || state.authReducer.loading,
-});
-
-export default connect(mapStateToProps)(Custodian);
+export default Custodian;

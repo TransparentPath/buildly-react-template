@@ -21,15 +21,15 @@ export const useEditItemMutation = (
     },
     {
       onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["items", organization],
+        });
         setFormModal(false);
         setConfirmModal(false);
         showAlert({
           type: "success",
           message: "Item successfully edited!",
           open: true,
-        });
-        await queryClient.invalidateQueries({
-          queryKey: ["items", organization],
         });
       },
       onError: () => {
