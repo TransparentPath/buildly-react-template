@@ -1,11 +1,11 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import App from "./App";
-import "./i18n";
-import configureStore from "./redux/store";
-import registerServiceWorker from "./serviceWorkerRegistration";
-import { QueryClient, QueryClientProvider } from "react-query";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import App from './App';
+import './i18n';
+import configureStore from './redux/store';
+import registerServiceWorker from './serviceWorkerRegistration';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const store = configureStore();
 
@@ -17,7 +17,7 @@ ReactDOM.render(
       <App />
     </Provider>
   </QueryClientProvider>,
-  document.getElementById("root")
+  document.getElementById('root'),
 );
 
 registerServiceWorker();

@@ -1,27 +1,26 @@
-import { useMutation, useQueryClient } from "react-query";
-import { httpService } from "@modules/http/http.service";
-import { useStore } from "../../../zustand/alert/alertStore";
+import { useMutation, useQueryClient } from 'react-query';
+import { httpService } from '@modules/http/http.service';
 
 export const useEditCustodianMutation = (
   organization,
-  setFormModal,
-  setConfirmModal
+  history,
+  redirectTo,
+  displayAlert,
 ) => {
   const queryClient = useQueryClient();
-  const { showAlert } = useStore();
 
   return useMutation(
     async (arrayData) => {
       const [custodianData, contactData] = arrayData;
       const contactResponse = await httpService.makeRequest(
-        "patch",
+        'patch',
         `${window.env.API_URL}custodian/contact/${contactData.id}`,
-        contactData
+        contactData,
       );
       const custodianResponse = await httpService.makeRequest(
-        "patch",
+        'patch',
         `${window.env.API_URL}custodian/custodian/${custodianData.id}`,
-        custodianData
+        custodianData,
       );
       const response = {
         contactResponse,
@@ -32,26 +31,19 @@ export const useEditCustodianMutation = (
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: ["custodians", organization],
+          queryKey: ['custodians', organization],
         });
         await queryClient.invalidateQueries({
-          queryKey: ["contact", organization],
+          queryKey: ['contact', organization],
         });
-        setFormModal(false);
-        setConfirmModal(false);
-        showAlert({
-          type: "success",
-          message: "Custodian successfully edited!",
-          open: true,
-        });
+        displayAlert('success', 'Custodian successfully edited!');
+        if (history && redirectTo) {
+          history.push(redirectTo);
+        }
       },
       onError: () => {
-        showAlert({
-          type: "error",
-          message: "Couldn't edit custodian!",
-          open: true,
-        });
+        displayAlert('error', "Couldn't edit custodian!");
       },
-    }
+    },
   );
 };

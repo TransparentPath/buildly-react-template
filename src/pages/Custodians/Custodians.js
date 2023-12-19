@@ -1,59 +1,64 @@
-import React, { useState, useEffect } from "react";
-import { Route } from "react-router-dom";
-import _ from "lodash";
-import DataTableWrapper from "../../components/DataTableWrapper/DataTableWrapper";
-import { getUser } from "../../context/User.context";
-import { routes } from "../../routes/routesConstants";
+import React, { useState, useEffect } from 'react';
+import { Route } from 'react-router-dom';
+import _ from 'lodash';
+import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
+import { getUser } from '../../context/User.context';
+import { routes } from '../../routes/routesConstants';
 import {
   custodianColumns,
   getCustodianFormattedRow,
   getUniqueContactInfo,
-} from "../../utils/constants";
-import AddCustodians from "./forms/AddCustodians";
-import { useQuery } from "react-query";
-import { getCustodianQuery } from "../../react-query/queries/custodians/getCustodianQuery";
-import { getCustodianTypeQuery } from "../../react-query/queries/custodians/getCustodianTypeQuery";
-import { getContactQuery } from "../../react-query/queries/custodians/getContactQuery";
-import { getCountriesQuery } from "../../react-query/queries/shipments/getCountriesQuery";
-import { getUnitQuery } from "../../react-query/queries/items/getUnitQuery";
-import { getAllOrganizationQuery } from "../../react-query/queries/authUser/getAllOrganizationQuery";
-import { useDeleteCustodianMutation } from "../../react-query/mutations/custodians/deleteCustodianMutation";
+} from '../../utils/constants';
+import AddCustodians from './forms/AddCustodians';
+import { useQuery } from 'react-query';
+import { getCustodianQuery } from '../../react-query/queries/custodians/getCustodianQuery';
+import { getCustodianTypeQuery } from '../../react-query/queries/custodians/getCustodianTypeQuery';
+import { getContactQuery } from '../../react-query/queries/custodians/getContactQuery';
+import { getCountriesQuery } from '../../react-query/queries/shipments/getCountriesQuery';
+import { getUnitQuery } from '../../react-query/queries/items/getUnitQuery';
+import { getAllOrganizationQuery } from '../../react-query/queries/authUser/getAllOrganizationQuery';
+import { useDeleteCustodianMutation } from '../../react-query/mutations/custodians/deleteCustodianMutation';
+import useAlert from '@hooks/useAlert';
 
 const Custodian = ({ history, redirectTo }) => {
   const user = getUser();
   const organization = user.organization.organization_uuid;
 
+  const { displayAlert } = useAlert();
+
   const [rows, setRows] = useState([]);
   const [openDeleteModal, setDeleteModal] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState("");
-  const [deleteContactObjId, setDeleteContactObjId] = useState("");
+  const [deleteItemId, setDeleteItemId] = useState('');
+  const [deleteContactObjId, setDeleteContactObjId] = useState('');
 
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
-    ["custodians", organization],
-    () => getCustodianQuery(organization)
+    ['custodians', organization],
+    () => getCustodianQuery(organization, displayAlert),
   );
 
-  const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } =
-    useQuery(["custodianTypes"], () => getCustodianTypeQuery());
+  const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
+    ['custodianTypes'],
+    () => getCustodianTypeQuery(displayAlert),
+  );
 
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
-    ["contact", organization],
-    () => getContactQuery(organization)
+    ['contact', organization],
+    () => getContactQuery(organization, displayAlert),
   );
 
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
-    ["countries"],
-    () => getCountriesQuery()
+    ['countries'],
+    () => getCountriesQuery(displayAlert),
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
-    ["unit", organization],
-    () => getUnitQuery(organization)
+    ['unit', organization],
+    () => getUnitQuery(organization, displayAlert),
   );
 
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
-    ["organizations"],
-    () => getAllOrganizationQuery()
+    ['organizations'],
+    () => getAllOrganizationQuery(displayAlert),
   );
 
   const addCustodianPath = redirectTo
@@ -73,14 +78,14 @@ const Custodian = ({ history, redirectTo }) => {
   const editItem = (item) => {
     const contactObj = getUniqueContactInfo(item, contactInfo);
     history.push(`${editCustodianPath}/:${item.id}`, {
-      type: "edit",
+      type: 'edit',
       from: redirectTo || routes.CUSTODIANS,
       data: item,
       contactData: contactObj,
-      custodianTypesData: custodianTypesData,
-      countriesData: countriesData,
-      unitData: unitData,
-      orgData: orgData,
+      custodianTypesData,
+      countriesData,
+      unitData,
+      orgData,
     });
   };
 
@@ -91,8 +96,7 @@ const Custodian = ({ history, redirectTo }) => {
     setDeleteModal(true);
   };
 
-  const { mutate: deleteCustodianMutation, isLoading: isDeletingCustodian } =
-    useDeleteCustodianMutation(organization);
+  const { mutate: deleteCustodianMutation, isLoading: isDeletingCustodian } = useDeleteCustodianMutation(organization, displayAlert);
 
   const handleDeleteModal = () => {
     setDeleteModal(false);
@@ -102,23 +106,17 @@ const Custodian = ({ history, redirectTo }) => {
   const onAddButtonClick = () => {
     history.push(addCustodianPath, {
       from: redirectTo || routes.CUSTODIANS,
-      custodianTypesData: custodianTypesData,
-      countriesData: countriesData,
-      unitData: unitData,
-      orgData: orgData,
+      custodianTypesData,
+      countriesData,
+      unitData,
+      orgData,
     });
   };
 
   return (
     <DataTableWrapper
       loading={
-        isLoadingCustodians ||
-        isLoadingCustodianTypes ||
-        isLoadingContact ||
-        isLoadingCountries ||
-        isLoadingUnits ||
-        isLoadingOrgs ||
-        isDeletingCustodian
+        isLoadingCustodians || isLoadingCustodianTypes || isLoadingContact || isLoadingCountries || isLoadingUnits || isLoadingOrgs || isDeletingCustodian
       }
       rows={rows || []}
       columns={custodianColumns}

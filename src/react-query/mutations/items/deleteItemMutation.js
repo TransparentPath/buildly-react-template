@@ -1,36 +1,26 @@
-import { useMutation, useQueryClient } from "react-query";
-import { httpService } from "@modules/http/http.service";
-import { useStore } from "../../../zustand/alert/alertStore";
+import { useMutation, useQueryClient } from 'react-query';
+import { httpService } from '@modules/http/http.service';
 
-export const useDeleteItemMutation = (organization) => {
+export const useDeleteItemMutation = (organization, displayAlert) => {
   const queryClient = useQueryClient();
-  const { showAlert } = useStore();
 
   return useMutation(
     async (itemId) => {
       await httpService.makeRequest(
-        "delete",
-        `${window.env.API_URL}shipment/item/${itemId}`
+        'delete',
+        `${window.env.API_URL}shipment/item/${itemId}`,
       );
     },
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: ["items", organization],
+          queryKey: ['items', organization],
         });
-        showAlert({
-          type: "success",
-          message: "Item deleted successfully!",
-          open: true,
-        });
+        displayAlert('success', 'Item deleted successfully!');
       },
       onError: () => {
-        showAlert({
-          type: "error",
-          message: "Error in deleting item!",
-          open: true,
-        });
+        displayAlert('error', 'Error in deleting item!');
       },
-    }
+    },
   );
 };

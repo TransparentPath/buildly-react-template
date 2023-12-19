@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
@@ -21,13 +20,11 @@ import FormModal from '../../../components/Modal/FormModal';
 import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { getUser } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
-import { getUnitOfMeasure } from '../../../redux/items/actions/items.actions';
-import {
-  addGateway,
-  editGateway,
-} from '../../../redux/sensorsGateway/actions/sensorsGateway.actions';
+import { editGateway } from '../../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { validators } from '../../../utils/validators';
 import { getCustodianFormattedRow, GATEWAY_STATUS } from '../../../utils/constants';
+import { useAddGatewayMutation } from '../../../react-query/mutations/sensorGateways/addGatewayMutation';
+import useAlert from '@hooks/useAlert';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -64,70 +61,86 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const AddGateway = ({
-  dispatch,
-  loading,
   history,
   location,
-  gatewayTypeList,
   gatewayOptions,
-  timezone,
   viewOnly,
-  custodianData,
-  contactInfo,
-  unitOfMeasure,
 }) => {
   const classes = useStyles();
   const [openFormModal, setFormModal] = useState(true);
   const [openConfirmModal, setConfirmModal] = useState(false);
 
-  const redirectTo = location.state && location.state.from;
-  const editPage = location.state && location.state.type === 'edit';
-  const editData = (
-    location.state
-    && location.state.type === 'edit'
-    && location.state.data
-  ) || {};
+  const { displayAlert } = useAlert();
 
-  const gateway_name = useInput(editData.name || '', {
+  const redirectTo = location.state && location.state.from;
+  const {
+    gatewayTypesData, unitData, custodianData, contactInfo,
+  } = location.state || {};
+
+  // const editPage = location.state && location.state.type === 'edit';
+  // const editData = (
+  //   location.state
+  //   && location.state.type === 'edit'
+  //   && location.state.data
+  // ) || {};
+
+  // const gateway_name = useInput(editData.name || '', {
+  //   required: true,
+  // });
+  const gateway_name = useInput('', {
     required: true,
   });
-  const gateway_type = useInput(editData.gateway_type || '', {
+  // const gateway_type = useInput(editData.gateway_type || '', {
+  //   required: true,
+  // });
+  const gateway_type = useInput('', {
     required: true,
   });
+  // const gateway_status = useInput(editData.gateway_status || '', {
+  //   required: true,
+  // });
+  const gateway_status = useInput('', {
+    required: true,
+  });
+  // const [activation_date, handleDateChange] = useState(
+  //   editData.activation_date || moment(),
+  // );
   const [activation_date, handleDateChange] = useState(
-    editData.activation_date || moment(),
+    moment(),
   );
-  const sim_card_id = useInput(editData.sim_card_id || '');
-  const battery_level = useInput(
-    editData.last_known_battery_level || '',
-  );
+  // const sim_card_id = useInput(editData.sim_card_id || '');
+  const sim_card_id = useInput('');
+  // const battery_level = useInput(
+  //   editData.last_known_battery_level || '',
+  // );
+  const battery_level = useInput('');
+  // const mac_address = useInput(editData.mac_address || '');
+  const mac_address = useInput('');
   const [custodianList, setCustodianList] = useState([]);
-  const [custodian_uuid, setcustodian_uuid] = useState(
-    (editData && editData.custodian_uuid) || '',
-  );
-  const mac_address = useInput(editData.mac_address || '');
-  const [last_known_location, setLastLocation] = useState(
-    (editData
-    && editData.last_known_location
-    && editData.last_known_location[0])
-    || '',
-  );
-  const gateway_status = useInput(editData.gateway_status || '', {
-    required: true,
-  });
+  // const [custodian_uuid, setcustodian_uuid] = useState(
+  //   (editData && editData.custodian_uuid) || '',
+  // );
+  const [custodian_uuid, setcustodian_uuid] = useState('');
+  // const [last_known_location, setLastLocation] = useState(
+  //   (editData
+  //   && editData.last_known_location
+  //   && editData.last_known_location[0])
+  //   || '',
+  // );
+  const [last_known_location, setLastLocation] = useState('');
+
   const [formError, setFormError] = useState({});
 
-  const buttonText = editPage ? 'Save' : 'Add Gateway';
-  const formTitle = editPage ? 'Edit Gateway' : 'Add Gateway';
+  // const buttonText = editPage ? 'Save' : 'Add Gateway';
+  const buttonText = 'Add Gateway';
+  // const formTitle = editPage ? 'Edit Gateway' : 'Add Gateway';
+  const formTitle = 'Add Gateway';
 
   const [gatewayMetaData, setGatewayMetaData] = useState({});
-  const organization = getUser().organization.organization_uuid;
 
-  useEffect(() => {
-    if (_.isEmpty(unitOfMeasure)) {
-      dispatch(getUnitOfMeasure(organization));
-    }
-  }, []);
+  const organization = getUser().organization.organization_uuid;
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
   useEffect(() => {
     if (gatewayOptions && gatewayOptions.actions) {
@@ -152,8 +165,8 @@ const AddGateway = ({
       || battery_level.hasChanged()
       || mac_address.hasChanged()
       || gateway_status.hasChanged()
-      || (moment(activation_date).format('l') !== (moment(editData.activation_date || moment()).format('l')))
-      || (last_known_location !== ((editData.last_known_location && editData.last_known_location[0]) || 'null, null'))
+      // || (moment(activation_date).format('l') !== (moment(editData.activation_date || moment()).format('l')))
+      // || (last_known_location !== ((editData.last_known_location && editData.last_known_location[0]) || 'null, null'))
     );
 
     if (dataHasChanged) {
@@ -174,6 +187,8 @@ const AddGateway = ({
     }
   };
 
+  const { mutate: addGatewayMutation, isLoading: isAddingGateway } = useAddGatewayMutation(organization, history, redirectTo, displayAlert);
+
   /**
    * Submit The form and add/edit custodian
    * @param {Event} event the default submit event
@@ -188,7 +203,7 @@ const AddGateway = ({
       shipment_ids: [],
       activation_date,
       last_known_battery_level: battery_level.value,
-      ...(editPage && editData && { id: editData.id }),
+      // ...(editPage && editData && { id: editData.id }),
       mac_address: mac_address.value,
       custodian_uuid: custodian_uuid || null,
       last_known_location: [
@@ -197,11 +212,11 @@ const AddGateway = ({
       gateway_status: gateway_status.value,
       organization_uuid: organization,
     };
-    if (editPage) {
-      dispatch(editGateway(gatewayFormValues, history, redirectTo));
-    } else {
-      dispatch(addGateway(gatewayFormValues, history, redirectTo));
-    }
+    // if (editPage) {
+    // dispatch(editGateway(gatewayFormValues, history, redirectTo));
+    // } else {
+    addGatewayMutation(gatewayFormValues);
+    // }
   };
 
   /**
@@ -235,9 +250,9 @@ const AddGateway = ({
     if (!gateway_type.value || !gateway_name.value) {
       return true;
     }
-    if (!_.isEmpty(editData.shipment_ids)) {
-      return true;
-    }
+    // if (!_.isEmpty(editData.shipment_ids)) {
+    //   return true;
+    // }
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
@@ -264,9 +279,6 @@ const AddGateway = ({
     }
   };
 
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
-
   const setLastKnownLocation = (value) => {
     setLastLocation(value);
   };
@@ -284,7 +296,7 @@ const AddGateway = ({
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
-          {loading && <Loader open={loading} />}
+          {isAddingGateway && <Loader open={isAddingGateway} />}
           <form
             className={classes.form}
             noValidate
@@ -314,14 +326,14 @@ const AddGateway = ({
                   {...gateway_name.bind}
                 />
                 {gatewayMetaData.name
-                && gatewayMetaData.name.help_text
-                && (
-                  <CustomizedTooltips
-                    toolTipText={
-                      gatewayMetaData.name.help_text
-                    }
-                  />
-                )}
+                  && gatewayMetaData.name.help_text
+                  && (
+                    <CustomizedTooltips
+                      toolTipText={
+                        gatewayMetaData.name.help_text
+                      }
+                    />
+                  )}
               </Grid>
             </Grid>
             <Card variant="outlined" className={classes.cardItems}>
@@ -361,9 +373,9 @@ const AddGateway = ({
                       {...gateway_type.bind}
                     >
                       <MenuItem value="">Select</MenuItem>
-                      {gatewayTypeList
+                      {gatewayTypesData
                         && _.map(
-                          gatewayTypeList,
+                          gatewayTypesData,
                           (item, index) => (
                             <MenuItem
                               key={`gatewayType${index}:${item.id}`}
@@ -375,14 +387,14 @@ const AddGateway = ({
                         )}
                     </TextField>
                     {gatewayMetaData.gateway_type
-                    && gatewayMetaData.gateway_type.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          gatewayMetaData.gateway_type.help_text
-                        }
-                      />
-                    )}
+                      && gatewayMetaData.gateway_type.help_text
+                      && (
+                        <CustomizedTooltips
+                          toolTipText={
+                            gatewayMetaData.gateway_type.help_text
+                          }
+                        />
+                      )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -431,32 +443,32 @@ const AddGateway = ({
                         )}
                     </TextField>
                     {gatewayMetaData.gateway_status
-                    && gatewayMetaData.gateway_status.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          gatewayMetaData.gateway_status.help_text
-                        }
-                      />
-                    )}
+                      && gatewayMetaData.gateway_status.help_text
+                      && (
+                        <CustomizedTooltips
+                          toolTipText={
+                            gatewayMetaData.gateway_status.help_text
+                          }
+                        />
+                      )}
                   </Grid>
                   <Grid item xs={12} md={6} sm={6}>
                     <DatePickerComponent
                       label="Activated"
                       selectedDate={
                         moment(activation_date)
-                          .tz(timezone)
+                          .tz('Asia/Kolkata')
                       }
                       handleDateChange={handleDateChange}
                       helpText={
                         gatewayMetaData.activation_date
-                        && gatewayMetaData.activation_date.help_text
+                          && gatewayMetaData.activation_date.help_text
                           ? gatewayMetaData.activation_date.help_text
                           : ''
                       }
                       dateFormat={
-                        _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-                          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                        _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                          ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
                           : ''
                       }
                     />
@@ -479,14 +491,14 @@ const AddGateway = ({
                       {...sim_card_id.bind}
                     />
                     {gatewayMetaData.sim_card_id
-                    && gatewayMetaData.sim_card_id.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          gatewayMetaData.sim_card_id.help_text
-                        }
-                      />
-                    )}
+                      && gatewayMetaData.sim_card_id.help_text
+                      && (
+                        <CustomizedTooltips
+                          toolTipText={
+                            gatewayMetaData.sim_card_id.help_text
+                          }
+                        />
+                      )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -506,14 +518,14 @@ const AddGateway = ({
                       {...battery_level.bind}
                     />
                     {gatewayMetaData.last_known_battery_level
-                    && gatewayMetaData.last_known_battery_level.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          gatewayMetaData.last_known_battery_level.help_text
-                        }
-                      />
-                    )}
+                      && gatewayMetaData.last_known_battery_level.help_text
+                      && (
+                        <CustomizedTooltips
+                          toolTipText={
+                            gatewayMetaData.last_known_battery_level.help_text
+                          }
+                        />
+                      )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -533,14 +545,14 @@ const AddGateway = ({
                       {...mac_address.bind}
                     />
                     {gatewayMetaData.mac_address
-                    && gatewayMetaData.mac_address.help_text
-                    && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          gatewayMetaData.mac_address.help_text
-                        }
-                      />
-                    )}
+                      && gatewayMetaData.mac_address.help_text
+                      && (
+                        <CustomizedTooltips
+                          toolTipText={
+                            gatewayMetaData.mac_address.help_text
+                          }
+                        />
+                      )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -556,41 +568,41 @@ const AddGateway = ({
                       label="Custodian"
                       disabled={viewOnly}
                       error={
-                    formError.custodian_uuid
-                    && formError.custodian_uuid.error
-                  }
+                        formError.custodian_uuid
+                        && formError.custodian_uuid.error
+                      }
                       helperText={
-                    formError.custodian_uuid
-                      ? formError.custodian_uuid.message
-                      : ''
-                  }
+                        formError.custodian_uuid
+                          ? formError.custodian_uuid.message
+                          : ''
+                      }
                       onBlur={(e) => handleBlur(e, 'required', custodian_uuid, 'custodian_uuid')}
                       value={custodian_uuid}
                       onChange={onInputChange}
                     >
                       <MenuItem value="">Select</MenuItem>
                       {custodianList
-                    && _.map(
-                      _.orderBy(custodianList, ['name'], ['asc']),
-                      (item, index) => (
-                        <MenuItem
-                          key={`custodian${index}:${item.id}`}
-                          value={item.custodian_uuid}
-                        >
-                          {item.name}
-                        </MenuItem>
-                      ),
-                    )}
+                        && _.map(
+                          _.orderBy(custodianList, ['name'], ['asc']),
+                          (item, index) => (
+                            <MenuItem
+                              key={`custodian${index}:${item.id}`}
+                              value={item.custodian_uuid}
+                            >
+                              {item.name}
+                            </MenuItem>
+                          ),
+                        )}
                     </TextField>
                     {gatewayMetaData.custodian_uuid
-                && gatewayMetaData.custodian_uuid.help_text
-                && (
-                  <CustomizedTooltips
-                    toolTipText={
-                      gatewayMetaData.custodian_uuid.help_text
-                    }
-                  />
-                )}
+                      && gatewayMetaData.custodian_uuid.help_text
+                      && (
+                        <CustomizedTooltips
+                          toolTipText={
+                            gatewayMetaData.custodian_uuid.help_text
+                          }
+                        />
+                      )}
                   </Grid>
                   <Grid item xs={12}>
                     <div className={classes.inputWithTooltip}>
@@ -605,14 +617,14 @@ const AddGateway = ({
                         value={last_known_location}
                       />
                       {gatewayMetaData.last_known_location
-                      && gatewayMetaData.last_known_location.help_text
-                      && (
-                        <CustomizedTooltips
-                          toolTipText={
-                            gatewayMetaData.last_known_location.help_text
-                          }
-                        />
-                      )}
+                        && gatewayMetaData.last_known_location.help_text
+                        && (
+                          <CustomizedTooltips
+                            toolTipText={
+                              gatewayMetaData.last_known_location.help_text
+                            }
+                          />
+                        )}
                     </div>
                     <MapComponent
                       isMarkerShown
@@ -630,13 +642,13 @@ const AddGateway = ({
                       markers={[
                         {
                           lat: last_known_location
-                          && parseFloat(
-                            last_known_location.split(',')[0],
-                          ),
+                            && parseFloat(
+                              last_known_location.split(',')[0],
+                            ),
                           lng: last_known_location
-                          && parseFloat(
-                            last_known_location.split(',')[1],
-                          ),
+                            && parseFloat(
+                              last_known_location.split(',')[1],
+                            ),
                           onMarkerDrag: setLastKnownLocation,
                           draggable: true,
                         },
@@ -646,7 +658,6 @@ const AddGateway = ({
                 </Grid>
               </CardContent>
             </Card>
-
             <Grid container spacing={2} justifyContent="center">
               <Grid item xs={6} sm={4}>
                 <Button
@@ -655,7 +666,7 @@ const AddGateway = ({
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  disabled={loading || submitDisabled()}
+                  disabled={isAddingGateway || submitDisabled()}
                 >
                   {buttonText}
                 </Button>
@@ -680,18 +691,4 @@ const AddGateway = ({
   );
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  ...ownProps,
-  ...state.sensorsGatewayReducer,
-  ...state.optionsReducer,
-  ...state.custodianReducer,
-  ...state.itemsReducer,
-  loading: (
-    state.sensorsGatewayReducer.loading
-    || state.optionsReducer.loading
-    || state.custodianReducer.loading
-    || state.itemsReducer.loading
-  ),
-});
-
-export default connect(mapStateToProps)(AddGateway);
+export default AddGateway;

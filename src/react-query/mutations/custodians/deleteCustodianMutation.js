@@ -1,44 +1,34 @@
-import { useMutation, useQueryClient } from "react-query";
-import { httpService } from "@modules/http/http.service";
-import { useStore } from "../../../zustand/alert/alertStore";
+import { useMutation, useQueryClient } from 'react-query';
+import { httpService } from '@modules/http/http.service';
 
-export const useDeleteCustodianMutation = (organization) => {
+export const useDeleteCustodianMutation = (organization, displayAlert) => {
   const queryClient = useQueryClient();
-  const { showAlert } = useStore();
 
   return useMutation(
     async (dataArray) => {
       const [custodianId, contactId] = dataArray;
       await httpService.makeRequest(
-        "delete",
-        `${window.env.API_URL}custodian/custodian/${custodianId}`
+        'delete',
+        `${window.env.API_URL}custodian/custodian/${custodianId}`,
       );
       await httpService.makeRequest(
-        "delete",
-        `${window.env.API_URL}custodian/contact/${contactId}`
+        'delete',
+        `${window.env.API_URL}custodian/contact/${contactId}`,
       );
     },
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: ["custodians", organization],
+          queryKey: ['custodians', organization],
         });
         await queryClient.invalidateQueries({
-          queryKey: ["contact", organization],
+          queryKey: ['contact', organization],
         });
-        showAlert({
-          type: "success",
-          message: "Custodian deleted successfully!",
-          open: true,
-        });
+        displayAlert('success', 'Custodian deleted successfully!');
       },
       onError: () => {
-        showAlert({
-          type: "error",
-          message: "Error in deleting custodian!",
-          open: true,
-        });
+        displayAlert('error', 'Error in deleting custodian!');
       },
-    }
+    },
   );
 };

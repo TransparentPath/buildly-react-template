@@ -1,22 +1,21 @@
-import { useMutation, useQueryClient } from "react-query";
-import { httpService } from "@modules/http/http.service";
-import { useStore } from "../../../zustand/alert/alertStore";
+import { useMutation, useQueryClient } from 'react-query';
+import { httpService } from '@modules/http/http.service';
 
 export const useAddCustodianMutation = (
   organization,
-  setFormModal,
-  setConfirmModal
+  history,
+  redirectTo,
+  displayAlert,
 ) => {
   const queryClient = useQueryClient();
-  const { showAlert } = useStore();
 
   return useMutation(
     async (arrayData) => {
       const [custodianData, contactData] = arrayData;
       const contactResponse = await httpService.makeRequest(
-        "post",
+        'post',
         `${window.env.API_URL}custodian/contact/`,
-        contactData
+        contactData,
       );
       if (contactResponse && contactResponse.data) {
         const contactInfo = contactResponse.data.url;
@@ -26,9 +25,9 @@ export const useAddCustodianMutation = (
         };
         if (!custodianData.custody_org_uuid) {
           const orgResponse = await httpService.makeRequest(
-            "post",
+            'post',
             `${window.env.API_URL}organization/`,
-            { name: custodianPayload.name, organization_type: 1 }
+            { name: custodianPayload.name, organization_type: 1 },
           );
           if (orgResponse && orgResponse.data) {
             custodianPayload = {
@@ -38,37 +37,30 @@ export const useAddCustodianMutation = (
           }
         }
         const response = await httpService.makeRequest(
-          "post",
+          'post',
           `${window.env.API_URL}custodian/custodian/`,
-          custodianPayload
+          custodianPayload,
         );
         return response.data;
       }
+      return [];
     },
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: ["custodians", organization],
+          queryKey: ['custodians', organization],
         });
         await queryClient.invalidateQueries({
-          queryKey: ["contact", organization],
+          queryKey: ['contact', organization],
         });
-        setFormModal(false);
-        setConfirmModal(false);
-        showAlert({
-          type: "success",
-          message:
-            "Successfully added custodian. Please ensure your organization admin assigns an organization to this custodian",
-          open: true,
-        });
+        displayAlert('success', 'Successfully added custodian. Please ensure your organization admin assigns an organization to this custodian');
+        if (history && redirectTo) {
+          history.push(redirectTo);
+        }
       },
       onError: () => {
-        showAlert({
-          type: "error",
-          message: "Error in creating custodian",
-          open: true,
-        });
+        displayAlert('error', 'Error in creating custodian');
       },
-    }
+    },
   );
 };

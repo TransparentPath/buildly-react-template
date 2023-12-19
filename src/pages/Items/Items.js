@@ -1,50 +1,53 @@
-import React, { useState, useEffect } from "react";
-import { Route } from "react-router-dom";
-import _ from "lodash";
-import DataTableWrapper from "../../components/DataTableWrapper/DataTableWrapper";
-import { getUser } from "../../context/User.context";
-import { routes } from "../../routes/routesConstants";
-import { itemColumns, getItemFormattedRow } from "../../utils/constants";
-import AddItems from "./forms/AddItems";
-import { useQuery } from "react-query";
-import { getItemQuery } from "../../react-query/queries/items/getItemQuery";
-import { getItemTypeQuery } from "../../react-query/queries/items/getItemTypeQuery";
-import { getUnitQuery } from "../../react-query/queries/items/getUnitQuery";
-import { getProductQuery } from "../../react-query/queries/items/getProductQuery";
-import { getProductTypeQuery } from "../../react-query/queries/items/getProductTypeQuery";
-import { useDeleteItemMutation } from "../../react-query/mutations/items/deleteItemMutation";
+import React, { useState, useEffect } from 'react';
+import { Route } from 'react-router-dom';
+import _ from 'lodash';
+import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
+import { getUser } from '../../context/User.context';
+import { routes } from '../../routes/routesConstants';
+import { itemColumns, getItemFormattedRow } from '../../utils/constants';
+import AddItems from './forms/AddItems';
+import { useQuery } from 'react-query';
+import { getItemQuery } from '../../react-query/queries/items/getItemQuery';
+import { getItemTypeQuery } from '../../react-query/queries/items/getItemTypeQuery';
+import { getUnitQuery } from '../../react-query/queries/items/getUnitQuery';
+import { getProductQuery } from '../../react-query/queries/items/getProductQuery';
+import { getProductTypeQuery } from '../../react-query/queries/items/getProductTypeQuery';
+import { useDeleteItemMutation } from '../../react-query/mutations/items/deleteItemMutation';
+import useAlert from '@hooks/useAlert';
 
 const Items = ({ history, redirectTo }) => {
   const user = getUser();
   const organization = user.organization.organization_uuid;
 
+  const { displayAlert } = useAlert();
+
   const [rows, setRows] = useState([]);
   const [openDeleteModal, setDeleteModal] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState("");
+  const [deleteItemId, setDeleteItemId] = useState('');
 
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
-    ["items", organization],
-    () => getItemQuery(organization)
+    ['items', organization],
+    () => getItemQuery(organization, displayAlert),
   );
 
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
-    ["itemTypes", organization],
-    () => getItemTypeQuery(organization)
+    ['itemTypes', organization],
+    () => getItemTypeQuery(organization, displayAlert),
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
-    ["unit", organization],
-    () => getUnitQuery(organization)
+    ['unit', organization],
+    () => getUnitQuery(organization, displayAlert),
   );
 
   const { data: productData, isLoading: isLoadingProducts } = useQuery(
-    ["products", organization],
-    () => getProductQuery(organization)
+    ['products', organization],
+    () => getProductQuery(organization, displayAlert),
   );
 
   const { data: productTypesData, isLoading: isLoadingProductTypes } = useQuery(
-    ["productTypes", organization],
-    () => getProductTypeQuery(organization)
+    ['productTypes', organization],
+    () => getProductTypeQuery(organization, displayAlert),
   );
 
   const addItemPath = redirectTo
@@ -56,24 +59,20 @@ const Items = ({ history, redirectTo }) => {
     : `${routes.ITEMS}/edit`;
 
   useEffect(() => {
-    if (
-      !_.isEmpty(itemData) &&
-      !_.isEmpty(itemTypesData) &&
-      !_.isEmpty(unitData)
-    ) {
+    if (!_.isEmpty(itemData) && !_.isEmpty(itemTypesData) && !_.isEmpty(unitData)) {
       setRows(getItemFormattedRow(itemData, itemTypesData, unitData));
     }
   }, [itemData, itemTypesData, unitData]);
 
   const editItems = (item) => {
     history.push(`${editItemPath}/:${item.id}`, {
-      type: "edit",
+      type: 'edit',
       from: redirectTo || routes.ITEMS,
       data: item,
-      itemTypesData: itemTypesData,
-      productData: productData,
-      productTypesData: productTypesData,
-      unitData: unitData,
+      itemTypesData,
+      productData,
+      productTypesData,
+      unitData,
     });
   };
 
@@ -82,8 +81,7 @@ const Items = ({ history, redirectTo }) => {
     setDeleteModal(true);
   };
 
-  const { mutate: deleteItemMutation, isLoading: isDeletingItem } =
-    useDeleteItemMutation(organization);
+  const { mutate: deleteItemMutation, isLoading: isDeletingItem } = useDeleteItemMutation(organization, displayAlert);
 
   const handleDeleteModal = () => {
     setDeleteModal(false);
@@ -93,35 +91,28 @@ const Items = ({ history, redirectTo }) => {
   const onAddButtonClick = () => {
     history.push(addItemPath, {
       from: redirectTo || routes.ITEMS,
-      itemTypesData: itemTypesData,
-      productData: productData,
-      productTypesData: productTypesData,
-      unitData: unitData,
+      itemTypesData,
+      productData,
+      productTypesData,
+      unitData,
     });
   };
 
   return (
     <div>
       <DataTableWrapper
-        loading={
-          isLoadingItems ||
-          isLoadingItemTypes ||
-          isLoadingUnits ||
-          isLoadingProducts ||
-          isLoadingProductTypes ||
-          isDeletingItem
-        }
+        loading={isLoadingItems || isLoadingItemTypes || isLoadingUnits || isLoadingProducts || isLoadingProductTypes || isDeletingItem}
         rows={rows || []}
         columns={itemColumns(
           _.find(
             unitData,
-            (unit) => _.toLower(unit.unit_of_measure_for) === "currency"
+            (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
           )
             ? _.find(
-                unitData,
-                (unit) => _.toLower(unit.unit_of_measure_for) === "currency"
-              ).unit_of_measure
-            : ""
+              unitData,
+              (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
+            ).unit_of_measure
+            : '',
         )}
         filename="ItemsData"
         addButtonHeading="Add Item"
