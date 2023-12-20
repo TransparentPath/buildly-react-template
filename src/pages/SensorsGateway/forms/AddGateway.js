@@ -25,6 +25,7 @@ import { getCustodianFormattedRow, GATEWAY_STATUS } from '../../../utils/constan
 import { useAddGatewayMutation } from '../../../react-query/mutations/sensorGateways/addGatewayMutation';
 import { useEditGatewayMutation } from '../../../react-query/mutations/sensorGateways/editGatewayMutation';
 import useAlert from '@hooks/useAlert';
+import { useStore } from '../../../zustand/timezone/timezoneStore';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -71,6 +72,7 @@ const AddGateway = ({
   const [openConfirmModal, setConfirmModal] = useState(false);
 
   const { displayAlert } = useAlert();
+  const { data } = useStore();
 
   const redirectTo = location.state && location.state.from;
   const {
@@ -436,7 +438,7 @@ const AddGateway = ({
                       label="Activated"
                       selectedDate={
                         moment(activation_date)
-                          .tz('Asia/Kolkata')
+                          .tz(data)
                       }
                       handleDateChange={handleDateChange}
                       helpText={

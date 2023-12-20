@@ -15,12 +15,14 @@ import { getShipmentsQuery } from '../../react-query/queries/shipments/getShipme
 import { getUnitQuery } from '../../react-query/queries/items/getUnitQuery';
 import { useDeleteGatewayMutation } from '../../react-query/mutations/sensorGateways/deleteGatewayMutation';
 import useAlert from '@hooks/useAlert';
+import { useStore } from '../../zustand/timezone/timezoneStore';
 
 const Gateway = ({ history, redirectTo }) => {
   const user = getUser();
   const organization = user.organization.organization_uuid;
 
   const { displayAlert } = useAlert();
+  const { data } = useStore();
 
   const [rows, setRows] = useState([]);
   const [openDeleteModal, setDeleteModal] = useState(false);
@@ -123,7 +125,7 @@ const Gateway = ({ history, redirectTo }) => {
         }
         rows={rows || []}
         columns={gatewayColumns(
-          'Asia/Kolkata',
+          data,
           _.find(
             unitData,
             (unit) => _.toLower(unit.unit_of_measure_for) === 'date',

@@ -1,17 +1,17 @@
-import React from "react";
-import { Snackbar, Slide, IconButton } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import CloseIcon from "@mui/icons-material/Close";
-import { useStore } from "../../zustand/alert/alertStore";
+import React from 'react';
+import { Snackbar, Slide, IconButton } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import CloseIcon from '@mui/icons-material/Close';
+import { useStore } from '../../zustand/alert/alertStore';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
-    "& > * + *": {
+    width: '100%',
+    '& > * + *': {
       marginTop: theme.spacing(2),
     },
-    "& .MuiSnackbarContent-root": {
-      backgroundColor: "transparent",
+    '& .MuiSnackbarContent-root': {
+      backgroundColor: 'transparent',
     },
   },
   success: {
@@ -33,7 +33,7 @@ const Alert = () => {
   const { data, hideAlert } = useStore();
 
   const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
     hideAlert();
@@ -50,13 +50,13 @@ const Alert = () => {
           open={data.open || false}
           autoHideDuration={2000}
           onClose={handleClose}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           message={data.message}
           TransitionComponent={(props) => <Slide {...props} direction="left" />}
           classes={{
             root: classes[data.type],
           }}
-          action={
+          action={(
             <>
               <IconButton
                 aria-label="close"
@@ -67,7 +67,7 @@ const Alert = () => {
                 <CloseIcon />
               </IconButton>
             </>
-          }
+          )}
         />
       )}
     </div>
