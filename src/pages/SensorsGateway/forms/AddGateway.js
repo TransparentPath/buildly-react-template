@@ -20,10 +20,10 @@ import FormModal from '../../../components/Modal/FormModal';
 import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { getUser } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
-import { editGateway } from '../../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { validators } from '../../../utils/validators';
 import { getCustodianFormattedRow, GATEWAY_STATUS } from '../../../utils/constants';
 import { useAddGatewayMutation } from '../../../react-query/mutations/sensorGateways/addGatewayMutation';
+import { useEditGatewayMutation } from '../../../react-query/mutations/sensorGateways/editGatewayMutation';
 import useAlert from '@hooks/useAlert';
 
 const useStyles = makeStyles((theme) => ({
@@ -77,64 +77,41 @@ const AddGateway = ({
     gatewayTypesData, unitData, custodianData, contactInfo,
   } = location.state || {};
 
-  // const editPage = location.state && location.state.type === 'edit';
-  // const editData = (
-  //   location.state
-  //   && location.state.type === 'edit'
-  //   && location.state.data
-  // ) || {};
+  const editPage = location.state && location.state.type === 'edit';
+  const editData = (location.state && location.state.type === 'edit' && location.state.data) || {};
 
-  // const gateway_name = useInput(editData.name || '', {
-  //   required: true,
-  // });
-  const gateway_name = useInput('', {
+  const gateway_name = useInput(editData.name || '', {
     required: true,
   });
-  // const gateway_type = useInput(editData.gateway_type || '', {
-  //   required: true,
-  // });
-  const gateway_type = useInput('', {
+  const gateway_type = useInput(editData.gateway_type || '', {
     required: true,
   });
-  // const gateway_status = useInput(editData.gateway_status || '', {
-  //   required: true,
-  // });
-  const gateway_status = useInput('', {
+  const gateway_status = useInput(editData.gateway_status || '', {
     required: true,
   });
-  // const [activation_date, handleDateChange] = useState(
-  //   editData.activation_date || moment(),
-  // );
   const [activation_date, handleDateChange] = useState(
-    moment(),
+    editData.activation_date || moment(),
   );
-  // const sim_card_id = useInput(editData.sim_card_id || '');
-  const sim_card_id = useInput('');
-  // const battery_level = useInput(
-  //   editData.last_known_battery_level || '',
-  // );
-  const battery_level = useInput('');
-  // const mac_address = useInput(editData.mac_address || '');
-  const mac_address = useInput('');
+  const sim_card_id = useInput(editData.sim_card_id || '');
+  const battery_level = useInput(
+    editData.last_known_battery_level || '',
+  );
+  const mac_address = useInput(editData.mac_address || '');
   const [custodianList, setCustodianList] = useState([]);
-  // const [custodian_uuid, setcustodian_uuid] = useState(
-  //   (editData && editData.custodian_uuid) || '',
-  // );
-  const [custodian_uuid, setcustodian_uuid] = useState('');
-  // const [last_known_location, setLastLocation] = useState(
-  //   (editData
-  //   && editData.last_known_location
-  //   && editData.last_known_location[0])
-  //   || '',
-  // );
-  const [last_known_location, setLastLocation] = useState('');
+  const [custodian_uuid, setcustodian_uuid] = useState(
+    (editData && editData.custodian_uuid) || '',
+  );
+  const [last_known_location, setLastLocation] = useState(
+    (editData
+      && editData.last_known_location
+      && editData.last_known_location[0])
+    || '',
+  );
 
   const [formError, setFormError] = useState({});
 
-  // const buttonText = editPage ? 'Save' : 'Add Gateway';
-  const buttonText = 'Add Gateway';
-  // const formTitle = editPage ? 'Edit Gateway' : 'Add Gateway';
-  const formTitle = 'Add Gateway';
+  const buttonText = editPage ? 'Save' : 'Add Gateway';
+  const formTitle = editPage ? 'Edit Gateway' : 'Add Gateway';
 
   const [gatewayMetaData, setGatewayMetaData] = useState({});
 
@@ -165,8 +142,8 @@ const AddGateway = ({
       || battery_level.hasChanged()
       || mac_address.hasChanged()
       || gateway_status.hasChanged()
-      // || (moment(activation_date).format('l') !== (moment(editData.activation_date || moment()).format('l')))
-      // || (last_known_location !== ((editData.last_known_location && editData.last_known_location[0]) || 'null, null'))
+      || (moment(activation_date).format('l') !== (moment(editData.activation_date || moment()).format('l')))
+      || (last_known_location !== ((editData.last_known_location && editData.last_known_location[0]) || 'null, null'))
     );
 
     if (dataHasChanged) {
@@ -189,6 +166,8 @@ const AddGateway = ({
 
   const { mutate: addGatewayMutation, isLoading: isAddingGateway } = useAddGatewayMutation(organization, history, redirectTo, displayAlert);
 
+  const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(organization, history, redirectTo, displayAlert);
+
   /**
    * Submit The form and add/edit custodian
    * @param {Event} event the default submit event
@@ -203,7 +182,7 @@ const AddGateway = ({
       shipment_ids: [],
       activation_date,
       last_known_battery_level: battery_level.value,
-      // ...(editPage && editData && { id: editData.id }),
+      ...(editPage && editData && { id: editData.id }),
       mac_address: mac_address.value,
       custodian_uuid: custodian_uuid || null,
       last_known_location: [
@@ -212,11 +191,11 @@ const AddGateway = ({
       gateway_status: gateway_status.value,
       organization_uuid: organization,
     };
-    // if (editPage) {
-    // dispatch(editGateway(gatewayFormValues, history, redirectTo));
-    // } else {
-    addGatewayMutation(gatewayFormValues);
-    // }
+    if (editPage) {
+      editGatewayMutation(gatewayFormValues);
+    } else {
+      addGatewayMutation(gatewayFormValues);
+    }
   };
 
   /**
@@ -250,9 +229,9 @@ const AddGateway = ({
     if (!gateway_type.value || !gateway_name.value) {
       return true;
     }
-    // if (!_.isEmpty(editData.shipment_ids)) {
-    //   return true;
-    // }
+    if (!_.isEmpty(editData.shipment_ids)) {
+      return true;
+    }
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
@@ -296,7 +275,7 @@ const AddGateway = ({
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
-          {isAddingGateway && <Loader open={isAddingGateway} />}
+          {(isAddingGateway || isEditingGateway) && <Loader open={isAddingGateway || isEditingGateway} />}
           <form
             className={classes.form}
             noValidate
@@ -666,7 +645,7 @@ const AddGateway = ({
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  disabled={isAddingGateway || submitDisabled()}
+                  disabled={isAddingGateway || isEditingGateway || submitDisabled()}
                 >
                   {buttonText}
                 </Button>

@@ -3,7 +3,6 @@ import { Route } from 'react-router-dom';
 import _ from 'lodash';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import { getUser } from '../../context/User.context';
-import { deleteGateway } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
 import { routes } from '../../routes/routesConstants';
 import { gatewayColumns, getGatewayFormattedRow } from '../../utils/constants';
 import AddGateway from './forms/AddGateway';
@@ -14,6 +13,7 @@ import { getCustodianQuery } from '../../react-query/queries/custodians/getCusto
 import { getContactQuery } from '../../react-query/queries/custodians/getContactQuery';
 import { getShipmentsQuery } from '../../react-query/queries/shipments/getShipmentsQuery';
 import { getUnitQuery } from '../../react-query/queries/items/getUnitQuery';
+import { useDeleteGatewayMutation } from '../../react-query/mutations/sensorGateways/deleteGatewayMutation';
 import useAlert from '@hooks/useAlert';
 
 const Gateway = ({ history, redirectTo }) => {
@@ -23,8 +23,8 @@ const Gateway = ({ history, redirectTo }) => {
   const { displayAlert } = useAlert();
 
   const [rows, setRows] = useState([]);
-  // const [openDeleteModal, setDeleteModal] = useState(false);
-  // const [deleteGatewayId, setDeleteGatewayId] = useState('');
+  const [openDeleteModal, setDeleteModal] = useState(false);
+  const [deleteGatewayId, setDeleteGatewayId] = useState('');
 
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
     ['gateways', organization],
@@ -60,9 +60,9 @@ const Gateway = ({ history, redirectTo }) => {
     ? `${redirectTo}/gateways`
     : `${routes.TRACKERS}/gateway/add`;
 
-  // const editPath = redirectTo
-  //   ? `${redirectTo}/gateways`
-  //   : `${routes.TRACKERS}/gateway/edit`;
+  const editPath = redirectTo
+    ? `${redirectTo}/gateways`
+    : `${routes.TRACKERS}/gateway/edit`;
 
   useEffect(() => {
     if (!_.isEmpty(gatewayData) && !_.isEmpty(gatewayTypesData)) {
@@ -77,23 +77,29 @@ const Gateway = ({ history, redirectTo }) => {
     }
   }, [gatewayData, gatewayTypesData, shipmentData, custodianData]);
 
-  // const editGatewayAction = (item) => {
-  //   history.push(`${editPath}/:${item.id}`, {
-  //     type: 'edit',
-  //     from: redirectTo || routes.TRACKERS,
-  //     data: item,
-  //   });
-  // };
+  const editGatewayAction = (item) => {
+    history.push(`${editPath}/:${item.id}`, {
+      type: 'edit',
+      from: redirectTo || routes.TRACKERS,
+      data: item,
+      gatewayTypesData,
+      unitData,
+      custodianData,
+      contactInfo,
+    });
+  };
 
-  // const deleteGatewayAction = (item) => {
-  //   setDeleteGatewayId(item.id);
-  //   setDeleteModal(true);
-  // };
+  const deleteGatewayAction = (item) => {
+    setDeleteGatewayId(item.id);
+    setDeleteModal(true);
+  };
 
-  // const handleDeleteModal = () => {
-  //   dispatch(deleteGateway(deleteGatewayId, organization));
-  //   setDeleteModal(false);
-  // };
+  const { mutate: deleteGatewayMutation, isLoading: isDeletingGateway } = useDeleteGatewayMutation(organization, displayAlert);
+
+  const handleDeleteModal = () => {
+    setDeleteModal(false);
+    deleteGatewayMutation(deleteGatewayId);
+  };
 
   const onAddButtonClick = () => {
     history.push(addPath, {
@@ -113,7 +119,7 @@ const Gateway = ({ history, redirectTo }) => {
         filename="GatewayData"
         tableHeader="Gateway"
         loading={
-          isLoadingGateways || isLoadingGatewayTypes || isLoadingCustodians || isLoadingContact || isLoadingShipments || isLoadingUnits
+          isLoadingGateways || isLoadingGatewayTypes || isLoadingCustodians || isLoadingContact || isLoadingShipments || isLoadingUnits || isDeletingGateway
         }
         rows={rows || []}
         columns={gatewayColumns(
@@ -130,15 +136,15 @@ const Gateway = ({ history, redirectTo }) => {
         )}
         addButtonHeading="Add Gateway"
         onAddButtonClick={onAddButtonClick}
-      // editAction={editGatewayAction}
-      // deleteAction={deleteGatewayAction}
-      // openDeleteModal={openDeleteModal}
-      // setDeleteModal={setDeleteModal}
-      // handleDeleteModal={handleDeleteModal}
-      // deleteModalTitle="Are you sure you want to delete this Gateway?"
+        editAction={editGatewayAction}
+        deleteAction={deleteGatewayAction}
+        openDeleteModal={openDeleteModal}
+        setDeleteModal={setDeleteModal}
+        handleDeleteModal={handleDeleteModal}
+        deleteModalTitle="Are you sure you want to delete this Gateway?"
       >
         <Route path={`${addPath}`} component={AddGateway} />
-        {/* <Route path={`${editPath}/:id`} component={AddGateway} /> */}
+        <Route path={`${editPath}/:id`} component={AddGateway} />
       </DataTableWrapper>
     </div>
   );
