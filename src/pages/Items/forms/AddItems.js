@@ -16,7 +16,6 @@ import {
 import { makeStyles } from '@mui/styles';
 import Loader from '../../../components/Loader/Loader';
 import FormModal from '../../../components/Modal/FormModal';
-import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { getUser } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
 import { validators } from '../../../utils/validators';
@@ -59,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const AddItems = ({
-  history, location, productOptions, itemOptions,
+  history, location,
 }) => {
   const classes = useStyles();
   const [openFormModal, setFormModal] = useState(true);
@@ -102,21 +101,9 @@ const AddItems = ({
   const buttonText = editPage ? 'Save' : 'Add Item';
   const formTitle = editPage ? 'Edit Item' : 'Add Item';
 
-  const [itemMetData, setItemMetaData] = useState({});
-  const [productMetData, productMetaData] = useState({});
-
   const organization = getUser().organization.organization_uuid;
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
-
-  useEffect(() => {
-    if (itemOptions && itemOptions.actions) {
-      setItemMetaData(itemOptions.actions.POST);
-    }
-    if (productOptions && productOptions.actions) {
-      productMetaData(productOptions.actions);
-    }
-  }, [productOptions, itemOptions]);
 
   useEffect(() => {
     if (editPage && editData && productData && productTypesData) {
@@ -298,11 +285,6 @@ const AddItems = ({
                   onBlur={(e) => handleBlur(e, 'required', item_name)}
                   {...item_name.bind}
                 />
-                {itemMetData.name && itemMetData.name.help_text && (
-                  <CustomizedTooltips
-                    toolTipText={itemMetData.name.help_text}
-                  />
-                )}
               </Grid>
               <Grid className={classes.inputWithTooltip} item xs={12}>
                 <TextField
@@ -330,11 +312,6 @@ const AddItems = ({
                     </MenuItem>
                   ))}
                 </TextField>
-                {itemMetData.item_type && itemMetData.item_type.help_text && (
-                  <CustomizedTooltips
-                    toolTipText={itemMetData.item_type.help_text}
-                  />
-                )}
               </Grid>
             </Grid>
             <Card variant="outlined" className={classes.cardItems}>
@@ -364,11 +341,6 @@ const AddItems = ({
                           />
                         )}
                       />
-                      {productMetData.name && productMetData.name.help_text && (
-                        <CustomizedTooltips
-                          toolTipText={productMetData.name.help_text}
-                        />
-                      )}
                     </div>
                   </Grid>
                   <Grid className={classes.inputWithTooltip} item xs={12}>
@@ -385,11 +357,6 @@ const AddItems = ({
                       autoComplete="product_desc"
                       value={product_desc}
                     />
-                    {productMetData.description && productMetData.description.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.description.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -406,11 +373,6 @@ const AddItems = ({
                       label="Product Type"
                       value={product_type}
                     />
-                    {productMetData.product_type && productMetData.product_type.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.product_type.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -443,11 +405,6 @@ const AddItems = ({
                         ),
                       }}
                     />
-                    {productMetData.value && productMetData.value.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.value.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid className={classes.inputWithTooltip} item xs={12}>
                     <TextField
@@ -460,11 +417,6 @@ const AddItems = ({
                       label="Product Weight"
                       value={product_weight}
                     />
-                    {productMetData.gross_weight && productMetData.gross_weight.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.gross_weight.help_text}
-                      />
-                    )}
                   </Grid>
                 </Grid>
                 <Grid container spacing={isDesktop ? 2 : 0}>
@@ -486,11 +438,6 @@ const AddItems = ({
                       autoComplete="gtin"
                       value={gtin}
                     />
-                    {productMetData.gtin && productMetData.gtin.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.gtin.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -510,11 +457,6 @@ const AddItems = ({
                       autoComplete="upc"
                       value={upc}
                     />
-                    {productMetData.upc && productMetData.upc.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.upc.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -534,11 +476,6 @@ const AddItems = ({
                       autoComplete="ean"
                       value={ean}
                     />
-                    {productMetData.ean && productMetData.ean.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.ean.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -558,13 +495,6 @@ const AddItems = ({
                       autoComplete="paper_tag_no"
                       value={paper_tag_no}
                     />
-                    {productMetData.paper_tag_number && productMetData.paper_tag_number.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={
-                          productMetData.paper_tag_number.help_text
-                        }
-                      />
-                    )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -584,11 +514,6 @@ const AddItems = ({
                       autoComplete="batch_id"
                       value={batch_id}
                     />
-                    {productMetData.batch_run_id && productMetData.batch_run_id.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.batch_run_id.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -608,11 +533,6 @@ const AddItems = ({
                       autoComplete="bin_id"
                       value={bin_id}
                     />
-                    {productMetData.bin_id && productMetData.bin_id.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={productMetData.bin_id.help_text}
-                      />
-                    )}
                   </Grid>
                 </Grid>
               </CardContent>
@@ -636,11 +556,6 @@ const AddItems = ({
                   value={units}
                   onChange={(e) => onNumberOfUnitsChange(e)}
                 />
-                {itemMetData.number_of_units && itemMetData.number_of_units.help_text && (
-                  <CustomizedTooltips
-                    toolTipText={itemMetData.number_of_units.help_text}
-                  />
-                )}
               </Grid>
               <Grid
                 className={classes.inputWithTooltip}
@@ -674,11 +589,6 @@ const AddItems = ({
                     ),
                   }}
                 />
-                {itemMetData.value && itemMetData.value.help_text && (
-                  <CustomizedTooltips
-                    toolTipText={itemMetData.value.help_text}
-                  />
-                )}
               </Grid>
               <Grid className={classes.inputWithTooltip} item xs={12}>
                 <TextField
@@ -691,11 +601,6 @@ const AddItems = ({
                   label="Item Weight"
                   value={item_weight}
                 />
-                {itemMetData.gross_weight && itemMetData.gross_weight.help_text && (
-                  <CustomizedTooltips
-                    toolTipText={itemMetData.gross_weight.help_text}
-                  />
-                )}
               </Grid>
             </Grid>
             <Grid container spacing={isDesktop ? 3 : 0} justifyContent="center">

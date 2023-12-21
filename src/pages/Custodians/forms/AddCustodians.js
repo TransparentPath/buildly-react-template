@@ -14,7 +14,6 @@ import {
 import { makeStyles } from '@mui/styles';
 import Loader from '../../../components/Loader/Loader';
 import FormModal from '../../../components/Modal/FormModal';
-import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { getUser } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
 import { validators } from '../../../utils/validators';
@@ -65,8 +64,6 @@ const useStyles = makeStyles((theme) => ({
 const AddCustodians = ({
   history,
   location,
-  custodianOptions,
-  contactOptions,
 }) => {
   const classes = useStyles();
   const [openFormModal, setFormModal] = useState(true);
@@ -113,9 +110,6 @@ const AddCustodians = ({
   const buttonText = editPage ? 'Save' : 'Add Custodian';
   const formTitle = editPage ? 'Edit Custodian' : 'Add Custodian';
 
-  const [custodianMetaData, setCustodianMetaData] = useState({});
-  const [contactMetaData, setProductMetaData] = useState({});
-
   const organization = getUser().organization.organization_uuid;
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
@@ -132,15 +126,6 @@ const AddCustodians = ({
       }
     }
   }, [unitData, countriesData]);
-
-  useEffect(() => {
-    if (custodianOptions && custodianOptions.actions) {
-      setCustodianMetaData(custodianOptions.actions.POST);
-    }
-    if (contactOptions && contactOptions.actions) {
-      setProductMetaData(contactOptions.actions);
-    }
-  }, [contactOptions, custodianOptions]);
 
   const closeFormModal = () => {
     const dataHasChanged = company.hasChanged() || custodianType.hasChanged() || city.hasChanged() || state.hasChanged() || zip.hasChanged() || address_1.hasChanged() || address_2.hasChanged();
@@ -320,11 +305,6 @@ const AddCustodians = ({
                     abbrevation.setValue(acronym(e.target.value));
                   }}
                 />
-                {custodianMetaData.name && custodianMetaData.name.help_text && (
-                  <CustomizedTooltips
-                    toolTipText={custodianMetaData.name.help_text}
-                  />
-                )}
               </Grid>
               <Grid
                 className={classes.inputWithTooltip}
@@ -349,11 +329,6 @@ const AddCustodians = ({
                   helperText="Maximum of 7 charcters"
                   {...abbrevation.bind}
                 />
-                {custodianMetaData.abbrevation && custodianMetaData.abbrevation.help_text && (
-                  <CustomizedTooltips
-                    toolTipText={custodianMetaData.abbrevation.help_text}
-                  />
-                )}
               </Grid>
             </Grid>
             <Grid container spacing={isDesktop ? 2 : 0}>
@@ -394,11 +369,6 @@ const AddCustodians = ({
                       </MenuItem>
                     ))}
                 </TextField>
-                {custodianMetaData.custodian_type && custodianMetaData.custodian_type.help_text && (
-                  <CustomizedTooltips
-                    toolTipText={custodianMetaData.custodian_type.help_text}
-                  />
-                )}
               </Grid>
               <Grid
                 className={classes.inputWithTooltip}
@@ -464,11 +434,6 @@ const AddCustodians = ({
                           </MenuItem>
                         ))}
                     </TextField>
-                    {contactMetaData.country && contactMetaData.country.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={contactMetaData.country.help_text}
-                      />
-                    )}
                   </Grid>
                 </Grid>
                 <Grid container spacing={isDesktop ? 2 : 0}>
@@ -510,11 +475,6 @@ const AddCustodians = ({
                           </MenuItem>
                         ))}
                     </TextField>
-                    {contactMetaData.state && contactMetaData.state.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={contactMetaData.state.help_text}
-                      />
-                    )}
                   </Grid>
                 </Grid>
                 <Grid container spacing={isDesktop ? 2 : 0}>
@@ -536,11 +496,6 @@ const AddCustodians = ({
                       onBlur={(e) => handleBlur(e, 'required', address_1)}
                       {...address_1.bind}
                     />
-                    {contactMetaData.address1 && contactMetaData.address1.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={contactMetaData.address1.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid className={classes.inputWithTooltip} item xs={12}>
                     <TextField
@@ -554,11 +509,6 @@ const AddCustodians = ({
                       disabled={!country.value || !state.value}
                       {...address_2.bind}
                     />
-                    {contactMetaData.address2 && contactMetaData.address2.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={contactMetaData.address2.help_text}
-                      />
-                    )}
                   </Grid>
                 </Grid>
                 <Grid container spacing={isDesktop ? 2 : 0}>
@@ -582,11 +532,6 @@ const AddCustodians = ({
                       onBlur={(e) => handleBlur(e, 'required', city)}
                       {...city.bind}
                     />
-                    {contactMetaData.city && contactMetaData.city.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={contactMetaData.city.help_text}
-                      />
-                    )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -608,11 +553,6 @@ const AddCustodians = ({
                       onBlur={(e) => handleBlur(e, 'required', zip)}
                       {...zip.bind}
                     />
-                    {contactMetaData.postal_code && contactMetaData.postal_code.help_text && (
-                      <CustomizedTooltips
-                        toolTipText={contactMetaData.postal_code.help_text}
-                      />
-                    )}
                   </Grid>
                 </Grid>
               </CardContent>

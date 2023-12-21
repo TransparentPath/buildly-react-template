@@ -1,7 +1,8 @@
 import create from 'zustand';
+import { getUser } from '../../context/User.context';
 
 const useStore = create((set) => ({
-  data: null,
+  data: getUser() ? getUser().user_timezone : '',
   setTimezone: (data) => {
     set({ data });
   },

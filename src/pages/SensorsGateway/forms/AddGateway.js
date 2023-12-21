@@ -17,7 +17,6 @@ import DatePickerComponent from '../../../components/DatePicker/DatePicker';
 import Loader from '../../../components/Loader/Loader';
 import MapComponent from '../../../components/MapComponent/MapComponent';
 import FormModal from '../../../components/Modal/FormModal';
-import CustomizedTooltips from '../../../components/ToolTip/ToolTip';
 import { getUser } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
 import { validators } from '../../../utils/validators';
@@ -64,7 +63,6 @@ const useStyles = makeStyles((theme) => ({
 const AddGateway = ({
   history,
   location,
-  gatewayOptions,
   viewOnly,
 }) => {
   const classes = useStyles();
@@ -115,17 +113,9 @@ const AddGateway = ({
   const buttonText = editPage ? 'Save' : 'Add Gateway';
   const formTitle = editPage ? 'Edit Gateway' : 'Add Gateway';
 
-  const [gatewayMetaData, setGatewayMetaData] = useState({});
-
   const organization = getUser().organization.organization_uuid;
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
-
-  useEffect(() => {
-    if (gatewayOptions && gatewayOptions.actions) {
-      setGatewayMetaData(gatewayOptions.actions.POST);
-    }
-  }, [gatewayOptions]);
 
   useEffect(() => {
     if (!_.isEmpty(custodianData) && contactInfo) {
@@ -306,15 +296,6 @@ const AddGateway = ({
                   onBlur={(e) => handleBlur(e, 'required', gateway_name)}
                   {...gateway_name.bind}
                 />
-                {gatewayMetaData.name
-                  && gatewayMetaData.name.help_text
-                  && (
-                    <CustomizedTooltips
-                      toolTipText={
-                        gatewayMetaData.name.help_text
-                      }
-                    />
-                  )}
               </Grid>
             </Grid>
             <Card variant="outlined" className={classes.cardItems}>
@@ -367,15 +348,6 @@ const AddGateway = ({
                           ),
                         )}
                     </TextField>
-                    {gatewayMetaData.gateway_type
-                      && gatewayMetaData.gateway_type.help_text
-                      && (
-                        <CustomizedTooltips
-                          toolTipText={
-                            gatewayMetaData.gateway_type.help_text
-                          }
-                        />
-                      )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -423,15 +395,6 @@ const AddGateway = ({
                           ),
                         )}
                     </TextField>
-                    {gatewayMetaData.gateway_status
-                      && gatewayMetaData.gateway_status.help_text
-                      && (
-                        <CustomizedTooltips
-                          toolTipText={
-                            gatewayMetaData.gateway_status.help_text
-                          }
-                        />
-                      )}
                   </Grid>
                   <Grid item xs={12} md={6} sm={6}>
                     <DatePickerComponent
@@ -441,12 +404,6 @@ const AddGateway = ({
                           .tz(data)
                       }
                       handleDateChange={handleDateChange}
-                      helpText={
-                        gatewayMetaData.activation_date
-                          && gatewayMetaData.activation_date.help_text
-                          ? gatewayMetaData.activation_date.help_text
-                          : ''
-                      }
                       dateFormat={
                         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
                           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
@@ -471,15 +428,6 @@ const AddGateway = ({
                       autoComplete="sim_card_id"
                       {...sim_card_id.bind}
                     />
-                    {gatewayMetaData.sim_card_id
-                      && gatewayMetaData.sim_card_id.help_text
-                      && (
-                        <CustomizedTooltips
-                          toolTipText={
-                            gatewayMetaData.sim_card_id.help_text
-                          }
-                        />
-                      )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -498,15 +446,6 @@ const AddGateway = ({
                       autoComplete="battery_level"
                       {...battery_level.bind}
                     />
-                    {gatewayMetaData.last_known_battery_level
-                      && gatewayMetaData.last_known_battery_level.help_text
-                      && (
-                        <CustomizedTooltips
-                          toolTipText={
-                            gatewayMetaData.last_known_battery_level.help_text
-                          }
-                        />
-                      )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -525,15 +464,6 @@ const AddGateway = ({
                       autoComplete="mac_address"
                       {...mac_address.bind}
                     />
-                    {gatewayMetaData.mac_address
-                      && gatewayMetaData.mac_address.help_text
-                      && (
-                        <CustomizedTooltips
-                          toolTipText={
-                            gatewayMetaData.mac_address.help_text
-                          }
-                        />
-                      )}
                   </Grid>
                   <Grid
                     className={classes.inputWithTooltip}
@@ -575,15 +505,6 @@ const AddGateway = ({
                           ),
                         )}
                     </TextField>
-                    {gatewayMetaData.custodian_uuid
-                      && gatewayMetaData.custodian_uuid.help_text
-                      && (
-                        <CustomizedTooltips
-                          toolTipText={
-                            gatewayMetaData.custodian_uuid.help_text
-                          }
-                        />
-                      )}
                   </Grid>
                   <Grid item xs={12}>
                     <div className={classes.inputWithTooltip}>
@@ -597,15 +518,6 @@ const AddGateway = ({
                         autoComplete="last_known_location"
                         value={last_known_location}
                       />
-                      {gatewayMetaData.last_known_location
-                        && gatewayMetaData.last_known_location.help_text
-                        && (
-                          <CustomizedTooltips
-                            toolTipText={
-                              gatewayMetaData.last_known_location.help_text
-                            }
-                          />
-                        )}
                     </div>
                     <MapComponent
                       isMarkerShown
