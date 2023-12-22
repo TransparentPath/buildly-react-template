@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
@@ -27,17 +26,6 @@ import Loader from '../../components/Loader/Loader';
 import MapComponent from '../../components/MapComponent/MapComponent';
 import { getUser } from '../../context/User.context';
 import {
-  getCustodians,
-  getContact,
-} from '../../redux/custodian/actions/custodian.actions';
-import {
-  getUnitOfMeasure,
-} from '../../redux/items/actions/items.actions';
-import { getAllGateways, getSensorReports } from '../../redux/sensorsGateway/actions/sensorsGateway.actions';
-import {
-  getShipmentDetails,
-} from '../../redux/shipment/actions/shipment.actions';
-import {
   getShipmentOverview,
   SHIPMENT_OVERVIEW_COLUMNS,
   REPORT_TYPES,
@@ -46,6 +34,17 @@ import {
 } from '../../utils/constants';
 import AlertsReport from './components/AlertsReport';
 import SensorReport from './components/SensorReport';
+import useAlert from '@hooks/useAlert';
+import { useQuery } from 'react-query';
+import { getUnitQuery } from '../../react-query/queries/items/getUnitQuery';
+import { getCustodianQuery } from '../../react-query/queries/custodians/getCustodianQuery';
+import { getContactQuery } from '../../react-query/queries/custodians/getContactQuery';
+import { getShipmentsQuery } from '../../react-query/queries/shipments/getShipmentsQuery';
+import { getAllGatewayQuery } from '../../react-query/queries/sensorGateways/getAllGatewayQuery';
+import { getCustodyQuery } from '../../react-query/queries/custodians/getCustodyQuery';
+import { getSensorReportQuery } from '../../react-query/queries/sensorGateways/getSensorReportQuery';
+import { getSensorAlertQuery } from '../../react-query/queries/sensorGateways/getSensorAlertQuery';
+import { useStore } from '../../zustand/timezone/timezoneStore';
 
 const useStyles = makeStyles((theme) => ({
   dashboardHeading: {
@@ -106,72 +105,92 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Reporting = ({
-  dispatch,
-  loading,
-  shipmentData,
-  custodianData,
-  custodyData,
-  contactInfo,
-  unitOfMeasure,
-  timezone,
-  allSensorAlerts,
-  sensorReports,
-  gatewayData,
-}) => {
+const Reporting = () => {
   const classes = useStyles();
   const theme = useTheme();
-  const organization = getUser().organization.organization_uuid;
+
+  const user = getUser();
+  const organization = user.organization.organization_uuid;
+
+  const { displayAlert } = useAlert();
+  const { data } = useStore();
+
   const [tileView, setTileView] = useState(true);
+  const [selectedShipment, setSelectedShipment] = useState(null);
+  const [markers, setMarkers] = useState([]);
+  const [selectedMarker, setSelectedMarker] = useState({});
   const [shipmentFilter, setShipmentFilter] = useState('Active');
   const [selectedGraph, setSelectedGraph] = useState('temperature');
-  const [selectedShipment, setSelectedShipment] = useState(null);
   const [shipmentOverview, setShipmentOverview] = useState([]);
   const [reports, setReports] = useState([]);
   const [allGraphs, setAllGraphs] = useState([]);
-  const [markers, setMarkers] = useState([]);
-  const [selectedMarker, setSelectedMarker] = useState({});
+
+  const { data: unitData, isLoading: isLoadingUnits } = useQuery(
+    ['unit', organization],
+    () => getUnitQuery(organization, displayAlert),
+  );
+
+  const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
+    ['custodians', organization],
+    () => getCustodianQuery(organization, displayAlert),
+  );
+
+  const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
+    ['contact', organization],
+    () => getContactQuery(organization, displayAlert),
+  );
+
+  const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
+    ['allGateways'],
+    () => getAllGatewayQuery(displayAlert),
+  );
+
+  const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
+    ['shipments', organization, shipmentFilter],
+    () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert),
+    {
+      enabled: Boolean(shipmentFilter),
+    },
+  );
+
+  const { data: custodyData, isLoading: isLoadingCustodies, refetch: refetchCustodies } = useQuery(
+    ['custodies'],
+    () => getCustodyQuery(shipmentData, displayAlert),
+  );
+
+  const { data: sensorReportData, isLoading: isLoadingSensorReports, refetch: refetchSensorReports } = useQuery(
+    ['sensorReports'],
+    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
+    {
+      enabled: !_.isEmpty(selectedShipment),
+    },
+  );
+
+  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts, refetch: refetchSensorAlerts } = useQuery(
+    ['sensorAlerts'],
+    () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
+    {
+      enabled: !_.isEmpty(selectedShipment),
+    },
+  );
 
   useEffect(() => {
-    dispatch(getUnitOfMeasure(organization));
-    dispatch(getCustodians(organization));
-    dispatch(getContact(organization));
-    dispatch(getShipmentDetails(organization, 'Planned,En route,Arrived', true));
-    dispatch(getAllGateways());
-  }, []);
+    refetchCustodies();
+  }, [shipmentData]);
 
   useEffect(() => {
-    if (shipmentFilter === 'Active') {
-      dispatch(getShipmentDetails(organization, 'Planned,En route,Arrived', true));
-    } else {
-      const completedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Completed');
-      const damagedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Damaged');
-      const depletedShipments = _.filter(shipmentData, (shipment) => shipment.type === 'Battery Depleted');
-
-      if (_.isEmpty(completedShipments) && shipmentFilter === 'Completed') {
-        dispatch(getShipmentDetails(organization, 'Completed', true));
-      }
-      if (_.isEmpty(damagedShipments) && shipmentFilter === 'Damaged') {
-        dispatch(getShipmentDetails(organization, 'Damaged', true));
-      }
-      if (_.isEmpty(depletedShipments) && shipmentFilter === 'Battery Depleted') {
-        dispatch(getShipmentDetails(organization, 'Battery Depleted', true));
-      }
-    }
-    if (_.isEmpty(custodianData)) {
-      dispatch(getCustodians(organization));
-      dispatch(getContact(organization));
-    }
-  }, [shipmentFilter]);
+    refetchSensorReports();
+    refetchSensorAlerts();
+  }, [selectedShipment]);
 
   useEffect(() => {
-    if (shipmentData && custodianData && custodyData && contactInfo) {
+    if (shipmentData && custodianData && custodyData && contactInfo && allGatewayData) {
       const overview = getShipmentOverview(
         shipmentData,
         custodianData,
         custodyData,
         contactInfo,
-        gatewayData,
+        allGatewayData,
       );
       if (!_.isEmpty(overview)) {
         setShipmentOverview(overview);
@@ -181,42 +200,41 @@ const Reporting = ({
         }
       }
     }
-  }, [shipmentData, custodianData, custodyData, contactInfo, gatewayData]);
+  }, [shipmentData, custodianData, custodyData, contactInfo, allGatewayData]);
 
   useEffect(() => {
     const alerts = _.filter(
-      allSensorAlerts,
+      sensorAlertData,
       (alert) => alert.parameter_type !== 'location' && selectedShipment && alert.shipment_id === selectedShipment.partner_shipment_id,
     );
-    if (selectedShipment && !_.isEmpty(sensorReports)) {
+    if (selectedShipment && !_.isEmpty(sensorAlertData)) {
       const { sensorReportInfo, markersToSet, graphs } = processReportsAndMarkers(
-        sensorReports,
+        sensorReportData,
         alerts,
-        timezone,
-        unitOfMeasure,
+        data,
+        unitData,
         theme.palette.error.main,
         theme.palette.info.main,
         selectedShipment,
       );
-
       setReports(sensorReportInfo);
       setAllGraphs(graphs);
       setMarkers(markersToSet);
     }
-  }, [sensorReports, allSensorAlerts, timezone]);
+  }, [sensorReportData, sensorAlertData, data]);
 
   const getShipmentValue = (value) => {
     let returnValue;
     if (selectedShipment[value] !== null) {
       if (moment(selectedShipment[value], true).isValid()) {
-        const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+        const dateFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+          ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
           : '';
-        const timeFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-          ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+        const timeFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+          ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
           : '';
         returnValue = moment(selectedShipment[value])
-          .tz(timezone).format(`${dateFormat} ${timeFormat}`);
+          .tz(data).format(`${dateFormat} ${timeFormat}`);
       } else if (typeof (selectedShipment[value]) !== 'object') {
         if (value === 'had_alert') {
           returnValue = selectedShipment[value]
@@ -234,9 +252,6 @@ const Reporting = ({
 
   const handleShipmentSelection = (shipment) => {
     setSelectedShipment(shipment);
-    if (shipment.partner_shipment_id) {
-      dispatch(getSensorReports(encodeURIComponent(shipment.partner_shipment_id)));
-    }
   };
 
   const makeFilterSelection = (value) => {
@@ -249,7 +264,22 @@ const Reporting = ({
 
   return (
     <Box mt={5} mb={5}>
-      {loading && <Loader open={loading} />}
+      {(isLoadingUnits
+        || isLoadingCustodians
+        || isLoadingContact
+        || isLoadingAllGateways
+        || isLoadingShipments
+        || isLoadingCustodies
+      )
+        && (
+          <Loader open={isLoadingUnits
+            || isLoadingCustodians
+            || isLoadingContact
+            || isLoadingAllGateways
+            || isLoadingShipments
+            || isLoadingCustodies}
+          />
+        )}
       <Typography className={classes.dashboardHeading} variant="h4">
         Reporting
       </Typography>
@@ -261,8 +291,8 @@ const Reporting = ({
               variant="h5"
             >
               {selectedShipment
-              && selectedShipment.name
-              && `Map View - Shipment: ${selectedShipment.name}`}
+                && selectedShipment.name
+                && `Map View - Shipment: ${selectedShipment.name}`}
               {!selectedShipment && 'Map View'}
             </Typography>
             <IconButton
@@ -314,7 +344,6 @@ const Reporting = ({
                 onClick={(event, value) => makeFilterSelection(value)}
               >
                 Active
-
               </ToggleButton>
               <ToggleButton
                 value="Completed"
@@ -323,7 +352,6 @@ const Reporting = ({
                 onClick={(event, value) => makeFilterSelection(value)}
               >
                 Completed
-
               </ToggleButton>
               <ToggleButton
                 value="Battery Depleted"
@@ -332,7 +360,6 @@ const Reporting = ({
                 onClick={(event, value) => makeFilterSelection(value)}
               >
                 Battery Depleted
-
               </ToggleButton>
               <ToggleButton
                 value="Damaged"
@@ -341,7 +368,6 @@ const Reporting = ({
                 onClick={(event, value) => makeFilterSelection(value)}
               >
                 Damaged
-
               </ToggleButton>
             </ToggleButtonGroup>
           </div>
@@ -367,17 +393,17 @@ const Reporting = ({
             >
               <MenuItem value="">Select</MenuItem>
               {shipmentOverview && !_.isEmpty(shipmentOverview)
-              && _.map(
-                _.filter(shipmentOverview, { type: shipmentFilter }),
-                (shipment, index) => (
-                  <MenuItem
-                    key={index}
-                    value={shipment.id}
-                  >
-                    {shipment.name}
-                  </MenuItem>
-                ),
-              )}
+                && _.map(
+                  _.filter(shipmentOverview, { type: shipmentFilter }),
+                  (shipment, index) => (
+                    <MenuItem
+                      key={index}
+                      value={shipment.id}
+                    >
+                      {shipment.name}
+                    </MenuItem>
+                  ),
+                )}
             </TextField>
             <IconButton
               onClick={() => setTileView(!tileView)}
@@ -424,13 +450,11 @@ const Reporting = ({
                               >
                                 <Typography variant="body1">
                                   {`Name: ${_.find(selectedShipment[column.name], { has_current_custody: true })
-                                    // eslint-disable-next-line max-len
                                     ? _.find(selectedShipment[column.name], { has_current_custody: true }).custodian_name
                                     : 'N/A'}`}
                                 </Typography>
                                 <Typography variant="body1">
                                   {`Custodian Address: ${selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })]
-                                    // eslint-disable-next-line max-len
                                     ? selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })].address
                                     : 'N/A'}`}
                                 </Typography>
@@ -464,8 +488,8 @@ const Reporting = ({
             variant="h5"
           >
             {selectedShipment
-            && selectedShipment.name
-            && `Graph View - Shipment: ${selectedShipment.name}`}
+              && selectedShipment.name
+              && `Graph View - Shipment: ${selectedShipment.name}`}
             {!selectedShipment && 'Graph View'}
           </Typography>
         </div>
@@ -475,7 +499,7 @@ const Reporting = ({
             aria-label="main graph-type"
             className={classes.iconBar}
           >
-            {_.map(REPORT_TYPES(unitOfMeasure), (item, index) => (
+            {_.map(REPORT_TYPES(unitData), (item, index) => (
               <ListItem
                 key={`iconItem${index}${item.id}`}
                 button
@@ -494,7 +518,7 @@ const Reporting = ({
               <GraphComponent
                 data={allGraphs[selectedGraph]}
                 selectedGraph={selectedGraph}
-                unitOfMeasure={unitOfMeasure}
+                unitOfMeasure={unitData}
                 minTemp={allGraphs.minTemp}
                 maxTemp={allGraphs.maxTemp}
                 minHumidity={allGraphs.minHumidity}
@@ -515,46 +539,29 @@ const Reporting = ({
         </Grid>
       </Grid>
       <SensorReport
-        loading={loading}
+        loading={isLoadingSensorReports}
         sensorReport={reports}
         alerts={_.filter(
-          allSensorAlerts,
+          sensorAlertData,
           { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
         )}
         shipmentName={selectedShipment && selectedShipment.name}
         selectedMarker={selectedShipment && selectedMarker}
-        unitOfMeasure={unitOfMeasure}
-        timezone={timezone}
+        unitOfMeasure={unitData}
+        timezone={data}
       />
       <AlertsReport
-        loading={loading}
+        loading={isLoadingSensorAlerts}
         sensorReport={reports}
         alerts={_.filter(
-          allSensorAlerts,
+          sensorAlertData,
           { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
         )}
         shipmentName={selectedShipment && selectedShipment.name}
-        timezone={timezone}
+        timezone={data}
       />
     </Box>
   );
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  ...ownProps,
-  ...state.shipmentReducer,
-  ...state.sensorsGatewayReducer,
-  ...state.custodianReducer,
-  ...state.itemsReducer,
-  ...state.optionsReducer,
-  loading: (
-    state.shipmentReducer.loading
-    || state.sensorsGatewayReducer.loading
-    || state.custodianReducer.loading
-    || state.itemsReducer.loading
-    || state.optionsReducer.loading
-    || state.authReducer.loading
-  ),
-});
-
-export default connect(mapStateToProps)(Reporting);
+export default Reporting;
