@@ -12,21 +12,19 @@ export const useEditCustodianMutation = (
   return useMutation(
     async (arrayData) => {
       const [custodianData, contactData] = arrayData;
-      const contactResponse = await httpService.makeRequest(
-        'patch',
-        `${window.env.API_URL}custodian/contact/${contactData.id}`,
-        contactData,
-      );
+      if (contactData) {
+        await httpService.makeRequest(
+          'patch',
+          `${window.env.API_URL}custodian/contact/${contactData.id}`,
+          contactData,
+        );
+      }
       const custodianResponse = await httpService.makeRequest(
         'patch',
         `${window.env.API_URL}custodian/custodian/${custodianData.id}`,
         custodianData,
       );
-      const response = {
-        contactResponse,
-        custodianResponse,
-      };
-      return response;
+      return custodianResponse;
     },
     {
       onSuccess: async () => {
