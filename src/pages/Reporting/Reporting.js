@@ -369,6 +369,24 @@ const Reporting = () => {
               >
                 Damaged
               </ToggleButton>
+              <ToggleButton
+                value="Battery Depleted"
+                size="medium"
+                selected={shipmentFilter === 'Battery Depleted'}
+                onClick={(event, value) => makeFilterSelection(value)}
+              >
+                Battery Depleted
+
+              </ToggleButton>
+              <ToggleButton
+                value="Damaged"
+                size="medium"
+                selected={shipmentFilter === 'Damaged'}
+                onClick={(event, value) => makeFilterSelection(value)}
+              >
+                Damaged
+
+              </ToggleButton>
             </ToggleButtonGroup>
           </div>
           <div className={classes.switchViewSection2}>
