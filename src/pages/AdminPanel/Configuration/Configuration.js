@@ -9,13 +9,13 @@ import { makeStyles } from '@mui/styles';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { getUser } from '../../../context/User.context';
 import { checkForAdmin, checkForGlobalAdmin } from '../../../utils/utilMethods';
+import OrganizationSettings from './components/OrganizationSettings';
 import CustodianType from './components/CustodianType';
 import GatewayType from './components/GatewayType';
 import ItemType from './components/ItemType';
 import OrganizationType from './components/OrganizationType';
 import Product from './components/Product';
 import ProductType from './components/ProductType';
-import OrganizationSettings from './components/OrganizationSettings';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,7 +42,7 @@ const Configuration = (props) => {
     <div>
       {isAdmin && (
         <div className={classes.root}>
-          {/* <Accordion defaultExpanded className={classes.accordion}>
+          <Accordion defaultExpanded className={classes.accordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="organization-setting-content"
@@ -55,12 +55,12 @@ const Configuration = (props) => {
             <AccordionDetails>
               <OrganizationSettings {...props} />
             </AccordionDetails>
-          </Accordion> */}
+          </Accordion>
         </div>
       )}
       {superAdmin && (
         <div className={classes.root}>
-          {/* <Accordion defaultExpanded className={classes.accordion}>
+          <Accordion defaultExpanded className={classes.accordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="organization-setting-content"
@@ -73,8 +73,8 @@ const Configuration = (props) => {
             <AccordionDetails>
               <OrganizationSettings {...props} />
             </AccordionDetails>
-          </Accordion> */}
-          {/* <Accordion className={classes.accordion}>
+          </Accordion>
+          <Accordion className={classes.accordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="custodian-type-content"
@@ -87,8 +87,8 @@ const Configuration = (props) => {
             <AccordionDetails>
               <CustodianType {...props} />
             </AccordionDetails>
-          </Accordion> */}
-          {/* <Accordion className={classes.accordion}>
+          </Accordion>
+          <Accordion className={classes.accordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="gateway-type-content"
@@ -101,7 +101,7 @@ const Configuration = (props) => {
             <AccordionDetails>
               <GatewayType {...props} />
             </AccordionDetails>
-          </Accordion> */}
+          </Accordion>
           <Accordion className={classes.accordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
