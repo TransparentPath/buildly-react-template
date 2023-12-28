@@ -13,15 +13,13 @@ import ConfirmModal from '../../../../components/Modal/ConfirmModal';
 import CustomizedTooltips from '../../../../components/ToolTip/ToolTip';
 import { getUser } from '../../../../context/User.context';
 import { useInput } from '../../../../hooks/useInput';
-import {
-  addApiSetup,
-} from '../../../../redux/importExport/actions/importExport.actions';
 import { validators } from '../../../../utils/validators';
 import { useQuery } from 'react-query';
 import { getItemOptionQuery } from '../../../../react-query/queries/options/getItemOptionQuery';
 import { getGatewayOptionQuery } from '../../../../react-query/queries/options/getGatewayOptionQuery';
 import { getProductOptionQuery } from '../../../../react-query/queries/options/getProductOptionQuery';
 import { getApiResponseQuery } from '../../../../react-query/queries/importExport/getApiResponseQuery';
+import { useAddApiSetupMutation } from '../../../../react-query/mutations/importExport/addApiSetupMutation';
 import useAlert from '@hooks/useAlert';
 
 const useStyles = makeStyles((theme) => ({
@@ -115,9 +113,9 @@ const AddFromAPI = () => {
 
   const { data: apiResponse, isLoading: isLoadingApiResponse } = useQuery(
     ['apiResponse'],
-    () => getProductOptionQuery(displayAlert),
+    () => getApiResponseQuery(finalUrl, reqHeader, displayAlert),
     {
-      enabled: !provider.name,
+      enabled: !!(!provider.name && finalUrl && reqHeader),
     },
   );
 
@@ -148,6 +146,8 @@ const AddFromAPI = () => {
     dataTypes[2].option = gatewayOptionData;
   }, [itemOptionData, gatewayOptionData, productOptionData]);
 
+  const { mutate: addApiSetupMutation, isLoading: isAddingApiSetup } = useAddApiSetupMutation(displayAlert);
+
   /**
    * Submit The form and add/edit custodian type
    * @param {Event} event the default submit event
@@ -173,18 +173,18 @@ const AddFromAPI = () => {
       mapping.organization_uuid = organization;
     }
 
-    // dispatch(addApiSetup(
-    //   apiURL.value,
-    //   keyParamName.value,
-    //   keyParamPlace.value,
-    //   apiKey.value,
-    //   apiResponseData.value
-    //     ? apiResponseData.value
-    //     : provider.apiResponseData,
-    //   dataFor.value,
-    //   mapping,
-    //   provider.name ? provider.name : 'Default',
-    // ));
+    const data = {
+      url: apiURL.value,
+      key_name: keyParamName.value,
+      key_placement: keyParamPlace.value,
+      key_value: apiKey.value,
+      values_to_pick_response_from: apiResponseData.value ? apiResponseData.value : provider.apiResponseData,
+      table_name: dataFor.value,
+      mapping,
+      platform_name: provider.name ? provider.name : 'Default',
+    };
+
+    addApiSetupMutation(data);
   };
 
   /**
@@ -390,9 +390,19 @@ const AddFromAPI = () => {
 
   return (
     <>
-      {(isLoadingItemOptions || isLoadingProductOptions || isLoadingGatewayOptions || isLoadingApiResponse) && (
-        <Loader open={isLoadingItemOptions || isLoadingProductOptions || isLoadingGatewayOptions || isLoadingApiResponse} />
-      )}
+      {(isLoadingItemOptions
+        || isLoadingProductOptions
+        || isLoadingGatewayOptions
+        || isLoadingApiResponse
+        || isAddingApiSetup)
+        && (
+          <Loader open={isLoadingItemOptions
+            || isLoadingProductOptions
+            || isLoadingGatewayOptions
+            || isLoadingApiResponse
+            || isAddingApiSetup}
+          />
+        )}
       <form
         className={classes.form}
         noValidate
@@ -653,7 +663,7 @@ const AddFromAPI = () => {
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                disabled={isLoadingItemOptions || isLoadingProductOptions || isLoadingGatewayOptions || isLoadingApiResponse || submitDisabled()}
+                disabled={isLoadingItemOptions || isLoadingProductOptions || isLoadingGatewayOptions || isLoadingApiResponse || isAddingApiSetup || submitDisabled()}
               >
                 Set Mapping and Import
               </Button>
