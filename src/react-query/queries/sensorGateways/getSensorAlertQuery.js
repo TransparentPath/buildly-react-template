@@ -1,13 +1,11 @@
 import { httpService } from '@modules/http/http.service';
 import _ from 'lodash';
 
-export const getSensorAlertQuery = async (shipmentData, displayAlert) => {
+export const getSensorAlertQuery = async (shipmentIds, displayAlert) => {
   try {
-    const partnerIds = _.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null));
-    const encodedPartnerIds = encodeURIComponent(partnerIds);
     const response = await httpService.makeRequest(
       'get',
-      `${window.env.API_URL}sensors/sensor_report_alert/?shipment_ids=${encodedPartnerIds}`,
+      `${window.env.API_URL}sensors/sensor_report_alert/?shipment_ids=${shipmentIds}`,
     );
     return response.data;
   } catch (error) {

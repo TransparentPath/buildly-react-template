@@ -147,7 +147,7 @@ const Shipment = ({ history }) => {
 
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies', shipmentData, shipmentFilter],
-    () => getCustodyQuery(shipmentData, displayAlert),
+    () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
     {
       enabled: !!shipmentData,
     },
@@ -155,7 +155,7 @@ const Shipment = ({ history }) => {
 
   const { data: sensorAlertData, isLoading: isLoadingSensorAlerts } = useQuery(
     ['sensorAlerts', shipmentData, shipmentFilter],
-    () => getSensorAlertQuery(shipmentData, displayAlert),
+    () => getSensorAlertQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert),
     {
       enabled: !!shipmentData,
     },
@@ -163,7 +163,7 @@ const Shipment = ({ history }) => {
 
   const { data: sensorReportData, isLoading: isLoadingSensorReports } = useQuery(
     ['sensorReports', shipmentData, shipmentFilter],
-    () => getSensorReportQuery(shipmentData, displayAlert),
+    () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert),
     {
       enabled: !!shipmentData,
     },

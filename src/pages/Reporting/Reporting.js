@@ -34,7 +34,6 @@ import {
 } from '../../utils/constants';
 import AlertsReport from './components/AlertsReport';
 import SensorReport from './components/SensorReport';
-import useAlert from '@hooks/useAlert';
 import { useQuery } from 'react-query';
 import { getUnitQuery } from '../../react-query/queries/items/getUnitQuery';
 import { getCustodianQuery } from '../../react-query/queries/custodians/getCustodianQuery';
@@ -44,6 +43,7 @@ import { getAllGatewayQuery } from '../../react-query/queries/sensorGateways/get
 import { getCustodyQuery } from '../../react-query/queries/custodians/getCustodyQuery';
 import { getSensorReportQuery } from '../../react-query/queries/sensorGateways/getSensorReportQuery';
 import { getSensorAlertQuery } from '../../react-query/queries/sensorGateways/getSensorAlertQuery';
+import useAlert from '@hooks/useAlert';
 import { useStore } from '../../zustand/timezone/timezoneStore';
 
 const useStyles = makeStyles((theme) => ({
@@ -108,22 +108,25 @@ const useStyles = makeStyles((theme) => ({
 const Reporting = () => {
   const classes = useStyles();
   const theme = useTheme();
+  const organization = getUser().organization.organization_uuid;
 
-  const user = getUser();
-  const organization = user.organization.organization_uuid;
+  const [tileView, setTileView] = useState(true);
+  const [shipmentFilter, setShipmentFilter] = useState('Active');
+  const [selectedGraph, setSelectedGraph] = useState('temperature');
+  const [selectedShipment, setSelectedShipment] = useState(null);
+  const [shipmentOverview, setShipmentOverview] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [allGraphs, setAllGraphs] = useState([]);
+  const [markers, setMarkers] = useState([]);
+  const [selectedMarker, setSelectedMarker] = useState({});
 
   const { displayAlert } = useAlert();
   const { data } = useStore();
 
-  const [tileView, setTileView] = useState(true);
-  const [selectedShipment, setSelectedShipment] = useState(null);
-  const [markers, setMarkers] = useState([]);
-  const [selectedMarker, setSelectedMarker] = useState({});
-  const [shipmentFilter, setShipmentFilter] = useState('Active');
-  const [selectedGraph, setSelectedGraph] = useState('temperature');
-  const [shipmentOverview, setShipmentOverview] = useState([]);
-  const [reports, setReports] = useState([]);
-  const [allGraphs, setAllGraphs] = useState([]);
+  const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
+    ['shipments', shipmentFilter, organization],
+    () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert),
+  );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
@@ -145,46 +148,32 @@ const Reporting = () => {
     () => getAllGatewayQuery(displayAlert),
   );
 
-  const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
-    ['shipments', organization, shipmentFilter],
-    () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert),
+  const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
+    ['custodies', shipmentData, shipmentFilter],
+    () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
     {
-      enabled: Boolean(shipmentFilter),
+      enabled: !!shipmentData,
     },
   );
 
-  const { data: custodyData, isLoading: isLoadingCustodies, refetch: refetchCustodies } = useQuery(
-    ['custodies'],
-    () => getCustodyQuery(shipmentData, displayAlert),
-  );
-
-  const { data: sensorReportData, isLoading: isLoadingSensorReports, refetch: refetchSensorReports } = useQuery(
-    ['sensorReports'],
-    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
-    {
-      enabled: !_.isEmpty(selectedShipment),
-    },
-  );
-
-  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts, refetch: refetchSensorAlerts } = useQuery(
-    ['sensorAlerts'],
+  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts } = useQuery(
+    ['sensorAlerts', selectedShipment, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
     {
-      enabled: !_.isEmpty(selectedShipment),
+      enabled: !!selectedShipment,
+    },
+  );
+
+  const { data: sensorReportData, isLoading: isLoadingSensorReports } = useQuery(
+    ['sensorReports', selectedShipment, shipmentFilter],
+    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
+    {
+      enabled: !!selectedShipment,
     },
   );
 
   useEffect(() => {
-    refetchCustodies();
-  }, [shipmentData]);
-
-  useEffect(() => {
-    refetchSensorReports();
-    refetchSensorAlerts();
-  }, [selectedShipment]);
-
-  useEffect(() => {
-    if (shipmentData && custodianData && custodyData && contactInfo && allGatewayData) {
+    if (shipmentData && custodianData && custodyData && contactInfo) {
       const overview = getShipmentOverview(
         shipmentData,
         custodianData,
@@ -207,7 +196,7 @@ const Reporting = () => {
       sensorAlertData,
       (alert) => alert.parameter_type !== 'location' && selectedShipment && alert.shipment_id === selectedShipment.partner_shipment_id,
     );
-    if (selectedShipment && !_.isEmpty(sensorAlertData)) {
+    if (selectedShipment && !_.isEmpty(sensorReportData)) {
       const { sensorReportInfo, markersToSet, graphs } = processReportsAndMarkers(
         sensorReportData,
         alerts,
@@ -221,7 +210,7 @@ const Reporting = () => {
       setAllGraphs(graphs);
       setMarkers(markersToSet);
     }
-  }, [sensorReportData, sensorAlertData, data]);
+  }, [sensorReportData, sensorAlertData]);
 
   const getShipmentValue = (value) => {
     let returnValue;
@@ -264,20 +253,23 @@ const Reporting = () => {
 
   return (
     <Box mt={5} mb={5}>
-      {(isLoadingUnits
+      {(isLoadingShipments
+        || isLoadingUnits
         || isLoadingCustodians
         || isLoadingContact
         || isLoadingAllGateways
-        || isLoadingShipments
         || isLoadingCustodies
-      )
+        || isLoadingSensorAlerts
+        || isLoadingSensorReports)
         && (
-          <Loader open={isLoadingUnits
+          <Loader open={isLoadingShipments
+            || isLoadingUnits
             || isLoadingCustodians
             || isLoadingContact
             || isLoadingAllGateways
-            || isLoadingShipments
-            || isLoadingCustodies}
+            || isLoadingCustodies
+            || isLoadingSensorAlerts
+            || isLoadingSensorReports}
           />
         )}
       <Typography className={classes.dashboardHeading} variant="h4">
@@ -327,6 +319,7 @@ const Reporting = () => {
             mapElement={
               <div style={{ height: '100%' }} />
             }
+            unitOfMeasure={unitData}
           />
         </Grid>
         <Grid item xs={12} md={tileView ? 6 : 12}>
@@ -368,24 +361,6 @@ const Reporting = () => {
                 onClick={(event, value) => makeFilterSelection(value)}
               >
                 Damaged
-              </ToggleButton>
-              <ToggleButton
-                value="Battery Depleted"
-                size="medium"
-                selected={shipmentFilter === 'Battery Depleted'}
-                onClick={(event, value) => makeFilterSelection(value)}
-              >
-                Battery Depleted
-
-              </ToggleButton>
-              <ToggleButton
-                value="Damaged"
-                size="medium"
-                selected={shipmentFilter === 'Damaged'}
-                onClick={(event, value) => makeFilterSelection(value)}
-              >
-                Damaged
-
               </ToggleButton>
             </ToggleButtonGroup>
           </div>
@@ -557,7 +532,6 @@ const Reporting = () => {
         </Grid>
       </Grid>
       <SensorReport
-        loading={isLoadingSensorReports}
         sensorReport={reports}
         alerts={_.filter(
           sensorAlertData,
@@ -569,7 +543,6 @@ const Reporting = () => {
         timezone={data}
       />
       <AlertsReport
-        loading={isLoadingSensorAlerts}
         sensorReport={reports}
         alerts={_.filter(
           sensorAlertData,
@@ -577,6 +550,7 @@ const Reporting = () => {
         )}
         shipmentName={selectedShipment && selectedShipment.name}
         timezone={data}
+        unitOfMeasure={unitData}
       />
     </Box>
   );
