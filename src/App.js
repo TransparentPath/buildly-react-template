@@ -12,6 +12,7 @@ import {
   StyledEngineProvider,
 } from '@mui/material';
 import Alert from './components/Alert/Alert';
+import CookieConsent from './components/CookieConsent/CookieConsent';
 import { app, AppContext } from './context/App.context';
 import ContainerDashboard from './layout/Container/Container';
 import { oauthService } from './modules/oauth/oauth.service';
@@ -22,46 +23,52 @@ import NewPasswordForm from './pages/ResetPassword/NewPasswordForm';
 import { PrivateRoute } from './routes/Private.route';
 import { routes } from './routes/routesConstants';
 import theme from './styles/theme';
+import { useStore } from './zustand/cookie/cookieStore';
 
-const App = () => (
-  <Router>
-    <AppContext.Provider value={app}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <div className="app">
-            <CssBaseline />
-            <Route
-              exact
-              path="/"
-              render={() => (
-                oauthService.hasValidAccessToken()
-                  ? <Redirect to={routes.SHIPMENT} />
-                  : <Redirect to={routes.LOGIN} />
-              )}
-            />
-            <Route path={routes.LOGIN} component={Login} />
-            <Route
-              path={routes.REGISTER}
-              component={Register}
-            />
-            <Route
-              path={routes.RESET_PASSWORD}
-              component={EmailForm}
-            />
-            <Route
-              path={routes.RESET_PASSWORD_CONFIRM}
-              component={NewPasswordForm}
-            />
-            <PrivateRoute
-              path={routes.APP}
-              component={ContainerDashboard}
-            />
-          </div>
-          <Alert />
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </AppContext.Provider>
-  </Router>
-);
+const App = () => {
+  const { cookie } = useStore();
+
+  return (
+    <Router>
+      <AppContext.Provider value={app}>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <div className="app">
+              <CssBaseline />
+              <Route
+                exact
+                path="/"
+                render={() => (
+                  oauthService.hasValidAccessToken()
+                    ? <Redirect to={routes.SHIPMENT} />
+                    : <Redirect to={routes.LOGIN} />
+                )}
+              />
+              <Route path={routes.LOGIN} component={Login} />
+              <Route
+                path={routes.REGISTER}
+                component={Register}
+              />
+              <Route
+                path={routes.RESET_PASSWORD}
+                component={EmailForm}
+              />
+              <Route
+                path={routes.RESET_PASSWORD_CONFIRM}
+                component={NewPasswordForm}
+              />
+              <PrivateRoute
+                path={routes.APP}
+                component={ContainerDashboard}
+              />
+            </div>
+            <Alert />
+            {cookie === null && <CookieConsent />}
+          </ThemeProvider>
+        </StyledEngineProvider>
+      </AppContext.Provider>
+    </Router>
+  );
+}
 
 export default hot(module)(App);
