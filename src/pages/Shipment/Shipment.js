@@ -119,6 +119,7 @@ const Shipment = ({ history }) => {
   const [allMarkers, setAllMarkers] = useState([]);
   const [expandedRows, setExpandedRows] = useState([]);
   const [steps, setSteps] = useState([]);
+  const [isLoading, setLoading] = useState(false);
 
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, organization],
@@ -219,6 +220,17 @@ const Shipment = ({ history }) => {
       processMarkers(selectedShipment);
     }
   }, [sensorAlertData, sensorReportData, data]);
+
+  useEffect(() => {
+    if (selectedShipment) {
+      setLoading(true);
+    }
+    if (expandedRows) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    }
+  }, [selectedShipment, expandedRows]);
 
   const processMarkers = (shipment, setExpanded = false) => {
     const dateFormat = !_.isEmpty(unitData) && _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
@@ -426,7 +438,6 @@ const Shipment = ({ history }) => {
         ),
       },
       {
-        // eslint-disable-next-line max-len
         id: moment(shipment.actual_time_of_departure || shipment.estimated_time_of_departure).unix(),
         title: shipment.origin,
         titleColor: 'inherit',
@@ -506,6 +517,7 @@ const Shipment = ({ history }) => {
         || isLoadingCustodies
         || isLoadingSensorAlerts
         || isLoadingSensorReports
+        || isLoading
       )
         && (
           <Loader open={isLoadingShipments
@@ -515,7 +527,8 @@ const Shipment = ({ history }) => {
             || isLoadingAllGateways
             || isLoadingCustodies
             || isLoadingSensorAlerts
-            || isLoadingSensorReports}
+            || isLoadingSensorReports
+            || isLoading}
           />
         )}
       <Button type="button" onClick={(e) => history.push(routes.CREATE_SHIPMENT)} className={classes.createButton}>
@@ -554,14 +567,7 @@ const Shipment = ({ history }) => {
         <Grid item xs={12} className={classes.dataTable}>
           <DataTableWrapper
             hideAddButton
-            loading={isLoadingShipments
-              || isLoadingCustodians
-              || isLoadingItems
-              || isLoadingUnits
-              || isLoadingAllGateways
-              || isLoadingCustodies
-              || isLoadingSensorAlerts
-              || isLoadingSensorReports}
+            loading={isLoading}
             filename="ShipmentData"
             rows={rows}
             columns={[

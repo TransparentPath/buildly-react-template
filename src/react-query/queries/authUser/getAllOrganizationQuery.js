@@ -4,7 +4,7 @@ export const getAllOrganizationQuery = async (displayAlert) => {
   try {
     const response = await httpService.makeRequest(
       'get',
-      `${window.env.API_URL}organization`,
+      `${window.env.API_URL}organization/`,
     );
     return response.data;
   } catch (error) {

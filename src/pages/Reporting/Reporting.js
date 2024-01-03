@@ -119,6 +119,7 @@ const Reporting = () => {
   const [allGraphs, setAllGraphs] = useState([]);
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
+  const [isLoading, setLoading] = useState(false);
 
   const { displayAlert } = useAlert();
   const { data } = useStore();
@@ -212,6 +213,17 @@ const Reporting = () => {
     }
   }, [sensorReportData, sensorAlertData]);
 
+  useEffect(() => {
+    if (selectedShipment) {
+      setLoading(true);
+    }
+    if (markers && allGraphs && reports) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    }
+  }, [selectedShipment, markers, allGraphs, reports]);
+
   const getShipmentValue = (value) => {
     let returnValue;
     if (selectedShipment[value] !== null) {
@@ -260,7 +272,8 @@ const Reporting = () => {
         || isLoadingAllGateways
         || isLoadingCustodies
         || isLoadingSensorAlerts
-        || isLoadingSensorReports)
+        || isLoadingSensorReports
+        || isLoading)
         && (
           <Loader open={isLoadingShipments
             || isLoadingUnits
@@ -269,7 +282,8 @@ const Reporting = () => {
             || isLoadingAllGateways
             || isLoadingCustodies
             || isLoadingSensorAlerts
-            || isLoadingSensorReports}
+            || isLoadingSensorReports
+            || isLoading}
           />
         )}
       <Typography className={classes.dashboardHeading} variant="h4">
