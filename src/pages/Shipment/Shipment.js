@@ -104,6 +104,8 @@ const Shipment = ({ history }) => {
   const { displayAlert } = useAlert();
   const { data } = useStore();
 
+  let isShipmentDataAvailable = false;
+
   const subNav = [
     { label: 'Active', value: 'Active' },
     { label: 'Completed', value: 'Completed' },
@@ -125,6 +127,8 @@ const Shipment = ({ history }) => {
     ['shipments', shipmentFilter, organization],
     () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert),
   );
+
+  isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
@@ -150,7 +154,7 @@ const Shipment = ({ history }) => {
     ['custodies', shipmentData, shipmentFilter],
     () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
     {
-      enabled: !!shipmentData,
+      enabled: isShipmentDataAvailable,
     },
   );
 
@@ -158,7 +162,7 @@ const Shipment = ({ history }) => {
     ['sensorAlerts', shipmentData, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert),
     {
-      enabled: !!shipmentData,
+      enabled: isShipmentDataAvailable,
     },
   );
 
@@ -166,7 +170,7 @@ const Shipment = ({ history }) => {
     ['sensorReports', shipmentData, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert),
     {
-      enabled: !!shipmentData,
+      enabled: isShipmentDataAvailable,
     },
   );
 
@@ -499,6 +503,7 @@ const Shipment = ({ history }) => {
   };
 
   const filterTabClicked = async (event, filter) => {
+    isShipmentDataAvailable = false;
     setShipmentFilter(filter);
     setSelectedShipment(null);
     setMarkers([]);
