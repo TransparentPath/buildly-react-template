@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import moment from 'moment-timezone';
 import _ from 'lodash';
 import {
   Button,
   CssBaseline,
   TextField,
-  Link,
   Box,
   Card,
   CardContent,
   Typography,
   Container,
   Grid,
-  FormControl,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
   Autocomplete,
   MenuItem,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import logo from '../../assets/tp-logo.png';
@@ -73,14 +71,18 @@ const useStyles = makeStyles((theme) => ({
     marginTop: -12,
     marginLeft: -12,
   },
-  alertGrid: {
-    marginTop: theme.spacing(2),
-  },
-  alertOptionsLabel: {
-    fontSize: '1rem',
-  },
-  alertOptions: {
-    marginLeft: theme.spacing(5),
+  numberInput: {
+    '& input::-webkit-outer-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+    '& input::-webkit-inner-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+    '& input[type="number"]': {
+      '-moz-appearance': 'textfield',
+    },
   },
 }));
 
@@ -111,14 +113,9 @@ const Register = ({
   const distance = useInput('Miles', { required: true });
   const temp = useInput('Fahrenheit', { required: true });
   const weight = useInput('Pounds', { required: true });
-  const [pushOptions, setPushOptions] = useState({
-    geofence: false,
-    environmental: false,
-  });
-  const [emailOptions, setEmailOptions] = useState({
-    geofence: false,
-    environmental: false,
-  });
+  const [geoOptions, setGeoOptions] = useState({ email: false, sms: false, whatsApp: false });
+  const [envOptions, setEnvOptions] = useState({ email: false, sms: false, whatsApp: false });
+  const whatsAppNumber = useInput();
   const [formError, setFormError] = useState({});
 
   const { data: orgNameData, isLoading: isLoadingOrgNames } = useQuery(
@@ -164,10 +161,11 @@ const Register = ({
       organization_name: organization_name.value,
       first_name: first_name.value,
       last_name: last_name.value,
-      push_preferences: pushOptions,
-      email_preferences: emailOptions,
+      geo_alert_preferences: geoOptions,
+      env_alert_preferences: envOptions,
       user_timezone: moment.tz.guess(),
     };
+
     if (organization_name.value && !_.includes(orgNameData, organization_name.value)) {
       registerFormValue = {
         ...registerFormValue,
@@ -181,6 +179,11 @@ const Register = ({
         weight: weight.value,
       };
     }
+
+    if (whatsAppNumber.value) {
+      registerFormValue = { ...registerFormValue, whatsApp_number: whatsAppNumber.value };
+    }
+
     registerMutation(registerFormValue);
   };
 
@@ -220,6 +223,7 @@ const Register = ({
       || !re_password.value
       || !organization_name.value
       || !first_name.value
+      || ((geoOptions.whatsApp || envOptions.whatsApp) && !whatsAppNumber.value)
       || (organization_name.value && !_.includes(orgNameData, organization_name.value)
         && (!country.value || !currency.value || !dateFormat.value || !timeFormat.value
           || !distance.value || !temp.value || !weight.value || !organization_abbrevation.value))
@@ -419,6 +423,7 @@ const Register = ({
                     id="organization_name"
                     name="organization_name"
                     options={orgNameData || []}
+                    value={organization_name.value}
                     onChange={(e, newValue) => {
                       organization_name.setValue(newValue || '');
                     }}
@@ -442,7 +447,7 @@ const Register = ({
                         }
                         className={classes.textField}
                         onBlur={(e) => handleBlur(e, 'required', organization_name)}
-                        value={organization_name}
+                        value={organization_name.value}
                         onChange={(e) => {
                           organization_name.setValue(e.target.value);
                           organization_abbrevation.setValue(e.target.value.replace(/[^A-Z0-9]/g, ''));
@@ -656,95 +661,106 @@ const Register = ({
                   </TextField>
                 </Grid>
               </Grid>
-              <Grid
-                container
-                spacing={isMobile() ? 0 : 3}
-                mt={(!organization_name.value || _.includes(orgNameData, organization_name.value))
-                  && -2}
-              >
+
+              <Grid container spacing={isMobile() ? 0 : 3} mt={(!organization_name.value || _.includes(orgNameData, organization_name.value)) && -2}>
                 <Grid item xs={12}>
-                  <span className={classes.alertOptionsLabel}>
-                    Push Notification Preference
-                  </span>
-                  <div className={classes.alertOptions}>
-                    <FormControl component="fieldset">
-                      <FormGroup aria-label="position" row={false}>
-                        <FormControlLabel
-                          control={(
-                            <Checkbox
-                              size="medium"
-                              color="primary"
-                              checked={pushOptions.geofence}
-                              onChange={(e) => setPushOptions({
-                                ...pushOptions,
-                                geofence: e.target.checked,
-                              })}
-                            />
-                          )}
-                          label="GeoFence Notifications"
-                          labelPlacement="end"
-                        />
-                        <FormControlLabel
-                          control={(
-                            <Checkbox
-                              size="medium"
-                              color="primary"
-                              checked={pushOptions.environmental}
-                              onChange={(e) => setPushOptions({
-                                ...pushOptions,
-                                environmental: e.target.checked,
-                              })}
-                            />
-                          )}
-                          label="Environmental Notifications"
-                          labelPlacement="end"
-                        />
-                      </FormGroup>
-                    </FormControl>
-                  </div>
+                  <Typography variant="body1" fontWeight={700}>Shipment Status Change Alerts:</Typography>
+                  <Typography variant="caption">Enabling these alerts will send notifications of departure and arrival activity of your shipments.</Typography>
                 </Grid>
-                <Grid item xs={12} className={classes.alertGrid}>
-                  <span className={classes.alertOptionsLabel}>
-                    Email Notification Preference
-                  </span>
-                  <div className={classes.alertOptions}>
-                    <FormControl component="fieldset">
-                      <FormGroup aria-label="position" row={false}>
-                        <FormControlLabel
-                          control={(
-                            <Checkbox
-                              size="medium"
-                              color="primary"
-                              checked={emailOptions.geofence}
-                              onChange={(e) => setEmailOptions({
-                                ...emailOptions,
-                                geofence: e.target.checked,
-                              })}
-                            />
-                          )}
-                          label="GeoFence Notifications"
-                          labelPlacement="end"
-                        />
-                        <FormControlLabel
-                          control={(
-                            <Checkbox
-                              size="medium"
-                              color="primary"
-                              checked={emailOptions.environmental}
-                              onChange={(e) => setEmailOptions({
-                                ...emailOptions,
-                                environmental: e.target.checked,
-                              })}
-                            />
-                          )}
-                          label="Environmental Notifications"
-                          labelPlacement="end"
-                        />
-                      </FormGroup>
-                    </FormControl>
-                  </div>
+
+                <Grid item xs={6} sm={4} alignSelf="center">
+                  <Typography variant="body1" fontWeight={500}>Email Alerts:</Typography>
+                </Grid>
+                <Grid item xs={6} sm={8} alignSelf="center">
+                  <FormControlLabel
+                    labelPlacement="end"
+                    label={geoOptions && geoOptions.email ? 'ON' : 'OFF'}
+                    control={<Switch checked={geoOptions && geoOptions.email} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, email: e.target.checked })} />}
+                  />
+                </Grid>
+
+                <Grid item xs={6} sm={4} alignSelf="center">
+                  <Typography variant="body1" fontWeight={500}>SMS text Alerts:</Typography>
+                </Grid>
+                <Grid item xs={6} sm={8} alignSelf="center">
+                  <FormControlLabel
+                    labelPlacement="end"
+                    label="Available in a future release"
+                    control={<Switch checked={false} color="primary" disabled onChange={(e) => setGeoOptions({ ...geoOptions, sms: e.target.checked })} />}
+                  />
+                </Grid>
+
+                <Grid item xs={6} sm={4} alignSelf="center">
+                  <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
+                </Grid>
+                <Grid item xs={6} sm={8} alignSelf="center">
+                  <FormControlLabel
+                    labelPlacement="end"
+                    label={geoOptions && geoOptions.whatsApp ? 'ON' : 'OFF'}
+                    control={<Switch checked={geoOptions && geoOptions.whatsApp} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, whatsApp: e.target.checked })} />}
+                  />
                 </Grid>
               </Grid>
+
+              <Grid container spacing={isMobile() ? 0 : 3} mt={3}>
+                <Grid item xs={12}>
+                  <Typography variant="body1" fontWeight={700}>Environmental Alerts:</Typography>
+                  <Typography variant="caption">
+                    Enabling these alerts will send notifications about excursions of your settings for
+                    temperature, humidity, shock, tilt, and light exposure of your shipments.
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6} sm={4} alignSelf="center">
+                  <Typography variant="body1" fontWeight={500}>Email Alerts:</Typography>
+                </Grid>
+                <Grid item xs={6} sm={8} alignSelf="center">
+                  <FormControlLabel
+                    labelPlacement="end"
+                    label={envOptions && envOptions.email ? 'ON' : 'OFF'}
+                    control={<Switch checked={envOptions && envOptions.email} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, email: e.target.checked })} />}
+                  />
+                </Grid>
+
+                <Grid item xs={6} sm={4} alignSelf="center">
+                  <Typography variant="body1" fontWeight={500}>SMS text Alerts:</Typography>
+                </Grid>
+                <Grid item xs={6} sm={8} alignSelf="center">
+                  <FormControlLabel
+                    labelPlacement="end"
+                    label="Available in a future release"
+                    control={<Switch checked={false} color="primary" disabled onChange={(e) => setEnvOptions({ ...envOptions, sms: e.target.checked })} />}
+                  />
+                </Grid>
+
+                <Grid item xs={6} sm={4} alignSelf="center">
+                  <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
+                </Grid>
+                <Grid item xs={6} sm={8} alignSelf="center">
+                  <FormControlLabel
+                    labelPlacement="end"
+                    label={envOptions && envOptions.whatsApp ? 'ON' : 'OFF'}
+                    control={<Switch checked={envOptions && envOptions.whatsApp} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, whatsApp: e.target.checked })} />}
+                  />
+                </Grid>
+              </Grid>
+
+              {(geoOptions.whatsApp || envOptions.whatsApp) && (
+                <Grid item xs={12} mt={2}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    type="number"
+                    className={classes.numberInput}
+                    id="whatsapp-number"
+                    name="whatsapp-number"
+                    label="Send WhatsApp alerts on"
+                    {...whatsAppNumber.bind}
+                  />
+                </Grid>
+              )}
+
               <Button
                 type="submit"
                 fullWidth
@@ -758,7 +774,7 @@ const Register = ({
               <Grid container>
                 <Grid item>
                   <Link
-                    href={routes.LOGIN}
+                    to={routes.LOGIN}
                     variant="body2"
                     color="primary"
                   >

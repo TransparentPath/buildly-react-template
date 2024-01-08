@@ -23,8 +23,8 @@ const PushNotification = ({
   useEffect(() => {
     if (!_.isEmpty(user) && loaded) {
       setPushGrp(user.organization.organization_uuid);
-      setPushGeo(user.push_preferences.geofence || false);
-      setPushEnv(user.push_preferences.environmental || false);
+      setPushGeo(user.geo_alert_preferences.push || false);
+      setPushEnv(user.env_alert_preferences.push || false);
     }
   }, [loaded, user]);
 
