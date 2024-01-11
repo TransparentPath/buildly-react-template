@@ -15,7 +15,6 @@ import { useEditCoreuserMutation } from 'react-query/mutations/coreuser/editCore
 import { getCoregroupQuery } from 'react-query/queries/coregroup/getCoregroupQuery';
 import { getCoreuserQuery } from 'react-query/queries/coreuser/getCoreuserQuery';
 import { getGroupsFormattedRow, getUserFormattedRows, userColumns } from '@utils/constants';
-import { checkForAdmin } from '@utils/utilMethods';
 
 const useStyles = makeStyles((theme) => ({
   iconDiv: {
@@ -59,7 +58,10 @@ const Users = () => {
 
   useEffect(() => {
     if (!_.isEmpty(coreuserData)) {
-      setRows(getUserFormattedRows(coreuserData));
+      const formattedUsers = getUserFormattedRows(coreuserData);
+      const signedInUser = _.remove(formattedUsers, { id: user.id });
+
+      setRows([...signedInUser, ...formattedUsers]);
     }
   }, [coreuserData]);
 
