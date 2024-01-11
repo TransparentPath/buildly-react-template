@@ -8,7 +8,6 @@ import {
   TextField,
   Chip,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import { Autocomplete } from '@mui/material';
 import Loader from '../../../../components/Loader/Loader';
 import FormModal from '../../../../components/Modal/FormModal';
@@ -17,39 +16,9 @@ import { validators } from '../../../../utils/validators';
 import { useAddConsortiumMutation } from '../../../../react-query/mutations/consortium/addConsortiumMutation';
 import { useEditConsortiumMutation } from '../../../../react-query/mutations/consortium/editConsortiumMutation';
 import useAlert from '@hooks/useAlert';
+import '../../AdminPanelStyles.css';
 
-const useStyles = makeStyles((theme) => ({
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(1),
-    [theme.breakpoints.up('sm')]: {
-      width: '70%',
-      margin: 'auto',
-    },
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-    borderRadius: '18px',
-  },
-  buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
-  formTitle: {
-    fontWeight: 'bold',
-    marginTop: '1em',
-    textAlign: 'center',
-  },
-}));
-
-const AddConsortium = ({
-  history,
-  location,
-}) => {
-  const classes = useStyles();
+const AddConsortium = ({ history, location }) => {
   const [openFormModal, setFormModal] = useState(true);
   const [openConfirmModal, setConfirmModal] = useState(false);
 
@@ -185,7 +154,7 @@ const AddConsortium = ({
           open={openFormModal}
           handleClose={closeFormModal}
           title={formTitle}
-          titleClass={classes.formTitle}
+          titleClass="formTitle"
           maxWidth="md"
           openConfirmModal={openConfirmModal}
           setConfirmModal={setConfirmModal}
@@ -195,7 +164,7 @@ const AddConsortium = ({
             <Loader open={isAddingConsortium || isEditingConsortium} />
           )}
           <form
-            className={classes.form}
+            className="formContainer"
             noValidate
             onSubmit={handleSubmit}
           >
@@ -264,7 +233,7 @@ const AddConsortium = ({
                     fullWidth
                     variant="contained"
                     color="primary"
-                    className={classes.submit}
+                    className="submit"
                     disabled={isAddingConsortium || isEditingConsortium || submitDisabled()}
                   >
                     {buttonText}
@@ -277,7 +246,7 @@ const AddConsortium = ({
                     variant="outlined"
                     color="primary"
                     onClick={discardFormData}
-                    className={classes.submit}
+                    className="submit"
                   >
                     Cancel
                   </Button>

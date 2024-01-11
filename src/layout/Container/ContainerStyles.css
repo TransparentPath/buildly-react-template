@@ -1,0 +1,11 @@
+.content {
+  flex-grow: 1;
+  height: 100%;
+  padding-top: 5.25em;
+  padding-bottom: 12px;
+}
+
+.contentMaxWidth {
+  width: calc(100vw - 240px);
+  max-width: 100%;
+}

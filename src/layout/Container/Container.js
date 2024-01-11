@@ -26,6 +26,7 @@ import {
   checkForGlobalAdmin,
 } from '../../utils/utilMethods';
 import { isMobile } from '../../utils/mediaQuery';
+import './ContainerStyles.css';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,16 +34,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('sm')]: {
       display: 'flex',
     },
-  },
-  content: {
-    flexGrow: 1,
-    height: '100%',
-    paddingTop: '5.25em',
-    paddingBottom: theme.spacing(1.5),
-  },
-  contentMaxWidth: {
-    width: 'calc(100vw - 240px)',
-    maxWidth: '100%',
   },
 }));
 
@@ -73,16 +64,16 @@ const ContainerDashboard = ({ location, history }) => {
           history={history}
         />
         {!_.includes(location.pathname, routes.MY_ACCOUNT)
-        && (
-          <NavBar
-            navHidden={navHidden}
-            setNavHidden={setNavHidden}
-            location={location}
-            history={history}
-          />
-        )}
+          && (
+            <NavBar
+              navHidden={navHidden}
+              setNavHidden={setNavHidden}
+              location={location}
+              history={history}
+            />
+          )}
         <Container
-          className={`${classes.content} ${!isMobile() && classes.contentMaxWidth}`}
+          className={`content ${!isMobile() && 'contentMaxWidth'}`}
         >
           <Route
             exact
@@ -90,13 +81,13 @@ const ContainerDashboard = ({ location, history }) => {
             render={() => <Redirect to={routes.SHIPMENT} />}
           />
           {(checkForAdmin(userData)
-          || checkForGlobalAdmin(userData))
-          && (
-            <Route
-              path={routes.USER_MANAGEMENT}
-              component={UserManagement}
-            />
-          )}
+            || checkForGlobalAdmin(userData))
+            && (
+              <Route
+                path={routes.USER_MANAGEMENT}
+                component={UserManagement}
+              />
+            )}
           <Route
             path={routes.CUSTODIANS}
             component={Custodians}

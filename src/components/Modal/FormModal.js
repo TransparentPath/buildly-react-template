@@ -8,24 +8,11 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { withStyles } from '@mui/styles';
 import { Close as CloseIcon } from '@mui/icons-material';
 import ConfirmModal from './ConfirmModal';
+import './ModalStyles.css';
 
-const styles = (theme) => ({
-  root: {
-    margin: 0,
-    padding: theme.spacing(2),
-  },
-  closeButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: theme.palette.background.dark,
-  },
-});
-
-const StyledDialogTitle = withStyles(styles)(({
+const StyledDialogTitle = (({
   children,
   classes,
   onClose,
@@ -33,7 +20,7 @@ const StyledDialogTitle = withStyles(styles)(({
   ...other
 }) => (
   <DialogTitle
-    className={classes.root}
+    className="root"
     {...other}
   >
     <Typography className={titleClass} variant="inherit">
@@ -42,7 +29,7 @@ const StyledDialogTitle = withStyles(styles)(({
     {onClose ? (
       <IconButton
         aria-label="close"
-        className={classes.closeButton}
+        className="closeButton"
         onClick={onClose}
       >
         <CloseIcon />

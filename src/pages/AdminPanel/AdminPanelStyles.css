@@ -1,0 +1,49 @@
+/* Admin Panel Styles */
+
+.heading {
+  font-weight: bold;
+  margin: 0.5em 0em;
+}
+
+/* Configuration and Consortium Page Styles */
+.root {
+  width: 100%;
+  margin-top: 48px;
+  padding: 0px;
+  margin-bottom: -24px;
+}
+
+.accordion {
+  margin-bottom: 32px;
+  overflow: scroll hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.accordion::-webkit-scrollbar {
+  display: none;
+}
+
+/* Edit Mapping and Add Consortium Styles */
+.formTitle {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.submit {
+  margin: 24px 0px 16px;
+  border-radius: 18px;
+}
+
+.formContainer {
+  width: 100%;
+  margin-top: 8px;
+}
+
+@media screen and (min-width: 600px) {
+  .formContainer {
+    width: 70% !important;
+    margin: auto;
+  }
+}
