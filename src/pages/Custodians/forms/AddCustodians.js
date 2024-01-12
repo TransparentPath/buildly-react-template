@@ -6,17 +6,15 @@ import {
   Card,
   CardContent,
   Typography,
-  useTheme,
   Grid,
   MenuItem,
-  useMediaQuery,
 } from '@mui/material';
 import Loader from '../../../components/Loader/Loader';
 import FormModal from '../../../components/Modal/FormModal';
 import { getUser } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
 import { validators } from '../../../utils/validators';
-import { isMobile } from '../../../utils/mediaQuery';
+import { isMobile, isDesktop } from '../../../utils/mediaQuery';
 import { useAddCustodianMutation } from '../../../react-query/mutations/custodians/addCustodianMutation';
 import { useEditCustodianMutation } from '../../../react-query/mutations/custodians/editCustodianMutation';
 import useAlert from '@hooks/useAlert';
@@ -68,8 +66,6 @@ const AddCustodians = ({ history, location }) => {
   const formTitle = editPage ? 'Edit Custodian' : 'Add Custodian';
 
   const organization = getUser().organization.organization_uuid;
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
   useEffect(() => {
     const defaultCountry = !_.isEmpty(unitData) && _.find(
@@ -224,8 +220,6 @@ const AddCustodians = ({ history, location }) => {
           open={openFormModal}
           handleClose={closeFormModal}
           title={formTitle}
-          titleClass="formTitle"
-          maxWidth="md"
           openConfirmModal={openConfirmModal}
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
@@ -234,7 +228,7 @@ const AddCustodians = ({ history, location }) => {
             <Loader open={isAddingCustodian || isEditingCustodian} />
           )}
           <form className="formContainer" noValidate onSubmit={handleSubmit}>
-            <Grid container spacing={isDesktop ? 2 : 0}>
+            <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid
                 className="inputWithTooltip"
                 item
@@ -269,7 +263,7 @@ const AddCustodians = ({ history, location }) => {
                 xs={12}
                 md={6}
                 sm={6}
-                style={{ paddingTop: isDesktop ? 39 : 10 }}
+                style={{ paddingTop: isDesktop() ? 39 : 10 }}
               >
                 <TextField
                   variant="outlined"
@@ -288,7 +282,7 @@ const AddCustodians = ({ history, location }) => {
                 />
               </Grid>
             </Grid>
-            <Grid container spacing={isDesktop ? 2 : 0}>
+            <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid
                 className="inputWithTooltip"
                 item
@@ -352,7 +346,7 @@ const AddCustodians = ({ history, location }) => {
                 <Typography variant="h6" gutterBottom mt={1} mb={isMobile() ? 0 : 1.65}>
                   Contact Info
                 </Typography>
-                <Grid container spacing={isDesktop ? 2 : 0}>
+                <Grid container spacing={isDesktop() ? 2 : 0}>
                   <Grid
                     className="inputWithTooltip"
                     item
@@ -395,7 +389,7 @@ const AddCustodians = ({ history, location }) => {
                     </TextField>
                   </Grid>
                 </Grid>
-                <Grid container spacing={isDesktop ? 2 : 0}>
+                <Grid container spacing={isDesktop() ? 2 : 0}>
                   <Grid
                     className="inputWithTooltip"
                     item
@@ -436,7 +430,7 @@ const AddCustodians = ({ history, location }) => {
                     </TextField>
                   </Grid>
                 </Grid>
-                <Grid container spacing={isDesktop ? 2 : 0}>
+                <Grid container spacing={isDesktop() ? 2 : 0}>
                   <Grid className="inputWithTooltip" item xs={12}>
                     <TextField
                       variant="outlined"
@@ -470,7 +464,7 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
-                <Grid container spacing={isDesktop ? 2 : 0}>
+                <Grid container spacing={isDesktop() ? 2 : 0}>
                   <Grid
                     className="inputWithTooltip"
                     item

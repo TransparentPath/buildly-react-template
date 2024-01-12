@@ -1,11 +1,17 @@
-.root {
+.modalRoot {
   margin: 0px;
   padding: 16px;
 }
 
-.closeButton {
+.modalCloseButton {
   position: absolute;
-  right: 8px;
   top: 8px;
+  right: 8px;
   color: var(--color-palette-background-dark);
+}
+
+.modalTitle {
+  font-weight: bold;
+  text-align: center;
+  padding-top: 24px;
 }

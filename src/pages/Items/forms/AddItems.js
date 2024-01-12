@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
 import {
-  useTheme,
   Button,
   TextField,
   InputAdornment,
   Grid,
   MenuItem,
-  useMediaQuery,
   Card,
   CardContent,
   Typography,
@@ -18,7 +16,7 @@ import FormModal from '../../../components/Modal/FormModal';
 import { getUser } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
 import { validators } from '../../../utils/validators';
-import { isMobile } from '../../../utils/mediaQuery';
+import { isMobile, isDesktop } from '../../../utils/mediaQuery';
 import { useAddItemMutation } from '../../../react-query/mutations/items/addItemMutation';
 import { useEditItemMutation } from '../../../react-query/mutations/items/editItemMutation';
 import useAlert from '@hooks/useAlert';
@@ -68,8 +66,6 @@ const AddItems = ({
   const formTitle = editPage ? 'Edit Item' : 'Add Item';
 
   const organization = getUser().organization.organization_uuid;
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
   useEffect(() => {
     if (editPage && editData && productData && productTypesData) {
@@ -223,8 +219,6 @@ const AddItems = ({
           open={openFormModal}
           handleClose={closeFormModal}
           title={formTitle}
-          titleClass="formTitle"
-          maxWidth="md"
           openConfirmModal={openConfirmModal}
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
@@ -233,7 +227,7 @@ const AddItems = ({
             <Loader open={isAddingItem || isEditingItem} />
           )}
           <form className="formContainer" noValidate onSubmit={handleSubmit}>
-            <Grid container spacing={isDesktop ? 2 : 0}>
+            <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid className="inputWithTooltip" item xs={12}>
                 <TextField
                   variant="outlined"
@@ -285,7 +279,7 @@ const AddItems = ({
                 <Typography variant="h6" gutterBottom mt={1} mb={isMobile() ? 0 : 1.65}>
                   Product Info
                 </Typography>
-                <Grid container spacing={isDesktop ? 2 : 0}>
+                <Grid container spacing={isDesktop() ? 2 : 0}>
                   <Grid item xs={12}>
                     <div className="inputWithTooltip">
                       <Autocomplete
@@ -389,7 +383,7 @@ const AddItems = ({
                     />
                   </Grid>
                 </Grid>
-                <Grid container spacing={isDesktop ? 2 : 0} mt={0.1} pb={1}>
+                <Grid container spacing={isDesktop() ? 2 : 0} mt={0.1} pb={1}>
                   <Grid
                     className="inputWithTooltip"
                     item
@@ -507,7 +501,7 @@ const AddItems = ({
                 </Grid>
               </CardContent>
             </Card>
-            <Grid container spacing={isDesktop ? 2 : 0}>
+            <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid
                 className="inputWithTooltip"
                 item

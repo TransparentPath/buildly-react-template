@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import {
-  useTheme,
-  useMediaQuery,
   Grid,
   Button,
   TextField,
@@ -12,6 +10,7 @@ import Loader from '../../../../components/Loader/Loader';
 import FormModal from '../../../../components/Modal/FormModal';
 import { getUser } from '../../../../context/User.context';
 import { useInput } from '../../../../hooks/useInput';
+import { isDesktop } from '../../../../utils/mediaQuery';
 import { useEditCustodianMutation } from '../../../../react-query/mutations/custodians/editCustodianMutation';
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
@@ -34,9 +33,6 @@ const EditMapping = ({ history, location }) => {
   const formTitle = pageType === 'edit'
     ? 'Edit Mapping'
     : 'Set Mapping';
-
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
   const custodyOrg = useInput((
     pageData && pageData.custody_org_uuid
@@ -105,8 +101,6 @@ const EditMapping = ({ history, location }) => {
           open={openFormModal}
           handleClose={closeFormModal}
           title={formTitle}
-          titleClass="formTitle"
-          maxWidth="md"
           openConfirmModal={openConfirmModal}
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
@@ -119,7 +113,7 @@ const EditMapping = ({ history, location }) => {
             noValidate
             onSubmit={handleSubmit}
           >
-            <Grid container spacing={isDesktop ? 2 : 0}>
+            <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid item xs={12}>
                 <TextField
                   variant="outlined"

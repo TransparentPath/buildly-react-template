@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import {
-  useTheme,
-  useMediaQuery,
   Grid,
   Button,
   TextField,
@@ -13,6 +11,7 @@ import Loader from '../../../../components/Loader/Loader';
 import FormModal from '../../../../components/Modal/FormModal';
 import { useInput } from '../../../../hooks/useInput';
 import { validators } from '../../../../utils/validators';
+import { isDesktop } from '../../../../utils/mediaQuery';
 import { useAddConsortiumMutation } from '../../../../react-query/mutations/consortium/addConsortiumMutation';
 import { useEditConsortiumMutation } from '../../../../react-query/mutations/consortium/editConsortiumMutation';
 import useAlert from '@hooks/useAlert';
@@ -43,9 +42,6 @@ const AddConsortium = ({ history, location }) => {
 
   const buttonText = editPage ? 'Save' : 'Add Consortium';
   const formTitle = editPage ? 'Edit Consortium' : 'Add Consortium';
-
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
   const closeFormModal = () => {
     if (name.hasChanged()) {
@@ -154,8 +150,6 @@ const AddConsortium = ({ history, location }) => {
           open={openFormModal}
           handleClose={closeFormModal}
           title={formTitle}
-          titleClass="formTitle"
-          maxWidth="md"
           openConfirmModal={openConfirmModal}
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
@@ -168,7 +162,7 @@ const AddConsortium = ({ history, location }) => {
             noValidate
             onSubmit={handleSubmit}
           >
-            <Grid container spacing={isDesktop ? 2 : 0}>
+            <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid item xs={12}>
                 <TextField
                   variant="outlined"

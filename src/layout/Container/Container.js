@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import _ from 'lodash';
 import { Container } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import {
-  UserContext,
-  getUser,
-} from '../../context/User.context';
+import { UserContext, getUser } from '../../context/User.context';
 import NavBar from '../NavBar/NavBar';
 import TopBar from '../TopBar/TopBar';
 import AboutPlatform from '../../pages/AboutPlatform/AboutPlatform';
@@ -21,27 +17,11 @@ import CreateShipment from '../../pages/Shipment/CreateShipment';
 import Shipment from '../../pages/Shipment/Shipment';
 import UserManagement from '../../pages/UserManagement/UserManagement';
 import { routes } from '../../routes/routesConstants';
-import {
-  checkForAdmin,
-  checkForGlobalAdmin,
-} from '../../utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin } from '../../utils/utilMethods';
 import { isMobile } from '../../utils/mediaQuery';
 import './ContainerStyles.css';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    height: '100%',
-    [theme.breakpoints.up('sm')]: {
-      display: 'flex',
-    },
-  },
-}));
-
-/**
- * Container for the app layout when the user is authenticated.
- */
 const ContainerDashboard = ({ location, history }) => {
-  const classes = useStyles();
   const userData = getUser();
   const [navHidden, setNavHidden] = useState(false);
   let subNavItems = [];
@@ -54,7 +34,7 @@ const ContainerDashboard = ({ location, history }) => {
   }
 
   return (
-    <div className={classes.root}>
+    <div className="containerRoot">
       <UserContext.Provider value={getUser()}>
         <TopBar
           navHidden={navHidden}

@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
-  useTheme,
   Button,
   TextField,
   Grid,
   MenuItem,
-  useMediaQuery,
   Card,
   CardContent,
   Typography,
@@ -19,7 +17,7 @@ import FormModal from '../../../components/Modal/FormModal';
 import { getUser } from '../../../context/User.context';
 import { useInput } from '../../../hooks/useInput';
 import { validators } from '../../../utils/validators';
-import { isMobile } from '../../../utils/mediaQuery';
+import { isMobile, isDesktop } from '../../../utils/mediaQuery';
 import { getCustodianFormattedRow, GATEWAY_STATUS } from '../../../utils/constants';
 import { useAddGatewayMutation } from '../../../react-query/mutations/sensorGateways/addGatewayMutation';
 import { useEditGatewayMutation } from '../../../react-query/mutations/sensorGateways/editGatewayMutation';
@@ -80,8 +78,6 @@ const AddGateway = ({
   const formTitle = editPage ? 'Edit Gateway' : 'Add Gateway';
 
   const organization = getUser().organization.organization_uuid;
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
   useEffect(() => {
     if (!_.isEmpty(custodianData) && contactInfo) {
@@ -227,8 +223,6 @@ const AddGateway = ({
           open={openFormModal}
           handleClose={closeFormModal}
           title={formTitle}
-          titleClass="formTitle"
-          maxWidth="md"
           openConfirmModal={openConfirmModal}
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
@@ -237,7 +231,7 @@ const AddGateway = ({
             <Loader open={isAddingGateway || isEditingGateway} />
           )}
           <form className="formContainer" noValidate onSubmit={handleSubmit}>
-            <Grid container spacing={isDesktop ? 2 : 0}>
+            <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid className="inputWithTooltip" item xs={12}>
                 <TextField
                   variant="outlined"
@@ -267,7 +261,7 @@ const AddGateway = ({
                 <Typography variant="h6" gutterBottom mt={1} mb={isMobile() ? 0 : 1.65}>
                   Gateway Info
                 </Typography>
-                <Grid container spacing={isDesktop ? 2 : 0}>
+                <Grid container spacing={isDesktop() ? 2 : 0}>
                   <Grid
                     className="inputWithTooltip"
                     item
