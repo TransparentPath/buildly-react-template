@@ -363,10 +363,12 @@ const Shipment = ({ history }) => {
 
         const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_temp_fah
-          : _.round(report_entry.report_temp_cel, 2).toFixed(2);
+          : _.round(report_entry.report_temp_cel, 2);
         const probe = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_probe_fah
-          : _.round(report_entry.report_probe_cel, 2).toFixed(2);
+          : _.round(report_entry.report_probe_cel, 2);
+        const shock = report_entry.report_shock && _.round(report_entry.report_shock, 2);
+        const light = report_entry.report_light && _.round(report_entry.report_light, 2);
 
         // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
         if (report_entry.report_location !== null
@@ -387,8 +389,8 @@ const Shipment = ({ history }) => {
               location: report_entry.report_location,
               label: 'Clustered',
               temperature,
-              light: report_entry.report_light,
-              shock: report_entry.report_shock,
+              light,
+              shock,
               tilt: report_entry.report_tilt,
               humidity: report_entry.report_humidity,
               battery: report_entry.report_battery,
@@ -409,8 +411,8 @@ const Shipment = ({ history }) => {
             location: 'N/A',
             label: 'Clustered',
             temperature,
-            light: report_entry.report_light,
-            shock: report_entry.report_shock,
+            light,
+            shock,
             tilt: report_entry.report_tilt,
             humidity: report_entry.report_humidity,
             battery: report_entry.report_battery,
@@ -742,19 +744,19 @@ const Shipment = ({ history }) => {
                                     {`Recorded at: ${markers[0].date} ${markers[0].time}`}
                                   </Typography>
                                   <Typography>
-                                    {`Temp: ${markers[0].temperature}`}
+                                    {`Temp: ${markers[0].temperature || 'N/A'}`}
                                   </Typography>
                                   <Typography>
-                                    {`Humidity: ${markers[0].humidity}`}
+                                    {`Humidity: ${markers[0].humidity || 'N/A'}`}
                                   </Typography>
                                   <Typography>
-                                    {`Shock: ${markers[0].shock}`}
+                                    {`Shock: ${markers[0].shock || 'N/A'}`}
                                   </Typography>
                                   <Typography>
-                                    {`Light: ${markers[0].light}`}
+                                    {`Light: ${markers[0].light || 'N/A'}`}
                                   </Typography>
                                   <Typography>
-                                    {`Battery: ${markers[0].battery}`}
+                                    {`Battery: ${markers[0].battery || 'N/A'}`}
                                   </Typography>
                                 </Grid>
                               </Grid>
