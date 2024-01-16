@@ -10,6 +10,8 @@ import {
   useTheme,
   useMediaQuery,
   InputAdornment,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import {
   BoltOutlined as ShockIcon,
@@ -190,6 +192,8 @@ const OrganizationSettings = () => {
   );
   const [countryList, setCountryList] = useState([]);
   const [currencyList, setCurrencyList] = useState([]);
+  const geofenceEmails = useInput((organizationData && organizationData.enable_geofence_emails) || false);
+  const envEmails = useInput((organizationData && organizationData.enable_env_emails) || false);
 
   useEffect(() => {
     if (!_.isEmpty(countriesData)) {
@@ -223,6 +227,8 @@ const OrganizationSettings = () => {
     distance.reset();
     temp.reset();
     weight.reset();
+    geofenceEmails.reset();
+    envEmails.reset();
   };
 
   // Check if any changes done to be saved
@@ -246,6 +252,8 @@ const OrganizationSettings = () => {
     || distance.hasChanged()
     || temp.hasChanged()
     || weight.hasChanged()
+    || geofenceEmails.hasChanged()
+    || envEmails.hasChanged()
   );
 
   const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(displayAlert);
@@ -272,6 +280,8 @@ const OrganizationSettings = () => {
       || defaultLight.hasChanged()
       || defaultTransmissionInterval.hasChanged()
       || defaultMeasurementInterval.hasChanged()
+      || geofenceEmails.hasChanged()
+      || envEmails.hasChanged()
     ) {
       let data = {
         ...organizationData,
@@ -288,12 +298,15 @@ const OrganizationSettings = () => {
         default_light: defaultLight.value,
         default_transmission_interval: defaultTransmissionInterval.value,
         default_measurement_interval: defaultMeasurementInterval.value,
+        enable_geofence_emails: geofenceEmails.value,
+        enable_env_emails: envEmails.value,
       };
       if (distance.hasChanged()) {
         data = { ...data, radius: uomDistanceUpdate(distance.value, radius.value) };
       }
       updateOrganizationMutation(data);
     }
+
     _.forEach(unitData, (unit) => {
       let uom = unit;
       switch (_.toLower(unit.unit_of_measure_for)) {
@@ -362,11 +375,7 @@ const OrganizationSettings = () => {
             || isEditingUnit}
           />
         )}
-      <form
-        className={classes.form}
-        noValidate
-        onSubmit={handleSubmit}
-      >
+      <form className={classes.form} noValidate onSubmit={handleSubmit}>
         {/* <Grid item xs={12}>
           <div className={classes.checkbox}>
             <Checkbox
@@ -378,6 +387,28 @@ const OrganizationSettings = () => {
             </Typography>
           </div>
         </Grid> */}
+        <Grid container alignItems="center" mb={2}>
+          <Grid item xs={4}>
+            <Typography variant="body1" fontWeight={500}>Email Geofence Alerts:</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControlLabel
+              labelPlacement="end"
+              label={geofenceEmails.value ? 'ON' : 'OFF'}
+              control={<Switch checked={geofenceEmails.value} color="primary" onChange={(e) => geofenceEmails.setValue(e.target.checked)} />}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" fontWeight={500}>Email Environmental Alerts:</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControlLabel
+              labelPlacement="end"
+              label={envEmails.value ? 'ON' : 'OFF'}
+              control={<Switch checked={envEmails.value} color="primary" onChange={(e) => envEmails.setValue(e.target.checked)} />}
+            />
+          </Grid>
+        </Grid>
         <Grid item xs={12}>
           <TextField
             variant="outlined"
