@@ -723,7 +723,7 @@ export const getShipmentOverview = (
       const gateways = _.filter(gatewayData, (gateway) => (
         _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
       ));
-      editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ','))) || 'N/A';
+      editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ', '))) || 'N/A';
     }
 
     shipmentList = [...shipmentList, editedShipment];
@@ -1287,7 +1287,7 @@ export const gatewayColumns = (timezone, dateFormat) => ([
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => (
-        value && value !== '-' ? _.join(value, ',') : value
+        value && value !== '-' ? _.join(value, ', ') : value
       ),
     },
   },
@@ -1299,7 +1299,7 @@ export const gatewayColumns = (timezone, dateFormat) => ([
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => (
-        value && value !== '-' ? _.join(value, ',') : value
+        value && value !== '-' ? _.join(value, ', ') : value
       ),
     },
   },

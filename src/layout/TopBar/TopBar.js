@@ -31,7 +31,7 @@ import { useQuery } from 'react-query';
 import { getAllOrganizationQuery } from '../../react-query/queries/authUser/getAllOrganizationQuery';
 import { useUpdateUserMutation } from '../../react-query/mutations/authUser/updateUserMutation';
 import { oauthService } from '@modules/oauth/oauth.service';
-import AccountSettings from './AccountSettings';
+import AccountSettings from './components/AccountSettings';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {

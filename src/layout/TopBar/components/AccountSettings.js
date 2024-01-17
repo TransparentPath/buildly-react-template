@@ -18,11 +18,11 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
-import profile from '../../assets/profile.png';
-import Loader from '../../components/Loader/Loader';
-import { getUser } from '../../context/User.context';
-import { useInput } from '../../hooks/useInput';
-import useAlert from '../../hooks/useAlert';
+import profile from '@assets/profile.png';
+import Loader from '@components/Loader/Loader';
+import { getUser } from '@context/User.context';
+import { useInput } from '@hooks/useInput';
+import useAlert from '@hooks/useAlert';
 import { useUpdateUserMutation } from 'react-query/mutations/authUser/updateUserMutation';
 
 const useStyles = makeStyles((theme) => ({
@@ -304,6 +304,7 @@ const AccountSettings = ({ open, setOpen }) => {
                 name="whatsapp-number"
                 label="Send WhatsApp alerts on"
                 {...whatsAppNumber.bind}
+                helperText="Additional charges may apply"
               />
             </Grid>
           )}
