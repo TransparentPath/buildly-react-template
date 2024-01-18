@@ -895,17 +895,17 @@ const CreateShipment = ({ history, location }) => {
       </Grid>
       {!!template && (
         <Grid container className="createShipmentNameContainer">
-          <Grid item xs={8} className="createShipmentNameHeader">
+          <Grid item xs={6} md={8} className="createShipmentNameHeader">
             <Typography variant="body1" fontWeight={800}>
               Template name
             </Typography>
           </Grid>
-          <Grid item xs={4} className="createShipmentNameHeader">
+          <Grid item xs={6} md={4} className="createShipmentNameHeader">
             <Typography variant="body1" fontWeight={800}>
               Actions
             </Typography>
           </Grid>
-          <Grid item xs={8} className="createShipmentNameData">
+          <Grid item xs={6} md={8} className="createShipmentNameData">
             {!templateName && (
               <Typography component="div" style={{ padding: `${theme.spacing(1)} 0` }}>
                 {template.name}
@@ -925,7 +925,7 @@ const CreateShipment = ({ history, location }) => {
               />
             )}
           </Grid>
-          <Grid item xs={4} className="createShipmentNameData">
+          <Grid item xs={6} md={4} className="createShipmentNameData">
             {!templateName && (
               <div>
                 <IconButton
@@ -956,19 +956,16 @@ const CreateShipment = ({ history, location }) => {
                 <Button
                   type="button"
                   variant="outlined"
-                  style={{ padding: `${theme.spacing(1.75)} ${theme.spacing(5)}` }}
                   disabled={cannotEdit}
                   onClick={(e) => setTemplateName('')}
+                  className="createShipmentActionButtons2"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="button"
                   variant="contained"
-                  style={{
-                    padding: `${theme.spacing(1.75)} ${theme.spacing(5)}`,
-                    marginLeft: theme.spacing(2),
-                  }}
+                  style={{ padding: `${theme.spacing(1.75)} ${theme.spacing(5)}` }}
                   disabled={_.isEqual(template.name, templateName) || cannotEdit}
                   onClick={saveTemplateName}
                 >
@@ -1514,7 +1511,7 @@ const CreateShipment = ({ history, location }) => {
                   <FormLabel component="legend" className="createShipmentLegend">
                     Attached Files
                   </FormLabel>
-                  <Stack direction="row" spacing={1}>
+                  <Stack direction="row" spacing={1} mt={-1}>
                     {!_.isEmpty(files) && _.map(files, (file, idx) => (
                       <Chip
                         key={`${file.name}-${idx}`}
@@ -1595,8 +1592,8 @@ const CreateShipment = ({ history, location }) => {
               {!_.isEmpty(additionalCustodians)
                 && _.map(additionalCustodians, (addCust, index) => (
                   <Grid item xs={12} key={`${index}-${addCust.custodian_uuid}`}>
-                    <Grid container spacing={4}>
-                      <Grid item xs={5.5}>
+                    <Grid container spacing={4} mt={0}>
+                      <Grid item xs={6} sm={5} lg={5.5}>
                         <TextField
                           id={`add-cust-${addCust.custodian_uuid}`}
                           select
@@ -1629,7 +1626,7 @@ const CreateShipment = ({ history, location }) => {
                             ))}
                         </TextField>
                       </Grid>
-                      <Grid item xs={2.5}>
+                      <Grid item xs={6} sm={2.5}>
                         <TextField
                           variant="outlined"
                           id={`add-cust-abb-${addCust.custodian_uuid}`}
@@ -1639,7 +1636,7 @@ const CreateShipment = ({ history, location }) => {
                           value={addCust.abbrevation}
                         />
                       </Grid>
-                      <Grid item xs={3.5}>
+                      <Grid item xs={6} sm={3.5}>
                         <TextField
                           variant="outlined"
                           id={`add-cust-type-${addCust.custodian_uuid}`}
@@ -1649,7 +1646,7 @@ const CreateShipment = ({ history, location }) => {
                           value={addCust.type}
                         />
                       </Grid>
-                      <Grid item xs={0.5}>
+                      <Grid item xs={6} sm={0.5}>
                         <Button
                           type="button"
                           disabled={cannotEdit}
@@ -1862,22 +1859,9 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
             )}
           </FormControl>
-          <Grid container spacing={2} className="createShipmentFinalName">
-            <Grid item xs={3}>
-              <Typography>ID</Typography>
-            </Grid>
-            <Grid item xs={5}>
-              <Typography>SHIPMENT NAME</Typography>
-            </Grid>
-            <Grid item xs={2}>
-              <Typography>ORIGIN</Typography>
-            </Grid>
-            <Grid item xs={2}>
-              <Typography>DEST</Typography>
-            </Grid>
-          </Grid>
           <Grid container spacing={2}>
-            <Grid item xs={3}>
+            <Grid item xs={6} sm={3}>
+              <Typography className="createShipmentFinalName">ID</Typography>
               <TextField
                 variant="outlined"
                 id="org-id-final"
@@ -1887,7 +1871,8 @@ const CreateShipment = ({ history, location }) => {
                 value={organization && organization.abbrevation}
               />
             </Grid>
-            <Grid item xs={5}>
+            <Grid item xs={6} sm={5}>
+              <Typography className="createShipmentFinalName">SHIPMENT NAME</Typography>
               <TextField
                 variant="outlined"
                 id="shipment-name-final"
@@ -1897,7 +1882,8 @@ const CreateShipment = ({ history, location }) => {
                 value={shipmentName.value}
               />
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={6} sm={2} mt={isMobile() ? -3 : 0}>
+              <Typography className="createShipmentFinalName">ORIGIN</Typography>
               <TextField
                 variant="outlined"
                 id="origin-final"
@@ -1907,7 +1893,8 @@ const CreateShipment = ({ history, location }) => {
                 value={originAbb}
               />
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={6} sm={2} mt={isMobile() ? -3 : 0}>
+              <Typography className="createShipmentFinalName">DEST</Typography>
               <TextField
                 variant="outlined"
                 id="dest-final"
@@ -1926,7 +1913,7 @@ const CreateShipment = ({ history, location }) => {
               </Typography>
             </Grid>
             <Grid item xs={0.5} />
-            <Grid item xs={5.5} mt={5}>
+            <Grid item xs={5.5} mt={5} ml={isMobile() ? -1.5 : 0}>
               <Button
                 type="button"
                 variant="outlined"
@@ -1964,7 +1951,7 @@ const CreateShipment = ({ history, location }) => {
                     || isDeletingCustody
                     || submitDisabled()}
                   onClick={(e) => handleSubmit(e, false)}
-                  className="actionButtons"
+                  className="createShipmentActionButtons"
                 >
                   {_.isEmpty(editData) ? 'Create a shipment' : 'Update shipment'}
                 </Button>
