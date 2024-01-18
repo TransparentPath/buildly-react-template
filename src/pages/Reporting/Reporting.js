@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
@@ -109,9 +110,12 @@ const Reporting = () => {
   const classes = useStyles();
   const theme = useTheme();
   const organization = getUser().organization.organization_uuid;
+  const { search: locSearch } = useLocation();
+  const locStatus = decodeURI(_.split(locSearch, '&status=')[1]);
+  const locShipmentID = _.split(_.split(locSearch, '?shipment=')[1], '&status=')[0];
 
   const [tileView, setTileView] = useState(true);
-  const [shipmentFilter, setShipmentFilter] = useState('Active');
+  const [shipmentFilter, setShipmentFilter] = useState(locStatus || 'Active');
   const [selectedGraph, setSelectedGraph] = useState('temperature');
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [shipmentOverview, setShipmentOverview] = useState([]);
@@ -128,7 +132,7 @@ const Reporting = () => {
 
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, organization],
-    () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert),
+    () => getShipmentsQuery(organization, locStatus || (shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), displayAlert),
   );
 
   isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
@@ -188,6 +192,10 @@ const Reporting = () => {
       );
       if (!_.isEmpty(overview)) {
         setShipmentOverview(overview);
+        if (locShipmentID) {
+          const locShip = _.find(overview, { partner_shipment_id: locShipmentID });
+          setSelectedShipment(locShip);
+        }
         if (selectedShipment) {
           const selected = _.find(overview, { id: selectedShipment.id });
           setSelectedShipment(selected);
