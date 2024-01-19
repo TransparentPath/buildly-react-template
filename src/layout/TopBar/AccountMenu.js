@@ -16,6 +16,7 @@ const AccountMenu = ({
   handleLogoutClick,
   handleAccountSettingsClick,
   handleAboutClick,
+  handlePrivacyClick,
   organizationName,
 }) => {
   const handleClose = () => {
@@ -65,6 +66,10 @@ const AccountMenu = ({
         <Divider />
         <MenuItem onClick={handleAboutClick} className="adminMenuRoot">
           <ListItemText primary="About Platform" />
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handlePrivacyClick} className="adminMenuRoot">
+          <ListItemText primary="Privacy Policy" />
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogoutClick} className="adminMenuRoot">

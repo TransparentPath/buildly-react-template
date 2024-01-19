@@ -113,6 +113,11 @@ const TopBar = ({
     setAnchorEl(null);
   };
 
+  const handlePrivacyClick = () => {
+    history.push(routes.PRIVACY_POLICY);
+    setAnchorEl(null);
+  };
+
   const handleLogoutClick = () => {
     oauthService.logout();
     history.push('/');
@@ -224,6 +229,7 @@ const TopBar = ({
             organizationName={organization}
             handleAccountSettingsClick={handleAccountSettingsClick}
             handleAboutClick={handleAboutClick}
+            handlePrivacyClick={handlePrivacyClick}
             handleLogoutClick={handleLogoutClick}
           />
         </div>

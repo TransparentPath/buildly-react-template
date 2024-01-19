@@ -6,10 +6,11 @@ import { UserContext, getUser } from '../../context/User.context';
 import NavBar from '../NavBar/NavBar';
 import TopBar from '../TopBar/TopBar';
 import AboutPlatform from '../../pages/AboutPlatform/AboutPlatform';
+import PrivacyPolicy from '../../pages/PrivacyPolicy/PrivacyPolicy';
 import AdminPanel from '../../pages/AdminPanel/AdminPanel';
 import Custodians from '../../pages/Custodians/Custodians';
 import Items from '../../pages/Items/Items';
-import PushNotification from '../../pages/PushNotification/PushNotification';
+// import PushNotification from '../../pages/PushNotification/PushNotification';
 import Reporting from '../../pages/Reporting/Reporting';
 import Gateway from '../../pages/SensorsGateway/Gateway';
 import CreateShipment from '../../pages/Shipment/CreateShipment';
@@ -73,6 +74,10 @@ const ContainerDashboard = ({ location, history }) => {
             component={AboutPlatform}
           />
           <Route
+            path={routes.PRIVACY_POLICY}
+            component={PrivacyPolicy}
+          />
+          <Route
             path={routes.ITEMS}
             component={Items}
           />
@@ -97,7 +102,7 @@ const ContainerDashboard = ({ location, history }) => {
             component={CreateShipment}
           />
         </Container>
-        <PushNotification />
+        {/* <PushNotification /> */}
       </UserContext.Provider>
     </div>
   );
