@@ -13,73 +13,22 @@ import {
   Switch,
   TextField,
   Typography,
-  useMediaQuery,
   useTheme,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { makeStyles } from '@mui/styles';
 import profile from '@assets/profile.png';
 import Loader from '@components/Loader/Loader';
 import { getUser } from '@context/User.context';
 import { useInput } from '@hooks/useInput';
 import useAlert from '@hooks/useAlert';
 import { useUpdateUserMutation } from 'react-query/mutations/authUser/updateUserMutation';
-
-const useStyles = makeStyles((theme) => ({
-  dialogContainer: {
-    [theme.breakpoints.up('md')]: {
-      position: 'fixed',
-      right: 0,
-      width: '50%',
-      marginTop: theme.spacing(8),
-    },
-  },
-  dialogPaper: {
-    [theme.breakpoints.up('md')]: {
-      margin: 0,
-      height: '100%',
-      width: '100%',
-      maxHeight: '100%',
-      maxWidth: '100%',
-    },
-  },
-  dialogContent: {
-    padding: 0,
-    paddingBottom: theme.spacing(10),
-    [theme.breakpoints.up('md')]: {
-      paddingBottom: theme.spacing(15),
-    },
-  },
-  userIconName: {
-    padding: theme.spacing(4),
-    borderBottom: `1px solid ${theme.palette.background.light}`,
-  },
-  personalNotification: {
-    padding: `${theme.spacing(4)} ${theme.spacing(11)}`,
-    borderBottom: `1px solid ${theme.palette.background.light}`,
-  },
-  numberInput: {
-    '& input::-webkit-outer-spin-button': {
-      '-webkit-appearance': 'none',
-      margin: 0,
-    },
-    '& input::-webkit-inner-spin-button': {
-      '-webkit-appearance': 'none',
-      margin: 0,
-    },
-    '& input[type="number"]': {
-      '-moz-appearance': 'textfield',
-    },
-  },
-}));
+import { isTablet } from '@utils/mediaQuery';
+import '../TopBarStyles.css';
 
 const Transition = forwardRef((props, ref) => <Slide direction="left" ref={ref} {...props} />);
 
 const AccountSettings = ({ open, setOpen }) => {
-  const classes = useStyles();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
   const user = getUser();
   const { displayAlert } = useAlert();
   const [geoOptions, setGeoOptions] = useState(user.geo_alert_preferences);
@@ -134,13 +83,10 @@ const AccountSettings = ({ open, setOpen }) => {
       open={open}
       onClose={closeAccountSettings}
       fullWidth
-      fullScreen={isMobile}
+      fullScreen={isTablet()}
       aria-labelledby="account-settings"
       TransitionComponent={Transition}
-      classes={{
-        container: classes.dialogContainer,
-        paper: classes.dialogPaper,
-      }}
+      className="accountSettingsDialog"
     >
       {isUpdatingUser && <Loader open={isUpdatingUser} />}
       <DialogTitle sx={{ borderBottom: `${theme.spacing(0.5)} solid ${theme.palette.background.light}` }}>
@@ -160,13 +106,13 @@ const AccountSettings = ({ open, setOpen }) => {
         </Button>
       </DialogTitle>
 
-      <DialogContent className={classes.dialogContent}>
-        <Grid container display="flex" alignItems="center" className={classes.userIconName}>
+      <DialogContent className="accountSeetingsDialogContent">
+        <Grid container display="flex" alignItems="center" className="accountSettingsUserIconName">
           <Avatar alt={user && `${user.first_name} ${user.last_name}`} src={profile} />
           <Typography ml={2} variant="h5" fontWeight={500}>{user && `${user.first_name} ${user.last_name}`}</Typography>
         </Grid>
 
-        <Grid container spacing={2} className={classes.personalNotification}>
+        <Grid container spacing={2} className="accountSettingsPersonalNotification">
           <Grid item xs={12} mb={2}>
             <Typography variant="h5" fontWeight={500}>Personal Information</Typography>
             <Typography variant="caption">This information can only be changed by you account administrator</Typography>
@@ -208,7 +154,7 @@ const AccountSettings = ({ open, setOpen }) => {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} className={classes.personalNotification}>
+        <Grid container spacing={2} className="accountSettingsPersonalNotification">
           <Grid item xs={12}>
             <Typography variant="h5" fontWeight={500}>Notification Preferences</Typography>
           </Grid>
@@ -299,7 +245,7 @@ const AccountSettings = ({ open, setOpen }) => {
                 margin="normal"
                 fullWidth
                 type="number"
-                className={classes.numberInput}
+                className="accountSettingsNumberInput"
                 id="whatsapp-number"
                 name="whatsapp-number"
                 label="Send WhatsApp alerts on"

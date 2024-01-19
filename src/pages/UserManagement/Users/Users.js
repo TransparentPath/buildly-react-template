@@ -6,7 +6,6 @@ import {
   VerifiedUserOutlined as DeactivateIcon,
 } from '@mui/icons-material';
 import { IconButton, MenuItem, Select } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { getUser } from '@context/User.context';
 import useAlert from '@hooks/useAlert';
@@ -15,24 +14,9 @@ import { useEditCoreuserMutation } from 'react-query/mutations/coreuser/editCore
 import { getCoregroupQuery } from 'react-query/queries/coregroup/getCoregroupQuery';
 import { getCoreuserQuery } from 'react-query/queries/coreuser/getCoreuserQuery';
 import { getGroupsFormattedRow, getUserFormattedRows, userColumns } from '@utils/constants';
-
-const useStyles = makeStyles((theme) => ({
-  iconDiv: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconButton: {
-    color: theme.palette.primary.dark,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-    },
-  },
-}));
+import '../UserManagementStyles.css';
 
 const Users = () => {
-  const classes = useStyles();
   const user = getUser();
 
   const { displayAlert } = useAlert();
@@ -129,10 +113,10 @@ const Users = () => {
               customBodyRenderLite: (dataIndex) => {
                 const coreuser = rows[dataIndex];
                 return (
-                  <div className={classes.iconDiv}>
+                  <div className="usersIconDiv">
                     <IconButton
                       disabled={_.isEqual(user.id, coreuser.id)}
-                      className={classes.iconButton}
+                      className="usersIconButton"
                       onClick={(e) => activateDeactivateUser(coreuser)}
                     >
                       {coreuser.is_active ? <ActivateIcon titleAccess="Deactivate" /> : <DeactivateIcon titleAccess="Activate" />}

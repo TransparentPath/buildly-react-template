@@ -59,9 +59,9 @@ const AccountMenu = ({
           )}
         </Box>
         <Divider />
-        <StyledMenuItem onClick={handleAccountSettingsClick}>
+        <MenuItem onClick={handleAccountSettingsClick} className="adminMenuRoot">
           <ListItemText primary="Account & Settings" />
-        </StyledMenuItem>
+        </MenuItem>
         <Divider />
         <MenuItem onClick={handleAboutClick} className="adminMenuRoot">
           <ListItemText primary="About Platform" />

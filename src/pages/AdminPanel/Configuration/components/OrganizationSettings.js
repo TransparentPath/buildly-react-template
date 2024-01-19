@@ -306,14 +306,14 @@ const OrganizationSettings = () => {
             || isEditingUnit}
           />
         )}
-      <form className={classes.form} noValidate onSubmit={handleSubmit}>
+      <form className="orgFormContainer" noValidate onSubmit={handleSubmit}>
         {/* <Grid item xs={12}>
-          <div className={classes.checkbox}>
+          <div className="checkbox">
             <Checkbox
               checked={allowImportExport.value}
               onClick={(e) => allowImportExport.setValue(e.target.checked)}
             />
-            <Typography className={classes.label}>
+            <Typography className="label">
               Allow Import Export for this Organization?
             </Typography>
           </div>

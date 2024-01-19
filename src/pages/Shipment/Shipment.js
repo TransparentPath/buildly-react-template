@@ -17,11 +17,9 @@ import {
   TextField,
   Tooltip,
   Typography,
-  tooltipClasses,
   useTheme,
 } from '@mui/material';
 import { Assignment as NoteIcon } from '@mui/icons-material';
-import { styled } from '@mui/styles';
 import CustomizedSteppers from '../../components/CustomizedStepper/CustomizedStepper';
 import DataTableWrapper from '../../components/DataTableWrapper/DataTableWrapper';
 import Loader from '../../components/Loader/Loader';
@@ -135,17 +133,6 @@ const Shipment = ({ history }) => {
       ))}
     </Tabs>
   );
-
-  const HtmlTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.background.default,
-      color: theme.palette.background.dark,
-      maxWidth: theme.spacing(40),
-      border: `1px solid ${theme.palette.background.light}`,
-    },
-  }));
 
   useEffect(() => {
     const formattedRows = getShipmentFormattedRow(
@@ -531,14 +518,15 @@ const Shipment = ({ history }) => {
                   customBodyRenderLite: (dataIndex) => (
                     rows[dataIndex] && rows[dataIndex].note
                       ? (
-                        <HtmlTooltip
+                        <Tooltip
                           TransitionComponent={Fade}
                           TransitionProps={{ timeout: 600 }}
                           placement="bottom-start"
                           title={<Typography>{rows[dataIndex].note}</Typography>}
+                          className="shipmentTooltip"
                         >
                           <NoteIcon />
-                        </HtmlTooltip>
+                        </Tooltip>
                       ) : <></>
                   ),
                 },

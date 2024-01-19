@@ -17,25 +17,25 @@ import {
   FormControlLabel,
   Switch,
 } from '@mui/material';
-import logo from '../../assets/tp-logo.png';
-import Copyright from '../../components/Copyright/Copyright';
-import Loader from '../../components/Loader/Loader';
-import { useInput } from '../../hooks/useInput';
-import { routes } from '../../routes/routesConstants';
-import { isTablet } from '../../utils/mediaQuery';
+import logo from '@assets/tp-logo.png';
+import Copyright from '@components/Copyright/Copyright';
+import Loader from '@components/Loader/Loader';
+import { useInput } from '@hooks/useInput';
+import { routes } from '@routes/routesConstants';
+import { isMobile, isTablet } from '@utils/mediaQuery';
 import {
   DATE_DISPLAY_CHOICES,
   TIME_DISPLAY_CHOICES,
   UOM_DISTANCE_CHOICES,
   UOM_TEMPERATURE_CHOICES,
   UOM_WEIGHT_CHOICES,
-} from '../../utils/mock';
-import { validators } from '../../utils/validators';
+} from '@utils/mock';
+import { validators } from '@utils/validators';
 import { useQuery } from 'react-query';
-import { getOrganizationNameQuery } from '../../react-query/queries/authUser/getOrganizationNameQuery';
-import { getCountriesQuery } from '../../react-query/queries/shipments/getCountriesQuery';
-import { getCurrenciesQuery } from '../../react-query/queries/shipments/getCurrenciesQuery';
-import { useRegisterMutation } from '../../react-query/mutations/authUser/registerMutation';
+import { getOrganizationNameQuery } from 'react-query/queries/authUser/getOrganizationNameQuery';
+import { getCountriesQuery } from 'react-query/queries/shipments/getCountriesQuery';
+import { getCurrenciesQuery } from 'react-query/queries/shipments/getCurrenciesQuery';
+import { useRegisterMutation } from 'react-query/mutations/authUser/registerMutation';
 import useAlert from '@hooks/useAlert';
 import './RegisterStyles.css';
 
@@ -710,7 +710,7 @@ const Register = ({ history }) => {
                     margin="normal"
                     fullWidth
                     type="number"
-                    className={classes.numberInput}
+                    className="numberInput"
                     id="whatsapp-number"
                     name="whatsapp-number"
                     label="Send WhatsApp alerts on"

@@ -52,8 +52,14 @@ const Reporting = () => {
   const theme = useTheme();
   const organization = getUser().organization.organization_uuid;
   const { search: locSearch } = useLocation();
-  const locStatus = decodeURI(_.split(locSearch, '&status=')[1]);
-  const locShipmentID = _.split(_.split(locSearch, '?shipment=')[1], '&status=')[0];
+  let locStatus = '';
+  let locShipmentID = '';
+
+  if (locSearch) {
+    locStatus = decodeURI(_.split(locSearch, '&status=')[1]);
+    // eslint-disable-next-line prefer-destructuring
+    locShipmentID = _.split(_.split(locSearch, '?shipment=')[1], '&status=')[0];
+  }
 
   const [tileView, setTileView] = useState(true);
   const [shipmentFilter, setShipmentFilter] = useState(locStatus || 'Active');
