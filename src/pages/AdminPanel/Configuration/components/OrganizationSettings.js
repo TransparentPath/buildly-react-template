@@ -7,8 +7,6 @@ import {
   MenuItem,
   TextField,
   Typography,
-  useTheme,
-  useMediaQuery,
   InputAdornment,
 } from '@mui/material';
 import {
@@ -17,7 +15,6 @@ import {
   Opacity as HumidityIcon,
   Thermostat as TemperatureIcon,
 } from '@mui/icons-material';
-import { makeStyles } from '@mui/styles';
 import Loader from '../../../../components/Loader/Loader';
 import { useInput } from '../../../../hooks/useInput';
 import {
@@ -29,6 +26,7 @@ import {
   UOM_WEIGHT_CHOICES,
 } from '../../../../utils/mock';
 import { uomDistanceUpdate } from '../../../../utils/utilMethods';
+import { isDesktop2 } from '../../../../utils/mediaQuery';
 import { getUser } from '../../../../context/User.context';
 import { useQuery } from 'react-query';
 import { getOrganizationTypeQuery } from '../../../../react-query/queries/authUser/getOrganizationTypeQuery';
@@ -38,64 +36,9 @@ import { getUnitQuery } from '../../../../react-query/queries/items/getUnitQuery
 import { useUpdateOrganizationMutation } from '../../../../react-query/mutations/authUser/updateOrganizationMutation';
 import { useEditUnitMutation } from '../../../../react-query/mutations/items/editUnitMutation';
 import useAlert from '@hooks/useAlert';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-    margin: theme.spacing(0.25, 0, 0.25, 0.25),
-  },
-  checkbox: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  label: {
-    marginLeft: `${theme.spacing(2)}px !important`,
-    fontSize: '0.9rem',
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(2),
-    [theme.breakpoints.up('sm')]: {
-      width: '70%',
-      margin: 'auto',
-    },
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-    borderRadius: '18px',
-  },
-  buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
-  formTitle: {
-    fontWeight: 'bold',
-    marginTop: '1em',
-    textAlign: 'center',
-  },
-  numberInput: {
-    '& input::-webkit-outer-spin-button': {
-      '-webkit-appearance': 'none',
-      margin: 0,
-    },
-    '& input::-webkit-inner-spin-button': {
-      '-webkit-appearance': 'none',
-      margin: 0,
-    },
-    '& input[type="number"]': {
-      '-moz-appearance': 'textfield',
-    },
-  },
-}));
+import '../../AdminPanelStyles.css';
 
 const OrganizationSettings = () => {
-  const classes = useStyles();
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
   const organizationData = getUser().organization;
   const organization = getUser().organization.organization_uuid;
 
@@ -347,7 +290,7 @@ const OrganizationSettings = () => {
   };
 
   return (
-    <Grid className={classes.root} container spacing={2}>
+    <Grid className="orgRoot" container spacing={2}>
       {(isLoadingOrganizationTypes
         || isLoadingCountries
         || isLoadingCurrencies
@@ -387,7 +330,7 @@ const OrganizationSettings = () => {
             {...radius.bind}
           />
         </Grid>
-        <Grid container spacing={isDesktop ? 2 : 0}>
+        <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
               variant="outlined"
@@ -428,14 +371,14 @@ const OrganizationSettings = () => {
             />
           </Grid>
         </Grid>
-        <Grid container spacing={isDesktop ? 2 : 0}>
+        <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
               type="number"
-              className={classes.numberInput}
+              className="numberInput"
               id="default-max-temperature"
               name="default-max-temperature"
               label="Default Maximum Temperature for Excursion"
@@ -462,7 +405,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className={classes.numberInput}
+              className="numberInput"
               id="default-min-temperature"
               name="default-min-temperature"
               label="Default Minimum Temperature for Excursion"
@@ -484,14 +427,14 @@ const OrganizationSettings = () => {
             />
           </Grid>
         </Grid>
-        <Grid container spacing={isDesktop ? 2 : 0}>
+        <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
               type="number"
-              className={classes.numberInput}
+              className="numberInput"
               id="default-max-humidity"
               name="default-max-humidity"
               label="Default Maximum Humidity for Excursion"
@@ -509,7 +452,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className={classes.numberInput}
+              className="numberInput"
               id="default-min-humidity"
               name="default-min-humidity"
               label="Default Minimum Humidity for Excursion"
@@ -522,14 +465,14 @@ const OrganizationSettings = () => {
             />
           </Grid>
         </Grid>
-        <Grid container spacing={isDesktop ? 2 : 0}>
+        <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
               type="number"
-              className={classes.numberInput}
+              className="numberInput"
               id="default-shock"
               name="default-shock"
               label="Default Shock Threshold"
@@ -547,7 +490,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className={classes.numberInput}
+              className="numberInput"
               id="default-light"
               name="default-light"
               label="Default Light Threshold"
@@ -560,7 +503,7 @@ const OrganizationSettings = () => {
             />
           </Grid>
         </Grid>
-        <Grid container spacing={isDesktop ? 2 : 0}>
+        <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
               variant="outlined"
@@ -616,7 +559,7 @@ const OrganizationSettings = () => {
             </TextField>
           </Grid>
         </Grid>
-        <Grid container spacing={isDesktop ? 2 : 0}>
+        <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
               variant="outlined"
@@ -673,7 +616,7 @@ const OrganizationSettings = () => {
             </TextField>
           </Grid>
         </Grid>
-        <Grid container spacing={isDesktop ? 2 : 0}>
+        <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
               variant="outlined"
@@ -797,7 +740,7 @@ const OrganizationSettings = () => {
               fullWidth
               variant="contained"
               color="primary"
-              className={classes.submit}
+              className="submit"
               disabled={isLoadingOrganizationTypes
                 || isLoadingCountries
                 || isLoadingCurrencies
@@ -816,7 +759,7 @@ const OrganizationSettings = () => {
               variant="contained"
               color="primary"
               onClick={() => resetValues()}
-              className={classes.submit}
+              className="submit"
             >
               Reset
             </Button>

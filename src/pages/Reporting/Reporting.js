@@ -17,7 +17,6 @@ import {
   Card,
   useTheme,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import {
   ViewComfy as ViewComfyIcon,
   ViewCompact as ViewCompactIcon,
@@ -46,68 +45,10 @@ import { getSensorReportQuery } from '../../react-query/queries/sensorGateways/g
 import { getSensorAlertQuery } from '../../react-query/queries/sensorGateways/getSensorAlertQuery';
 import useAlert from '@hooks/useAlert';
 import { useStore } from '../../zustand/timezone/timezoneStore';
-
-const useStyles = makeStyles((theme) => ({
-  dashboardHeading: {
-    fontWeight: 'bold',
-    marginBottom: '0.5em',
-  },
-  tileHeading: {
-    flex: 1,
-    padding: theme.spacing(1, 2),
-    textTransform: 'uppercase',
-    fontSize: 18,
-    display: 'flex',
-    alignItems: 'center',
-  },
-  switchViewSection: {
-    background: theme.palette.primary.main,
-    color: theme.palette.background.default,
-    width: '100%',
-    display: 'flex',
-    minHeight: '40px',
-    alignItems: 'center',
-  },
-  switchViewSection2: {
-    background: theme.palette.primary.light,
-    width: '100%',
-    display: 'flex',
-    minHeight: '40px',
-    alignItems: 'center',
-  },
-  iconBar: {
-    backgroundColor: theme.palette.primary.light,
-    height: '100%',
-    '& svg': {
-      margin: '0 auto',
-    },
-  },
-  infoSection: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: theme.spacing(2),
-    flexDirection: 'column',
-    height: '100px',
-  },
-  infoContainer: {
-    height: '550px',
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    '& .MuiPaper-root': {
-      boxShadow: 'none',
-    },
-  },
-  reportContainer: {
-    marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(3),
-  },
-  selectInput: {
-    marginLeft: theme.spacing(1),
-  },
-}));
+import './ReportingStyles.css';
+import { isDesktop2 } from '@utils/mediaQuery';
 
 const Reporting = () => {
-  const classes = useStyles();
   const theme = useTheme();
   const organization = getUser().organization.organization_uuid;
   const { search: locSearch } = useLocation();
@@ -299,14 +240,14 @@ const Reporting = () => {
             || isLoading}
           />
         )}
-      <Typography className={classes.dashboardHeading} variant="h4">
+      <Typography className="reportingDashboardHeading" variant="h4">
         Reporting
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} md={tileView ? 6 : 12}>
-          <div className={classes.switchViewSection}>
+          <div className="switchViewSection">
             <Typography
-              className={classes.tileHeading}
+              className="reportingSectionTitleHeading"
               variant="h5"
             >
               {selectedShipment
@@ -323,6 +264,7 @@ const Reporting = () => {
                   xs: 'none',
                   md: 'block',
                 },
+                marginTop: 0.7,
               }}
             >
               {!tileView
@@ -350,7 +292,7 @@ const Reporting = () => {
           />
         </Grid>
         <Grid item xs={12} md={tileView ? 6 : 12}>
-          <div className={classes.switchViewSection}>
+          <div className="switchViewSection">
             <ToggleButtonGroup
               color="secondary"
               value={shipmentFilter}
@@ -391,7 +333,7 @@ const Reporting = () => {
               </ToggleButton>
             </ToggleButtonGroup>
           </div>
-          <div className={classes.switchViewSection2}>
+          <div className="switchViewSection2">
             <TextField
               variant="outlined"
               margin="normal"
@@ -399,13 +341,16 @@ const Reporting = () => {
               id="shipment-name"
               select
               required
-              className={classes.selectInput}
+              className="selectInput"
               label="Shipment Name"
               value={
                 selectedShipment
                   ? selectedShipment.id
                   : ''
               }
+              sx={{
+                marginRight: isDesktop2() ? 0 : 1,
+              }}
               onChange={(e) => {
                 const selected = _.find(shipmentOverview, { id: e.target.value });
                 handleShipmentSelection(selected);
@@ -434,6 +379,7 @@ const Reporting = () => {
                   xs: 'none',
                   md: 'block',
                 },
+                marginTop: 0.75,
               }}
             >
               {!tileView
@@ -441,7 +387,7 @@ const Reporting = () => {
                 : <ViewComfyIcon />}
             </IconButton>
           </div>
-          <div className={classes.infoContainer}>
+          <div className="infoContainer">
             <Card>
               <CardContent>
                 <Grid container>
@@ -451,8 +397,9 @@ const Reporting = () => {
                       (column, index) => (
                         <Grid
                           item
-                          className={classes.infoSection}
-                          xs={10}
+                          className="reportingInfoSection"
+                          xs={12}
+                          sm={6}
                           md={6}
                           key={`col${index}:${column.name}`}
                         >
@@ -501,10 +448,10 @@ const Reporting = () => {
           </div>
         </Grid>
       </Grid>
-      <Grid container className={classes.reportContainer}>
-        <div className={classes.switchViewSection}>
+      <Grid container className="reportContainer" sx={{ marginTop: _.isEmpty(selectedShipment) ? 4 : -1 }}>
+        <div className="switchViewSection">
           <Typography
-            className={classes.tileHeading}
+            className="reportingSectionTitleHeading"
             variant="h5"
           >
             {selectedShipment
@@ -513,11 +460,11 @@ const Reporting = () => {
             {!selectedShipment && 'Graph View'}
           </Typography>
         </div>
-        <Grid item xs={1} md={1}>
+        <Grid item xs={2} sm={1.1} md={1}>
           <List
             component="nav"
             aria-label="main graph-type"
-            className={classes.iconBar}
+            className="graphIconBar"
           >
             {_.map(REPORT_TYPES(unitData), (item, index) => (
               <ListItem
@@ -532,7 +479,7 @@ const Reporting = () => {
             ))}
           </List>
         </Grid>
-        <Grid item xs={10} md={10}>
+        <Grid item xs={10} sm={10.9} md={11}>
           {selectedGraph && allGraphs && !_.isEmpty(allGraphs) && allGraphs[selectedGraph]
             ? (
               <GraphComponent
