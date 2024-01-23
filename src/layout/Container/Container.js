@@ -49,7 +49,7 @@ const ContainerDashboard = ({ location, history }) => {
           history={history}
         />
         <Container
-          className={`content ${!isMobile() && 'contentMaxWidth'}`}
+          className={`containerContent ${!isMobile() && 'containerContentMaxWidth'}`}
         >
           <Route
             exact

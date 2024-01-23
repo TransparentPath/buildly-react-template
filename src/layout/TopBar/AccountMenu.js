@@ -60,19 +60,19 @@ const AccountMenu = ({
           )}
         </Box>
         <Divider />
-        <MenuItem onClick={handleAccountSettingsClick} className="adminMenuRoot">
+        <MenuItem onClick={handleAccountSettingsClick} className="topbarAdminMenuRoot">
           <ListItemText primary="Account & Settings" />
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleAboutClick} className="adminMenuRoot">
+        <MenuItem onClick={handleAboutClick} className="topbarAdminMenuRoot">
           <ListItemText primary="About Platform" />
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handlePrivacyClick} className="adminMenuRoot">
+        <MenuItem onClick={handlePrivacyClick} className="topbarAdminMenuRoot">
           <ListItemText primary="Privacy Policy" />
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleLogoutClick} className="adminMenuRoot">
+        <MenuItem onClick={handleLogoutClick} className="topbarAdminMenuRoot">
           <ListItemText primary="Logout" />
         </MenuItem>
       </Menu>

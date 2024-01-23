@@ -124,12 +124,12 @@ const TopBar = ({
   };
 
   return (
-    <AppBar position="fixed" className="appBar">
+    <AppBar position="fixed" className="topbarAppBar">
       {(isLoadingOrgs || isUpdateUser) && <Loader open={isLoadingOrgs || isUpdateUser} />}
       <Toolbar>
         <IconButton
           edge="start"
-          className="menuButton"
+          className="topbarMenuButton"
           onClick={() => setNavHidden(!navHidden)}
           aria-label="menu"
           sx={{
@@ -143,12 +143,12 @@ const TopBar = ({
         </IconButton>
         <img
           src={logo}
-          className="logo"
+          className="topbarLogo"
           alt="Company text logo"
         />
-        <div className="menuRight">
+        <div className="topbarMenuRight">
           <TextField
-            className="timezone"
+            className="topbarTimezone"
             variant="outlined"
             fullWidth
             id="timezone"
@@ -165,7 +165,7 @@ const TopBar = ({
           </TextField>
           {isSuperAdmin && (
             <TextField
-              className="timezone"
+              className="topbarTimezone"
               variant="outlined"
               fullWidth
               id="org"
