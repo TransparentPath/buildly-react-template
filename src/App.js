@@ -7,10 +7,10 @@ import {
 } from 'react-router-dom';
 import {
   CssBaseline,
-  ThemeProvider,
   StyledEngineProvider,
 } from '@mui/material';
 import Alert from './components/Alert/Alert';
+import CookieConsent from './components/CookieConsent/CookieConsent';
 import { app, AppContext } from './context/App.context';
 import ContainerDashboard from './layout/Container/Container';
 import { oauthService } from './modules/oauth/oauth.service';
@@ -60,6 +60,7 @@ const App = () => (
             />
           </div>
           <Alert />
+          <CookieConsent />
         </CssVarsProvider>
       </StyledEngineProvider>
     </AppContext.Provider>

@@ -10,7 +10,6 @@ import PrivacyPolicy from '../../pages/PrivacyPolicy/PrivacyPolicy';
 import AdminPanel from '../../pages/AdminPanel/AdminPanel';
 import Custodians from '../../pages/Custodians/Custodians';
 import Items from '../../pages/Items/Items';
-// import PushNotification from '../../pages/PushNotification/PushNotification';
 import Reporting from '../../pages/Reporting/Reporting';
 import Gateway from '../../pages/SensorsGateway/Gateway';
 import CreateShipment from '../../pages/Shipment/CreateShipment';
@@ -102,7 +101,6 @@ const ContainerDashboard = ({ location, history }) => {
             component={CreateShipment}
           />
         </Container>
-        {/* <PushNotification /> */}
       </UserContext.Provider>
     </div>
   );
