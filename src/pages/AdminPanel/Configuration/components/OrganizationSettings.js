@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
+import { useTimezoneSelect, allTimezones } from 'react-timezone-select';
 import {
   Button,
   Checkbox,
@@ -96,41 +97,15 @@ const OrganizationSettings = () => {
   const defaultMeasurementInterval = useInput(
     (organizationData && organizationData.default_measurement_interval) || 20,
   );
-  const country = useInput(
-    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
-      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
-      : 'United States',
-  );
-  const currency = useInput(
-    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
-      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
-      : 'USD',
-  );
-  const dateFormat = useInput(
-    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-      : 'MMM DD, YYYY',
-  );
-  const timeFormat = useInput(
-    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
-      : 'hh:mm:ss A',
-  );
-  const distance = useInput(
-    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
-      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
-      : 'Miles',
-  );
-  const temp = useInput(
-    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
-      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure
-      : 'Fahrenheit',
-  );
-  const weight = useInput(
-    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight'))
-      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')).unit_of_measure
-      : 'Pounds',
-  );
+  const country = useInput('United States');
+  const currency = useInput('USD');
+  const dateFormat = useInput('MMM DD, YYYY');
+  const timeFormat = useInput('hh:mm:ss A');
+  const distance = useInput('Miles');
+  const temp = useInput('Fahrenheit');
+  const weight = useInput('Pounds');
+  const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
+  const timezone = useInput('America/Los_Angeles');
   const [countryList, setCountryList] = useState([]);
   const [currencyList, setCurrencyList] = useState([]);
 
@@ -145,6 +120,49 @@ const OrganizationSettings = () => {
       setCurrencyList(_.sortBy(_.without(_.uniq(_.map(currenciesData, 'currency')), [''])));
     }
   }, [currenciesData]);
+
+  useEffect(() => {
+    country.setValue(
+      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
+        : 'United States',
+    );
+    currency.setValue(
+      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+        : 'USD',
+    );
+    dateFormat.setValue(
+      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+        : 'MMM DD, YYYY',
+    );
+    timeFormat.setValue(
+      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+        : 'hh:mm:ss A',
+    );
+    distance.setValue(
+      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
+        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
+        : 'Miles',
+    );
+    temp.setValue(
+      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
+        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure
+        : 'Fahrenheit',
+    );
+    weight.setValue(
+      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight'))
+        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')).unit_of_measure
+        : 'Pounds',
+    );
+    timezone.setValue(
+      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time zone'))
+        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time zone')).unit_of_measure
+        : 'America/Los_Angeles',
+    );
+  }, [unitData]);
 
   const resetValues = () => {
     allowImportExport.reset();
@@ -166,6 +184,7 @@ const OrganizationSettings = () => {
     distance.reset();
     temp.reset();
     weight.reset();
+    timezone.reset();
   };
 
   // Check if any changes done to be saved
@@ -189,6 +208,7 @@ const OrganizationSettings = () => {
     || distance.hasChanged()
     || temp.hasChanged()
     || weight.hasChanged()
+    || timezone.hasChanged()
   );
 
   const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(displayAlert);
@@ -280,6 +300,12 @@ const OrganizationSettings = () => {
         case 'weight':
           if (weight.hasChanged()) {
             uom = { ...uom, unit_of_measure: weight.value };
+            editUnitMutation(uom);
+          }
+          break;
+        case 'time zone':
+          if (timezone.hasChanged()) {
+            uom = { ...uom, unit_of_measure: timezone.value };
             editUnitMutation(uom);
           }
           break;
@@ -729,6 +755,28 @@ const OrganizationSettings = () => {
                 value={wgt}
               >
                 {wgt}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            select
+            id="timezone"
+            name="timezone"
+            label="Default Time Zone"
+            autoComplete="timezone"
+            value={timezone.value}
+            onChange={(e) => {
+              timezone.setValue(e.target.value);
+            }}
+          >
+            {_.map(tzOptions, (tzOption, index) => (
+              <MenuItem key={`${tzOption.value}-${index}`} value={tzOption.value}>
+                {tzOption.label}
               </MenuItem>
             ))}
           </TextField>

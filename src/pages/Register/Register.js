@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import moment from 'moment-timezone';
+import { useTimezoneSelect, allTimezones } from 'react-timezone-select';
 import _ from 'lodash';
 import {
   Button,
   CssBaseline,
   TextField,
-  Box,
   Card,
   CardContent,
   Typography,
@@ -63,6 +62,8 @@ const Register = ({ history }) => {
   const distance = useInput('Miles', { required: true });
   const temp = useInput('Fahrenheit', { required: true });
   const weight = useInput('Pounds', { required: true });
+  const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
+  const timezone = useInput('America/Los_Angeles', { required: true });
   const [geoOptions, setGeoOptions] = useState({ email: false, sms: false, whatsApp: false });
   const [envOptions, setEnvOptions] = useState({ email: false, sms: false, whatsApp: false });
   const whatsAppNumber = useInput();
@@ -113,7 +114,6 @@ const Register = ({ history }) => {
       last_name: last_name.value,
       geo_alert_preferences: geoOptions,
       env_alert_preferences: envOptions,
-      user_timezone: moment.tz.guess(),
     };
 
     if (organization_name.value && !_.includes(orgNameData, organization_name.value)) {
@@ -127,6 +127,7 @@ const Register = ({ history }) => {
         distance: distance.value,
         temperature: temp.value,
         weight: weight.value,
+        org_timezone: timezone.value,
       };
     }
 
@@ -614,6 +615,29 @@ const Register = ({ history }) => {
                         value={wgt}
                       >
                         {wgt}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    select
+                    id="timezone"
+                    name="timezone"
+                    label="Default Time Zone"
+                    autoComplete="timezone"
+                    value={timezone.value}
+                    onChange={(e) => {
+                      timezone.setValue(e.target.value);
+                    }}
+                    className="textField2"
+                  >
+                    {_.map(tzOptions, (tzOption, index) => (
+                      <MenuItem key={`${tzOption.value}-${index}`} value={tzOption.value}>
+                        {tzOption.label}
                       </MenuItem>
                     ))}
                   </TextField>

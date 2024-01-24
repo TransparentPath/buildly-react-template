@@ -390,6 +390,10 @@ const Shipment = ({ history }) => {
           moment(shipment.last_fujitsu_verification_datetime).unix(),
         ),
       },
+    ];
+
+    newSteps = [
+      ...newSteps,
       {
         id: _.maxBy(newSteps, 'id').id + 1,
         title: shipment.destination,
