@@ -390,12 +390,8 @@ const Shipment = ({ history }) => {
           moment(shipment.last_fujitsu_verification_datetime).unix(),
         ),
       },
-    ];
-
-    newSteps = [
-      ...newSteps,
       {
-        id: _.maxBy(newSteps, 'id').id + 1,
+        id: _.maxBy(newSteps, 'id') ? (_.maxBy(newSteps, 'id').id + 1) : 3,
         title: shipment.destination,
         titleColor: 'inherit',
         label: 'Shipment arrived',
@@ -409,7 +405,7 @@ const Shipment = ({ history }) => {
         ),
       },
       {
-        id: _.maxBy(newSteps, 'id').id + 2,
+        id: _.maxBy(newSteps, 'id') ? (_.maxBy(newSteps, 'id').id + 2) : 4,
         title: shipment.destination,
         titleColor: 'inherit',
         label: 'Shipment completed',
