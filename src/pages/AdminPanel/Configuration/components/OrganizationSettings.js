@@ -45,6 +45,11 @@ const OrganizationSettings = () => {
 
   const { displayAlert } = useAlert();
 
+  const { data: unitData, isLoading: isLoadingUnits } = useQuery(
+    ['unit', organization],
+    () => getUnitQuery(organization, displayAlert),
+  );
+
   const { data: organizationTypesData, isLoading: isLoadingOrganizationTypes } = useQuery(
     ['organizationTypes'],
     () => getOrganizationTypeQuery(displayAlert),
@@ -58,11 +63,6 @@ const OrganizationSettings = () => {
   const { data: currenciesData, isLoading: isLoadingCurrencies } = useQuery(
     ['currencies'],
     () => getCurrenciesQuery(displayAlert),
-  );
-
-  const { data: unitData, isLoading: isLoadingUnits } = useQuery(
-    ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
   );
 
   const allowImportExport = useInput(
@@ -97,15 +97,31 @@ const OrganizationSettings = () => {
   const defaultMeasurementInterval = useInput(
     (organizationData && organizationData.default_measurement_interval) || 20,
   );
-  const country = useInput('United States');
-  const currency = useInput('USD');
-  const dateFormat = useInput('MMM DD, YYYY');
-  const timeFormat = useInput('hh:mm:ss A');
-  const distance = useInput('Miles');
-  const temp = useInput('Fahrenheit');
-  const weight = useInput('Pounds');
+  const country = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
+    : 'United States');
+  const currency = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+    : 'USD');
+  const dateFormat = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+    : 'MMM DD, YYYY');
+  const timeFormat = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+    : 'hh:mm:ss A');
+  const distance = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
+    : 'Miles');
+  const temp = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure
+    : 'Fahrenheit');
+  const weight = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')).unit_of_measure
+    : 'Pounds');
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
-  const timezone = useInput('America/Los_Angeles');
+  const timezone = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time zone'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time zone')).unit_of_measure
+    : 'America/Los_Angeles');
   const [countryList, setCountryList] = useState([]);
   const [currencyList, setCurrencyList] = useState([]);
 
