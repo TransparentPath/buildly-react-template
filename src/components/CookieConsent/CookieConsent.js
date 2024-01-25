@@ -29,13 +29,6 @@ const CookieConsent = () => {
     }
   };
 
-  const calculateTimeDifference = () => {
-    const lastShownTime = moment(user.last_gdpr_shown).tz(user.user_timezone);
-    const currentTime = moment().tz(user.user_timezone);
-    const differenceInMinutes = currentTime.diff(lastShownTime, 'minutes');
-    return differenceInMinutes;
-  };
-
   useEffect(() => {
     fetchUser();
     const unlisten = history.listen(() => {
@@ -49,9 +42,8 @@ const CookieConsent = () => {
   useEffect(() => {
     if (user) {
       if (!_.isEmpty(user.last_gdpr_shown)) {
-        const timeDifference = calculateTimeDifference();
-        const oneYearInMinutes = 365 * 24 * 60;
-        if (timeDifference > oneYearInMinutes) {
+        const nextGdprShown = moment(user.last_gdpr_shown).add(1, 'year');
+        if (moment().unix() > nextGdprShown.unix()) {
           setVisible(true);
         } else {
           setVisible(false);
