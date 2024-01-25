@@ -194,23 +194,23 @@ const Register = ({ history }) => {
     <Container
       component="main"
       maxWidth="sm"
-      className="container"
+      className="registerContainer"
     >
       {(isLoadingOrgNames || isLoadingCountries || isLoadingCurrencies || isRegister) && <Loader open={isLoadingOrgNames || isLoadingCountries || isLoadingCurrencies || isRegister} />}
       <CssBaseline />
       <Card variant="outlined">
         <CardContent>
-          <div className="paper">
+          <div className="registerPaper">
             <img
               src={logo}
-              className="logo"
+              className="registerLogo"
               alt="Company logo"
             />
             <Typography component="h1" variant="h5">
               Register
             </Typography>
             <form
-              className="form"
+              className="registerForm"
               noValidate
               onSubmit={handleSubmit}
             >
@@ -234,7 +234,7 @@ const Register = ({ history }) => {
                         ? formError.first_name.message
                         : ''
                     }
-                    className="textField"
+                    className="registerTextField"
                     onBlur={(e) => handleBlur(e, 'required', first_name)}
                     {...first_name.bind}
                   />
@@ -257,7 +257,7 @@ const Register = ({ history }) => {
                         ? formError.last_name.message
                         : ''
                     }
-                    className="textField"
+                    className="registerTextField"
                     onBlur={(e) => handleBlur(e)}
                     {...last_name.bind}
                   />
@@ -283,7 +283,7 @@ const Register = ({ history }) => {
                         ? formError.username.message
                         : ''
                     }
-                    className="textField"
+                    className="registerTextField"
                     onBlur={(e) => handleBlur(e, 'required', username)}
                     {...username.bind}
                   />
@@ -308,7 +308,7 @@ const Register = ({ history }) => {
                         ? formError.email.message
                         : ''
                     }
-                    className="textField"
+                    className="registerTextField"
                     onBlur={(e) => handleBlur(e, 'email', email)}
                     {...email.bind}
                   />
@@ -335,7 +335,7 @@ const Register = ({ history }) => {
                         ? formError.password.message
                         : ''
                     }
-                    className="textField"
+                    className="registerTextField"
                     onBlur={(e) => handleBlur(e, 'required', password)}
                     {...password.bind}
                   />
@@ -360,7 +360,7 @@ const Register = ({ history }) => {
                         ? formError.re_password.message
                         : ''
                     }
-                    className="textField"
+                    className="registerTextField"
                     onBlur={(e) => handleBlur(e, 'confirm', re_password)}
                     {...re_password.bind}
                   />
@@ -396,7 +396,7 @@ const Register = ({ history }) => {
                             ? formError.organization_name.message
                             : ''
                         }
-                        className="textField"
+                        className="registerTextField"
                         onBlur={(e) => handleBlur(e, 'required', organization_name)}
                         value={organization_name.value}
                         onChange={(e) => {
@@ -437,7 +437,7 @@ const Register = ({ history }) => {
                       maxLength: 7,
                       style: { textTransform: 'uppercase' },
                     }}
-                    className="textField2"
+                    className="registerTextField2"
                     onBlur={(e) => handleBlur(e, 'required', organization_abbrevation)}
                     {...organization_abbrevation.bind}
                   />
@@ -462,7 +462,7 @@ const Register = ({ history }) => {
                       currency.setValue(curr ? curr.currency : '');
                       country.setValue(e.target.value);
                     }}
-                    className="textField2"
+                    className="registerTextField2"
                   >
                     <MenuItem value="">Select</MenuItem>
                     {countryList && _.map(countryList, (cntry, index) => (
@@ -486,7 +486,7 @@ const Register = ({ history }) => {
                     label="Default Currency"
                     autoComplete="currency"
                     {...currency.bind}
-                    className="textField2"
+                    className="registerTextField2"
                   >
                     <MenuItem value="">Select</MenuItem>
                     {currencyList && _.map(currencyList, (curr, index) => (
@@ -510,7 +510,7 @@ const Register = ({ history }) => {
                     label="Default Date Format"
                     autoComplete="date-format"
                     {...dateFormat.bind}
-                    className="textField2"
+                    className="registerTextField2"
                   >
                     <MenuItem value="">Select</MenuItem>
                     {_.map(DATE_DISPLAY_CHOICES, (date, index) => (
@@ -534,7 +534,7 @@ const Register = ({ history }) => {
                     label="Default Time Format"
                     autoComplete="time-format"
                     {...timeFormat.bind}
-                    className="textField2"
+                    className="registerTextField2"
                   >
                     <MenuItem value="">Select</MenuItem>
                     {_.map(TIME_DISPLAY_CHOICES, (time, index) => (
@@ -558,7 +558,7 @@ const Register = ({ history }) => {
                     label="Default Unit of Measure for Distance"
                     autoComplete="distance"
                     {...distance.bind}
-                    className="textField2"
+                    className="registerTextField2"
                   >
                     <MenuItem value="">Select</MenuItem>
                     {_.map(UOM_DISTANCE_CHOICES, (dist, index) => (
@@ -582,7 +582,7 @@ const Register = ({ history }) => {
                     label="Default Unit of Measure for Temperature"
                     autoComplete="temp"
                     {...temp.bind}
-                    className="textField2"
+                    className="registerTextField2"
                   >
                     <MenuItem value="">Select</MenuItem>
                     {_.map(UOM_TEMPERATURE_CHOICES, (tmp, index) => (
@@ -606,7 +606,7 @@ const Register = ({ history }) => {
                     label="Default Unit of Measure for Weight"
                     autoComplete="weight"
                     {...weight.bind}
-                    className="textField2"
+                    className="registerTextField2"
                   >
                     <MenuItem value="">Select</MenuItem>
                     {_.map(UOM_WEIGHT_CHOICES, (wgt, index) => (
@@ -734,7 +734,7 @@ const Register = ({ history }) => {
                     margin="normal"
                     fullWidth
                     type="number"
-                    className="numberInput"
+                    className="registerNumberInput"
                     id="whatsapp-number"
                     name="whatsapp-number"
                     label="Send WhatsApp alerts on"
@@ -748,7 +748,7 @@ const Register = ({ history }) => {
                 fullWidth
                 variant="contained"
                 color="primary"
-                className="submit"
+                className="registerSubmit"
                 disabled={isLoadingOrgNames || isLoadingCountries || isLoadingCurrencies || isRegister || submitDisabled()}
               >
                 Register

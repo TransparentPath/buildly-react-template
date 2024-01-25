@@ -316,7 +316,7 @@ const OrganizationSettings = () => {
   };
 
   return (
-    <Grid className="orgRoot" container spacing={2}>
+    <Grid className="adminPanelOrgRoot" container spacing={2}>
       {(isLoadingOrganizationTypes
         || isLoadingCountries
         || isLoadingCurrencies
@@ -332,14 +332,14 @@ const OrganizationSettings = () => {
             || isEditingUnit}
           />
         )}
-      <form className="orgFormContainer" noValidate onSubmit={handleSubmit}>
+      <form className="adminPanelOrgFormContainer" noValidate onSubmit={handleSubmit}>
         {/* <Grid item xs={12}>
-          <div className="checkbox">
+          <div className="adminPanelCheckbox">
             <Checkbox
               checked={allowImportExport.value}
               onClick={(e) => allowImportExport.setValue(e.target.checked)}
             />
-            <Typography className="label">
+            <Typography className="adminPanelLabel">
               Allow Import Export for this Organization?
             </Typography>
           </div>
@@ -404,7 +404,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className="numberInput"
+              className="adminPanelNumberInput"
               id="default-max-temperature"
               name="default-max-temperature"
               label="Default Maximum Temperature for Excursion"
@@ -431,7 +431,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className="numberInput"
+              className="adminPanelNumberInput"
               id="default-min-temperature"
               name="default-min-temperature"
               label="Default Minimum Temperature for Excursion"
@@ -460,7 +460,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className="numberInput"
+              className="adminPanelNumberInput"
               id="default-max-humidity"
               name="default-max-humidity"
               label="Default Maximum Humidity for Excursion"
@@ -478,7 +478,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className="numberInput"
+              className="adminPanelNumberInput"
               id="default-min-humidity"
               name="default-min-humidity"
               label="Default Minimum Humidity for Excursion"
@@ -498,7 +498,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className="numberInput"
+              className="adminPanelNumberInput"
               id="default-shock"
               name="default-shock"
               label="Default Shock Threshold"
@@ -516,7 +516,7 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               type="number"
-              className="numberInput"
+              className="adminPanelNumberInput"
               id="default-light"
               name="default-light"
               label="Default Light Threshold"
@@ -788,7 +788,7 @@ const OrganizationSettings = () => {
               fullWidth
               variant="contained"
               color="primary"
-              className="submit"
+              className="adminPanelSubmit"
               disabled={isLoadingOrganizationTypes
                 || isLoadingCountries
                 || isLoadingCurrencies
@@ -807,7 +807,7 @@ const OrganizationSettings = () => {
               variant="contained"
               color="primary"
               onClick={() => resetValues()}
-              className="submit"
+              className="adminPanelSubmit"
             >
               Reset
             </Button>
