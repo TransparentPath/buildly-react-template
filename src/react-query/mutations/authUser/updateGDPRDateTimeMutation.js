@@ -2,7 +2,7 @@ import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { oauthService } from '@modules/oauth/oauth.service';
 
-export const useUpdateGDPRDateTimeMutation = (fetchUser, displayAlert) => useMutation(
+export const useUpdateGDPRDateTimeMutation = (displayAlert) => useMutation(
   async (gdprData) => {
     const response = await httpService.makeRequest(
       'patch',
@@ -23,11 +23,10 @@ export const useUpdateGDPRDateTimeMutation = (fetchUser, displayAlert) => useMut
   },
   {
     onSuccess: async () => {
-      displayAlert('success', 'GDPR cookie successfully updated!');
-      fetchUser();
+      displayAlert('success', 'GDPR cookie acceptance successfully updated!');
     },
     onError: () => {
-      displayAlert('error', "Couldn't update GDPR cookie!");
+      displayAlert('error', "Couldn't update GDPR cookie acceptance!");
     },
   },
 );

@@ -15,29 +15,10 @@ import './CookieConsentStyles.css';
 
 const CookieConsent = () => {
   const history = useHistory();
-  const [user, setUser] = useState();
+  const user = getUser();
   const [visible, setVisible] = useState(false);
 
   const { displayAlert } = useAlert();
-
-  const fetchUser = async () => {
-    try {
-      const fetchedUser = await getUser();
-      setUser(fetchedUser);
-    } catch (error) {
-      setUser();
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-    const unlisten = history.listen(() => {
-      fetchUser();
-    });
-    return () => {
-      unlisten();
-    };
-  }, [history]);
 
   useEffect(() => {
     if (user) {
@@ -56,7 +37,7 @@ const CookieConsent = () => {
     }
   }, [user]);
 
-  const { mutate: updateGDPRDateTimeMutation, isLoading: isUpdatingGDPRDateTime } = useUpdateGDPRDateTimeMutation(fetchUser, displayAlert);
+  const { mutate: updateGDPRDateTimeMutation, isLoading: isUpdatingGDPRDateTime } = useUpdateGDPRDateTimeMutation(displayAlert);
 
   const handleSubmit = () => {
     const data = {

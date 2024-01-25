@@ -41,7 +41,7 @@ const PrivacyPolicy = ({ history }) => (
       <Typography variant="body1" paragraph textAlign="justify">
         We encourage you to read this Privacy Policy and our
         {' '}
-        <Button onClick={() => history.push(routes.ABOUT_PLATFORM)} class="privacyPolicyButton">
+        <Button onClick={() => history.push(routes.ABOUT_PLATFORM)} className="privacyPolicyButton">
           End User Agreement
         </Button>
         {' '}
