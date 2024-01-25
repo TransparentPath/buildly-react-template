@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
+import moment from 'moment-timezone';
 import {
   Grid,
   Typography,
@@ -29,10 +30,9 @@ const CookieConsent = () => {
   };
 
   const calculateTimeDifference = () => {
-    const lastShownTime = new Date(user.last_gdpr_shown);
-    const currentTime = new Date();
-    const differenceInMillis = currentTime - lastShownTime;
-    const differenceInMinutes = Math.floor(differenceInMillis / (1000 * 60));
+    const lastShownTime = moment(user.last_gdpr_shown).tz(user.user_timezone);
+    const currentTime = moment().tz(user.user_timezone);
+    const differenceInMinutes = currentTime.diff(lastShownTime, 'minutes');
     return differenceInMinutes;
   };
 
@@ -67,15 +67,9 @@ const CookieConsent = () => {
   const { mutate: updateGDPRDateTimeMutation, isLoading: isUpdatingGDPRDateTime } = useUpdateGDPRDateTimeMutation(fetchUser, displayAlert);
 
   const handleSubmit = () => {
-    const date = new Date();
-    const formattedDateTime = (
-      date.toISOString().slice(0, 23)
-      + date.getMilliseconds().toString().padStart(3, '0')
-      + date.toTimeString().slice(12, 17)
-    );
     const data = {
       id: user.id,
-      last_gdpr_shown: formattedDateTime,
+      last_gdpr_shown: moment().tz(user.user_timezone).toISOString(),
     };
     updateGDPRDateTimeMutation(data);
   };
@@ -98,16 +92,14 @@ const CookieConsent = () => {
               functions.
             </Typography>
           </Grid>
-          {!!user && (
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              onClick={() => handleSubmit()}
-            >
-              Accept
-            </Button>
-          )}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            onClick={() => handleSubmit()}
+          >
+            Accept
+          </Button>
         </Grid>
       ) : null}
     </>

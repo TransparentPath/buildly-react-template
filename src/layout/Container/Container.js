@@ -3,6 +3,7 @@ import { Route, Redirect } from 'react-router-dom';
 import _ from 'lodash';
 import { Container } from '@mui/material';
 import { UserContext, getUser } from '../../context/User.context';
+import CookieConsent from '../../components/CookieConsent/CookieConsent';
 import NavBar from '../NavBar/NavBar';
 import TopBar from '../TopBar/TopBar';
 import AboutPlatform from '../../pages/AboutPlatform/AboutPlatform';
@@ -102,6 +103,7 @@ const ContainerDashboard = ({ location, history }) => {
           />
         </Container>
       </UserContext.Provider>
+      <CookieConsent />
     </div>
   );
 };

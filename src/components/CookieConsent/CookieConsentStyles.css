@@ -1,7 +1,8 @@
 .cookieConsentContainer {
-  position: sticky;
+  position: fixed;
   bottom: 0px;
   left: 0px;
+  right: 0px;
   z-index: 9999;
   padding: 20px 40px;
   align-items: center;
