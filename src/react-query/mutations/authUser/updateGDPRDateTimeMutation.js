@@ -6,7 +6,7 @@ export const useUpdateGDPRDateTimeMutation = (displayAlert) => useMutation(
   async (gdprData) => {
     const response = await httpService.makeRequest(
       'patch',
-      `${window.env.API_URL}coreuser/${gdprData.id}/`,
+      `${window.env.API_URL}coreuser/${gdprData.id}/update_profile/`,
       gdprData,
     );
     const user = await httpService.makeRequest(
