@@ -530,6 +530,55 @@ const Shipment = ({ history }) => {
     setSteps([]);
   };
 
+  const renderSensorData = (marker) => {
+    const isValidData = (
+      marker.temperature !== null && marker.temperature !== undefined
+      && marker.humidity !== null && marker.humidity !== undefined
+      && marker.shock !== null && marker.shock !== undefined
+      && marker.light !== null && marker.light !== undefined
+      && marker.battery !== null && marker.battery !== undefined
+    );
+
+    return isValidData && (
+      <>
+        <Typography>{`Temp: ${marker.temperature}`}</Typography>
+        <Typography>{`Humidity: ${marker.humidity}`}</Typography>
+        <Typography>{`Shock: ${marker.shock}`}</Typography>
+        <Typography>{`Light: ${marker.light}`}</Typography>
+        <Typography>{`Battery: ${marker.battery}`}</Typography>
+      </>
+    );
+  };
+
+  const renderIrregularTransmission = (marker) => {
+    const hasInvalidData = (
+      marker.temperature === null || marker.temperature === undefined
+      || marker.humidity === null || marker.humidity === undefined
+      || marker.shock === null || marker.shock === undefined
+      || marker.light === null || marker.light === undefined
+      || marker.battery === null || marker.battery === undefined
+    );
+
+    return hasInvalidData && (
+      <Grid item xs={12}>
+        <Typography fontWeight={700} fontStyle="italic">
+          Irregular Transmission:
+        </Typography>
+        {renderSensorValue('Temp', marker.temperature)}
+        {renderSensorValue('Humidity', marker.humidity)}
+        {renderSensorValue('Shock', marker.shock)}
+        {renderSensorValue('Light', marker.light)}
+        {renderSensorValue('Battery', marker.battery)}
+      </Grid>
+    );
+  };
+
+  const renderSensorValue = (label, value) => (
+    !_.isEqual(value, null) && !_.isEqual(value, undefined) && (
+      <Typography>{`${label}: ${value}`}</Typography>
+    )
+  );
+
   return (
     <Box mt={5} mb={5}>
       {(isLoadingShipments
@@ -768,22 +817,9 @@ const Shipment = ({ history }) => {
                                   <Typography>
                                     {`Recorded at: ${markers[0].date} ${markers[0].time}`}
                                   </Typography>
-                                  <Typography>
-                                    {`Temp: ${markers[0].temperature || 'N/A'}`}
-                                  </Typography>
-                                  <Typography>
-                                    {`Humidity: ${markers[0].humidity || 'N/A'}`}
-                                  </Typography>
-                                  <Typography>
-                                    {`Shock: ${markers[0].shock || 'N/A'}`}
-                                  </Typography>
-                                  <Typography>
-                                    {`Light: ${markers[0].light || 'N/A'}`}
-                                  </Typography>
-                                  <Typography>
-                                    {`Battery: ${markers[0].battery || 'N/A'}`}
-                                  </Typography>
+                                  {renderSensorData(markers[0])}
                                 </Grid>
+                                {renderIrregularTransmission(markers[0])}
                               </Grid>
                             )}
                           </Grid>
