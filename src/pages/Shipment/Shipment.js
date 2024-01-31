@@ -343,10 +343,8 @@ const Shipment = ({ history }) => {
       titleColor: 'inherit',
       label: 'Shipment completed',
       content: _.isEqual(shipment.status, 'Completed')
-        ? moment(shipment.edit_date).tz(data).format(`${dateFormat} ${timeFormat}`)
-        : _.isEmpty(shipment.actual_time_of_arrival)
-          ? `${moment(shipment.estimated_time_of_arrival).add(24, 'h').tz(data).format(`${dateFormat} ${timeFormat}`)} (Estimated Time)`
-          : `${moment(shipment.actual_time_of_arrival).add(24, 'h').tz(data).format(`${dateFormat} ${timeFormat}`)} (Actual Time)`,
+        ? `${moment(shipment.edit_date).tz(data).format(`${dateFormat} ${timeFormat}`)} (Actual Time)`
+        : `${moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).add(24, 'h').tz(data).format(`${dateFormat} ${timeFormat}`)} (Estimated Time)`,
       active: _.isEqual(shipment.status, 'Completed'),
       error: false,
       info: false,

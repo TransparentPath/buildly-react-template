@@ -9,7 +9,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import Loader from '@components/Loader/Loader';
 import { getUser } from '@context/User.context';
-import { useUpdateGDPRDateTimeMutation } from '@react-query/mutations/authUser/updateGDPRDateTimeMutation';
+import { useUpdateUserMutation } from '@react-query/mutations/authUser/updateUserMutation';
 import useAlert from '@hooks/useAlert';
 import { routes } from '@routes/routesConstants';
 import './CookieConsentStyles.css';
@@ -38,7 +38,7 @@ const CookieConsent = () => {
     }
   }, [user]);
 
-  const { mutate: updateGDPRDateTimeMutation, isLoading: isUpdatingGDPRDateTime } = useUpdateGDPRDateTimeMutation(displayAlert);
+  const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert);
 
   const handleSubmit = () => {
     const data = {
@@ -47,14 +47,14 @@ const CookieConsent = () => {
       organization_name: user.organization.name,
       last_gdpr_shown: moment().tz(user.user_timezone).toISOString(),
     };
-    updateGDPRDateTimeMutation(data);
+    updateUserMutation(data);
   };
 
   return (
     <>
       {visible ? (
         <Grid container className="cookieConsentContainer">
-          {isUpdatingGDPRDateTime && <Loader open={isUpdatingGDPRDateTime} />}
+          {isUpdateUser && <Loader open={isUpdateUser} />}
           <Grid item xs={12}>
             <Typography variant="h6">We value your privacy</Typography>
           </Grid>
