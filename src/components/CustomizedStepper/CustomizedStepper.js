@@ -8,10 +8,11 @@ import {
   Typography,
   StepIcon,
 } from '@mui/material';
+import _ from 'lodash';
 import { CircleRounded as CircleIcon, CheckCircleRounded as CheckIcon } from '@mui/icons-material';
 import './CustomizedStepperStyles.css';
 
-const CustomizedSteppers = ({ steps }) => {
+const CustomizedSteppers = ({ steps, maxWidth }) => {
   const getIcon = (step) => {
     switch (true) {
       case step.active && !step.completed:
@@ -41,13 +42,21 @@ const CustomizedSteppers = ({ steps }) => {
     <Stepper alternativeLabel connector={<StepConnector className="customizadStepperConnector" />} className="customizadStepperRoot">
       {steps.map((step, index) => (
         <Stack key={index} sx={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', width: maxWidth && 'max-content' }}>
             {step.titleIcon}
-            <Typography textAlign="center" fontWeight={700} pb={2} pl={step.titleIcon ? 1 : 0} pr={1} fontSize={14} color={step.titleColor}>
+            <Typography
+              textAlign="center"
+              fontWeight={700}
+              pb={2}
+              pl={step.titleIcon ? 1 : 0}
+              pr={1}
+              fontSize={14}
+              color={step.titleColor}
+            >
               {step.title}
             </Typography>
           </div>
-          <Step className={index === 0 ? 'customizadStepperNoLine' : ''}>
+          <Step className={step.id === 1 ? 'customizadStepperNoLine' : ''}>
             <StepIcon icon={getIcon(step)} />
             <StepLabel>{step.label}</StepLabel>
             <Typography textAlign="center" fontSize={14}>{step.content}</Typography>

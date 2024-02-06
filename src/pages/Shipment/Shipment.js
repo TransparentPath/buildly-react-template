@@ -65,7 +65,11 @@ const Shipment = ({ history }) => {
   const [selectedMarker, setSelectedMarker] = useState({});
   const [allMarkers, setAllMarkers] = useState([]);
   const [expandedRows, setExpandedRows] = useState([]);
-  const [steps, setSteps] = useState([]);
+  const [startSteps, setStartSteps] = useState([]);
+  const [arrivedSteps, setArrivedSteps] = useState([]);
+  const [arrivedStep, setArrivedStep] = useState([]);
+  const [activeSteps, setActiveSteps] = useState([]);
+  const [completedStep, setCompletedStep] = useState([]);
   const [isLoading, setLoading] = useState(false);
 
   const { data: shipmentData, isLoading: isLoadingShipments, isFetching: isFetchingShipments } = useQuery(
@@ -187,11 +191,13 @@ const Shipment = ({ history }) => {
       shipment_id: shipment.partner_shipment_id,
     });
     const filteredAlerts = _.filter(sensorAlertData, { shipment_id: shipment.partner_shipment_id });
-    let newSteps = [];
-    let arrivedSteps = [];
-    let activeSteps = [];
+    let start_steps = [];
+    let arrived_steps = [];
+    let arrived_step = [];
+    let active_steps = [];
+    let completed_step = [];
 
-    newSteps = [
+    start_steps = [
       {
         id: 1,
         title: shipment.origin,
@@ -241,7 +247,7 @@ const Shipment = ({ history }) => {
         );
       });
       if (_.isEmpty(shipment.actual_time_of_arrival)) {
-        arrivedSteps = _.map(alerts, (a) => {
+        arrived_steps = _.map(alerts, (a) => {
           const error = _.includes(_.toLower(a.alert_type), 'max') || _.includes(_.toLower(a.alert_type), 'shock') || _.includes(_.toLower(a.alert_type), 'light');
           const info = _.includes(_.toLower(a.alert_type), 'min');
           const item = {
@@ -268,7 +274,7 @@ const Shipment = ({ history }) => {
           });
         });
       } else {
-        arrivedSteps = _.map(arrivedAlerts, (a) => {
+        arrived_steps = _.map(arrivedAlerts, (a) => {
           const error = _.includes(_.toLower(a.alert_type), 'max') || _.includes(_.toLower(a.alert_type), 'shock') || _.includes(_.toLower(a.alert_type), 'light');
           const info = _.includes(_.toLower(a.alert_type), 'min');
           const item = {
@@ -294,7 +300,7 @@ const Shipment = ({ history }) => {
             info,
           });
         });
-        activeSteps = _.map(activeAlerts, (a) => {
+        active_steps = _.map(activeAlerts, (a) => {
           const error = _.includes(_.toLower(a.alert_type), 'max') || _.includes(_.toLower(a.alert_type), 'shock') || _.includes(_.toLower(a.alert_type), 'light');
           const info = _.includes(_.toLower(a.alert_type), 'min');
           const item = {
@@ -322,10 +328,9 @@ const Shipment = ({ history }) => {
         });
       }
     }
-    newSteps = [...newSteps, ...arrivedSteps];
 
-    newSteps = [...newSteps, {
-      id: _.maxBy(newSteps, 'id') ? (_.maxBy(newSteps, 'id').id + 1) : 3,
+    arrived_step = [{
+      id: 3,
       title: shipment.destination,
       titleColor: 'inherit',
       label: 'Shipment arrived',
@@ -341,10 +346,8 @@ const Shipment = ({ history }) => {
       ),
     }];
 
-    newSteps = [...newSteps, ...activeSteps];
-
-    newSteps = [...newSteps, {
-      id: _.maxBy(newSteps, 'id') ? (_.maxBy(newSteps, 'id').id + 2) : 4,
+    completed_step = [{
+      id: 4,
       title: shipment.destination,
       titleColor: 'inherit',
       label: 'Shipment completed',
@@ -516,7 +519,11 @@ const Shipment = ({ history }) => {
     if (setExpanded) {
       const rowIndex = _.findIndex(rows, shipment);
       setExpandedRows([rowIndex]);
-      setSteps(_.orderBy(newSteps, 'id'));
+      setStartSteps(_.orderBy(start_steps, 'id'));
+      setArrivedSteps(_.orderBy(arrived_steps, 'id'));
+      setArrivedStep(_.orderBy(arrived_step, 'id'));
+      setActiveSteps(_.orderBy(active_steps, 'id'));
+      setCompletedStep(_.orderBy(completed_step, 'id'));
     }
 
     setSelectedShipment(shipment);
@@ -531,7 +538,11 @@ const Shipment = ({ history }) => {
     setMarkers([]);
     setSelectedMarker({});
     setExpandedRows([]);
-    setSteps([]);
+    setStartSteps([]);
+    setArrivedSteps([]);
+    setArrivedStep([]);
+    setActiveSteps([]);
+    setCompletedStep([]);
   };
 
   const renderSensorData = (marker) => {
@@ -721,7 +732,11 @@ const Shipment = ({ history }) => {
                   setMarkers([]);
                   setSelectedMarker({});
                   setExpandedRows([]);
-                  setSteps([]);
+                  setStartSteps([]);
+                  setArrivedSteps([]);
+                  setArrivedStep([]);
+                  setActiveSteps([]);
+                  setCompletedStep([]);
                 } else {
                   processMarkers(rows[_.last(allExpanded).dataIndex], true);
                 }
@@ -734,7 +749,54 @@ const Shipment = ({ history }) => {
                   <>
                     <TableRow>
                       <TableCell colSpan={colSpan}>
-                        <CustomizedSteppers steps={steps} />
+                        <Grid container>
+                          <Grid
+                            item
+                            xs={
+                              _.isEmpty(arrivedSteps) && _.isEmpty(activeSteps)
+                                ? 6
+                                : 2
+                            }
+                          >
+                            <CustomizedSteppers steps={startSteps} />
+                          </Grid>
+                          {!_.isEmpty(arrivedSteps) && (
+                            <Grid
+                              item
+                              xs={_.isEmpty(activeSteps) ? 8 : 4}
+                            >
+                              <CustomizedSteppers steps={arrivedSteps} maxWidth />
+                            </Grid>
+                          )}
+                          <Grid
+                            item
+                            xs={
+                              _.isEmpty(arrivedSteps) && _.isEmpty(activeSteps)
+                                ? 3
+                                : 1
+                            }
+                          >
+                            <CustomizedSteppers steps={arrivedStep} />
+                          </Grid>
+                          {!_.isEmpty(activeSteps) && (
+                            <Grid
+                              item
+                              xs={_.isEmpty(arrivedSteps) ? 8 : 4}
+                            >
+                              <CustomizedSteppers steps={activeSteps} maxWidth />
+                            </Grid>
+                          )}
+                          <Grid
+                            item
+                            xs={
+                              _.isEmpty(arrivedSteps) && _.isEmpty(activeSteps)
+                                ? 3
+                                : 1
+                            }
+                          >
+                            <CustomizedSteppers steps={completedStep} />
+                          </Grid>
+                        </Grid>
                       </TableCell>
                     </TableRow>
 
