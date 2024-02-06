@@ -8,7 +8,6 @@ import {
   Typography,
   StepIcon,
 } from '@mui/material';
-import _ from 'lodash';
 import { CircleRounded as CircleIcon, CheckCircleRounded as CheckIcon } from '@mui/icons-material';
 import './CustomizedStepperStyles.css';
 
