@@ -1,6 +1,7 @@
 .customizadStepperRoot {
   padding: 16px 0;
   overflow-x: auto !important;
+  width: 85vw;
 }
 
 .customizadStepperNoLine .MuiStepConnector-root:first-of-type {
@@ -47,19 +48,19 @@
   border-radius: 1;
 }
 
-@media screen and (max-width: 1280) {
+@media screen and (min-width: 960px) and (max-width: 1280px) {
   .customizadStepperRoot {
-    width: 100vw;
+    width: 115vw;
   }
 }
 
-@media screen and (max-width: 960) {
+@media screen and (min-width: 600px) and (max-width: 960px) {
   .customizadStepperRoot {
-    width: 150vw;
+    width: 185vw;
   }
 }
 
-@media screen and (max-width: 600) {
+@media screen and (max-width: 600px) {
   .customizadStepperRoot {
     width: 300vw;
   }
