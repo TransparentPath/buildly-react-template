@@ -398,7 +398,7 @@ const OrganizationSettings = () => {
               label={(
                 <div className="adminPanelOrgIconContainer">
                   <TemperatureIcon className="adminPanelOrgIcons" />
-                  Suppress Temperature Alert Emails
+                  Suppress Temperature Alerts
                 </div>
               )}
               control={<Switch checked={supressTempAlerts.value} color="primary" onChange={(e) => supressTempAlerts.setValue(e.target.checked)} />}
@@ -410,7 +410,7 @@ const OrganizationSettings = () => {
               label={(
                 <div className="adminPanelOrgIconContainer">
                   <HumidityIcon className="adminPanelOrgIcons" />
-                  Suppress Humidity Alert Emails
+                  Suppress Humidity Alerts
                 </div>
               )}
               control={<Switch checked={supressHumidityAlerts.value} color="primary" onChange={(e) => supressHumidityAlerts.setValue(e.target.checked)} />}
@@ -422,7 +422,7 @@ const OrganizationSettings = () => {
               label={(
                 <div className="adminPanelOrgIconContainer">
                   <ShockIcon className="adminPanelOrgIcons" />
-                  Suppress Shock Alert Emails
+                  Suppress Shock Alerts
                 </div>
               )}
               control={<Switch checked={supressShockAlerts.value} color="primary" onChange={(e) => supressShockAlerts.setValue(e.target.checked)} />}
@@ -434,7 +434,7 @@ const OrganizationSettings = () => {
               label={(
                 <div className="adminPanelOrgIconContainer">
                   <LightIcon className="adminPanelOrgIcons" />
-                  Suppress Light Alert Emails
+                  Suppress Light Alerts
                 </div>
               )}
               control={<Switch checked={supressLightAlerts.value} color="primary" onChange={(e) => supressLightAlerts.setValue(e.target.checked)} />}

@@ -14,13 +14,16 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   FormLabel,
   Grid,
   IconButton,
   InputAdornment,
   MenuItem,
   Stack,
+  Switch,
   TextField,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -166,6 +169,11 @@ const CreateShipment = ({ history, location }) => {
     || (organization && organization.default_light)
     || 5,
   );
+
+  const supressTempAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_supress, 'temperature')) || false);
+  const supressHumidityAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_supress, 'humidity')) || false);
+  const supressShockAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_supress, 'shock')) || false);
+  const supressLightAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_supress, 'light')) || false);
 
   const shipmentName = useInput((!_.isEmpty(editData) && editData.order_number) || '');
   const purchaseOrderNumber = useInput((!_.isEmpty(editData) && editData.purchase_order_number) || '');
@@ -382,6 +390,10 @@ const CreateShipment = ({ history, location }) => {
       || max_excursion_humidity.hasChanged()
       || shock_threshold.hasChanged()
       || light_threshold.hasChanged()
+      || supressTempAlerts.hasChanged()
+      || supressHumidityAlerts.hasChanged()
+      || supressShockAlerts.hasChanged()
+      || supressLightAlerts.hasChanged()
       || shipmentName.hasChanged()
       || purchaseOrderNumber.hasChanged()
       || billOfLading.hasChanged()
@@ -526,6 +538,10 @@ const CreateShipment = ({ history, location }) => {
       && max_excursion_humidity.value === template.max_excursion_humidity
       && shock_threshold.value === template.shock_threshold
       && light_threshold.value === template.light_threshold
+      && !supressTempAlerts.hasChanged()
+      && !supressHumidityAlerts.hasChanged()
+      && !supressShockAlerts.hasChanged()
+      && !supressLightAlerts.hasChanged()
     ) || (!template && (!originCustodian || !destinationCustodian || _.isEmpty(items)))
   );
 
@@ -548,6 +564,10 @@ const CreateShipment = ({ history, location }) => {
         max_excursion_humidity.setValue(value.max_excursion_humidity);
         shock_threshold.setValue(value.shock_threshold);
         light_threshold.setValue(value.light_threshold);
+        supressTempAlerts.setValue(value.alerts_to_supress[0]);
+        supressHumidityAlerts.setValue(value.alerts_to_supress[1]);
+        supressShockAlerts.setValue(value.alerts_to_supress[2]);
+        supressLightAlerts.setValue(value.alerts_to_supress[3]);
       }
     } else {
       setSaveAsName('');
@@ -570,6 +590,12 @@ const CreateShipment = ({ history, location }) => {
       min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
       shock_threshold: shock_threshold.value,
       light_threshold: light_threshold.value,
+      alerts_to_supress: _.without([
+        supressTempAlerts.value ? 'temperature' : '',
+        supressHumidityAlerts.value ? 'humidity' : '',
+        supressShockAlerts.value ? 'shock' : '',
+        supressLightAlerts.value ? 'light' : '',
+      ], ''),
       organization_uuid: organization.organization_uuid,
     };
     if (_.isEmpty(tmplt)) {
@@ -609,6 +635,12 @@ const CreateShipment = ({ history, location }) => {
       min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
       shock_threshold: shock_threshold.value,
       light_threshold: light_threshold.value,
+      alerts_to_supress: _.without([
+        supressTempAlerts.value ? 'temperature' : '',
+        supressHumidityAlerts.value ? 'humidity' : '',
+        supressShockAlerts.value ? 'shock' : '',
+        supressLightAlerts.value ? 'light' : '',
+      ], ''),
       organization_uuid: organization.organization_uuid,
     };
 
@@ -673,6 +705,10 @@ const CreateShipment = ({ history, location }) => {
       && !max_excursion_humidity.hasChanged()
       && !shock_threshold.hasChanged()
       && !light_threshold.hasChanged()
+      && !supressTempAlerts.hasChanged()
+      && !supressHumidityAlerts.hasChanged()
+      && !supressShockAlerts.hasChanged()
+      && !supressLightAlerts.hasChanged()
       && !shipmentName.hasChanged()
       && !purchaseOrderNumber.hasChanged()
       && !billOfLading.hasChanged()
@@ -729,6 +765,12 @@ const CreateShipment = ({ history, location }) => {
       min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
       shock_threshold: parseInt(shock_threshold.value, 10),
       light_threshold: parseInt(light_threshold.value, 10),
+      alerts_to_supress: _.without([
+        supressTempAlerts.value ? 'temperature' : '',
+        supressHumidityAlerts.value ? 'humidity' : '',
+        supressShockAlerts.value ? 'shock' : '',
+        supressLightAlerts.value ? 'light' : '',
+      ], ''),
       note: note.value,
       transmission_time: parseInt(transmissionInterval.value, 10),
       measurement_time: parseInt(measurementInterval.value, 10),
@@ -1276,10 +1318,25 @@ const CreateShipment = ({ history, location }) => {
               )}
               <Grid item xs={12} sm={5.75} lg={3.83} mt={isMobile() ? 2.5 : 0}>
                 <div className="createShipmentFieldset">
-                  <Typography variant="body1" component="div" fontWeight={700}>
-                    TEMPERATURE
-                  </Typography>
-                  <Typography mt={2} className="createShipmentAlertSettingText">
+                  <Grid container alignItems="center">
+                    <Grid item xs={10}>
+                      <Typography variant="body1" fontWeight={700}>TEMPERATURE</Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Tooltip title="Suppress Temperature Alerts" placement="bottom">
+                        <FormControlLabel
+                          control={(
+                            <Switch
+                              color="primary"
+                              checked={supressTempAlerts.value}
+                              onChange={(e) => supressTempAlerts.setValue(e.target.checked)}
+                            />
+                          )}
+                        />
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
+                  <Typography mt={2} mb={0.95} className="createShipmentAlertSettingText">
                     <span className="createShipmentHighest">HIGHEST</span>
                     {' safe temperature'}
                   </Typography>
@@ -1309,7 +1366,7 @@ const CreateShipment = ({ history, location }) => {
                     value={max_excursion_temp.value}
                     onChange={(e) => max_excursion_temp.setValue(_.toString(e.target.value))}
                   />
-                  <Typography mt={3} className="createShipmentAlertSettingText">
+                  <Typography mt={3} mb={0.95} className="createShipmentAlertSettingText">
                     <span className="createShipmentLowest">LOWEST</span>
                     {' safe temperature'}
                   </Typography>
@@ -1343,10 +1400,25 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={12} sm={5.75} lg={3.83}>
                 <div className="createShipmentFieldset">
-                  <Typography variant="body1" component="div" fontWeight={700}>
-                    HUMIDITY
-                  </Typography>
-                  <Typography mt={2} className="createShipmentAlertSettingText">
+                  <Grid container alignItems="center">
+                    <Grid item xs={10}>
+                      <Typography variant="body1" fontWeight={700}>HUMIDITY</Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Tooltip title="Suppress Humidity Alerts" placement="bottom">
+                        <FormControlLabel
+                          control={(
+                            <Switch
+                              color="primary"
+                              checked={supressHumidityAlerts.value}
+                              onChange={(e) => supressHumidityAlerts.setValue(e.target.checked)}
+                            />
+                          )}
+                        />
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
+                  <Typography mt={2} mb={0.95} className="createShipmentAlertSettingText">
                     <span className="createShipmentHighest">HIGHEST</span>
                     {' safe humidity'}
                   </Typography>
@@ -1367,7 +1439,7 @@ const CreateShipment = ({ history, location }) => {
                     value={max_excursion_humidity.value}
                     onChange={(e) => max_excursion_humidity.setValue(_.toString(e.target.value))}
                   />
-                  <Typography mt={3} className="createShipmentAlertSettingText">
+                  <Typography mt={3} mb={0.95} className="createShipmentAlertSettingText">
                     <span className="createShipmentLowest">LOWEST</span>
                     {' safe humidity'}
                   </Typography>
@@ -1395,10 +1467,27 @@ const CreateShipment = ({ history, location }) => {
                   <Typography variant="body1" component="div" fontWeight={700}>
                     SHOCK & LIGHT
                   </Typography>
-                  <Typography mt={2} className="createShipmentAlertSettingText">
-                    <span className="createShipmentHighest">MAX</span>
-                    {' shock'}
-                  </Typography>
+                  <Grid container alignItems="center" mt={2}>
+                    <Grid item xs={10}>
+                      <Typography className="createShipmentAlertSettingText">
+                        <span className="createShipmentHighest">MAX</span>
+                        {' shock'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Tooltip title="Suppress Shock Alerts" placement="bottom">
+                        <FormControlLabel
+                          control={(
+                            <Switch
+                              color="primary"
+                              checked={supressShockAlerts.value}
+                              onChange={(e) => supressShockAlerts.setValue(e.target.checked)}
+                            />
+                          )}
+                        />
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
                   <TextField
                     variant="outlined"
                     fullWidth
@@ -1416,10 +1505,27 @@ const CreateShipment = ({ history, location }) => {
                     value={shock_threshold.value}
                     onChange={(e) => shock_threshold.setValue(_.toString(e.target.value))}
                   />
-                  <Typography mt={3} className="createShipmentAlertSettingText">
-                    <span className="createShipmentHighest">MAX</span>
-                    {' light'}
-                  </Typography>
+                  <Grid container alignItems="center" mt={3}>
+                    <Grid item xs={10}>
+                      <Typography className="createShipmentAlertSettingText">
+                        <span className="createShipmentHighest">MAX</span>
+                        {' light'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Tooltip title="Suppress Light Alerts" placement="bottom">
+                        <FormControlLabel
+                          control={(
+                            <Switch
+                              color="primary"
+                              checked={supressLightAlerts.value}
+                              onChange={(e) => supressLightAlerts.setValue(e.target.checked)}
+                            />
+                          )}
+                        />
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
                   <TextField
                     variant="outlined"
                     fullWidth
