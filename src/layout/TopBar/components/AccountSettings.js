@@ -35,7 +35,8 @@ const AccountSettings = ({ open, setOpen }) => {
   const [envOptions, setEnvOptions] = useState(user.env_alert_preferences);
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
   const timezone = useInput(user.user_timezone);
-  // const whatsAppNumber = useInput(user.whatsApp_number || '');
+  const smsNumber = useInput(user.sms_number || '');
+  const whatsAppNumber = useInput(user.whatsApp_number || '');
 
   const { mutate: updateUserMutation, isLoading: isUpdatingUser } = useUpdateUserMutation(null, displayAlert);
 
@@ -43,7 +44,8 @@ const AccountSettings = ({ open, setOpen }) => {
     setGeoOptions(user.geo_alert_preferences);
     setEnvOptions(user.env_alert_preferences);
     timezone.setValue(user.user_timezone);
-    // whatsAppNumber.setValue(user.whatsApp_number || '');
+    smsNumber.setValue(user.sms_number || '');
+    whatsAppNumber.setValue(user.whatsApp_number || '');
     setOpen(false);
   };
 
@@ -55,10 +57,13 @@ const AccountSettings = ({ open, setOpen }) => {
         && _.isEqual(envOptions.email, user.env_alert_preferences.email)
         && _.isEqual(envOptions.sms, user.env_alert_preferences.sms)
         && _.isEqual(envOptions.whatsApp, user.env_alert_preferences.whatsApp)
-        && !timezone.hasChanged())
-      // && !whatsAppNumber.hasChanged())
-      // || (geoOptions.whatsApp && !whatsAppNumber.value)
-      // || (envOptions.whatsApp && !whatsAppNumber.value)
+        && !timezone.hasChanged()
+        && !smsNumber.hasChanged()
+        && !whatsAppNumber.hasChanged())
+      || (geoOptions.sms && !smsNumber.value)
+      || (envOptions.sms && !smsNumber.value)
+      || (geoOptions.whatsApp && !whatsAppNumber.value)
+      || (envOptions.whatsApp && !whatsAppNumber.value)
     ) {
       return true;
     }
@@ -74,9 +79,13 @@ const AccountSettings = ({ open, setOpen }) => {
       env_alert_preferences: envOptions,
     };
 
-    // if (whatsAppNumber.value) {
-    //   userData = { ...userData, whatsApp_number: whatsAppNumber.value };
-    // }
+    if (smsNumber.value) {
+      userData = { ...userData, sms_number: smsNumber.value };
+    }
+
+    if (whatsAppNumber.value) {
+      userData = { ...userData, whatsApp_number: whatsAppNumber.value };
+    }
 
     if (timezone.value) {
       userData = { ...userData, user_timezone: timezone.value };
@@ -209,12 +218,12 @@ const AccountSettings = ({ open, setOpen }) => {
           <Grid item xs={6} sm={8} alignSelf="center">
             <FormControlLabel
               labelPlacement="end"
-              label="Available in a future release"
-              control={<Switch checked={false} color="primary" disabled onChange={(e) => setGeoOptions({ ...geoOptions, sms: e.target.checked })} />}
+              label={geoOptions && geoOptions.sms ? 'ON' : 'OFF'}
+              control={<Switch checked={geoOptions && geoOptions.sms} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, sms: e.target.checked })} />}
             />
           </Grid>
 
-          {/* <Grid item xs={6} sm={4} alignSelf="center">
+          <Grid item xs={6} sm={4} alignSelf="center">
             <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
           </Grid>
           <Grid item xs={6} sm={8} alignSelf="center">
@@ -222,16 +231,6 @@ const AccountSettings = ({ open, setOpen }) => {
               labelPlacement="end"
               label={geoOptions && geoOptions.whatsApp ? 'ON' : 'OFF'}
               control={<Switch checked={geoOptions && geoOptions.whatsApp} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, whatsApp: e.target.checked })} />}
-            />
-          </Grid> */}
-          <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} alignSelf="center">
-            <FormControlLabel
-              labelPlacement="end"
-              label="Available in a future release"
-              control={<Switch checked={false} color="primary" disabled onChange={(e) => setGeoOptions({ ...geoOptions, whatsApp: e.target.checked })} />}
             />
           </Grid>
 
@@ -260,12 +259,12 @@ const AccountSettings = ({ open, setOpen }) => {
           <Grid item xs={6} sm={8} alignSelf="center">
             <FormControlLabel
               labelPlacement="end"
-              label="Available in a future release"
-              control={<Switch checked={false} color="primary" disabled onChange={(e) => setEnvOptions({ ...envOptions, sms: e.target.checked })} />}
+              label={envOptions && envOptions.sms ? 'ON' : 'OFF'}
+              control={<Switch checked={envOptions && envOptions.sms} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, sms: e.target.checked })} />}
             />
           </Grid>
 
-          {/* <Grid item xs={6} sm={4} alignSelf="center">
+          <Grid item xs={6} sm={4} alignSelf="center">
             <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
           </Grid>
           <Grid item xs={6} sm={8} alignSelf="center">
@@ -274,20 +273,27 @@ const AccountSettings = ({ open, setOpen }) => {
               label={envOptions && envOptions.whatsApp ? 'ON' : 'OFF'}
               control={<Switch checked={envOptions && envOptions.whatsApp} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, whatsApp: e.target.checked })} />}
             />
-          </Grid> */}
-          <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} alignSelf="center">
-            <FormControlLabel
-              labelPlacement="end"
-              label="Available in a future release"
-              control={<Switch checked={false} color="primary" disabled onChange={(e) => setEnvOptions({ ...envOptions, whatsApp: e.target.checked })} />}
-            />
           </Grid>
 
-          {/* {(geoOptions.whatsApp || envOptions.whatsApp) && (
+          {(geoOptions.sms || envOptions.sms) && (
             <Grid item xs={12} mt={2}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                type="number"
+                className="accountSettingsNumberInput"
+                id="sms-number"
+                name="sms-number"
+                label="Send SMS alerts on"
+                {...smsNumber.bind}
+                helperText="Additional charges may apply"
+              />
+            </Grid>
+          )}
+
+          {(geoOptions.whatsApp || envOptions.whatsApp) && (
+            <Grid item xs={12}>
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -301,7 +307,7 @@ const AccountSettings = ({ open, setOpen }) => {
                 helperText="Additional charges may apply"
               />
             </Grid>
-          )} */}
+          )}
         </Grid>
         <div className="accountSettingSpacing" />
       </DialogContent>
