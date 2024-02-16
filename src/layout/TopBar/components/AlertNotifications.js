@@ -67,6 +67,7 @@ const AlertNotifications = ({
       queryClient.invalidateQueries({ queryKey: ['sensorReports'] });
       setRedirectToLogin(false);
     } else {
+      oauthService.logout();
       setRedirectToLogin(true);
     }
   };
