@@ -127,11 +127,11 @@ const CreateShipment = ({ history, location }) => {
 
   const [departureDateTime, setDepartureDateTime] = useState(
     (!_.isEmpty(editData) && editData.estimated_time_of_departure)
-    || moment().startOf('day').hour(12).minute(0),
+    || moment(),
   );
   const [arrivalDateTime, setArrivalDateTime] = useState(
     (!_.isEmpty(editData) && editData.estimated_time_of_arrival)
-    || moment().startOf('day').hour(12).minute(0),
+    || moment().add(1, 'day'),
   );
   const status = useInput((!_.isEmpty(editData) && editData.status) || 'Planned');
   const cannotEdit = !_.isEmpty(editData) && _.includes(_.map(ADMIN_SHIPMENT_STATUS, 'value'), editData.status);
