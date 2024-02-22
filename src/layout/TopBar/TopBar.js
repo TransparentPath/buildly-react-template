@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTimezoneSelect, allTimezones } from 'react-timezone-select';
 import _ from 'lodash';
 import {
@@ -32,13 +32,12 @@ import { useUpdateUserMutation } from '@react-query/mutations/authUser/updateUse
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
 import AccountSettings from './components/AccountSettings';
 import AlertNotifications from './components/AlertNotifications';
+import WhatsNewModal from './components/WhatsNew/WhatsNewModal';
+import WhatsNewSlider from './components/WhatsNew/WhatsNewSlider';
 import AdminMenu from './AdminMenu';
 import AccountMenu from './AccountMenu';
 import './TopBarStyles.css';
 
-/**
- * Component for the top bar header.
- */
 const TopBar = ({
   navHidden,
   setNavHidden,
@@ -49,6 +48,8 @@ const TopBar = ({
   const [organization, setOrganization] = useState(null);
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
   const [showAccountSettings, setShowAccountSettings] = useState(false);
+  const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
+  const [showWhatsNewSlider, setShowWhatsNewSlider] = useState(false);
   const [hideAlertBadge, setHideAlertBadge] = useState(true);
   const [showAlertNotifications, setShowAlertNotifications] = useState(false);
 
@@ -68,6 +69,14 @@ const TopBar = ({
     isSuperAdmin = checkForGlobalAdmin(user);
     org_uuid = user.organization.organization_uuid;
   }
+
+  useEffect(() => {
+    if (!_.isEmpty(window.sessionStorage.getItem('isWhatsNewShown'))) {
+      setShowWhatsNewModal(false);
+    } else {
+      setShowWhatsNewModal(true);
+    }
+  }, []);
 
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
@@ -115,6 +124,11 @@ const TopBar = ({
 
   const handleAccountSettingsClick = () => {
     setShowAccountSettings(true);
+    setAnchorEl(null);
+  };
+
+  const handleWhatsNewClick = () => {
+    setShowWhatsNewSlider(true);
     setAnchorEl(null);
   };
 
@@ -243,6 +257,7 @@ const TopBar = ({
             user={user}
             organizationName={organization}
             handleAccountSettingsClick={handleAccountSettingsClick}
+            handleWhatsNewClick={handleWhatsNewClick}
             handleAboutClick={handleAboutClick}
             handlePrivacyClick={handlePrivacyClick}
             handleLogoutClick={handleLogoutClick}
@@ -250,6 +265,8 @@ const TopBar = ({
         </div>
       </Toolbar>
       <AccountSettings open={showAccountSettings} setOpen={setShowAccountSettings} />
+      <WhatsNewModal open={showWhatsNewModal} setOpen={setShowWhatsNewModal} />
+      <WhatsNewSlider open={showWhatsNewSlider} setOpen={setShowWhatsNewSlider} />
       <AlertNotifications
         open={showAlertNotifications}
         setOpen={setShowAlertNotifications}
