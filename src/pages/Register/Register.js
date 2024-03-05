@@ -41,9 +41,14 @@ import './RegisterStyles.css';
 const Register = ({ history }) => {
   const { displayAlert } = useAlert();
 
+  useEffect(() => {
+    if (_.isEmpty(window.location.search) && window.location.pathname === '/register') {
+      history.push(routes.LOGIN);
+    }
+  }, [history]);
+
   const first_name = useInput('', { required: true });
   const last_name = useInput('');
-  const username = useInput('', { required: true });
   const email = useInput('', { required: true });
   const password = useInput('', { required: true });
   const re_password = useInput('', {
@@ -64,8 +69,8 @@ const Register = ({ history }) => {
   const weight = useInput('Pounds', { required: true });
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
   const timezone = useInput('America/Los_Angeles', { required: true });
-  const [geoOptions, setGeoOptions] = useState({ email: false, sms: false, whatsApp: false });
-  const [envOptions, setEnvOptions] = useState({ email: false, sms: false, whatsApp: false });
+  const [geoOptions, setGeoOptions] = useState({ email: true, sms: false, whatsApp: false });
+  const [envOptions, setEnvOptions] = useState({ email: true, sms: false, whatsApp: false });
   // const whatsAppNumber = useInput();
   const [formError, setFormError] = useState({});
 
@@ -109,7 +114,6 @@ const Register = ({ history }) => {
     event.preventDefault();
     location.register = true;
     let registerFormValue = {
-      username: username.value,
       email: email.value,
       password: password.value,
       organization_name: organization_name.value,
@@ -171,8 +175,7 @@ const Register = ({ history }) => {
     const errorKeys = Object.keys(formError);
 
     if (
-      !username.value
-      || !password.value
+      !password.value
       || !email.value
       || !re_password.value
       || !organization_name.value
@@ -267,31 +270,7 @@ const Register = ({ history }) => {
                 </Grid>
               </Grid>
               <Grid container spacing={isTablet() ? 0 : 3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="username"
-                    label="Username"
-                    name="username"
-                    autoComplete="username"
-                    error={
-                      formError.username
-                      && formError.username.error
-                    }
-                    helperText={
-                      formError.username
-                        ? formError.username.message
-                        : ''
-                    }
-                    className="registerTextField"
-                    onBlur={(e) => handleBlur(e, 'required', username)}
-                    {...username.bind}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                   <TextField
                     variant="outlined"
                     margin="normal"
