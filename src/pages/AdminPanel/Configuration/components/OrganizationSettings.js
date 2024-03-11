@@ -103,10 +103,10 @@ const OrganizationSettings = () => {
   const defaultMeasurementInterval = useInput(
     (organizationData && organizationData.default_measurement_interval) || 20,
   );
-  const supressTempAlerts = useInput((organizationData && _.includes(organizationData.alerts_to_supress, 'temperature')) || false);
-  const supressHumidityAlerts = useInput((organizationData && _.includes(organizationData.alerts_to_supress, 'humidity')) || false);
-  const supressShockAlerts = useInput((organizationData && _.includes(organizationData.alerts_to_supress, 'shock')) || false);
-  const supressLightAlerts = useInput((organizationData && _.includes(organizationData.alerts_to_supress, 'light')) || false);
+  const supressTempAlerts = useInput((organizationData && _.includes(organizationData.alerts_to_suppress, 'temperature')) || false);
+  const supressHumidityAlerts = useInput((organizationData && _.includes(organizationData.alerts_to_suppress, 'humidity')) || false);
+  const supressShockAlerts = useInput((organizationData && _.includes(organizationData.alerts_to_suppress, 'shock')) || false);
+  const supressLightAlerts = useInput((organizationData && _.includes(organizationData.alerts_to_suppress, 'light')) || false);
   const country = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States');
@@ -289,7 +289,7 @@ const OrganizationSettings = () => {
         default_light: defaultLight.value,
         default_transmission_interval: defaultTransmissionInterval.value,
         default_measurement_interval: defaultMeasurementInterval.value,
-        alerts_to_supress: _.without([
+        alerts_to_suppress: _.without([
           supressTempAlerts.value ? 'temperature' : '',
           supressHumidityAlerts.value ? 'humidity' : '',
           supressShockAlerts.value ? 'shock' : '',

@@ -170,10 +170,10 @@ const CreateShipment = ({ history, location }) => {
     || 5,
   );
 
-  const supressTempAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_supress, 'temperature')) || false);
-  const supressHumidityAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_supress, 'humidity')) || false);
-  const supressShockAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_supress, 'shock')) || false);
-  const supressLightAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_supress, 'light')) || false);
+  const supressTempAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'temperature')) || false);
+  const supressHumidityAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'humidity')) || false);
+  const supressShockAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'shock')) || false);
+  const supressLightAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'light')) || false);
 
   const shipmentName = useInput((!_.isEmpty(editData) && editData.order_number) || '');
   const purchaseOrderNumber = useInput((!_.isEmpty(editData) && editData.purchase_order_number) || '');
@@ -564,10 +564,10 @@ const CreateShipment = ({ history, location }) => {
         max_excursion_humidity.setValue(value.max_excursion_humidity);
         shock_threshold.setValue(value.shock_threshold);
         light_threshold.setValue(value.light_threshold);
-        supressTempAlerts.setValue(value.alerts_to_supress[0]);
-        supressHumidityAlerts.setValue(value.alerts_to_supress[1]);
-        supressShockAlerts.setValue(value.alerts_to_supress[2]);
-        supressLightAlerts.setValue(value.alerts_to_supress[3]);
+        supressTempAlerts.setValue(value.alerts_to_suppress[0]);
+        supressHumidityAlerts.setValue(value.alerts_to_suppress[1]);
+        supressShockAlerts.setValue(value.alerts_to_suppress[2]);
+        supressLightAlerts.setValue(value.alerts_to_suppress[3]);
       }
     } else {
       setSaveAsName('');
@@ -590,7 +590,7 @@ const CreateShipment = ({ history, location }) => {
       min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
       shock_threshold: shock_threshold.value,
       light_threshold: light_threshold.value,
-      alerts_to_supress: _.without([
+      alerts_to_suppress: _.without([
         supressTempAlerts.value ? 'temperature' : '',
         supressHumidityAlerts.value ? 'humidity' : '',
         supressShockAlerts.value ? 'shock' : '',
@@ -635,7 +635,7 @@ const CreateShipment = ({ history, location }) => {
       min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
       shock_threshold: shock_threshold.value,
       light_threshold: light_threshold.value,
-      alerts_to_supress: _.without([
+      alerts_to_suppress: _.without([
         supressTempAlerts.value ? 'temperature' : '',
         supressHumidityAlerts.value ? 'humidity' : '',
         supressShockAlerts.value ? 'shock' : '',
@@ -765,7 +765,7 @@ const CreateShipment = ({ history, location }) => {
       min_excursion_humidity: parseInt(min_excursion_humidity.value, 10),
       shock_threshold: parseInt(shock_threshold.value, 10),
       light_threshold: parseInt(light_threshold.value, 10),
-      alerts_to_supress: _.without([
+      alerts_to_suppress: _.without([
         supressTempAlerts.value ? 'temperature' : '',
         supressHumidityAlerts.value ? 'humidity' : '',
         supressShockAlerts.value ? 'shock' : '',
