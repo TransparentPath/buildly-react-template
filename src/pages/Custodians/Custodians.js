@@ -77,7 +77,7 @@ const Custodian = ({ history, redirectTo }) => {
 
   useEffect(() => {
     if (!_.isEmpty(custodianData) && !_.isEmpty(contactInfo)) {
-      setRows(getCustodianFormattedRow(custodianData, contactInfo));
+      setRows(getCustodianFormattedRow(custodianData, contactInfo, custodianTypesData));
     }
   }, [custodianData, contactInfo]);
 
