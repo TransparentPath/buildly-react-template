@@ -170,10 +170,26 @@ const CreateShipment = ({ history, location }) => {
     || 5,
   );
 
-  const supressTempAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'temperature')) || false);
-  const supressHumidityAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'humidity')) || false);
-  const supressShockAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'shock')) || false);
-  const supressLightAlerts = useInput((!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'light')) || false);
+  const supressTempAlerts = useInput(
+    (!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'temperature'))
+    || (organization && _.includes(organization.alerts_to_suppress, 'temperature'))
+    || false,
+  );
+  const supressHumidityAlerts = useInput(
+    (!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'humidity'))
+    || (organization && _.includes(organization.alerts_to_suppress, 'humidity'))
+    || false,
+  );
+  const supressShockAlerts = useInput(
+    (!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'shock'))
+    || (organization && _.includes(organization.alerts_to_suppress, 'shock'))
+    || false,
+  );
+  const supressLightAlerts = useInput(
+    (!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'light'))
+    || (organization && _.includes(organization.alerts_to_suppress, 'light'))
+    || false,
+  );
 
   const shipmentName = useInput((!_.isEmpty(editData) && editData.order_number) || '');
   const purchaseOrderNumber = useInput((!_.isEmpty(editData) && editData.purchase_order_number) || '');

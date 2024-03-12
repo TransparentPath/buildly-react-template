@@ -217,7 +217,6 @@ const OrganizationSettings = () => {
     timezone.reset();
   };
 
-  // Check if any changes done to be saved
   const submitDisabled = () => (
     allowImportExport.hasChanged()
     || radius.hasChanged()
@@ -249,10 +248,6 @@ const OrganizationSettings = () => {
 
   const { mutate: editUnitMutation, isLoading: isEditingUnit } = useEditUnitMutation(organization, displayAlert);
 
-  /**
-   * Submit The form and add/edit custodian type
-   * @param {Event} event the default submit event
-   */
   const handleSubmit = (event) => {
     event.preventDefault();
 
