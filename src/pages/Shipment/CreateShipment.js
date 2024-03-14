@@ -584,10 +584,10 @@ const CreateShipment = ({ history, location }) => {
         max_excursion_humidity.setValue(value.max_excursion_humidity);
         shock_threshold.setValue(value.shock_threshold);
         light_threshold.setValue(value.light_threshold);
-        supressTempAlerts.setValue(!!_.includes(value.alerts_to_suppress, 'temperature'));
-        supressHumidityAlerts.setValue(!!_.includes(value.alerts_to_suppress, 'humidity'));
-        supressShockAlerts.setValue(!!_.includes(value.alerts_to_suppress, 'shock'));
-        supressLightAlerts.setValue(!!_.includes(value.alerts_to_suppress, 'light'));
+        supressTempAlerts.setValue(_.includes(value.alerts_to_suppress, 'temperature'));
+        supressHumidityAlerts.setValue(_.includes(value.alerts_to_suppress, 'humidity'));
+        supressShockAlerts.setValue(_.includes(value.alerts_to_suppress, 'shock'));
+        supressLightAlerts.setValue(_.includes(value.alerts_to_suppress, 'light'));
       }
     } else {
       setSaveAsName('');

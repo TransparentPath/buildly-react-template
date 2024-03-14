@@ -1,7 +1,7 @@
 import { httpService } from '@modules/http/http.service';
 import _ from 'lodash';
 
-export const createGatewayQuery = async (displayAlert, setRefreshClicked) => {
+export const createGatewayQuery = async (displayAlert, setRefreshClicked, organization, queryClient) => {
   try {
     const response = await httpService.makeRequest(
       'get',
@@ -9,6 +9,7 @@ export const createGatewayQuery = async (displayAlert, setRefreshClicked) => {
     );
     if (response && response.status === 200) {
       displayAlert('success', response.data.status);
+      queryClient.invalidateQueries({ queryKey: ['gateways', organization] });
     }
     setRefreshClicked(false);
     return response;

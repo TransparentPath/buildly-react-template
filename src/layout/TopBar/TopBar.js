@@ -79,7 +79,7 @@ const TopBar = ({
 
   const { isLoading: isCreatingGateways } = useQuery(
     ['createGateways'],
-    () => createGatewayQuery(displayAlert, setRefreshClicked),
+    () => createGatewayQuery(displayAlert, setRefreshClicked, org_uuid, queryClient),
     { refetchOnWindowFocus: false, enabled: refreshClicked },
   );
 
@@ -124,7 +124,6 @@ const TopBar = ({
   const handleFetchGatewaysClick = () => {
     setRefreshClicked(true);
     setAnchorEl(null);
-    queryClient.invalidateQueries({ queryKey: ['gateways', org_uuid] });
   };
 
   const handleAccountSettingsClick = () => {
