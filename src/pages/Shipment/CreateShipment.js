@@ -173,21 +173,25 @@ const CreateShipment = ({ history, location }) => {
   const supressTempAlerts = useInput(
     (!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'temperature'))
     || (organization && _.includes(organization.alerts_to_suppress, 'temperature'))
+    || (template && _.includes(template.alerts_to_suppress, 'temperature'))
     || false,
   );
   const supressHumidityAlerts = useInput(
     (!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'humidity'))
     || (organization && _.includes(organization.alerts_to_suppress, 'humidity'))
+    || (template && _.includes(template.alerts_to_suppress, 'humidity'))
     || false,
   );
   const supressShockAlerts = useInput(
     (!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'shock'))
     || (organization && _.includes(organization.alerts_to_suppress, 'shock'))
+    || (template && _.includes(template.alerts_to_suppress, 'shock'))
     || false,
   );
   const supressLightAlerts = useInput(
     (!_.isEmpty(editData) && _.includes(editData.alerts_to_suppress, 'light'))
     || (organization && _.includes(organization.alerts_to_suppress, 'light'))
+    || (template && _.includes(template.alerts_to_suppress, 'light'))
     || false,
   );
 
@@ -554,10 +558,10 @@ const CreateShipment = ({ history, location }) => {
       && max_excursion_humidity.value === template.max_excursion_humidity
       && shock_threshold.value === template.shock_threshold
       && light_threshold.value === template.light_threshold
-      && !supressTempAlerts.hasChanged()
-      && !supressHumidityAlerts.hasChanged()
-      && !supressShockAlerts.hasChanged()
-      && !supressLightAlerts.hasChanged()
+      && supressTempAlerts.value === _.includes(template.alerts_to_suppress, 'temperature')
+      && supressHumidityAlerts.value === _.includes(template.alerts_to_suppress, 'humidity')
+      && supressShockAlerts.value === _.includes(template.alerts_to_suppress, 'shock')
+      && supressLightAlerts.value === _.includes(template.alerts_to_suppress, 'light')
     ) || (!template && (!originCustodian || !destinationCustodian || _.isEmpty(items)))
   );
 
@@ -580,10 +584,10 @@ const CreateShipment = ({ history, location }) => {
         max_excursion_humidity.setValue(value.max_excursion_humidity);
         shock_threshold.setValue(value.shock_threshold);
         light_threshold.setValue(value.light_threshold);
-        supressTempAlerts.setValue(value.alerts_to_suppress[0]);
-        supressHumidityAlerts.setValue(value.alerts_to_suppress[1]);
-        supressShockAlerts.setValue(value.alerts_to_suppress[2]);
-        supressLightAlerts.setValue(value.alerts_to_suppress[3]);
+        supressTempAlerts.setValue(!!_.includes(value.alerts_to_suppress, 'temperature'));
+        supressHumidityAlerts.setValue(!!_.includes(value.alerts_to_suppress, 'humidity'));
+        supressShockAlerts.setValue(!!_.includes(value.alerts_to_suppress, 'shock'));
+        supressLightAlerts.setValue(!!_.includes(value.alerts_to_suppress, 'light'));
       }
     } else {
       setSaveAsName('');
@@ -1978,7 +1982,7 @@ const CreateShipment = ({ history, location }) => {
                     >
                       <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
-                        _.filter(TIVE_GATEWAY_TIMES, (t) => t.value <= transmissionInterval.value),
+                        _.filter(TIVE_GATEWAY_TIMES, (t) => (_.includes(gatewayType.value, 'ProofTracker') ? t.value === transmissionInterval.value : t.value <= transmissionInterval.value)),
                         (time, index) => (
                           <MenuItem key={`${time.value}-${index}`} value={time.value}>
                             {time.label}
