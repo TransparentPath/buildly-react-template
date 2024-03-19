@@ -28,7 +28,7 @@ import { useLoginMutation } from '@react-query/mutations/authUser/loginMutation'
 import './LoginStyles.css';
 
 const Login = ({ history }) => {
-  const username = useInput(localStorage.getItem('username') || '', { required: true });
+  const email = useInput(localStorage.getItem('email') || '', { required: true });
   const password = useInput('', { required: true });
   const [error, setError] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -60,13 +60,13 @@ const Login = ({ history }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const loginFormValue = {
-      username: username.value,
+      username: email.value,
       password: password.value,
     };
     if (isChecked) {
-      localStorage.setItem('username', username.value);
+      localStorage.setItem('email', email.value);
     } else {
-      localStorage.removeItem('username');
+      localStorage.removeItem('email');
     }
     loginMutation(loginFormValue);
   };
@@ -92,7 +92,7 @@ const Login = ({ history }) => {
 
   const submitDisabled = () => {
     const errorKeys = Object.keys(error);
-    if (!username.value || !password.value) {
+    if (!email.value || !password.value) {
       return true;
     }
     let errorExists = false;
@@ -133,19 +133,15 @@ const Login = ({ history }) => {
                 margin="normal"
                 required
                 fullWidth
-                id="username"
-                label="Username"
-                name="username"
-                autoComplete="username"
-                error={error.username && error.username.error}
-                helperText={
-                  error && error.username
-                    ? error.username.message
-                    : ''
-                }
+                id="email"
+                label="Email"
+                name="email"
+                autoComplete="email"
+                error={error.email && error.email.error}
+                helperText={error && error.email ? error.email.message : ''}
                 className="loginTextField"
-                onBlur={(e) => handleBlur(e, 'required', username)}
-                {...username.bind}
+                onBlur={(e) => handleBlur(e, 'required', email)}
+                {...email.bind}
               />
               <TextField
                 variant="outlined"
@@ -191,7 +187,16 @@ const Login = ({ history }) => {
               </Button>
               <Grid container alignItems="center">
                 <Grid item xs={7}>
-                  <FormControlLabel control={<Checkbox checked={isChecked} onChange={() => setChecked(!isChecked)} color="primary" />} label="Remember Username" />
+                  <FormControlLabel
+                    control={(
+                      <Checkbox
+                        checked={isChecked}
+                        onChange={() => setChecked(!isChecked)}
+                        color="primary"
+                      />
+                    )}
+                    label="Remember Email"
+                  />
                 </Grid>
                 <Grid item xs={5} style={{ textAlign: 'end' }}>
                   <Link

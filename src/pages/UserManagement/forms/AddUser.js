@@ -1,39 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
 import { useQuery } from 'react-query';
+import { getUser } from '@context/User.context';
 import FormModal from '@components/Modal/FormModal';
+import Loader from '@components/Loader/Loader';
 import {
   Button, Grid, MenuItem, TextField,
 } from '@mui/material';
 import { isDesktop } from '@utils/mediaQuery';
 import { validators } from '@utils/validators';
-import { USER_ROLE_CHOICES } from '@utils/mock';
+import { checkForGlobalAdmin } from '@utils/utilMethods';
 import useAlert from '@hooks/useAlert';
 import { useInput } from '@hooks/useInput';
 import '../UserManagementStyles.css';
 import { getCoreuserQuery } from '@react-query/queries/coreuser/getCoreuserQuery';
 import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
+import { getCoregroupQuery } from '@react-query/queries/coregroup/getCoregroupQuery';
+import { useInviteMutation } from '@react-query/mutations/authUser/inviteMutation';
 
 const AddUser = ({ open, setOpen }) => {
   const { displayAlert } = useAlert();
+  const user = getUser();
+  const { organization } = user;
 
   const [openConfirmModal, setConfirmModal] = useState(false);
   const [emailData, setEmailData] = useState([]);
   const [userEmails, setUserEmails] = useState([]);
+  const [rolesData, setRolesData] = useState([]);
   const [formError, setFormError] = useState({});
 
   const organization_name = useInput('', { required: true });
   const user_role = useInput('', { required: true });
+  let isSuperAdmin = false;
 
-  const { data: coreuserData } = useQuery(
+  if (user) {
+    isSuperAdmin = checkForGlobalAdmin(user);
+  }
+
+  const { data: coreuserData, isLoading: isLoadingCoreuser } = useQuery(
     ['users'],
     () => getCoreuserQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
-  const { data: orgData } = useQuery(
+  const { data: orgData, isLoading: isLoadingOrganizations } = useQuery(
     ['organizations'],
     () => getAllOrganizationQuery(displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: coregroupData, isLoading: isLoadingCoregroup } = useQuery(
+    ['coregroup'],
+    () => getCoregroupQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
@@ -43,6 +61,19 @@ const AddUser = ({ open, setOpen }) => {
       setEmailData(edata);
     }
   }, [coreuserData]);
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      if (!_.isEmpty(organization_name.value)) {
+        const selectedOrg = _.filter(orgData, (org) => org.name === organization_name.value);
+        const orgGroups = _.filter(coregroupData, (item) => item.organization === selectedOrg[0].organization_uuid);
+        setRolesData(orgGroups);
+      }
+    } else {
+      const orgGroups = _.filter(coregroupData, (item) => item.organization === organization.organization_uuid);
+      setRolesData(orgGroups);
+    }
+  }, [organization_name.value, isSuperAdmin]);
 
   const discardFormData = () => {
     setUserEmails([]);
@@ -95,9 +126,14 @@ const AddUser = ({ open, setOpen }) => {
 
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
-    if (_.isEmpty(userEmails) || !organization_name.value || !user_role.value) {
+    if (isSuperAdmin) {
+      if (_.isEmpty(userEmails) || !organization_name.value || !user_role.value) {
+        return true;
+      }
+    } else if (_.isEmpty(userEmails) || !user_role.value) {
       return true;
     }
+
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
@@ -105,6 +141,26 @@ const AddUser = ({ open, setOpen }) => {
       }
     });
     return errorExists;
+  };
+
+  const { mutate: inviteMutation, isLoading: isInviting } = useInviteMutation(discardFormData, displayAlert);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!_.isEmpty(userEmails)
+      || organization_name.hasChanged()
+      || user_role.hasChanged()
+    ) {
+      const data = {
+        emails: userEmails,
+        org_data: {
+          name: organization_name.value || organization.name,
+        },
+        user_role: user_role.value,
+      };
+      inviteMutation(data);
+    }
   };
 
   return (
@@ -117,10 +173,21 @@ const AddUser = ({ open, setOpen }) => {
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
       >
+        {(isLoadingCoreuser
+          || isLoadingOrganizations
+          || isLoadingCoregroup
+          || isInviting)
+          && (
+            <Loader open={isLoadingCoreuser
+              || isLoadingOrganizations
+              || isLoadingCoregroup
+              || isInviting}
+            />
+          )}
         <form
           className="addUserFormContainer"
           noValidate
-        // onSubmit={handleSubmit}
+          onSubmit={handleSubmit}
         >
           <Grid container spacing={isDesktop() ? 2 : 0}>
             <Grid item xs={12}>
@@ -142,29 +209,31 @@ const AddUser = ({ open, setOpen }) => {
                 value={userEmails.join(', ')}
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                fullWidth
-                select
-                id="organization_name"
-                name="organization_name"
-                label="Organization Name"
-                autoComplete="organization_name"
-                {...organization_name.bind}
-              >
-                <MenuItem value="">Select</MenuItem>
-                {_.map(orgData, (org) => (
-                  <MenuItem
-                    key={`organization-${org.id}`}
-                    value={org.name || ''}
-                  >
-                    {org.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+            {isSuperAdmin && (
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  select
+                  id="organization_name"
+                  name="organization_name"
+                  label="Organization Name"
+                  autoComplete="organization_name"
+                  {...organization_name.bind}
+                >
+                  <MenuItem value="">Select</MenuItem>
+                  {_.map(orgData, (org) => (
+                    <MenuItem
+                      key={`organization-${org.id}`}
+                      value={org.name || ''}
+                    >
+                      {org.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            )}
             <Grid item xs={12}>
               <TextField
                 variant="outlined"
@@ -178,12 +247,12 @@ const AddUser = ({ open, setOpen }) => {
                 {...user_role.bind}
               >
                 <MenuItem value="">Select</MenuItem>
-                {_.map(USER_ROLE_CHOICES, (role, index) => (
+                {!_.isEmpty(rolesData) && _.map(rolesData, (role) => (
                   <MenuItem
-                    key={`role-${index}-${role}`}
-                    value={role}
+                    key={role.id}
+                    value={role.name}
                   >
-                    {role}
+                    {role.name}
                   </MenuItem>
                 ))}
               </TextField>

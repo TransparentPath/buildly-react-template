@@ -207,5 +207,3 @@ export const PRODUCT_MOCK = [
     url: 'def',
   },
 ];
-
-export const USER_ROLE_CHOICES = ['Admin', 'User'];
