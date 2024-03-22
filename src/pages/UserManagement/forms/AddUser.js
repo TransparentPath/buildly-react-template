@@ -21,7 +21,7 @@ import { useInviteMutation } from '@react-query/mutations/authUser/inviteMutatio
 const AddUser = ({ open, setOpen }) => {
   const { displayAlert } = useAlert();
   const user = getUser();
-  const { organization } = user;
+  let isSuperAdmin = false;
 
   const [openConfirmModal, setConfirmModal] = useState(false);
   const [emailData, setEmailData] = useState([]);
@@ -31,7 +31,6 @@ const AddUser = ({ open, setOpen }) => {
 
   const organization_name = useInput('', { required: true });
   const user_role = useInput('', { required: true });
-  let isSuperAdmin = false;
 
   if (user) {
     isSuperAdmin = checkForGlobalAdmin(user);
@@ -63,17 +62,17 @@ const AddUser = ({ open, setOpen }) => {
   }, [coreuserData]);
 
   useEffect(() => {
-    if (isSuperAdmin) {
-      if (!_.isEmpty(organization_name.value)) {
-        const selectedOrg = _.filter(orgData, (org) => org.name === organization_name.value);
-        const orgGroups = _.filter(coregroupData, (item) => item.organization === selectedOrg[0].organization_uuid);
-        setRolesData(orgGroups);
-      }
-    } else {
-      const orgGroups = _.filter(coregroupData, (item) => item.organization === organization.organization_uuid);
+    if (!_.isEmpty(organization_name.value)) {
+      const selectedOrg = _.filter(orgData, (org) => org.name === organization_name.value);
+      const orgGroups = _.filter(coregroupData, (item) => item.organization === selectedOrg[0].organization_uuid);
       setRolesData(orgGroups);
+    } else if (!isSuperAdmin) {
+      const orgGroups = _.filter(coregroupData, (item) => item.organization === user.organization.organization_uuid);
+      setRolesData(orgGroups);
+    } else {
+      setRolesData([]);
     }
-  }, [organization_name.value, isSuperAdmin]);
+  }, [organization_name.value]);
 
   const discardFormData = () => {
     setUserEmails([]);
@@ -155,7 +154,7 @@ const AddUser = ({ open, setOpen }) => {
       const data = {
         emails: userEmails,
         org_data: {
-          name: organization_name.value || organization.name,
+          name: organization_name.value || user.organization.name,
         },
         user_role: user_role.value,
       };
@@ -206,7 +205,7 @@ const AddUser = ({ open, setOpen }) => {
                 }
                 onBlur={(e) => handleBlur(e, 'duplicateEmail', userEmails, true, emailData)}
                 onChange={handleInputChange}
-                value={userEmails.join(', ')}
+                value={userEmails.toString()}
               />
             </Grid>
             {isSuperAdmin && (

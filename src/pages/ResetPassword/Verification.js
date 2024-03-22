@@ -6,14 +6,16 @@ import {
   Container,
   CssBaseline,
   Grid,
+  Link,
   Typography,
 } from '@mui/material';
 import './ResetPasswordStyles.css';
-import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
+import logo from '@assets/tp-logo.png';
 import Copyright from '@components/Copyright/Copyright';
 import Loader from '@components/Loader/Loader';
 import useAlert from '@hooks/useAlert';
 import { useResetPasswordMutation } from '@react-query/mutations/authUser/resetPasswordMutation';
+import { routes } from '@routes/routesConstants';
 
 const Verification = ({ location }) => {
   const [isDisabled, setIsDisabled] = useState(true);
@@ -73,7 +75,11 @@ const Verification = ({ location }) => {
       <Card variant="outlined">
         <CardContent>
           <div className="verificationPaper">
-            <CheckCircleIcon className="verificationIcon" />
+            <img
+              src={logo}
+              className="resetPasswordLogo"
+              alt="Company logo"
+            />
             <Typography component="h1" variant="h5" gutterBottom textAlign="center">
               Email Sent Successfully
             </Typography>
@@ -108,6 +114,17 @@ const Verification = ({ location }) => {
                     {formatTime(countdown)}
                   </Typography>
                 )}
+              </Grid>
+            </Grid>
+            <Grid container mt={1}>
+              <Grid item xs>
+                <Link
+                  to={routes.LOGIN}
+                  variant="body2"
+                  color="primary"
+                >
+                  Go back to Sign in
+                </Link>
               </Grid>
             </Grid>
           </div>

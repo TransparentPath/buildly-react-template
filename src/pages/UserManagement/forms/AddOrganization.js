@@ -61,7 +61,7 @@ const AddOrganization = ({
   const organization_name = useInput('', { required: true });
   const orgType = useInput('', { required: true });
   const organization_abbrevation = useInput('', { required: true });
-  const radius = useInput(0);
+  const radius = useInput(3);
   const defaultMaxTemperature = useInput(100);
   const defaultMinTemperature = useInput(0);
   const defaultMaxHumidity = useInput(100);
@@ -78,10 +78,10 @@ const AddOrganization = ({
   const temp = useInput('Fahrenheit');
   const weight = useInput('Pounds');
   const timezone = useInput('America/Los_Angeles');
-  const supressTempAlerts = useInput(false);
-  const supressHumidityAlerts = useInput(false);
-  const supressShockAlerts = useInput(false);
-  const supressLightAlerts = useInput(false);
+  const supressTempAlerts = useInput(true);
+  const supressHumidityAlerts = useInput(true);
+  const supressShockAlerts = useInput(true);
+  const supressLightAlerts = useInput(true);
 
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
 
@@ -120,6 +120,14 @@ const AddOrganization = ({
     () => getUnitQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
+
+  useEffect(() => {
+    if (distance.value === 'Kilometers') {
+      radius.setValue(5);
+    } else {
+      radius.setValue(3);
+    }
+  }, [distance.value]);
 
   useEffect(() => {
     if (coreuserData) {
@@ -292,10 +300,10 @@ const AddOrganization = ({
         org_data: {
           name: organization_name.value,
           alerts_to_suppress: _.without([
-            supressTempAlerts.value ? 'temperature' : '',
-            supressHumidityAlerts.value ? 'humidity' : '',
-            supressShockAlerts.value ? 'shock' : '',
-            supressLightAlerts.value ? 'light' : '',
+            !supressTempAlerts.value ? 'temperature' : '',
+            !supressHumidityAlerts.value ? 'humidity' : '',
+            !supressShockAlerts.value ? 'shock' : '',
+            !supressLightAlerts.value ? 'light' : '',
           ], ''),
           radius: radius.value || 0,
           organization_type: orgType.value,
@@ -831,7 +839,7 @@ const AddOrganization = ({
               </TextField>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="subtitle1" fontWeight={700}>Suppress Alert Email Settings:</Typography>
+              <Typography variant="subtitle1" fontWeight={700}>Alert Settings:</Typography>
             </Grid>
             <Grid item xs={6} alignSelf="center">
               <FormControlLabel
@@ -839,7 +847,7 @@ const AddOrganization = ({
                 label={(
                   <div className="addOrganizationIconContainer">
                     <TemperatureIcon className="addOrganizationIcons" />
-                    Suppress Temperature Alerts
+                    Temperature Alerts
                   </div>
                 )}
                 control={(
@@ -857,7 +865,7 @@ const AddOrganization = ({
                 label={(
                   <div className="addOrganizationIconContainer">
                     <HumidityIcon className="addOrganizationIcons" />
-                    Suppress Humidity Alerts
+                    Humidity Alerts
                   </div>
                 )}
                 control={<Switch checked={supressHumidityAlerts.value} color="primary" onChange={(e) => supressHumidityAlerts.setValue(e.target.checked)} />}
@@ -869,7 +877,7 @@ const AddOrganization = ({
                 label={(
                   <div className="adminPanelOrgIconContainer">
                     <ShockIcon className="adminPanelOrgIcons" />
-                    Suppress Shock Alerts
+                    Shock Alerts
                   </div>
                 )}
                 control={<Switch checked={supressShockAlerts.value} color="primary" onChange={(e) => supressShockAlerts.setValue(e.target.checked)} />}
@@ -881,7 +889,7 @@ const AddOrganization = ({
                 label={(
                   <div className="adminPanelOrgIconContainer">
                     <LightIcon className="adminPanelOrgIcons" />
-                    Suppress Light Alerts
+                    Light Alerts
                   </div>
                 )}
                 control={<Switch checked={supressLightAlerts.value} color="primary" onChange={(e) => supressLightAlerts.setValue(e.target.checked)} />}
