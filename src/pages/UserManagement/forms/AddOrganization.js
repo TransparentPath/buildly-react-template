@@ -380,7 +380,7 @@ const AddOrganization = ({
                 }
                 onBlur={(e) => handleBlur(e, 'duplicateEmail', adminEmails, true, emailData)}
                 onChange={handleInputChange}
-                value={adminEmails.join(', ')}
+                value={adminEmails.toString()}
               />
             </Grid>
             <Grid item xs={12}>
