@@ -36,9 +36,6 @@ import AdminMenu from './AdminMenu';
 import AccountMenu from './AccountMenu';
 import './TopBarStyles.css';
 
-/**
- * Component for the top bar header.
- */
 const TopBar = ({
   navHidden,
   setNavHidden,
