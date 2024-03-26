@@ -32,7 +32,7 @@ const Login = ({ history }) => {
   const password = useInput('', { required: true });
   const [error, setError] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setChecked] = useState(!!localStorage.getItem('username') || false);
+  const [isChecked, setChecked] = useState(!!localStorage.getItem('email') || false);
   const location = useLocation();
 
   const { displayAlert } = useAlert();

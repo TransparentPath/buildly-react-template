@@ -172,23 +172,23 @@ const CreateShipment = ({ history, location }) => {
 
   const supressTempAlerts = useInput(
     (!_.isEmpty(editData) && !_.includes(editData.alerts_to_suppress, 'temperature'))
-    || (_.isEmpty(editData) && !_.includes(template.alerts_to_suppress, 'temperature'))
-    || (_.isEmpty(editData) && !_.includes(organization.alerts_to_suppress, 'temperature')),
+    || (_.isEmpty(editData) && template && !_.includes(template.alerts_to_suppress, 'temperature'))
+    || (_.isEmpty(editData) && organization && !_.includes(organization.alerts_to_suppress, 'temperature')),
   );
   const supressHumidityAlerts = useInput(
     (!_.isEmpty(editData) && !_.includes(editData.alerts_to_suppress, 'humidity'))
-    || (_.isEmpty(editData) && !_.includes(template.alerts_to_suppress, 'humidity'))
-    || (_.isEmpty(editData) && !_.includes(organization.alerts_to_suppress, 'humidity')),
+    || (_.isEmpty(editData) && template && !_.includes(template.alerts_to_suppress, 'humidity'))
+    || (_.isEmpty(editData) && organization && !_.includes(organization.alerts_to_suppress, 'humidity')),
   );
   const supressShockAlerts = useInput(
     (!_.isEmpty(editData) && !_.includes(editData.alerts_to_suppress, 'shock'))
-    || (_.isEmpty(editData) && !_.includes(template.alerts_to_suppress, 'shock'))
-    || (_.isEmpty(editData) && !_.includes(organization.alerts_to_suppress, 'shock')),
+    || (_.isEmpty(editData) && template && !_.includes(template.alerts_to_suppress, 'shock'))
+    || (_.isEmpty(editData) && organization && !_.includes(organization.alerts_to_suppress, 'shock')),
   );
   const supressLightAlerts = useInput(
     (!_.isEmpty(editData) && !_.includes(editData.alerts_to_suppress, 'light'))
-    || (_.isEmpty(editData) && !_.includes(template.alerts_to_suppress, 'light'))
-    || (_.isEmpty(editData) && !_.includes(organization.alerts_to_suppress, 'light')),
+    || (_.isEmpty(editData) && template && !_.includes(template.alerts_to_suppress, 'light'))
+    || (_.isEmpty(editData) && organization && !_.includes(organization.alerts_to_suppress, 'light')),
   );
 
   const shipmentName = useInput((!_.isEmpty(editData) && editData.order_number) || '');
