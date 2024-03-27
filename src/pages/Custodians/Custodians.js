@@ -76,10 +76,10 @@ const Custodian = ({ history, redirectTo }) => {
     : `${routes.CUSTODIANS}/edit`;
 
   useEffect(() => {
-    if (!_.isEmpty(custodianData) && !_.isEmpty(contactInfo)) {
+    if (!_.isEmpty(custodianData) && !_.isEmpty(contactInfo) && !_.isEmpty(custodianTypesData)) {
       setRows(getCustodianFormattedRow(custodianData, contactInfo, custodianTypesData));
     }
-  }, [custodianData, contactInfo]);
+  }, [custodianData, contactInfo, custodianTypesData]);
 
   const editItem = (item) => {
     const contactObj = getUniqueContactInfo(item, contactInfo);

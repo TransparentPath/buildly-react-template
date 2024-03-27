@@ -1,16 +1,30 @@
+/* eslint-disable no-console */
 import React, {
-  forwardRef, useEffect, useRef, useState,
+  forwardRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 import { Redirect } from 'react-router-dom';
 import _ from 'lodash';
+import addNotification from 'react-push-notification';
 import { getUser } from '@context/User.context';
+import { AppContext } from '@context/App.context';
 import { useQueryClient } from 'react-query';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Button,
-  Dialog, DialogContent, DialogTitle, Grid, IconButton, Slide, Typography, useTheme,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Slide,
+  Typography,
+  useTheme,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { isTablet } from '@utils/mediaQuery';
@@ -18,6 +32,7 @@ import { routes } from '@routes/routesConstants';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { getAlertNotificationsColumns } from '@utils/constants';
 import { oauthService } from '@modules/oauth/oauth.service';
+import moment from 'moment-timezone';
 
 const Transition = forwardRef((props, ref) => <Slide direction="left" ref={ref} {...props} />);
 
@@ -31,6 +46,7 @@ const AlertNotifications = ({
   const [pushGrp, setPushGrp] = useState('');
   const [notifications, setNotifications] = useState([]);
   const [redirectToLogin, setRedirectToLogin] = useState(false);
+  const appTitle = useContext(AppContext).title;
 
   useEffect(() => {
     if (!_.isEmpty(user)) {
@@ -52,8 +68,29 @@ const AlertNotifications = ({
 
   useEffect(() => {
     const notViewed = _.filter(notifications, { viewed: false });
+    console.log('not viewed', notViewed);
+    let alerts = [];
+    _.forEach(notViewed, (value) => {
+      alerts = [...alerts, ...value.alerts];
+    });
     if (_.size(notViewed) > 0) {
       setHideAlertBadge(false);
+      _.forEach(alerts, (value) => {
+        addNotification({
+          native: true,
+          duration: window.env.hide_notification,
+          title: appTitle,
+          subtitle: '',
+          message: `${value.alert_message} | ${moment(value.create_date).fromNow()}`,
+          onClick: (event) => {
+            const viewed = getViewedNotifications();
+            localStorage.setItem(
+              'viewedNotifications',
+              JSON.stringify(_.uniq([...viewed, value.id])),
+            );
+          },
+        });
+      });
     } else {
       setHideAlertBadge(true);
     }
