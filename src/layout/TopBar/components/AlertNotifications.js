@@ -77,18 +77,18 @@ const AlertNotifications = ({
     if (_.size(notViewed) > 0) {
       setHideAlertBadge(false);
       _.forEach(alerts, (value) => {
+        const viewedNoti = getViewedNotifications();
+        localStorage.setItem(
+          'viewedNotifications',
+          JSON.stringify(_.uniq([...viewedNoti, value.id])),
+        );
+
         addNotification({
           native: true,
           duration: window.env.hide_notification,
           title: appTitle,
           subtitle: '',
           message: `${value.alert_message} | ${moment(value.create_date).fromNow()}`,
-          onClick: (event) => {
-            event.currentTarget.addEventListener('close', (e) => {
-              const alertIndex = _.findIndex(notifications, { shipment_id: value.shipment_id });
-              handleAlertCountClick(alertIndex);
-            });
-          },
         });
       });
     } else {
