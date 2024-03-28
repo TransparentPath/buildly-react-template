@@ -84,8 +84,10 @@ const AlertNotifications = ({
           subtitle: '',
           message: `${value.alert_message} | ${moment(value.create_date).fromNow()}`,
           onClick: (event) => {
-            const alertIndex = _.findIndex(notifications, { shipment_id: value.shipment_id });
-            handleAlertCountClick(alertIndex);
+            event.currentTarget.addEventListener('close', (e) => {
+              const alertIndex = _.findIndex(notifications, { shipment_id: value.shipment_id });
+              handleAlertCountClick(alertIndex);
+            });
           },
         });
       });
