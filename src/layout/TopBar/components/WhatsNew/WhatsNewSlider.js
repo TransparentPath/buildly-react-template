@@ -8,7 +8,7 @@ import WhatsNewContent from './WhatsNewContent';
 
 const Transition = forwardRef((props, ref) => <Slide direction="left" ref={ref} {...props} />);
 
-export default function WhatsNewSlider({ open, setOpen }) {
+export default function WhatsNewSlider({ open, setOpen, data }) {
   const closeWhatsNew = () => {
     setOpen(false);
   };
@@ -25,7 +25,7 @@ export default function WhatsNewSlider({ open, setOpen }) {
     >
       <WhatsNewHeader closeIcon closeOnClick={closeWhatsNew} />
       <DialogContent className="whatsNewDialogContent">
-        <WhatsNewContent />
+        <WhatsNewContent data={data} />
       </DialogContent>
     </Dialog>
   );

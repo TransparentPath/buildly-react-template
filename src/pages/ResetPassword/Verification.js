@@ -52,10 +52,10 @@ const Verification = ({ location }) => {
       setAttempts(attempts - 1);
     }
     setIsDisabled(true);
-    setCountdown(120);
+    setCountdown(300);
     setTimeout(() => {
       setIsDisabled(false);
-    }, 120000);
+    }, 300000);
   };
 
   const formatTime = (seconds) => {

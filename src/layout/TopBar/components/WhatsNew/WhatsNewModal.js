@@ -6,7 +6,7 @@ import WhatsNewHeader from './WhatsNewHeader';
 import WhatsNewContent from './WhatsNewContent';
 import WhatsNewFooter from './WhatsNewFooter';
 
-export default function WhatsNewModal({ open, setOpen }) {
+export default function WhatsNewModal({ open, setOpen, data }) {
   const closeWhatsNew = () => {
     setOpen(false);
     window.sessionStorage.setItem('isWhatsNewShown', true);
@@ -22,7 +22,7 @@ export default function WhatsNewModal({ open, setOpen }) {
     >
       <WhatsNewHeader />
       <DialogContent className="whatsNewDialogContent">
-        <WhatsNewContent />
+        <WhatsNewContent data={data} />
         <WhatsNewFooter buttonClick={closeWhatsNew} />
       </DialogContent>
     </Dialog>

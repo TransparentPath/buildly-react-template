@@ -30,6 +30,7 @@ import { useQuery } from 'react-query';
 import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
 import { useUpdateUserMutation } from '@react-query/mutations/authUser/updateUserMutation';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
+import { getVersionNotesQuery } from '@react-query/queries/notifications/getVersionNotesQuery';
 import AccountSettings from './components/AccountSettings';
 import AlertNotifications from './components/AlertNotifications';
 import WhatsNewModal from './components/WhatsNew/WhatsNewModal';
@@ -57,6 +58,9 @@ const TopBar = ({
   let isAdmin = false;
   let isSuperAdmin = false;
   let org_uuid = user.organization.organization_uuid;
+
+  // eslint-disable-next-line no-undef
+  const ver = VERSION;
 
   const { displayAlert } = useAlert();
   const { data, setTimezone } = useStore();
@@ -89,6 +93,12 @@ const TopBar = ({
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', org_uuid],
     () => getUnitQuery(org_uuid, displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: versionNotesData, isLoading: isLoadingVersionNotes } = useQuery(
+    ['versionNotes'],
+    () => getVersionNotesQuery(ver, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
@@ -154,7 +164,7 @@ const TopBar = ({
 
   return (
     <AppBar position="fixed" className="topbarAppBar">
-      {(isLoadingOrgs || isUpdateUser || isLoadingUnits) && <Loader open={isLoadingOrgs || isUpdateUser || isLoadingUnits} />}
+      {(isLoadingOrgs || isUpdateUser || isLoadingUnits || isLoadingVersionNotes) && <Loader open={isLoadingOrgs || isUpdateUser || isLoadingUnits || isLoadingVersionNotes} />}
       <Toolbar>
         <IconButton
           edge="start"
@@ -265,8 +275,8 @@ const TopBar = ({
         </div>
       </Toolbar>
       <AccountSettings open={showAccountSettings} setOpen={setShowAccountSettings} />
-      <WhatsNewModal open={showWhatsNewModal} setOpen={setShowWhatsNewModal} />
-      <WhatsNewSlider open={showWhatsNewSlider} setOpen={setShowWhatsNewSlider} />
+      <WhatsNewModal open={showWhatsNewModal} setOpen={setShowWhatsNewModal} data={versionNotesData} />
+      <WhatsNewSlider open={showWhatsNewSlider} setOpen={setShowWhatsNewSlider} data={versionNotesData} />
       <AlertNotifications
         open={showAlertNotifications}
         setOpen={setShowAlertNotifications}

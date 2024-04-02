@@ -3,9 +3,11 @@ import _ from 'lodash';
 import { Grid, IconButton, Typography } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import '../../TopBarStyles.css';
-import { WHATS_NEW_MOCK } from '@utils/mock';
 
 export default function WhatsNewHeader({ closeIcon, closeOnClick }) {
+  // eslint-disable-next-line no-undef
+  const ver = VERSION;
+
   return (
     <Grid container className="whatsNewTitleContainer">
       {closeIcon && (
@@ -18,7 +20,11 @@ export default function WhatsNewHeader({ closeIcon, closeOnClick }) {
       <Grid item xs={closeIcon ? 11 : 12}>
         <Typography className="whatsNewTitle">What's New?</Typography>
         <Typography className="whatsNewSubTitle">
-          {`Version ${WHATS_NEW_MOCK.new_update_version} Release`}
+          Version
+          {' '}
+          {ver}
+          {' '}
+          Release
         </Typography>
       </Grid>
     </Grid>
