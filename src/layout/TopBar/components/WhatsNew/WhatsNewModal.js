@@ -9,7 +9,7 @@ import WhatsNewFooter from './WhatsNewFooter';
 export default function WhatsNewModal({ open, setOpen, data }) {
   const closeWhatsNew = () => {
     setOpen(false);
-    window.sessionStorage.setItem('isWhatsNewShown', true);
+    localStorage.setItem('isWhatsNewShown', true);
   };
 
   return (

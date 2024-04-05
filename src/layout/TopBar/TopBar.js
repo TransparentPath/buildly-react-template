@@ -75,7 +75,7 @@ const TopBar = ({
   }
 
   useEffect(() => {
-    if (!_.isEmpty(window.sessionStorage.getItem('isWhatsNewShown'))) {
+    if (!_.isEmpty(localStorage.getItem('isWhatsNewShown'))) {
       setShowWhatsNewModal(false);
     } else {
       setShowWhatsNewModal(true);

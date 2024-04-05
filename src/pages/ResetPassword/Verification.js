@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -6,7 +7,6 @@ import {
   Container,
   CssBaseline,
   Grid,
-  Link,
   Typography,
 } from '@mui/material';
 import './ResetPasswordStyles.css';
