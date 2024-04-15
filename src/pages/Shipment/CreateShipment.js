@@ -114,7 +114,9 @@ const CreateShipment = ({ history, location }) => {
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [triggerExit, setTriggerExit] = useState({ onOk: false, path: '' });
 
-  const [custodianList, setCustodianList] = useState([]);
+  const [originList, setOriginList] = useState([]);
+  const [destinationList, setDestinationList] = useState([]);
+  const [carrierList, setCarrierList] = useState([]);
   const [originCustodian, setOriginCustodian] = useState('');
   const [originAbb, setOriginAbb] = useState('');
   const [startingAddress, setStartingAddress] = useState('');
@@ -301,10 +303,10 @@ const CreateShipment = ({ history, location }) => {
 
   useEffect(() => {
     if (!_.isEmpty(editData)) {
-      const origin = _.find(custodianList, { name: editData.origin });
-      const destination = _.find(custodianList, { name: editData.destination });
+      const origin = _.find(originList, { name: editData.origin });
+      const destination = _.find(destinationList, { name: editData.destination });
       const carriers = _.map(editData.carriers, (carrier) => (
-        _.find(custodianList, { name: carrier }) || carrier
+        _.find(carrierList, { name: carrier }) || carrier
       ));
 
       // Set origin and destination custodians
@@ -336,11 +338,14 @@ const CreateShipment = ({ history, location }) => {
         setAvailableGateways(gateways);
       }
     }
-  }, [editData, custodianList, gatewayTypesData, gatewayData]);
+  }, [editData, originList, destinationList, carrierList, gatewayTypesData, gatewayData]);
 
   useEffect(() => {
     if (!_.isEmpty(custodianData) && !_.isEmpty(contactInfo)) {
-      setCustodianList(getCustodianFormattedRow(custodianData, contactInfo, custodianTypesData));
+      const custodianList = getCustodianFormattedRow(custodianData, contactInfo, custodianTypesData);
+      setOriginList(_.filter(custodianList, (cl) => _.isEqual(_.toLower(cl.type), 'shipper')));
+      setDestinationList(_.filter(custodianList, (cl) => _.includes(['receiver', 'warehouse'], _.toLower(cl.type))));
+      setCarrierList(_.filter(custodianList, (cl) => !_.includes(['shipper', 'receiver', 'warehouse'], _.toLower(cl.type))));
     }
   }, [custodianData, contactInfo, custodianTypesData]);
 
@@ -416,17 +421,17 @@ const CreateShipment = ({ history, location }) => {
       || !_.isEmpty(files)
       || note.hasChanged()
       || !_.isEqual(additionalCustodians, _.map(editData.carriers, (carrier) => (
-        _.find(custodianList, { name: carrier }) || carrier
+        _.find(carrierList, { name: carrier }) || carrier
       )))
       || gatewayType.hasChanged()
       || !_.isEqual(editData.transmission_time, transmissionInterval.value)
       || !_.isEqual(editData.measurement_time, measurementInterval.value)
       || (
-        _.find(custodianList, { name: editData.origin })
-        && !_.isEqual(originCustodian, _.find(custodianList, { name: editData.origin }).url)
+        _.find(originList, { name: editData.origin })
+        && !_.isEqual(originCustodian, _.find(originList, { name: editData.origin }).url)
       ) || (
-        _.find(custodianList, { name: editData.destination })
-        && !_.isEqual(destinationCustodian, _.find(custodianList, {
+        _.find(destinationList, { name: editData.destination })
+        && !_.isEqual(destinationCustodian, _.find(destinationList, {
           name: editData.destination,
         }).url)
       ) || (editData.uploaded_pdf && !_.isEqual(attachedFiles, editData.uploaded_pdf))
@@ -513,14 +518,15 @@ const CreateShipment = ({ history, location }) => {
     switch (type) {
       case 'custodian':
         if (value) {
-          const selectedCustodian = _.find(custodianList, { url: value });
-          const storage = _.isEqual(selectedCustodian.type, 'Warehouse');
+          let selectedCustodian = '';
           if (custody === 'start') {
+            selectedCustodian = _.find(originList, { url: value });
             setOriginCustodian(value);
             setOriginAbb(getAbbreviation(selectedCustodian.abbrevation));
             setStartingAddress(selectedCustodian.location);
             getLatLong(selectedCustodian.location, 'start');
           } else if (custody === 'end') {
+            selectedCustodian = _.find(destinationList, { url: value });
             setDestinationCustodian(value);
             setDestinationAbb(getAbbreviation(selectedCustodian.abbrevation));
             setEndingAddress(selectedCustodian.location);
@@ -566,9 +572,8 @@ const CreateShipment = ({ history, location }) => {
       setTemplate(value);
       setTemplateName('');
       if (value) {
-        const oCustodian = _.find(custodianList, { url: value.origin_custodian });
-        const dCustodian = _.find(custodianList, { url: value.destination_custodian });
-        const storage = _.isEqual(oCustodian, dCustodian) && _.isEqual(dCustodian.type, 'Warehouse');
+        const oCustodian = _.find(originList, { url: value.origin_custodian });
+        const dCustodian = _.find(destinationList, { url: value.destination_custodian });
 
         onInputChange(value.origin_custodian, 'custodian', 'start');
         onInputChange(value.destination_custodian, 'custodian', 'end');
@@ -731,18 +736,18 @@ const CreateShipment = ({ history, location }) => {
       && _.isEmpty(files)
       && !note.hasChanged()
       && _.isEqual(additionalCustodians, _.map(editData.carriers, (carrier) => (
-        _.find(custodianList, { name: carrier }) || carrier
+        _.find(carrierList, { name: carrier }) || carrier
       )))
       && _.isEqual(editData.transmission_time, transmissionInterval.value)
       && _.isEqual(editData.measurement_time, measurementInterval.value)
       && (!_.isEmpty(editData.gateway_imei)
         || (_.isEmpty(editData.gateway_imei) && (!gateway.value || !gatewayType.value))
       ) && (
-        _.find(custodianList, { name: editData.origin })
-        && _.isEqual(originCustodian, _.find(custodianList, { name: editData.origin }).url)
+        _.find(originList, { name: editData.origin })
+        && _.isEqual(originCustodian, _.find(originList, { name: editData.origin }).url)
       ) && (
-        _.find(custodianList, { name: editData.destination })
-        && _.isEqual(destinationCustodian, _.find(custodianList, {
+        _.find(destinationList, { name: editData.destination })
+        && _.isEqual(destinationCustodian, _.find(destinationList, {
           name: editData.destination,
         }).url)
       ) && _.isEqual(attachedFiles, editData.uploaded_pdf)
@@ -1071,7 +1076,7 @@ const CreateShipment = ({ history, location }) => {
                       disabled={cannotEdit}
                     >
                       <MenuItem value="">Select</MenuItem>
-                      {!_.isEmpty(custodianList) && _.map(custodianList, (cust) => (
+                      {!_.isEmpty(originList) && _.map(originList, (cust) => (
                         <MenuItem key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
                         </MenuItem>
@@ -1142,7 +1147,7 @@ const CreateShipment = ({ history, location }) => {
                       disabled={cannotEdit}
                     >
                       <MenuItem value="">Select</MenuItem>
-                      {!_.isEmpty(custodianList) && _.map(custodianList, (cust) => (
+                      {!_.isEmpty(destinationList) && _.map(destinationList, (cust) => (
                         <MenuItem key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
                         </MenuItem>
@@ -1747,12 +1752,12 @@ const CreateShipment = ({ history, location }) => {
                           SelectProps={{ displayEmpty: true }}
                         >
                           <MenuItem value="">Select</MenuItem>
-                          {!_.isEmpty(custodianList)
+                          {!_.isEmpty(carrierList)
                             && _.map(_.without(
-                              custodianList,
-                              _.find(custodianList, { url: originCustodian }),
+                              carrierList,
+                              _.find(carrierList, { url: originCustodian }),
                               ..._.without(additionalCustodians, addCust),
-                              _.find(custodianList, { url: destinationCustodian }),
+                              _.find(carrierList, { url: destinationCustodian }),
                             ), (cust) => (
                               <MenuItem key={cust.custodian_uuid} value={cust}>
                                 {cust.name}
@@ -1816,12 +1821,12 @@ const CreateShipment = ({ history, location }) => {
                     SelectProps={{ displayEmpty: true }}
                   >
                     <MenuItem value="">Select</MenuItem>
-                    {!_.isEmpty(custodianList)
+                    {!_.isEmpty(carrierList)
                       && _.map(_.without(
-                        custodianList,
-                        _.find(custodianList, { url: originCustodian }),
+                        carrierList,
+                        _.find(carrierList, { url: originCustodian }),
                         ...additionalCustodians,
-                        _.find(custodianList, { url: destinationCustodian }),
+                        _.find(carrierList, { url: destinationCustodian }),
                       ), (cust) => (
                         <MenuItem key={cust.custodian_uuid} value={cust}>
                           {cust.name}
