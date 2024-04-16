@@ -802,18 +802,18 @@ export const processReportsAndMarkers = (
           _.forEach(minExcursionTempArray, (data, index) => {
             if (index >= 1) {
               if (
-                (_.nth(minExcursionTempArray, index - 1).set_at < moment(report.activation_date).unix())
-                && (moment(report.activation_date).unix() < data.set_at)
+                (_.nth(minExcursionTempArray, index - 1).set_at < moment(report.activation_date).valueOf())
+                && (moment(report.activation_date).valueOf() < data.set_at)
               ) {
                 finalMinTempValue = _.nth(minExcursionTempArray, index - 1).value;
               }
 
-              if (moment(report.activation_date).unix() === data.set_at) {
+              if (moment(report.activation_date).valueOf() === data.set_at) {
                 finalMinTempValue = data.value;
               }
 
               if (
-                (moment(report.activation_date).unix() > data.set_at)
+                (moment(report.activation_date).valueOf() > data.set_at)
                 && _.isEqual((index + 1), _.size(minExcursionTempArray))
               ) {
                 finalMinTempValue = data.value;
@@ -826,18 +826,18 @@ export const processReportsAndMarkers = (
           _.forEach(maxExcursionTempArray, (data, index) => {
             if (index >= 1) {
               if (
-                (_.nth(maxExcursionTempArray, index - 1).set_at < moment(report.activation_date).unix())
-                && (moment(report.activation_date).unix() < data.set_at)
+                (_.nth(maxExcursionTempArray, index - 1).set_at < moment(report.activation_date).valueOf())
+                && (moment(report.activation_date).valueOf() < data.set_at)
               ) {
                 finalMaxTempValue = _.nth(maxExcursionTempArray, index - 1).value;
               }
 
-              if (moment(report.activation_date).unix() === data.set_at) {
+              if (moment(report.activation_date).valueOf() === data.set_at) {
                 finalMaxTempValue = data.value;
               }
 
               if (
-                (moment(report.activation_date).unix() > data.set_at)
+                (moment(report.activation_date).valueOf() > data.set_at)
                 && _.isEqual((index + 1), _.size(maxExcursionTempArray))
               ) {
                 finalMaxTempValue = data.value;
@@ -850,18 +850,18 @@ export const processReportsAndMarkers = (
           _.forEach(minExcursionHumArray, (data, index) => {
             if (index >= 1) {
               if (
-                (_.nth(minExcursionHumArray, index - 1).set_at < moment(report.activation_date).unix())
-                && (moment(report.activation_date).unix() < data.set_at)
+                (_.nth(minExcursionHumArray, index - 1).set_at < moment(report.activation_date).valueOf())
+                && (moment(report.activation_date).valueOf() < data.set_at)
               ) {
                 finalMinHumValue = _.nth(minExcursionHumArray, index - 1).value;
               }
 
-              if (moment(report.activation_date).unix() === data.set_at) {
+              if (moment(report.activation_date).valueOf() === data.set_at) {
                 finalMinHumValue = data.value;
               }
 
               if (
-                (moment(report.activation_date).unix() > data.set_at)
+                (moment(report.activation_date).valueOf() > data.set_at)
                 && _.isEqual((index + 1), _.size(minExcursionHumArray))
               ) {
                 finalMinHumValue = data.value;
@@ -874,18 +874,18 @@ export const processReportsAndMarkers = (
           _.forEach(maxExcursionHumArray, (data, index) => {
             if (index >= 1) {
               if (
-                (_.nth(maxExcursionHumArray, index - 1).set_at < moment(report.activation_date).unix())
-                && (moment(report.activation_date).unix() < data.set_at)
+                (_.nth(maxExcursionHumArray, index - 1).set_at < moment(report.activation_date).valueOf())
+                && (moment(report.activation_date).valueOf() < data.set_at)
               ) {
                 finalMaxHumValue = _.nth(maxExcursionHumArray, index - 1).value;
               }
 
-              if (moment(report.activation_date).unix() === data.set_at) {
+              if (moment(report.activation_date).valueOf() === data.set_at) {
                 finalMaxHumValue = data.value;
               }
 
               if (
-                (moment(report.activation_date).unix() > data.set_at)
+                (moment(report.activation_date).valueOf() > data.set_at)
                 && _.isEqual((index + 1), _.size(maxExcursionHumArray))
               ) {
                 finalMaxHumValue = data.value;
@@ -898,18 +898,18 @@ export const processReportsAndMarkers = (
           _.forEach(maxShockArray, (data, index) => {
             if (index >= 1) {
               if (
-                (_.nth(maxShockArray, index - 1).set_at < moment(report.activation_date).unix())
-                && (moment(report.activation_date).unix() < data.set_at)
+                (_.nth(maxShockArray, index - 1).set_at < moment(report.activation_date).valueOf())
+                && (moment(report.activation_date).valueOf() < data.set_at)
               ) {
                 finalShockValue = _.nth(maxShockArray, index - 1).value;
               }
 
-              if (moment(report.activation_date).unix() === data.set_at) {
+              if (moment(report.activation_date).valueOf() === data.set_at) {
                 finalShockValue = data.value;
               }
 
               if (
-                (moment(report.activation_date).unix() > data.set_at)
+                (moment(report.activation_date).valueOf() > data.set_at)
                 && _.isEqual((index + 1), _.size(maxShockArray))
               ) {
                 finalShockValue = data.value;
@@ -922,18 +922,18 @@ export const processReportsAndMarkers = (
           _.forEach(maxLightArray, (data, index) => {
             if (index >= 1) {
               if (
-                (_.nth(maxLightArray, index - 1).set_at < moment(report.activation_date).unix())
-                && (moment(report.activation_date).unix() < data.set_at)
+                (_.nth(maxLightArray, index - 1).set_at < moment(report.activation_date).valueOf())
+                && (moment(report.activation_date).valueOf() < data.set_at)
               ) {
                 finalLightValue = _.nth(maxLightArray, index - 1).value;
               }
 
-              if (moment(report.activation_date).unix() === data.set_at) {
+              if (moment(report.activation_date).valueOf() === data.set_at) {
                 finalLightValue = data.value;
               }
 
               if (
-                (moment(report.activation_date).unix() > data.set_at)
+                (moment(report.activation_date).valueOf() > data.set_at)
                 && _.isEqual((index + 1), _.size(maxLightArray))
               ) {
                 finalLightValue = data.value;

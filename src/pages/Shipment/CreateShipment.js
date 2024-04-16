@@ -768,7 +768,7 @@ const CreateShipment = ({ history, location }) => {
       !_.isEmpty(editData) && _.find(custodyData, (custody) => custody.last_custody)
     ) || {};
     const updateGateway = gateway.value;
-    const setAt = moment().unix();
+    const setAt = moment().valueOf();
 
     const shipmentFormValue = {
       ...editData,
