@@ -142,32 +142,32 @@ const CreateShipment = ({ history, location }) => {
   const [itemRows, setItemRows] = useState([]);
 
   const min_excursion_temp = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.min_excursion_temp, 'set_at')[0])
+    (!_.isEmpty(editData) && _.orderBy(editData.min_excursion_temp, 'set_at')[0].value)
     || (organization && organization.default_min_temperature)
     || 0,
   );
   const max_excursion_temp = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.max_excursion_temp, 'set_at')[0])
+    (!_.isEmpty(editData) && _.orderBy(editData.max_excursion_temp, 'set_at')[0].value)
     || (organization && organization.default_max_temperature)
     || 100,
   );
   const min_excursion_humidity = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.min_excursion_humidity, 'set_at')[0])
+    (!_.isEmpty(editData) && _.orderBy(editData.min_excursion_humidity, 'set_at')[0].value)
     || (organization && organization.default_min_humidity)
     || 0,
   );
   const max_excursion_humidity = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.max_excursion_humidity, 'set_at')[0])
+    (!_.isEmpty(editData) && _.orderBy(editData.max_excursion_humidity, 'set_at')[0].value)
     || (organization && organization.default_max_humidity)
     || 100,
   );
   const shock_threshold = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.shock_threshold, 'set_at')[0])
+    (!_.isEmpty(editData) && _.orderBy(editData.shock_threshold, 'set_at')[0].value)
     || (organization && organization.default_shock)
     || 4,
   );
   const light_threshold = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.light_threshold, 'set_at')[0])
+    (!_.isEmpty(editData) && _.orderBy(editData.light_threshold, 'set_at')[0].value)
     || (organization && organization.default_light)
     || 5,
   );
@@ -909,13 +909,13 @@ const CreateShipment = ({ history, location }) => {
       savePayload = {
         ...savePayload,
         shipment: {
-          ...shipmentFormValue,
-          min_excursion_temp: [...editData.min_excursion_temp, ...shipmentFormValue.min_excursion_temp],
-          max_excursion_temp: [...editData.max_excursion_temp, ...shipmentFormValue.max_excursion_temp],
-          min_excursion_humidity: [...editData.min_excursion_humidity, ...shipmentFormValue.min_excursion_humidity],
-          max_excursion_humidity: [...editData.max_excursion_humidity, ...shipmentFormValue.max_excursion_humidity],
-          shock_threshold: [...editData.shock_threshold, ...shipmentFormValue.shock_threshold],
-          light_threshold: [...editData.light_threshold, ...shipmentFormValue.light_threshold],
+          ...savePayload.shipment,
+          min_excursion_temp: min_excursion_temp.hasChanged() ? [...editData.min_excursion_temp, ...savePayload.shipment.min_excursion_temp] : editData.min_excursion_temp,
+          max_excursion_temp: max_excursion_temp.hasChanged() ? [...editData.max_excursion_temp, ...savePayload.shipment.max_excursion_temp] : editData.max_excursion_temp,
+          min_excursion_humidity: min_excursion_humidity.hasChanged() ? [...editData.min_excursion_humidity, ...savePayload.shipment.min_excursion_humidity] : editData.min_excursion_humidity,
+          max_excursion_humidity: max_excursion_humidity.hasChanged() ? [...editData.max_excursion_humidity, ...savePayload.shipment.max_excursion_humidity] : editData.max_excursion_humidity,
+          shock_threshold: shock_threshold.hasChanged() ? [...editData.shock_threshold, ...savePayload.shipment.shock_threshold] : editData.shock_threshold,
+          light_threshold: light_threshold.hasChanged() ? [...editData.light_threshold, ...savePayload.shipment.light_threshold] : editData.light_threshold,
         },
       };
       editShipmentMutation(savePayload);
