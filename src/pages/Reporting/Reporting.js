@@ -115,7 +115,7 @@ const Reporting = () => {
     ['sensorAlerts', selectedShipment, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
     {
-      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
+      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(selectedShipment.partner_shipment_id),
       refetchOnWindowFocus: false,
     },
   );
@@ -124,7 +124,7 @@ const Reporting = () => {
     ['sensorReports', selectedShipment, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
     {
-      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
+      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(selectedShipment.partner_shipment_id),
       refetchOnWindowFocus: false,
     },
   );
@@ -186,7 +186,7 @@ const Reporting = () => {
         setMarkers([]);
       }
     }
-  }, [sensorReportData, sensorAlertData, selectedShipment]);
+  }, [sensorReportData, sensorAlertData, selectedShipment, data]);
 
   useEffect(() => {
     if (selectedShipment) {

@@ -1241,7 +1241,7 @@ export const MARKER_DATA = (unitOfMeasure) => ([
   { id: 'light', unit: 'LUX' },
 ]);
 
-export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => {
+export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone, dateFormat, timeFormat) => {
   const getCellStyle = (tableMeta) => ({
     fontWeight: (
       _.some(
@@ -1289,7 +1289,9 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone) => {
         filter: true,
         customBodyRender: (value, tableMeta) => (
           <div style={getCellStyle(tableMeta)}>
-            {value}
+            {value && value !== '-'
+              ? moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`)
+              : value}
           </div>
         ),
       },
