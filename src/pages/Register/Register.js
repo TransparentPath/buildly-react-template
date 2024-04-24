@@ -28,6 +28,8 @@ import { inviteTokenCheckQuery } from '@react-query/queries/authUser/inviteToken
 import { useRegisterMutation } from '@react-query/mutations/authUser/registerMutation';
 import useAlert from '@hooks/useAlert';
 import './RegisterStyles.css';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const Register = ({ history }) => {
   const { displayAlert } = useAlert();
@@ -54,9 +56,13 @@ const Register = ({ history }) => {
   const organization_name = useInput('', { required: true });
   const [geoOptions, setGeoOptions] = useState({ email: true, sms: false, whatsApp: false });
   const [envOptions, setEnvOptions] = useState({ email: true, sms: false, whatsApp: false });
-  const smsNumber = useInput();
-  const whatsAppNumber = useInput();
+  // const smsNumber = useInput();
+  // const whatsAppNumber = useInput();
+  const [whatsappNumber, setWhatsappNumber] = useState();
+  const [isValidNumber, setValidNumber] = useState(false);
   const [formError, setFormError] = useState({});
+
+  console.log(isValidNumber, whatsappNumber);
 
   const { data: inviteTokenCheckData, isLoading: isLoadingInviteTokenCheck } = useQuery(
     ['inviteTokenCheck'],
@@ -98,11 +104,11 @@ const Register = ({ history }) => {
       user_role: inviteTokenCheckData.user_role,
       invitation_token: inviteToken,
     };
-    if (smsNumber.value) {
-      registerFormValue = { ...registerFormValue, sms_number: smsNumber.value };
-    }
-    if (whatsAppNumber.value) {
-      registerFormValue = { ...registerFormValue, whatsApp_number: whatsAppNumber.value };
+    // if (smsNumber.value) {
+    //   registerFormValue = { ...registerFormValue, sms_number: smsNumber.value };
+    // }
+    if (whatsappNumber) {
+      registerFormValue = { ...registerFormValue, whatsApp_number: whatsappNumber };
     }
     registerMutation(registerFormValue);
   };
@@ -140,8 +146,11 @@ const Register = ({ history }) => {
       || !password
       || !re_password.value
       || !organization_name.value
-      || ((geoOptions.sms || envOptions.sms) && !smsNumber.value)
-      || ((geoOptions.whatsApp || envOptions.whatsApp) && !whatsAppNumber.value)
+      // || (geoOptions.sms && !smsNumber.value)
+      // || (envOptions.sms && !smsNumber.value)
+      || (geoOptions.whatsApp && !whatsappNumber)
+      || (envOptions.whatsApp && !whatsappNumber)
+      || whatsappNumber.length < 11
     ) {
       return true;
     }
@@ -458,7 +467,7 @@ const Register = ({ history }) => {
                 </Grid>
               </Grid>
 
-              {(geoOptions.sms || envOptions.sms) && (
+              {/* {(geoOptions.sms || envOptions.sms) && (
                 <Grid item xs={12} mt={2}>
                   <TextField
                     variant="outlined"
@@ -489,6 +498,23 @@ const Register = ({ history }) => {
                     helperText="Additional charges may apply"
                     {...whatsAppNumber.bind}
                   />
+                </Grid>
+              )} */}
+
+              {(geoOptions.whatsApp || envOptions.whatsApp) && (
+                <Grid item xs={12}>
+                  <PhoneInput
+                    value={whatsappNumber}
+                    onChange={(value) => setWhatsappNumber(value)}
+                    placeholder="Send WhatsApp alerts on"
+                    inputClass="registerPhoneInput"
+                    containerClass="registerPhoneInputContainer"
+                    buttonClass="registerFlagDropdown"
+                    country="us"
+                  />
+                  <Typography variant="caption">
+                    Additional charges may apply
+                  </Typography>
                 </Grid>
               )}
 

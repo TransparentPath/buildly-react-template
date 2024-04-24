@@ -53,6 +53,44 @@
   color: var(--color-palette-success-main);
 }
 
+.registerPhoneInputContainer {
+  margin-top: 30px;
+}
+
+.registerFlagDropdown {
+  border: 1px solid var(--color-palette-background-light) !important;
+  border-radius: 0px !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+.registerFlagDropdown .selected-flag {
+  padding: 0 12px !important;
+  width: 48px !important;
+}
+
+.registerPhoneInput {
+  width: 100% !important;
+  height: 56px !important;
+  border: 1px solid var(--color-palette-background-light) !important;
+  border-radius: 4px !important;
+  font-family: "IBM Plex Sans" !important;
+  font-size: 16px !important;
+  padding-left: 62px !important;
+}
+
+.registerFlagDropdown:hover {
+  border: 1px solid var(--color-palette-background-black) !important;
+}
+
+.registerPhoneInput:hover {
+  border: 1px solid var(--color-palette-background-black) !important;
+}
+
+.registerPhoneInput:focus {
+  border: 2px solid var(--color-palette-primary-main) !important;
+}
+
 @media screen and (max-width: 960px) {
   .registerTextField2 {
     margin: 8px 0px;
