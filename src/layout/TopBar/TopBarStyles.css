@@ -150,26 +150,9 @@
 .whatsNewDialogContent {
   padding: 30px 20px 50px 20px;
   overflow-y: auto;
-}
-
-.whatsNewDialogItemContainer {
-  padding: 20px 50px 0px 50px;
-}
-
-.whatsNewDialogItemIcon {
-  color: var(--color-palette-primary-main);
-  font-size: 60px;
-}
-
-.whatsNewDialogItemTitle {
-  color: var(--color-palette-primary-main);
-  font-size: 24px;
-  text-decoration: underline;
-}
-
-.whatsNewDialogItemDesc {
-  font-size: 13px;
-  font-weight: 500;
+  font-family: "IBM Plex Sans";
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 .whatsNewDialogReferenceText {
