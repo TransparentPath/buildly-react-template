@@ -56,7 +56,6 @@ const Register = ({ history }) => {
   const organization_name = useInput('', { required: true });
   const [geoOptions, setGeoOptions] = useState({ email: true, sms: false, whatsApp: false });
   const [envOptions, setEnvOptions] = useState({ email: true, sms: false, whatsApp: false });
-  // const [smsNumber, setSmsNumber] = useState();
   const [whatsappNumber, setWhatsappNumber] = useState();
   const [whatsappFocus, setWhatsappFocus] = useState(false);
   const [formError, setFormError] = useState({});
@@ -101,9 +100,6 @@ const Register = ({ history }) => {
       user_role: inviteTokenCheckData.user_role,
       invitation_token: inviteToken,
     };
-    // if (smsNumber) {
-    //   registerFormValue = { ...registerFormValue, sms_number: smsNumber };
-    // }
     if (whatsappNumber) {
       registerFormValue = { ...registerFormValue, whatsApp_number: whatsappNumber };
     }
@@ -143,9 +139,6 @@ const Register = ({ history }) => {
       || !password
       || !re_password.value
       || !organization_name.value
-      // || (geoOptions.sms && !smsNumber)
-      // || (envOptions.sms && !smsNumber)
-      // || smsNumber.length < 11
       || (geoOptions.whatsApp && !whatsappNumber)
       || (envOptions.whatsApp && !whatsappNumber)
       || whatsappNumber.length < 11
@@ -399,21 +392,6 @@ const Register = ({ history }) => {
                   />
                 </Grid>
                 <Grid item xs={6} sm={4} alignSelf="center">
-                  <Typography variant="body1" fontWeight={500}>SMS Alerts:</Typography>
-                </Grid>
-                <Grid item xs={6} sm={8} alignSelf="center">
-                  <FormControlLabel
-                    labelPlacement="end"
-                    label="Available in a future release"
-                    control={<Switch checked={false} color="primary" disabled />}
-                  />
-                  {/* <FormControlLabel
-                    labelPlacement="end"
-                    label={geoOptions && geoOptions.sms ? 'ON' : 'OFF'}
-                    control={<Switch checked={geoOptions && geoOptions.sms} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, sms: e.target.checked })} />}
-                  /> */}
-                </Grid>
-                <Grid item xs={6} sm={4} alignSelf="center">
                   <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
                 </Grid>
                 <Grid item xs={6} sm={8} alignSelf="center">
@@ -443,21 +421,6 @@ const Register = ({ history }) => {
                   />
                 </Grid>
                 <Grid item xs={6} sm={4} alignSelf="center">
-                  <Typography variant="body1" fontWeight={500}>SMS Alerts:</Typography>
-                </Grid>
-                <Grid item xs={6} sm={8} alignSelf="center">
-                  <FormControlLabel
-                    labelPlacement="end"
-                    label="Available in a future release"
-                    control={<Switch checked={false} color="primary" disabled />}
-                  />
-                  {/* <FormControlLabel
-                    labelPlacement="end"
-                    label={envOptions && envOptions.sms ? 'ON' : 'OFF'}
-                    control={<Switch checked={envOptions && envOptions.sms} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, sms: e.target.checked })} />}
-                  /> */}
-                </Grid>
-                <Grid item xs={6} sm={4} alignSelf="center">
                   <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
                 </Grid>
                 <Grid item xs={6} sm={8} alignSelf="center">
@@ -468,24 +431,6 @@ const Register = ({ history }) => {
                   />
                 </Grid>
               </Grid>
-
-              {/* {(geoOptions.sms || envOptions.sms) && (
-                <Grid item xs={12} mt={2}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    type="number"
-                    className="registerNumberInput"
-                    id="sms-number"
-                    name="sms-number"
-                    label="Send SMS alerts on"
-                    helperText="Additional charges may apply"
-                    {...smsNumber.bind}
-                  />
-                </Grid>
-              )} */}
-
               {(geoOptions.whatsApp || envOptions.whatsApp) && (
                 <Grid item xs={12}>
                   <PhoneInput
@@ -504,7 +449,6 @@ const Register = ({ history }) => {
                   </Typography>
                 </Grid>
               )}
-
               <Button
                 type="submit"
                 fullWidth

@@ -37,7 +37,6 @@ const AccountSettings = ({ open, setOpen }) => {
   const [envOptions, setEnvOptions] = useState(user.env_alert_preferences);
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
   const timezone = useInput(user.user_timezone);
-  // const [smsNumber, setSmsNumber] = useState(user.sms_number || '');
   const [whatsappNumber, setWhatsappNumber] = useState(user.whatsApp_number || '');
   const [whatsappFocus, setWhatsappFocus] = useState(false);
 
@@ -47,7 +46,6 @@ const AccountSettings = ({ open, setOpen }) => {
     setGeoOptions(user.geo_alert_preferences);
     setEnvOptions(user.env_alert_preferences);
     timezone.setValue(user.user_timezone);
-    // setSmsNumber(user.sms_number || '');
     setWhatsappNumber(user.whatsApp_number || '');
     setOpen(false);
   };
@@ -61,11 +59,7 @@ const AccountSettings = ({ open, setOpen }) => {
         && _.isEqual(envOptions.sms, user.env_alert_preferences.sms)
         && _.isEqual(envOptions.whatsApp, user.env_alert_preferences.whatsApp)
         && !timezone.hasChanged()
-        // && smsNumber === user.sms_number
         && whatsappNumber === user.whatsApp_number)
-      // || (geoOptions.sms && !smsNumber)
-      // || (envOptions.sms && !smsNumber)
-      // || smsNumber.length < 11
       || (geoOptions.whatsApp && !whatsappNumber)
       || (envOptions.whatsApp && !whatsappNumber)
       || whatsappNumber.length < 11
@@ -83,19 +77,12 @@ const AccountSettings = ({ open, setOpen }) => {
       geo_alert_preferences: geoOptions,
       env_alert_preferences: envOptions,
     };
-
-    // if (smsNumber) {
-    //   userData = { ...userData, sms_number: smsNumber };
-    // }
-
     if (whatsappNumber) {
       userData = { ...userData, whatsApp_number: whatsappNumber };
     }
-
     if (timezone.value) {
       userData = { ...userData, user_timezone: timezone.value };
     }
-
     updateUserMutation(userData);
   };
 
@@ -126,54 +113,46 @@ const AccountSettings = ({ open, setOpen }) => {
           Update Settings
         </Button>
       </DialogTitle>
-
       <DialogContent className="accountSettingsDialogContent">
         <Grid container display="flex" alignItems="center" className="accountSettingsUserIconName">
           <Avatar alt={user && `${user.first_name} ${user.last_name}`} src={profile} />
           <Typography ml={2} variant="h5" fontWeight={500}>{user && `${user.first_name} ${user.last_name}`}</Typography>
         </Grid>
-
         <Grid container spacing={2} className="accountSettingsPersonalNotification">
           <Grid item xs={12} mb={2}>
             <Typography variant="h5" fontWeight={500}>Personal Information</Typography>
             <Typography variant="caption">This information can only be changed by your account administrator</Typography>
           </Grid>
-
           <Grid item xs={6} sm={4}>
             <Typography variant="body1" fontWeight={500}>First Name:</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
             <Typography variant="body1" fontWeight={500}>{user && user.first_name}</Typography>
           </Grid>
-
           <Grid item xs={6} sm={4}>
             <Typography variant="body1" fontWeight={500}>Last Name:</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
             <Typography variant="body1" fontWeight={500}>{user && user.last_name}</Typography>
           </Grid>
-
           <Grid item xs={6} sm={4}>
             <Typography variant="body1" fontWeight={500}>Customer ID:</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
             <Typography variant="body1" fontWeight={500}>{user && user.core_user_uuid}</Typography>
           </Grid>
-
           <Grid item xs={6} sm={4}>
             <Typography variant="body1" fontWeight={500}>Company:</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
             <Typography variant="body1" fontWeight={500}>{user && user.organization && user.organization.name}</Typography>
           </Grid>
-
           <Grid item xs={6} sm={4}>
             <Typography variant="body1" fontWeight={500}>Email:</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
             <Typography variant="body1" fontWeight={500}>{user && user.email}</Typography>
           </Grid>
-
           <Grid item xs={6} sm={4} alignSelf="center">
             <Typography variant="body1" fontWeight={500}>Time Zone:</Typography>
           </Grid>
@@ -195,17 +174,14 @@ const AccountSettings = ({ open, setOpen }) => {
             </TextField>
           </Grid>
         </Grid>
-
         <Grid container spacing={2} className="accountSettingsPersonalNotification">
           <Grid item xs={12}>
             <Typography variant="h5" fontWeight={500}>Notification Preferences</Typography>
           </Grid>
-
           <Grid item xs={12} className="accountSettingsStatusAlerts">
             <Typography variant="body1" fontWeight={700}>Shipment Status Change Alerts:</Typography>
             <Typography variant="caption">Enabling these alerts will send notifications of departure and arrival activity of your shipments.</Typography>
           </Grid>
-
           <Grid item xs={6} sm={4} alignSelf="center">
             <Typography variant="body1" fontWeight={500}>Email Alerts:</Typography>
           </Grid>
@@ -216,23 +192,6 @@ const AccountSettings = ({ open, setOpen }) => {
               control={<Switch checked={geoOptions && geoOptions.email} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, email: e.target.checked })} />}
             />
           </Grid>
-
-          <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>SMS Alerts:</Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} alignSelf="center">
-            <FormControlLabel
-              labelPlacement="end"
-              label="Available in a future release"
-              control={<Switch checked={false} color="primary" disabled />}
-            />
-            {/* <FormControlLabel
-                  labelPlacement="end"
-                  label={geoOptions && geoOptions.sms ? 'ON' : 'OFF'}
-                  control={<Switch checked={geoOptions && geoOptions.sms} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, sms: e.target.checked })} />}
-                /> */}
-          </Grid>
-
           <Grid item xs={6} sm={4} alignSelf="center">
             <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
           </Grid>
@@ -243,7 +202,6 @@ const AccountSettings = ({ open, setOpen }) => {
               control={<Switch checked={geoOptions && geoOptions.whatsApp} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, whatsApp: e.target.checked })} />}
             />
           </Grid>
-
           <Grid item xs={12} className="accountSettingsEnvAlerts">
             <Typography variant="body1" fontWeight={700}>Environmental Alerts:</Typography>
             <Typography variant="caption">
@@ -251,7 +209,6 @@ const AccountSettings = ({ open, setOpen }) => {
               temperature, humidity, shock, tilt, and light exposure of your shipments.
             </Typography>
           </Grid>
-
           <Grid item xs={6} sm={4} alignSelf="center">
             <Typography variant="body1" fontWeight={500}>Email Alerts:</Typography>
           </Grid>
@@ -262,23 +219,6 @@ const AccountSettings = ({ open, setOpen }) => {
               control={<Switch checked={envOptions && envOptions.email} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, email: e.target.checked })} />}
             />
           </Grid>
-
-          <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>SMS Alerts:</Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} alignSelf="center">
-            <FormControlLabel
-              labelPlacement="end"
-              label="Available in a future release"
-              control={<Switch checked={false} color="primary" disabled />}
-            />
-            {/* <FormControlLabel
-                  labelPlacement="end"
-                  label={envOptions && envOptions.sms ? 'ON' : 'OFF'}
-                  control={<Switch checked={envOptions && envOptions.sms} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, sms: e.target.checked })} />}
-                /> */}
-          </Grid>
-
           <Grid item xs={6} sm={4} alignSelf="center">
             <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
           </Grid>
@@ -289,24 +229,6 @@ const AccountSettings = ({ open, setOpen }) => {
               control={<Switch checked={envOptions && envOptions.whatsApp} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, whatsApp: e.target.checked })} />}
             />
           </Grid>
-
-          {/* {(geoOptions.sms || envOptions.sms) && (
-            <Grid item xs={12} mt={2}>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                fullWidth
-                type="number"
-                className="accountSettingsNumberInput"
-                id="sms-number"
-                name="sms-number"
-                label="Send SMS alerts on"
-                {...smsNumber.bind}
-                helperText="Additional charges may apply"
-              />
-            </Grid>
-          )} */}
-
           {(geoOptions.whatsApp || envOptions.whatsApp) && (
             <Grid item xs={12}>
               <PhoneInput
