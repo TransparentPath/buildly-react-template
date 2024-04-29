@@ -56,13 +56,10 @@ const Register = ({ history }) => {
   const organization_name = useInput('', { required: true });
   const [geoOptions, setGeoOptions] = useState({ email: true, sms: false, whatsApp: false });
   const [envOptions, setEnvOptions] = useState({ email: true, sms: false, whatsApp: false });
-  // const smsNumber = useInput();
-  // const whatsAppNumber = useInput();
+  // const [smsNumber, setSmsNumber] = useState();
   const [whatsappNumber, setWhatsappNumber] = useState();
-  const [isValidNumber, setValidNumber] = useState(false);
+  const [whatsappFocus, setWhatsappFocus] = useState(false);
   const [formError, setFormError] = useState({});
-
-  console.log(isValidNumber, whatsappNumber);
 
   const { data: inviteTokenCheckData, isLoading: isLoadingInviteTokenCheck } = useQuery(
     ['inviteTokenCheck'],
@@ -104,8 +101,8 @@ const Register = ({ history }) => {
       user_role: inviteTokenCheckData.user_role,
       invitation_token: inviteToken,
     };
-    // if (smsNumber.value) {
-    //   registerFormValue = { ...registerFormValue, sms_number: smsNumber.value };
+    // if (smsNumber) {
+    //   registerFormValue = { ...registerFormValue, sms_number: smsNumber };
     // }
     if (whatsappNumber) {
       registerFormValue = { ...registerFormValue, whatsApp_number: whatsappNumber };
@@ -146,8 +143,9 @@ const Register = ({ history }) => {
       || !password
       || !re_password.value
       || !organization_name.value
-      // || (geoOptions.sms && !smsNumber.value)
-      // || (envOptions.sms && !smsNumber.value)
+      // || (geoOptions.sms && !smsNumber)
+      // || (envOptions.sms && !smsNumber)
+      // || smsNumber.length < 11
       || (geoOptions.whatsApp && !whatsappNumber)
       || (envOptions.whatsApp && !whatsappNumber)
       || whatsappNumber.length < 11
@@ -185,13 +183,7 @@ const Register = ({ history }) => {
       maxWidth="sm"
       className="registerContainer"
     >
-      {(isLoadingInviteTokenCheck
-        || isRegister)
-        && (
-          <Loader open={isLoadingInviteTokenCheck
-            || isRegister}
-          />
-        )}
+      {(isLoadingInviteTokenCheck || isRegister) && <Loader open={isLoadingInviteTokenCheck || isRegister} />}
       <CssBaseline />
       <Card variant="outlined">
         <CardContent>
@@ -407,14 +399,19 @@ const Register = ({ history }) => {
                   />
                 </Grid>
                 <Grid item xs={6} sm={4} alignSelf="center">
-                  <Typography variant="body1" fontWeight={500}>SMS text Alerts:</Typography>
+                  <Typography variant="body1" fontWeight={500}>SMS Alerts:</Typography>
                 </Grid>
                 <Grid item xs={6} sm={8} alignSelf="center">
                   <FormControlLabel
                     labelPlacement="end"
+                    label="Available in a future release"
+                    control={<Switch checked={false} color="primary" disabled />}
+                  />
+                  {/* <FormControlLabel
+                    labelPlacement="end"
                     label={geoOptions && geoOptions.sms ? 'ON' : 'OFF'}
                     control={<Switch checked={geoOptions && geoOptions.sms} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, sms: e.target.checked })} />}
-                  />
+                  /> */}
                 </Grid>
                 <Grid item xs={6} sm={4} alignSelf="center">
                   <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
@@ -446,14 +443,19 @@ const Register = ({ history }) => {
                   />
                 </Grid>
                 <Grid item xs={6} sm={4} alignSelf="center">
-                  <Typography variant="body1" fontWeight={500}>SMS text Alerts:</Typography>
+                  <Typography variant="body1" fontWeight={500}>SMS Alerts:</Typography>
                 </Grid>
                 <Grid item xs={6} sm={8} alignSelf="center">
                   <FormControlLabel
                     labelPlacement="end"
+                    label="Available in a future release"
+                    control={<Switch checked={false} color="primary" disabled />}
+                  />
+                  {/* <FormControlLabel
+                    labelPlacement="end"
                     label={envOptions && envOptions.sms ? 'ON' : 'OFF'}
                     control={<Switch checked={envOptions && envOptions.sms} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, sms: e.target.checked })} />}
-                  />
+                  /> */}
                 </Grid>
                 <Grid item xs={6} sm={4} alignSelf="center">
                   <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
@@ -482,23 +484,6 @@ const Register = ({ history }) => {
                     {...smsNumber.bind}
                   />
                 </Grid>
-              )}
-
-              {(geoOptions.whatsApp || envOptions.whatsApp) && (
-                <Grid item xs={12}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    type="number"
-                    className="registerNumberInput"
-                    id="whatsapp-number"
-                    name="whatsapp-number"
-                    label="Send WhatsApp alerts on"
-                    helperText="Additional charges may apply"
-                    {...whatsAppNumber.bind}
-                  />
-                </Grid>
               )} */}
 
               {(geoOptions.whatsApp || envOptions.whatsApp) && (
@@ -507,12 +492,14 @@ const Register = ({ history }) => {
                     value={whatsappNumber}
                     onChange={(value) => setWhatsappNumber(value)}
                     placeholder="Send WhatsApp alerts on"
-                    inputClass="registerPhoneInput"
-                    containerClass="registerPhoneInputContainer"
+                    inputClass={whatsappFocus ? 'registerPhoneInputFocused' : 'registerPhoneInput'}
+                    containerClass={whatsappFocus ? 'registerPhoneInputContainerFocused' : 'registerPhoneInputContainer'}
                     buttonClass="registerFlagDropdown"
                     country="us"
+                    onFocus={() => setWhatsappFocus(true)}
+                    onBlur={() => setWhatsappFocus(false)}
                   />
-                  <Typography variant="caption">
+                  <Typography variant="caption" className="registerAddText">
                     Additional charges may apply
                   </Typography>
                 </Grid>

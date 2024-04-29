@@ -25,6 +25,8 @@ import useAlert from '@hooks/useAlert';
 import { useUpdateUserMutation } from '@react-query/mutations/authUser/updateUserMutation';
 import { isTablet } from '@utils/mediaQuery';
 import '../TopBarStyles.css';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const Transition = forwardRef((props, ref) => <Slide direction="left" ref={ref} {...props} />);
 
@@ -35,8 +37,9 @@ const AccountSettings = ({ open, setOpen }) => {
   const [envOptions, setEnvOptions] = useState(user.env_alert_preferences);
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
   const timezone = useInput(user.user_timezone);
-  const smsNumber = useInput(user.sms_number || '');
-  const whatsAppNumber = useInput(user.whatsApp_number || '');
+  // const [smsNumber, setSmsNumber] = useState(user.sms_number || '');
+  const [whatsappNumber, setWhatsappNumber] = useState(user.whatsApp_number || '');
+  const [whatsappFocus, setWhatsappFocus] = useState(false);
 
   const { mutate: updateUserMutation, isLoading: isUpdatingUser } = useUpdateUserMutation(null, displayAlert);
 
@@ -44,8 +47,8 @@ const AccountSettings = ({ open, setOpen }) => {
     setGeoOptions(user.geo_alert_preferences);
     setEnvOptions(user.env_alert_preferences);
     timezone.setValue(user.user_timezone);
-    smsNumber.setValue(user.sms_number || '');
-    whatsAppNumber.setValue(user.whatsApp_number || '');
+    // setSmsNumber(user.sms_number || '');
+    setWhatsappNumber(user.whatsApp_number || '');
     setOpen(false);
   };
 
@@ -58,12 +61,14 @@ const AccountSettings = ({ open, setOpen }) => {
         && _.isEqual(envOptions.sms, user.env_alert_preferences.sms)
         && _.isEqual(envOptions.whatsApp, user.env_alert_preferences.whatsApp)
         && !timezone.hasChanged()
-        && !smsNumber.hasChanged()
-        && !whatsAppNumber.hasChanged())
-      || (geoOptions.sms && !smsNumber.value)
-      || (envOptions.sms && !smsNumber.value)
-      || (geoOptions.whatsApp && !whatsAppNumber.value)
-      || (envOptions.whatsApp && !whatsAppNumber.value)
+        // && smsNumber === user.sms_number
+        && whatsappNumber === user.whatsApp_number)
+      // || (geoOptions.sms && !smsNumber)
+      // || (envOptions.sms && !smsNumber)
+      // || smsNumber.length < 11
+      || (geoOptions.whatsApp && !whatsappNumber)
+      || (envOptions.whatsApp && !whatsappNumber)
+      || whatsappNumber.length < 11
     ) {
       return true;
     }
@@ -79,12 +84,12 @@ const AccountSettings = ({ open, setOpen }) => {
       env_alert_preferences: envOptions,
     };
 
-    if (smsNumber.value) {
-      userData = { ...userData, sms_number: smsNumber.value };
-    }
+    // if (smsNumber) {
+    //   userData = { ...userData, sms_number: smsNumber };
+    // }
 
-    if (whatsAppNumber.value) {
-      userData = { ...userData, whatsApp_number: whatsAppNumber.value };
+    if (whatsappNumber) {
+      userData = { ...userData, whatsApp_number: whatsappNumber };
     }
 
     if (timezone.value) {
@@ -213,14 +218,19 @@ const AccountSettings = ({ open, setOpen }) => {
           </Grid>
 
           <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>SMS text Alerts:</Typography>
+            <Typography variant="body1" fontWeight={500}>SMS Alerts:</Typography>
           </Grid>
           <Grid item xs={6} sm={8} alignSelf="center">
             <FormControlLabel
               labelPlacement="end"
-              label={geoOptions && geoOptions.sms ? 'ON' : 'OFF'}
-              control={<Switch checked={geoOptions && geoOptions.sms} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, sms: e.target.checked })} />}
+              label="Available in a future release"
+              control={<Switch checked={false} color="primary" disabled />}
             />
+            {/* <FormControlLabel
+                  labelPlacement="end"
+                  label={geoOptions && geoOptions.sms ? 'ON' : 'OFF'}
+                  control={<Switch checked={geoOptions && geoOptions.sms} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, sms: e.target.checked })} />}
+                /> */}
           </Grid>
 
           <Grid item xs={6} sm={4} alignSelf="center">
@@ -254,14 +264,19 @@ const AccountSettings = ({ open, setOpen }) => {
           </Grid>
 
           <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>SMS text Alerts:</Typography>
+            <Typography variant="body1" fontWeight={500}>SMS Alerts:</Typography>
           </Grid>
           <Grid item xs={6} sm={8} alignSelf="center">
             <FormControlLabel
               labelPlacement="end"
-              label={envOptions && envOptions.sms ? 'ON' : 'OFF'}
-              control={<Switch checked={envOptions && envOptions.sms} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, sms: e.target.checked })} />}
+              label="Available in a future release"
+              control={<Switch checked={false} color="primary" disabled />}
             />
+            {/* <FormControlLabel
+                  labelPlacement="end"
+                  label={envOptions && envOptions.sms ? 'ON' : 'OFF'}
+                  control={<Switch checked={envOptions && envOptions.sms} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, sms: e.target.checked })} />}
+                /> */}
           </Grid>
 
           <Grid item xs={6} sm={4} alignSelf="center">
@@ -275,7 +290,7 @@ const AccountSettings = ({ open, setOpen }) => {
             />
           </Grid>
 
-          {(geoOptions.sms || envOptions.sms) && (
+          {/* {(geoOptions.sms || envOptions.sms) && (
             <Grid item xs={12} mt={2}>
               <TextField
                 variant="outlined"
@@ -290,22 +305,24 @@ const AccountSettings = ({ open, setOpen }) => {
                 helperText="Additional charges may apply"
               />
             </Grid>
-          )}
+          )} */}
 
           {(geoOptions.whatsApp || envOptions.whatsApp) && (
             <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                fullWidth
-                type="number"
-                className="accountSettingsNumberInput"
-                id="whatsapp-number"
-                name="whatsapp-number"
-                label="Send WhatsApp alerts on"
-                {...whatsAppNumber.bind}
-                helperText="Additional charges may apply"
+              <PhoneInput
+                value={whatsappNumber}
+                onChange={(value) => setWhatsappNumber(value)}
+                placeholder="Send WhatsApp alerts on"
+                inputClass={whatsappFocus ? 'accountSettingPhoneInputFocused' : 'accountSettingPhoneInput'}
+                containerClass={whatsappFocus ? 'accountSettingPhoneInputContainerFocused' : 'accountSettingPhoneInputContainer'}
+                buttonClass="accountSettingFlagDropdown"
+                country="us"
+                onFocus={() => setWhatsappFocus(true)}
+                onBlur={() => setWhatsappFocus(false)}
               />
+              <Typography variant="caption" className="accountSettingAddText">
+                Additional charges may apply
+              </Typography>
             </Grid>
           )}
         </Grid>
