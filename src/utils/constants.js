@@ -1891,7 +1891,7 @@ export const getShipmentFormattedRow = (
         _.orderBy(
           _.filter(sensorReports, { shipment_id: editedShipment.partner_shipment_id }),
           [
-            (obj) => moment(obj.report_entry.report_timestamp),
+            (obj) => moment(obj.activation_date),
           ],
           ['desc'],
         ),
