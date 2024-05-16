@@ -112,7 +112,7 @@ const Gateway = ({ history, redirectTo }) => {
         filename="TrackerData"
         tableHeader="Trackers"
         loading={
-          isLoadingGateways || isLoadingGatewayTypes || isLoadingCustodians || isLoadingContact || isLoadingShipments || isLoadingUnits || isDeletingGateway
+          isLoadingGateways || isLoadingGatewayTypes || isLoadingCustodians || isLoadingContact || isLoadingShipments || isLoadingUnits
         }
         rows={rows || []}
         columns={gatewayColumns(
