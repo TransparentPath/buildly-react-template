@@ -6,6 +6,7 @@ import {
   Toolbar,
   IconButton,
   TextField,
+  Menu,
   MenuItem,
   Badge,
 } from '@mui/material';
@@ -14,6 +15,7 @@ import {
   Menu as MenuIcon,
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
+  ArrowRight as ArrowRightIcon,
 } from '@mui/icons-material';
 import logo from '@assets/tp-logo.png';
 import Loader from '@components/Loader/Loader';
@@ -38,14 +40,19 @@ import WhatsNewSlider from './components/WhatsNew/WhatsNewSlider';
 import AdminMenu from './AdminMenu';
 import AccountMenu from './AccountMenu';
 import './TopBarStyles.css';
+import { LANGUAGES } from '@utils/mock';
 
 const TopBar = ({
   navHidden,
   setNavHidden,
   history,
 }) => {
+  const user = getUser();
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [settingEl, setSettingEl] = useState(null);
+  const [submenuAnchorEl, setSubmenuAnchorEl] = useState(null);
+  const [submenuOrg, setSubmenuOrg] = useState(null);
   const [organization, setOrganization] = useState(null);
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
   const [showAccountSettings, setShowAccountSettings] = useState(false);
@@ -53,8 +60,9 @@ const TopBar = ({
   const [showWhatsNewSlider, setShowWhatsNewSlider] = useState(false);
   const [hideAlertBadge, setHideAlertBadge] = useState(true);
   const [showAlertNotifications, setShowAlertNotifications] = useState(false);
+  const [displayOrgs, setDisplayOrgs] = useState(null);
+  const [language, setLanguage] = useState(user.user_language);
 
-  const user = getUser();
   let isAdmin = false;
   let isSuperAdmin = false;
   let org_uuid = user.organization.organization_uuid;
@@ -99,16 +107,84 @@ const TopBar = ({
     { refetchOnWindowFocus: false },
   );
 
-  const handleOrganizationChange = (e) => {
-    const organization_name = e.target.value;
-    setOrganization(organization_name);
-    const { organization_uuid } = _.filter(orgData, (org) => org.name === organization_name)[0];
-    const updateData = {
-      id: user.id,
-      organization_uuid,
-      organization_name,
+  useEffect(() => {
+    const isReloaded = sessionStorage.getItem('isReloaded');
+    const domain = window.location.hostname;
+    let cookieString;
+    if (user && user.user_language) {
+      setLanguage(user.user_language);
+      const lng = LANGUAGES.find((item) => item.label === user.user_language);
+      cookieString = `googtrans=/en/${lng.value};path=/;domain=${domain}`;
+    } else {
+      setLanguage('English');
+      cookieString = `googtrans=/en/en;path=/;domain=${domain}`;
+    }
+    document.cookie = cookieString;
+    if (!isReloaded) {
+      sessionStorage.setItem('isReloaded', 'true');
+      window.location.reload();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      localStorage.removeItem('adminOrgs');
+    }
+    if (!_.isEmpty(orgData) && checkForAdmin(user) === true && user.organization.is_reseller === true) {
+      localStorage.setItem('adminOrgs', JSON.stringify(orgData));
+    }
+  }, [orgData]);
+
+  useEffect(() => {
+    if (!orgData || _.isEmpty(orgData)) return;
+
+    const filterAndSetDisplayOrgs = (orgs) => {
+      const producerOrgs = orgs.filter((org) => org.organization_type === 2);
+      const resellerOrgs = orgs.filter((org) => org.is_reseller);
+      const resellerCustomerOrgIds = resellerOrgs.flatMap((org) => org.reseller_customer_orgs || []);
+      const customerOrgs = orgs.filter((org) => resellerCustomerOrgIds.includes(org.id));
+      setDisplayOrgs([...producerOrgs, ...customerOrgs]);
     };
-    updateUserMutation(updateData);
+
+    if (isSuperAdmin) {
+      filterAndSetDisplayOrgs(orgData);
+    } else if (checkForAdmin(user)) {
+      const adminOrgs = JSON.parse(localStorage.getItem('adminOrgs'));
+      filterAndSetDisplayOrgs(adminOrgs);
+    }
+  }, [orgData]);
+
+  const handleOrganizationChange = (e) => {
+    const organization_name = e.target ? e.target.value : e;
+    if (organization !== organization_name) {
+      setOrganization(organization_name);
+      const adminOrgs = JSON.parse(localStorage.getItem('adminOrgs'));
+      const { organization_uuid } = isSuperAdmin ? _.filter(orgData, (org) => org.name === organization_name)[0] : _.filter(adminOrgs, (org) => org.name === organization_name)[0];
+      const updateData = {
+        id: user.id,
+        organization_uuid,
+        organization_name,
+      };
+      updateUserMutation(updateData);
+    }
+  };
+
+  const handleLanguageChange = (e) => {
+    const selected_language = e.target.value;
+    if (language !== selected_language) {
+      setLanguage(selected_language);
+      const lng = LANGUAGES.find((item) => item.label === selected_language);
+      const domain = window.location.hostname;
+      const cookieString = `googtrans=/en/${lng.value};path=/;domain=${domain}`;
+      document.cookie = cookieString;
+      const updateData = {
+        id: user.id,
+        organization_uuid: user.organization.organization_uuid,
+        organization_name: user.organization.name,
+        user_language: selected_language,
+      };
+      updateUserMutation(updateData);
+    }
   };
 
   const settingMenu = (event) => {
@@ -159,6 +235,16 @@ const TopBar = ({
     setAnchorEl(null);
   };
 
+  const handleSubmenuClick = (event, org) => {
+    event.stopPropagation();
+    setSubmenuAnchorEl(event.currentTarget);
+    setSubmenuOrg(org);
+  };
+
+  const handleSubmenuClose = () => {
+    setSubmenuAnchorEl(null);
+  };
+
   return (
     <AppBar position="fixed" className="topbarAppBar">
       {(isLoadingOrgs || isUpdateUser || isLoadingUnits || isLoadingVersionNotes) && <Loader open={isLoadingOrgs || isUpdateUser || isLoadingUnits || isLoadingVersionNotes} />}
@@ -187,6 +273,22 @@ const TopBar = ({
             className="topbarTimezone"
             variant="outlined"
             fullWidth
+            id="language"
+            label="Language"
+            select
+            value={language}
+            onChange={handleLanguageChange}
+          >
+            {_.map(LANGUAGES, (item, index) => (
+              <MenuItem key={`${item.value}-${index}`} value={item.label}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            className="topbarTimezone"
+            variant="outlined"
+            fullWidth
             id="timezone"
             label="Time Zone"
             select
@@ -199,7 +301,7 @@ const TopBar = ({
               </MenuItem>
             ))}
           </TextField>
-          {isSuperAdmin && (
+          {(isSuperAdmin || (checkForAdmin(user) === true && !_.isEmpty(JSON.parse(localStorage.getItem('adminOrgs'))))) && (
             <TextField
               className="topbarTimezone"
               variant="outlined"
@@ -210,17 +312,19 @@ const TopBar = ({
               value={organization}
               onChange={handleOrganizationChange}
             >
-              {_.map(
-                _.filter(orgData, (org) => org.organization_type === 2),
-                (org) => (
-                  <MenuItem
-                    key={`organization-${org.id}`}
-                    value={org.name || ''}
-                  >
-                    {org.name}
-                  </MenuItem>
-                ),
-              )}
+              {!_.isEmpty(displayOrgs) && displayOrgs.map((org) => (
+                <MenuItem key={org.id} value={org.name} style={{ display: org.organization_type === 1 && 'none' }}>
+                  {org.name}
+                  {org.reseller_customer_orgs && (
+                    <IconButton
+                      onClick={(event) => handleSubmenuClick(event, org)}
+                      className="topBarOrgSelectInput"
+                    >
+                      <ArrowRightIcon />
+                    </IconButton>
+                  )}
+                </MenuItem>
+              ))}
             </TextField>
           )}
           <IconButton
@@ -274,6 +378,33 @@ const TopBar = ({
           />
         </div>
       </Toolbar>
+      <Menu
+        anchorEl={submenuAnchorEl}
+        open={Boolean(submenuAnchorEl)}
+        onClose={handleSubmenuClose}
+      >
+        {
+          submenuOrg && !_.isEmpty(submenuOrg.reseller_customer_orgs) && (
+            isSuperAdmin
+              ? orgData.filter((org) => submenuOrg.reseller_customer_orgs.includes(org.organization_uuid)).map((org) => (
+                <MenuItem
+                  key={org.organization_uuid}
+                  onClick={() => handleOrganizationChange(org.name)}
+                >
+                  {org.name}
+                </MenuItem>
+              ))
+              : !_.isEmpty(JSON.parse(localStorage.getItem('adminOrgs'))) && JSON.parse(localStorage.getItem('adminOrgs')).filter((org) => submenuOrg.reseller_customer_orgs.includes(org.organization_uuid)).map((org) => (
+                <MenuItem
+                  key={org.organization_uuid}
+                  onClick={() => handleOrganizationChange(org.name)}
+                >
+                  {org.name}
+                </MenuItem>
+              ))
+          )
+        }
+      </Menu>
       <AccountSettings open={showAccountSettings} setOpen={setShowAccountSettings} />
       <WhatsNewModal open={showWhatsNewModal} setOpen={setShowWhatsNewModal} data={versionNotesData} />
       <WhatsNewSlider open={showWhatsNewSlider} setOpen={setShowWhatsNewSlider} data={versionNotesData} />

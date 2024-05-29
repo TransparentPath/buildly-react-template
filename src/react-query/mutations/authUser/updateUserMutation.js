@@ -31,6 +31,7 @@ export const useUpdateUserMutation = (
   {
     onSuccess: () => {
       if (history) {
+        window.location.reload();
         const route = window.location.pathname;
         history.push('/');
         history.push(route);
