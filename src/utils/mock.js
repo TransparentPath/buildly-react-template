@@ -51,9 +51,10 @@ export const ADMIN_SHIPMENT_STATUS = [
 
 export const LANGUAGES = [
   { value: 'en', label: 'English' },
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-  { value: 'de', label: 'German' },
-  { value: 'zh-CN', label: 'Chinese' },
   { value: 'pt', label: 'Portuguese (Brazil)' },
+  { value: 'es', label: 'Spanish' },
+  { value: 'de', label: 'German' },
+  { value: 'fr', label: 'French' },
+  { value: 'ja', label: 'Japanese' },
+  { value: 'it', label: 'Italian' },
 ];
