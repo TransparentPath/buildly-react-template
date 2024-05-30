@@ -44,8 +44,6 @@ const AddResellers = ({ open, setOpen }) => {
     { refetchOnWindowFocus: false, enabled: !_.isEmpty(selectedResellerOrganization.value) },
   );
 
-  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(displayAlert);
-
   useEffect(() => {
     if (open === true) {
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
@@ -92,6 +90,8 @@ const AddResellers = ({ open, setOpen }) => {
     return null;
   };
 
+  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(discardFormData, displayAlert);
+
   const handleAddResellerSubmit = (event) => {
     event.preventDefault();
     const data = {
@@ -99,7 +99,6 @@ const AddResellers = ({ open, setOpen }) => {
       is_reseller: true,
     };
     updateOrganizationMutation(data);
-    discardFormData();
   };
 
   const handleAddCustomerSubmit = (event) => {
@@ -110,7 +109,6 @@ const AddResellers = ({ open, setOpen }) => {
       reseller_customer_orgs: customerUuids,
     };
     updateOrganizationMutation(data);
-    discardFormData();
   };
 
   return (
@@ -173,7 +171,10 @@ const AddResellers = ({ open, setOpen }) => {
                     fullWidth
                     variant="outlined"
                     color="primary"
-                    onClick={(e) => setAddResellerOpen(false)}
+                    onClick={(e) => {
+                      resellerOrganization.setValue({});
+                      setAddResellerOpen(false);
+                    }}
                   >
                     Cancel
                   </Button>
@@ -307,14 +308,7 @@ const AddResellers = ({ open, setOpen }) => {
                       fullWidth
                       variant="outlined"
                       color="primary"
-                      onClick={(e) => {
-                        if (_.isEmpty(selectedResellerOrganization.value.reseller_customer_orgs)) {
-                          resellerCustomerOrganization.setValue([]);
-                        } else {
-                          const selectedOrgs = orgData.filter((org) => selectedResellerOrganization.value.reseller_customer_orgs.includes(org.organization_uuid));
-                          resellerCustomerOrganization.setValue(selectedOrgs);
-                        }
-                      }}
+                      onClick={closeFormModal}
                     >
                       Cancel
                     </Button>

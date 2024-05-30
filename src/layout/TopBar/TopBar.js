@@ -120,9 +120,9 @@ const TopBar = ({
       cookieString = `googtrans=/en/en;path=/;domain=${domain}`;
     }
     document.cookie = cookieString;
-    if (!isReloaded) {
+    if (!isReloaded && !_.isEmpty(user.user_language) && user.user_language !== 'English') {
       sessionStorage.setItem('isReloaded', 'true');
-      window.location.reload();
+      window.location.reload(true);
     }
   }, []);
 
@@ -140,7 +140,6 @@ const TopBar = ({
     if (!_.isEmpty(orgData) && isAdmin && user.organization.is_reseller) {
       localStorage.setItem('adminOrgs', JSON.stringify(orgData));
     }
-
     if (isSuperAdmin) {
       localStorage.removeItem('adminOrgs');
       filterAndSetDisplayOrgs(orgData);
