@@ -74,7 +74,7 @@ const TopBar = ({
     if (!organization) {
       setOrganization(user.organization.name);
     }
-    isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
+    isAdmin = checkForAdmin(user);
     isSuperAdmin = checkForGlobalAdmin(user);
     org_uuid = user.organization.organization_uuid;
   }
@@ -126,29 +126,25 @@ const TopBar = ({
     }
   }, []);
 
-  useEffect(() => {
-    if (isSuperAdmin) {
-      localStorage.removeItem('adminOrgs');
-    }
-    if (!_.isEmpty(orgData) && checkForAdmin(user) === true && user.organization.is_reseller === true) {
-      localStorage.setItem('adminOrgs', JSON.stringify(orgData));
-    }
-  }, [orgData]);
-
-  useEffect(() => {
-    if (!orgData || _.isEmpty(orgData)) return;
-
-    const filterAndSetDisplayOrgs = (orgs) => {
+  const filterAndSetDisplayOrgs = (orgs) => {
+    if (orgs) {
       const producerOrgs = orgs.filter((org) => org.organization_type === 2);
       const resellerOrgs = orgs.filter((org) => org.is_reseller);
       const resellerCustomerOrgIds = resellerOrgs.flatMap((org) => org.reseller_customer_orgs || []);
       const customerOrgs = orgs.filter((org) => resellerCustomerOrgIds.includes(org.id));
       setDisplayOrgs([...producerOrgs, ...customerOrgs]);
-    };
+    }
+  };
+
+  useEffect(() => {
+    if (!_.isEmpty(orgData) && isAdmin && user.organization.is_reseller) {
+      localStorage.setItem('adminOrgs', JSON.stringify(orgData));
+    }
 
     if (isSuperAdmin) {
+      localStorage.removeItem('adminOrgs');
       filterAndSetDisplayOrgs(orgData);
-    } else if (checkForAdmin(user)) {
+    } else if (isAdmin) {
       const adminOrgs = JSON.parse(localStorage.getItem('adminOrgs'));
       filterAndSetDisplayOrgs(adminOrgs);
     }
@@ -301,7 +297,7 @@ const TopBar = ({
               </MenuItem>
             ))}
           </TextField>
-          {(isSuperAdmin || (checkForAdmin(user) === true && !_.isEmpty(JSON.parse(localStorage.getItem('adminOrgs'))))) && (
+          {(isSuperAdmin || (isAdmin && !_.isEmpty(JSON.parse(localStorage.getItem('adminOrgs'))))) && (
             <TextField
               className="topbarTimezone"
               variant="outlined"
@@ -338,7 +334,7 @@ const TopBar = ({
               <NotificationsIcon fontSize="large" />
             </Badge>
           </IconButton>
-          {isAdmin
+          {(isAdmin || isSuperAdmin)
             && (
               <IconButton
                 aria-label="admin section"
