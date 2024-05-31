@@ -10,7 +10,7 @@ const queryClient = new QueryClient();
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>
     <App />
-    {window.env && !window.env.production && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
+    {!window.env.production && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
   </QueryClientProvider>,
   document.getElementById('root'),
 );
