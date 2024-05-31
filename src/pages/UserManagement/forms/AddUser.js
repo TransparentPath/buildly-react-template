@@ -17,7 +17,7 @@ import {
 } from '@mui/icons-material';
 import { isDesktop } from '@utils/mediaQuery';
 import { validators } from '@utils/validators';
-import { checkForGlobalAdmin } from '@utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import useAlert from '@hooks/useAlert';
 import { useInput } from '@hooks/useInput';
 import '../UserManagementStyles.css';
@@ -30,6 +30,7 @@ const AddUser = ({ open, setOpen }) => {
   const { displayAlert } = useAlert();
   const user = getUser();
   const isSuperAdmin = checkForGlobalAdmin(user);
+  const isAdmin = checkForAdmin(user);
   const { organization_uuid } = user.organization;
 
   const [openConfirmModal, setConfirmModal] = useState(false);
@@ -40,6 +41,7 @@ const AddUser = ({ open, setOpen }) => {
   const [submenuAnchorEl, setSubmenuAnchorEl] = useState(null);
   const [submenuOrg, setSubmenuOrg] = useState(null);
   const [displayOrgs, setDisplayOrgs] = useState(null);
+  const [mainMenuOpen, setMainMenuOpen] = useState(false);
 
   const organization_name = useInput('', { required: true });
   const user_role = useInput('', { required: true });
@@ -197,6 +199,8 @@ const AddUser = ({ open, setOpen }) => {
 
   const handleSubmenuSelect = (org) => {
     organization_name.setValue(org.name);
+    handleSubmenuClose();
+    setMainMenuOpen(false);
   };
 
   return (
@@ -245,7 +249,7 @@ const AddUser = ({ open, setOpen }) => {
                 value={userEmails.toString()}
               />
             </Grid>
-            {isSuperAdmin && (
+            {(isSuperAdmin || (isAdmin && user.organization.is_reseller && !_.isEmpty(user.organization.reseller_customer_orgs))) && (
               <>
                 <Grid item xs={12}>
                   <TextField
@@ -253,11 +257,15 @@ const AddUser = ({ open, setOpen }) => {
                     margin="normal"
                     fullWidth
                     select
+                    SelectProps={{
+                      open: mainMenuOpen,
+                    }}
                     id="organization_name"
                     name="organization_name"
                     label="Organization Name"
                     autoComplete="organization_name"
                     {...organization_name.bind}
+                    onClick={(e) => setMainMenuOpen(!mainMenuOpen)}
                   >
                     {displayOrgs && !_.isEmpty(displayOrgs) && displayOrgs.map((org) => (
                       <MenuItem key={org.id} value={org.name} style={{ display: org.organization_type === 1 && 'none' }}>

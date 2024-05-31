@@ -63,6 +63,7 @@ const AddResellers = ({ open, setOpen }) => {
     resellerCustomerOrganization.clear();
     setConfirmModal(false);
     setAddResellerOpen(false);
+    setAddResellerCustomerOpen(false);
     setOpen(false);
   };
 
@@ -72,6 +73,7 @@ const AddResellers = ({ open, setOpen }) => {
       setConfirmModal(true);
     } else {
       setAddResellerOpen(false);
+      setAddResellerCustomerOpen(false);
       setOpen(false);
     }
   };
@@ -164,7 +166,7 @@ const AddResellers = ({ open, setOpen }) => {
                   )}
                 </TextField>
               </Grid>
-              <Grid container xs={12} sm={7} mt={2.25} justifyContent="center">
+              <Grid container mt={2.25} justifyContent="center">
                 <Grid item sm={5} md={3.5} mr={2}>
                   <Button
                     type="button"
@@ -263,30 +265,42 @@ const AddResellers = ({ open, setOpen }) => {
                   </Grid>
                 ))}
               {isAddResellerCustomerOpen && (
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  fullWidth
-                  select
-                  id="resellerCustomerOrganization"
-                  label="Select Reseller Customer Organization"
-                  onChange={(e) => {
-                    const selectedOrg = orgData.find((org) => org.name === e.target.value);
-                    resellerCustomerOrganization.setValue([...resellerCustomerOrganization.value, selectedOrg]);
-                    setAddResellerCustomerOpen(false);
-                  }}
-                >
-                  <MenuItem value="">Select</MenuItem>
-                  {orgData && custodianData && _.map(orgData.filter((org) => org.organization_type === 1 && custodianData.some((custodian) => custodian.custody_org_uuid === org.organization_uuid) && !resellerCustomerOrganization.value.includes(org)),
-                    (org) => (
-                      <MenuItem
-                        key={`organization-${org.id}`}
-                        value={org.name || ''}
-                      >
-                        {org.name}
-                      </MenuItem>
-                    ))}
-                </TextField>
+                <Grid container alignItems="center" justifyContent="space-between">
+                  <Grid item xs={10.8}>
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      fullWidth
+                      select
+                      id="resellerCustomerOrganization"
+                      label="Select Reseller Customer Organization"
+                      onChange={(e) => {
+                        const selectedOrg = orgData.find((org) => org.name === e.target.value);
+                        resellerCustomerOrganization.setValue([...resellerCustomerOrganization.value, selectedOrg]);
+                        setAddResellerCustomerOpen(false);
+                      }}
+                    >
+                      <MenuItem value="">Select</MenuItem>
+                      {orgData && custodianData && _.map(orgData.filter((org) => org.organization_type === 1 && custodianData.some((custodian) => custodian.custody_org_uuid === org.organization_uuid) && !resellerCustomerOrganization.value.includes(org)),
+                        (org) => (
+                          <MenuItem
+                            key={`organization-${org.id}`}
+                            value={org.name || ''}
+                          >
+                            {org.name}
+                          </MenuItem>
+                        ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={1}>
+                    <Button
+                      type="button"
+                      onClick={(e) => setAddResellerCustomerOpen(false)}
+                    >
+                      <CancelIcon fontSize="large" className="addResellerCustomersCancel" />
+                    </Button>
+                  </Grid>
+                </Grid>
               )}
               {!isAddResellerCustomerOpen && (
                 <Button

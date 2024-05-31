@@ -62,6 +62,7 @@ const TopBar = ({
   const [showAlertNotifications, setShowAlertNotifications] = useState(false);
   const [displayOrgs, setDisplayOrgs] = useState(null);
   const [language, setLanguage] = useState(user.user_language);
+  const [mainMenuOpen, setMainMenuOpen] = useState(false);
 
   let isAdmin = false;
   let isSuperAdmin = false;
@@ -162,6 +163,8 @@ const TopBar = ({
       };
       updateUserMutation(updateData);
     }
+    handleSubmenuClose();
+    setMainMenuOpen(false);
   };
 
   const handleLanguageChange = (e) => {
@@ -306,6 +309,10 @@ const TopBar = ({
               select
               value={organization}
               onChange={handleOrganizationChange}
+              SelectProps={{
+                open: mainMenuOpen,
+              }}
+              onClick={(e) => setMainMenuOpen(!mainMenuOpen)}
             >
               {!_.isEmpty(displayOrgs) && displayOrgs.map((org) => (
                 <MenuItem key={org.id} value={org.name} style={{ display: org.organization_type === 1 && 'none' }}>
