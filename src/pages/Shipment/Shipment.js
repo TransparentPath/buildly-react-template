@@ -579,26 +579,26 @@ const Shipment = ({ history }) => {
     return isValidData && (
       <>
         <Typography>
-          Temp(
+          Temp (
           <span className="shipmentMaxColor">{maxTemp.value}</span>
           /
           <span className="shipmentMinColor">{minTemp.value}</span>
           {`): ${marker.temperature}`}
         </Typography>
         <Typography>
-          Humidity(
+          Humidity (
           <span className="shipmentMaxColor">{maxHum.value}</span>
           /
           <span className="shipmentMinColor">{minHum.value}</span>
           {`): ${marker.humidity}`}
         </Typography>
         <Typography>
-          Shock(
+          Shock (
           <span className="shipmentMaxColor">{maxShock.value}</span>
           {`): ${marker.shock}`}
         </Typography>
         <Typography>
-          Light(
+          Light (
           <span className="shipmentMaxColor">{maxLight.value}</span>
           {`): ${marker.light}`}
         </Typography>
@@ -627,10 +627,10 @@ const Shipment = ({ history }) => {
         <Typography fontWeight={700} fontStyle="italic">
           Irregular Transmission:
         </Typography>
-        {renderSensorValue('Temp', marker.temperature, maxTemp.value, minTemp.value)}
-        {renderSensorValue('Humidity', marker.humidity, maxHum.value, minHum.value)}
-        {renderSensorValue('Shock', marker.shock, maxShock.value)}
-        {renderSensorValue('Light', marker.light, maxLight.value)}
+        {renderSensorValue('Temp ', marker.temperature, maxTemp.value, minTemp.value)}
+        {renderSensorValue('Humidity ', marker.humidity, maxHum.value, minHum.value)}
+        {renderSensorValue('Shock ', marker.shock, maxShock.value)}
+        {renderSensorValue('Light ', marker.light, maxLight.value)}
         {renderSensorValue('Battery', marker.battery)}
       </Grid>
     );
@@ -784,7 +784,7 @@ const Shipment = ({ history }) => {
               ),
               {
                 name: 'battery_levels',
-                label: 'Tracker Battery Level (%) with Intervals',
+                label: 'Battery (%) with Intervals',
                 options: {
                   sort: true,
                   sortThirdClickReset: true,

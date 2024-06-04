@@ -61,7 +61,7 @@ const TopBar = ({
   const [hideAlertBadge, setHideAlertBadge] = useState(true);
   const [showAlertNotifications, setShowAlertNotifications] = useState(false);
   const [displayOrgs, setDisplayOrgs] = useState(null);
-  const [language, setLanguage] = useState(user.user_language);
+  const [language, setLanguage] = useState(null);
   const [mainMenuOpen, setMainMenuOpen] = useState(false);
 
   let isAdmin = false;
@@ -74,6 +74,9 @@ const TopBar = ({
   if (user) {
     if (!organization) {
       setOrganization(user.organization.name);
+    }
+    if (!language) {
+      setLanguage(user.user_language);
     }
     isAdmin = checkForAdmin(user);
     isSuperAdmin = checkForGlobalAdmin(user);
@@ -108,17 +111,28 @@ const TopBar = ({
     { refetchOnWindowFocus: false },
   );
 
+  function removeTranslationCookies() {
+    const cookies = document.cookie.split(';');
+    cookies.forEach((cookie) => {
+      const cookieParts = cookie.split('=');
+      const cookieName = cookieParts[0].trim();
+      if (cookieName === 'googtrans') {
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      }
+    });
+  }
+
   useEffect(() => {
+    removeTranslationCookies();
     const isReloaded = sessionStorage.getItem('isReloaded');
-    const domain = window.location.hostname;
     let cookieString;
     if (user && user.user_language) {
       setLanguage(user.user_language);
       const lng = LANGUAGES.find((item) => item.label === user.user_language);
-      cookieString = `googtrans=/en/${lng.value};path=/;domain=${domain}`;
+      cookieString = `googtrans=/en/${lng.value};path=/;domain=${window.env.HOSTNAME}`;
     } else {
       setLanguage('English');
-      cookieString = `googtrans=/en/en;path=/;domain=${domain}`;
+      cookieString = `googtrans=/en/en;path=/;domain=${window.env.HOSTNAME}`;
     }
     document.cookie = cookieString;
     if (!isReloaded && !_.isEmpty(user.user_language) && user.user_language !== 'English') {
@@ -168,13 +182,12 @@ const TopBar = ({
   };
 
   const handleLanguageChange = (e) => {
+    removeTranslationCookies();
     const selected_language = e.target.value;
     if (language !== selected_language) {
       setLanguage(selected_language);
       const lng = LANGUAGES.find((item) => item.label === selected_language);
-      const domain = window.location.hostname;
-      const cookieString = `googtrans=/en/${lng.value};path=/;domain=${domain}`;
-      document.cookie = cookieString;
+      document.cookie = `googtrans=/en/${lng.value};path=/;domain=${window.env.HOSTNAME}`;
       const updateData = {
         id: user.id,
         organization_uuid: user.organization.organization_uuid,
