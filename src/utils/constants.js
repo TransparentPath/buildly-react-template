@@ -1390,10 +1390,12 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
                   {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : '')}
                 </div>
               </Grid>
-              <Grid item xs={8}>
-                <Typography variant="body1">{`T: ${tTime ? tTime.short_label : 'N/A'}`}</Typography>
-                <Typography variant="body1">{`M: ${mTime ? mTime.short_label : 'N/A'}`}</Typography>
-              </Grid>
+              {!_.isEqual(value, null) && !_.isEqual(value, undefined) && (
+                <Grid item xs={8}>
+                  <Typography variant="body1">{`T: ${tTime ? tTime.short_label : 'N/A'}`}</Typography>
+                  <Typography variant="body1">{`M: ${mTime ? mTime.short_label : 'N/A'}`}</Typography>
+                </Grid>
+              )}
             </Grid>
           );
         },

@@ -126,6 +126,7 @@ const TopBar = ({
       if (user && lng && !_.isEqual(user.user_language, lng.label)) {
         const newLng = LANGUAGES.find((item) => item.label === user.user_language);
         document.cookie = `googtrans=/auto/${newLng.value}; Path=/; Domain=${window.location.hostname}`;
+        // eslint-disable-next-line no-alert
         alert('Detected language change. So need to reload the website.');
         window.location.reload();
       }
