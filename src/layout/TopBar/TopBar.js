@@ -111,35 +111,35 @@ const TopBar = ({
     { refetchOnWindowFocus: false },
   );
 
-  function removeTranslationCookies() {
-    const cookies = document.cookie.split(';');
-    cookies.forEach((cookie) => {
-      const cookieParts = cookie.split('=');
-      const cookieName = cookieParts[0].trim();
-      if (cookieName === 'googtrans') {
-        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+  const setGoogleTrans = () => {
+    // remove cookies
+    document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+
+    if (!_.isEqual(document.cookie.search('googtrans'), -1)) {
+      // remove cookies
+      document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Domain=.tpath.io';
+
+      // set new googtrans cookies
+      const googtransLng = document.cookie.split('googtrans')[1].split(';')[0].split('/')[2];
+      const lng = LANGUAGES.find((item) => item.value === googtransLng);
+      if (user && lng && !_.isEqual(user.user_language, lng.label)) {
+        const newLng = LANGUAGES.find((item) => item.label === user.user_language);
+        document.cookie = `googtrans=/auto/${newLng.value}; Path=/; Domain=${window.location.hostname}`;
+        alert('Detected language change. So need to reload the website.');
+        window.location.reload();
       }
-    });
-  }
+    } else if (user && user.user_language) {
+      const newLng = LANGUAGES.find((item) => item.label === user.user_language);
+      document.cookie = `googtrans=/auto/${newLng.value}; Path=/; Domain=${window.location.hostname}`;
+    } else {
+      document.cookie = `googtrans=/auto/en; Path=/; Domain=${window.location.hostname}`;
+    }
+  };
 
   useEffect(() => {
-    removeTranslationCookies();
-    const isReloaded = sessionStorage.getItem('isReloaded');
-    let cookieString;
-    if (user && user.user_language) {
-      setLanguage(user.user_language);
-      const lng = LANGUAGES.find((item) => item.label === user.user_language);
-      cookieString = `googtrans=/en/${lng.value};path=/;domain=${window.env.HOSTNAME}`;
-    } else {
-      setLanguage('English');
-      cookieString = `googtrans=/en/en;path=/;domain=${window.env.HOSTNAME}`;
-    }
-    document.cookie = cookieString;
-    if (!isReloaded && !_.isEmpty(user.user_language) && user.user_language !== 'English') {
-      sessionStorage.setItem('isReloaded', 'true');
-      window.location.reload(true);
-    }
-  }, []);
+    setGoogleTrans();
+  }, [language]);
 
   const filterAndSetDisplayOrgs = (orgs) => {
     if (orgs) {
@@ -182,12 +182,9 @@ const TopBar = ({
   };
 
   const handleLanguageChange = (e) => {
-    removeTranslationCookies();
     const selected_language = e.target.value;
     if (language !== selected_language) {
       setLanguage(selected_language);
-      const lng = LANGUAGES.find((item) => item.label === selected_language);
-      document.cookie = `googtrans=/en/${lng.value};path=/;domain=${window.env.HOSTNAME}`;
       const updateData = {
         id: user.id,
         organization_uuid: user.organization.organization_uuid,
