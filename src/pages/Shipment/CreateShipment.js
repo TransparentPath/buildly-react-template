@@ -65,6 +65,8 @@ import {
   USER_SHIPMENT_STATUS,
   TIVE_GATEWAY_TIMES,
   UOM_TEMPERATURE_CHOICES,
+  COMPLETED_SHIPMENT_STATUS,
+  INCOMPLETED_SHIPMENT_STATUS,
 } from '@utils/mock';
 import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
@@ -95,6 +97,7 @@ const CreateShipment = ({ history, location }) => {
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
   const user = getUser();
   const organization = user && user.organization;
+  const organizationUuid = organization && organization.organization_uuid;
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
 
   const { displayAlert } = useAlert();
@@ -235,15 +238,15 @@ const CreateShipment = ({ history, location }) => {
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
   const { data: shipmentTemplateData, isLoading: isLoadingShipmentTemplates } = useQuery(
-    ['shipmentTemplates', organization.organization_uuid],
-    () => getShipmentTemplatesQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['shipmentTemplates', organizationUuid],
+    () => getShipmentTemplatesQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
-    ['custodians', organization.organization_uuid],
-    () => getCustodianQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['custodians', organizationUuid],
+    () => getCustodianQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
@@ -253,33 +256,33 @@ const CreateShipment = ({ history, location }) => {
   );
 
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
-    ['contact', organization.organization_uuid],
-    () => getContactQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['contact', organizationUuid],
+    () => getContactQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
-    ['unit', organization.organization_uuid],
-    () => getUnitQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['unit', organizationUuid],
+    () => getUnitQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
-    ['items', organization.organization_uuid],
-    () => getItemQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['items', organizationUuid],
+    () => getItemQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
-    ['itemTypes', organization.organization_uuid],
-    () => getItemTypeQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['itemTypes', organizationUuid],
+    () => getItemTypeQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
-    ['gateways', organization.organization_uuid],
-    () => getGatewayQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['gateways', organizationUuid],
+    () => getGatewayQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: gatewayTypesData, isLoading: isLoadingGatewayTypes } = useQuery(
@@ -291,23 +294,20 @@ const CreateShipment = ({ history, location }) => {
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies'],
     () => getCustodyQuery(encodeURIComponent(editData.shipment_uuid), displayAlert),
-    {
-      enabled: !_.isEmpty(editData),
-      refetchOnWindowFocus: false,
-    },
+    { enabled: !_.isEmpty(editData), refetchOnWindowFocus: false },
   );
 
   const { mutate: deleteCustodyMutation, isLoading: isDeletingCustody } = useDeleteCustodyMutation(displayAlert);
 
-  const { mutate: addShipmentTemplateMutation, isLoading: isAddingShipmentTemplate } = useAddShipmentTemplateMutation(organization.organization_uuid, displayAlert);
+  const { mutate: addShipmentTemplateMutation, isLoading: isAddingShipmentTemplate } = useAddShipmentTemplateMutation(organizationUuid, displayAlert);
 
-  const { mutate: editShipmentTemplateMutation, isLoading: isEditingShipmentTemplate } = useEditShipmentTemplateMutation(organization.organization_uuid, displayAlert);
+  const { mutate: editShipmentTemplateMutation, isLoading: isEditingShipmentTemplate } = useEditShipmentTemplateMutation(organizationUuid, displayAlert);
 
-  const { mutate: deleteShipmentTemplateMutation, isLoading: isDeletingShipmentTemplate } = useDeleteShipmentTemplateMutation(organization.organization_uuid, displayAlert);
+  const { mutate: deleteShipmentTemplateMutation, isLoading: isDeletingShipmentTemplate } = useDeleteShipmentTemplateMutation(organizationUuid, displayAlert);
 
-  const { mutate: addShipmentMutation, isLoading: isAddingShipment } = useAddShipmentMutation(organization.organization_uuid, history, routes.SHIPMENT, displayAlert);
+  const { mutate: addShipmentMutation, isLoading: isAddingShipment } = useAddShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert);
 
-  const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organization.organization_uuid, history, routes.SHIPMENT, displayAlert);
+  const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert);
 
   useEffect(() => {
     if (!_.isEmpty(editData)) {
@@ -625,7 +625,7 @@ const CreateShipment = ({ history, location }) => {
         !supressShockAlerts.value ? 'shock' : '',
         !supressLightAlerts.value ? 'light' : '',
       ], ''),
-      organization_uuid: organization.organization_uuid,
+      organization_uuid: organizationUuid,
     };
     if (_.isEmpty(tmplt)) {
       addShipmentTemplateMutation(templateFormValue);
@@ -670,7 +670,7 @@ const CreateShipment = ({ history, location }) => {
         !supressShockAlerts.value ? 'shock' : '',
         !supressLightAlerts.value ? 'light' : '',
       ], ''),
-      organization_uuid: organization.organization_uuid,
+      organization_uuid: organizationUuid,
     };
 
     if (template && (
@@ -787,7 +787,7 @@ const CreateShipment = ({ history, location }) => {
       estimated_time_of_arrival: arrivalDateTime,
       estimated_time_of_departure: departureDateTime,
       items,
-      organization_uuid: organization.organization_uuid,
+      organization_uuid: organizationUuid,
       platform_name: gatewayType.value,
       max_excursion_temp: [
         { value: parseInt(max_excursion_temp.value, 10), set_at: setAt },
@@ -1347,7 +1347,17 @@ const CreateShipment = ({ history, location }) => {
                         {st.label}
                       </MenuItem>
                     ))}
-                  {!_.isEmpty(editData) && cannotEdit && isAdmin && _.map([...ADMIN_SHIPMENT_STATUS], (st, idx) => (
+                  {!_.isEmpty(editData) && _.isEqual(editData.status, 'Completed') && isAdmin && _.isEqual(editData.complete_on_platforms, true) && _.map([...COMPLETED_SHIPMENT_STATUS], (st, idx) => (
+                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      {st.label}
+                    </MenuItem>
+                  ))}
+                  {!_.isEmpty(editData) && _.isEqual(editData.status, 'Completed') && isAdmin && _.isEqual(editData.complete_on_platforms, false) && _.map([...INCOMPLETED_SHIPMENT_STATUS], (st, idx) => (
+                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      {st.label}
+                    </MenuItem>
+                  ))}
+                  {!_.isEmpty(editData) && cannotEdit && isAdmin && _.isEqual(editData.status, 'Completed') && _.map([...ADMIN_SHIPMENT_STATUS], (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
