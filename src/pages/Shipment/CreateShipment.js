@@ -65,7 +65,6 @@ import {
   USER_SHIPMENT_STATUS,
   TIVE_GATEWAY_TIMES,
   UOM_TEMPERATURE_CHOICES,
-  COMPLETED_SHIPMENT_STATUS,
   INCOMPLETED_SHIPMENT_STATUS,
 } from '@utils/mock';
 import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
@@ -1341,23 +1340,19 @@ const CreateShipment = ({ history, location }) => {
                       {st.label}
                     </MenuItem>
                   ))}
-                  {!_.isEmpty(editData) && ((cannotEdit && !isAdmin) || (!cannotEdit && isAdmin))
-                    && _.map([...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS], (st, idx) => (
-                      <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                        {st.label}
-                      </MenuItem>
-                    ))}
-                  {!_.isEmpty(editData) && _.isEqual(editData.status, 'Completed') && isAdmin && _.isEqual(editData.complete_on_platforms, true) && _.map([...COMPLETED_SHIPMENT_STATUS], (st, idx) => (
+                  {!_.isEmpty(editData) && ((cannotEdit && !isAdmin) || (!cannotEdit && isAdmin)) && _.map([...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS], (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
-                  {!_.isEmpty(editData) && _.isEqual(editData.status, 'Completed') && isAdmin && _.isEqual(editData.complete_on_platforms, false) && _.map([...INCOMPLETED_SHIPMENT_STATUS], (st, idx) => (
+                  {!_.isEmpty(editData) && cannotEdit && isAdmin && _.isEqual(editData.status, 'Completed') && !editData.complete_on_platforms
+                  && _.map(INCOMPLETED_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
-                  {!_.isEmpty(editData) && cannotEdit && isAdmin && _.isEqual(editData.status, 'Completed') && _.map([...ADMIN_SHIPMENT_STATUS], (st, idx) => (
+                  {!_.isEmpty(editData) && cannotEdit && isAdmin && _.isEqual(editData.status, 'Completed') && editData.complete_on_platforms
+                  && _.map(ADMIN_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
