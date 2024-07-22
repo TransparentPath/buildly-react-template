@@ -225,17 +225,17 @@ const Shipment = ({ history }) => {
     if (!_.isEmpty(filteredAlerts)) {
       const alerts = _.filter(filteredAlerts, (alert) => !alert.recovered_alert_id);
       const arrivedAlerts = _.filter(alerts, (alert) => {
-        const createDate = new Date(alert.create_date).getTime();
+        const createDate = moment(alert.create_date).unix();
         return (
-          createDate >= (new Date(shipment.actual_time_of_departure).getTime() || new Date(shipment.estimated_time_of_departure).getTime())
-          && createDate <= (new Date(shipment.actual_time_of_arrival).getTime() || new Date(shipment.estimated_time_of_arrival).getTime())
+          createDate >= (moment(shipment.actual_time_of_departure).unix() || moment(shipment.estimated_time_of_departure).unix())
+          && createDate <= (moment(shipment.actual_time_of_arrival).unix() || moment(shipment.estimated_time_of_arrival).unix())
         );
       });
       const activeAlerts = _.filter(alerts, (alert) => {
-        const createDate = new Date(alert.create_date).getTime();
+        const createDate = moment(alert.create_date).unix();
         return !(
-          createDate >= (new Date(shipment.actual_time_of_departure).getTime() || new Date(shipment.estimated_time_of_departure).getTime())
-          && createDate <= (new Date(shipment.actual_time_of_arrival).getTime() || new Date(shipment.estimated_time_of_arrival).getTime())
+          createDate >= (moment(shipment.actual_time_of_departure).unix() || moment(shipment.estimated_time_of_departure).unix())
+          && createDate <= (moment(shipment.actual_time_of_arrival).unix() || moment(shipment.estimated_time_of_arrival).unix())
         );
       });
       if (_.isEmpty(shipment.actual_time_of_arrival)) {

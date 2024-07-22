@@ -1248,13 +1248,13 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
   const getCellStyle = (tableMeta) => ({
     fontWeight: (
       _.some(
-        _.range(3, 8), (i) => _.isEqual(tableMeta.rowData[i], null)
+        _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
         ? '700' : '400'),
     fontStyle: (
       _.some(
-        _.range(3, 8), (i) => _.isEqual(tableMeta.rowData[i], null)
+        _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
         ? 'italic' : 'normal'),
@@ -1310,6 +1310,48 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
           style: { maxWidth: '300px', wordWrap: 'break-word' },
           className: 'reportingSensorLeftHeader',
         }),
+        customBodyRender: (value) => (
+          <div>
+            {!_.isEqual(value, null) && !_.isEqual(value, undefined) && !_.isEqual(value, 'Error retrieving address')
+              ? value : 'N/A'}
+          </div>
+        ),
+      },
+    },
+    {
+      name: 'lat',
+      label: 'Latitude',
+      options: {
+        sort: true,
+        sortThirdClickReset: true,
+        filter: true,
+        setCellProps: () => ({
+          style: { maxWidth: '300px', wordWrap: 'break-word' },
+          className: 'reportingSensorLeftHeader',
+        }),
+        customBodyRender: (value, tableMeta) => (
+          <div>
+            {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')}
+          </div>
+        ),
+      },
+    },
+    {
+      name: 'lng',
+      label: 'Longitude',
+      options: {
+        sort: true,
+        sortThirdClickReset: true,
+        filter: true,
+        setCellProps: () => ({
+          style: { maxWidth: '300px', wordWrap: 'break-word' },
+          className: 'reportingSensorLeftHeader',
+        }),
+        customBodyRender: (value, tableMeta) => (
+          <div>
+            {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')}
+          </div>
+        ),
       },
     },
     {
@@ -1499,24 +1541,35 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
     },
   },
   {
-    name: 'create_date',
+    name: 'location',
     label: 'Location',
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => {
-        let location = 'N/A';
-        if (value && value !== '-') {
-          const dt = moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`);
-          const report = _.find(sensorReport, { timestamp: dt });
-          if (report) {
-            location = report.location;
-          }
-        }
-
-        return location;
-      },
+      customBodyRender: (value) => <div>{value}</div>,
+      setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
+    },
+  },
+  {
+    name: 'latitude',
+    label: 'Latitude',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => <div>{value}</div>,
+      setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
+    },
+  },
+  {
+    name: 'longitude',
+    label: 'Longitude',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => <div>{value}</div>,
       setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
     },
   },

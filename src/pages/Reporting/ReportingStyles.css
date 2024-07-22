@@ -1,10 +1,26 @@
 /* Reporting Main Styles */
+.reportingDashboardContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .reportingDashboardHeading {
   font-weight: bold;
   margin-bottom: 0.5em;
 }
 
+.reportingDashboardButton {
+  height: 40px;
+}
+
+.reportingDashboardButtonIcon {
+  margin-top: 0;
+  margin-left: 5px;
+}
+
 .reportingContainer {
+  margin-top: 20px;
   margin-bottom: 24px;
 }
 
@@ -91,10 +107,14 @@
 }
 
 .reportingSensorTableTitle {
-  color: var(--color-palette-background-default);
   position: absolute;
+  color: var(--color-palette-background-default);
   left: 10px;
   bottom: 5px;
+}
+
+.reportingSensorTableExcelDownload {
+  order: 99;
 }
 
 /* Alert Component Styles */
@@ -118,4 +138,46 @@
   font-size: 18px;
   display: flex;
   align-items: center;
+}
+
+
+/* Reporting Detail Table Styles */
+.reportingDetailTableContainer {
+  margin-top: 20px;
+  border: 1px solid var(--color-palette-background-black);
+}
+
+.reportingDetailTableHeader {
+  color: var(--color-palette-background-default);
+}
+
+.reportingDetailTableHeader #itemText {
+  padding: 5px;
+  background-color: var(--color-palette-primary-dark) !important;
+}
+
+.reportingDetailTableHeader>* {
+  border: 1px solid var(--color-palette-background-black);
+}
+
+.reportingDetailTableContainer .reportingDetailTableBody:nth-child(even) #itemText {
+  background-color: var(--color-palette-background-light2);
+  padding: 5px;
+}
+
+.reportingDetailTableContainer .reportingDetailTableBody:nth-child(odd) #itemText {
+  background-color: var(--color-palette-background-light5);
+  padding: 5px;
+}
+
+.reportingDetailTableContainer .reportingDetailTableBody>* {
+  border: 1px solid var(--color-palette-background-black);
+}
+
+.reportingRedText {
+  color: var(--color-palette-error-main);
+}
+
+.reportingGreenText {
+  color: var(--color-palette-success-main);
 }

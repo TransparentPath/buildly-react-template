@@ -9,33 +9,32 @@ import {
   ListItem,
   Typography,
   TextField,
-  IconButton,
   MenuItem,
   ToggleButton,
   ToggleButtonGroup,
-  CardContent,
-  Card,
   useTheme,
+  Tooltip,
+  Button,
 } from '@mui/material';
-import {
-  ViewComfy as ViewComfyIcon,
-  ViewCompact as ViewCompactIcon,
-} from '@mui/icons-material';
+import { InfoOutlined as InfoIcon } from '@mui/icons-material';
 import GraphComponent from '@components/GraphComponent/GraphComponent';
 import Loader from '@components/Loader/Loader';
 import MapComponent from '@components/MapComponent/MapComponent';
 import { getUser } from '@context/User.context';
 import {
   getShipmentOverview,
-  SHIPMENT_OVERVIEW_COLUMNS,
   REPORT_TYPES,
   getIcon,
   processReportsAndMarkers,
 } from '@utils/constants';
+import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
+import ReportingDetailTable from './components/ReportingDetailTable';
 import AlertsReport from './components/AlertsReport';
 import SensorReport from './components/SensorReport';
 import { useQuery } from 'react-query';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
+import { getItemQuery } from '@react-query/queries/items/getItemQuery';
+import { getItemTypeQuery } from '@react-query/queries/items/getItemTypeQuery';
 import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQuery';
 import { getContactQuery } from '@react-query/queries/custodians/getContactQuery';
 import { getShipmentsQuery } from '@react-query/queries/shipments/getShipmentsQuery';
@@ -43,10 +42,12 @@ import { getAllGatewayQuery } from '@react-query/queries/sensorGateways/getAllGa
 import { getCustodyQuery } from '@react-query/queries/custodians/getCustodyQuery';
 import { getSensorReportQuery } from '@react-query/queries/sensorGateways/getSensorReportQuery';
 import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSensorAlertQuery';
+import { getSensorProcessedDataQuery } from '@react-query/queries/sensorGateways/getSensorProcessedDataQuery';
 import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ReportingStyles.css';
 import { isDesktop2 } from '@utils/mediaQuery';
+import GenerateReport from './components/GenerateReport';
 
 const Reporting = () => {
   const location = useLocation();
@@ -54,7 +55,6 @@ const Reporting = () => {
   const organization = getUser().organization.organization_uuid;
 
   const [locShipmentID, setLocShipmentID] = useState('');
-  const [tileView, setTileView] = useState(true);
   const [shipmentFilter, setShipmentFilter] = useState('Active');
   const [selectedGraph, setSelectedGraph] = useState('temperature');
   const [selectedShipment, setSelectedShipment] = useState(null);
@@ -64,6 +64,7 @@ const Reporting = () => {
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
   const [isLoading, setLoading] = useState(false);
+  const [showGenerateReport, setShowGenerateReport] = useState(false);
 
   const { displayAlert } = useAlert();
   const { data: timeZone } = useStore();
@@ -81,6 +82,18 @@ const Reporting = () => {
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
     () => getUnitQuery(organization, displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: itemData, isLoading: isLoadingItems } = useQuery(
+    ['items', organization],
+    () => getItemQuery(organization, displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
+    ['itemTypes', organization],
+    () => getItemTypeQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
@@ -125,6 +138,15 @@ const Reporting = () => {
     () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
     {
       enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(selectedShipment.partner_shipment_id),
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const { data: sensorProcessedData, isLoading: isLoadingSensorProcessedData } = useQuery(
+    ['processedSensorData', selectedShipment, shipmentFilter],
+    () => getSensorProcessedDataQuery(selectedShipment, displayAlert),
+    {
+      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable,
       refetchOnWindowFocus: false,
     },
   );
@@ -249,6 +271,8 @@ const Reporting = () => {
     <Box mt={5} mb={5}>
       {(isLoadingShipments
         || isLoadingUnits
+        || isLoadingItems
+        || isLoadingItemTypes
         || isLoadingCustodians
         || isLoadingContact
         || isLoadingAllGateways
@@ -259,10 +283,13 @@ const Reporting = () => {
         || isFetchingShipments
         || isFetchingAllGateways
         || isFetchingSensorAlerts
-        || isFetchingSensorReports)
+        || isFetchingSensorReports
+        || isLoadingSensorProcessedData)
         && (
           <Loader open={isLoadingShipments
             || isLoadingUnits
+            || isLoadingItems
+            || isLoadingItemTypes
             || isLoadingCustodians
             || isLoadingContact
             || isLoadingAllGateways
@@ -273,61 +300,29 @@ const Reporting = () => {
             || isFetchingShipments
             || isFetchingAllGateways
             || isFetchingSensorAlerts
-            || isFetchingSensorReports}
+            || isFetchingSensorReports
+            || isLoadingSensorProcessedData}
           />
         )}
-      <Typography className="reportingDashboardHeading" variant="h4">
-        Reporting
-      </Typography>
+      <Box className="reportingDashboardContainer">
+        <Typography className="reportingDashboardHeading" variant="h4">
+          Reporting
+        </Typography>
+        <Button
+          type="button"
+          variant="contained"
+          color="primary"
+          className="reportingDashboardButton"
+          onClick={() => setShowGenerateReport(true)}
+        >
+          Generate Report
+          <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
+            <InfoIcon fontSize="small" className="reportingDashboardButtonIcon" />
+          </Tooltip>
+        </Button>
+      </Box>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={tileView ? 6 : 12}>
-          <div className="reportingSwitchViewSection">
-            <Typography
-              className="reportingSectionTitleHeading"
-              variant="h5"
-            >
-              {selectedShipment
-                && selectedShipment.name
-                && `Map View - Shipment: ${selectedShipment.name}`}
-              {!selectedShipment && 'Map View'}
-            </Typography>
-            <IconButton
-              onClick={() => setTileView(!tileView)}
-              color="inherit"
-              aria-label="menu"
-              sx={{
-                display: {
-                  xs: 'none',
-                  md: 'block',
-                },
-                marginTop: 0.7,
-              }}
-            >
-              {!tileView
-                ? <ViewCompactIcon />
-                : <ViewComfyIcon />}
-            </IconButton>
-          </div>
-          <MapComponent
-            isMarkerShown={!_.isEmpty(markers)}
-            showPath
-            markers={markers}
-            googleMapURL={window.env.MAP_API_URL}
-            zoom={_.isEmpty(markers) ? 4 : 12}
-            setSelectedMarker={setSelectedMarker}
-            loadingElement={
-              <div style={{ height: '100%' }} />
-            }
-            containerElement={
-              <div style={{ height: '625px' }} />
-            }
-            mapElement={
-              <div style={{ height: '100%' }} />
-            }
-            unitOfMeasure={unitData}
-          />
-        </Grid>
-        <Grid item xs={12} md={tileView ? 6 : 12}>
+        <Grid item xs={12}>
           <div className="reportingSwitchViewSection">
             <ToggleButtonGroup
               color="secondary"
@@ -406,82 +401,53 @@ const Reporting = () => {
                   ),
                 )}
             </TextField>
-            <IconButton
-              onClick={() => setTileView(!tileView)}
-              color="default"
-              aria-label="menu"
-              sx={{
-                display: {
-                  xs: 'none',
-                  md: 'block',
-                },
-                marginTop: 0.75,
-              }}
+          </div>
+          {!_.isEmpty(shipmentFilter) && _.isEqual(shipmentFilter, 'Active')
+            ? (
+              <ReportingActiveShipmentDetails
+                selectedShipment={selectedShipment}
+                theme={theme}
+                getShipmentValue={getShipmentValue}
+              />
+            )
+            : (
+              <ReportingDetailTable
+                selectedShipment={selectedShipment}
+                allGatewayData={allGatewayData}
+                timeZone={timeZone}
+                sensorAlertData={sensorAlertData}
+                theme={theme}
+                unitOfMeasure={unitData}
+                sensorReportData={sensorReportData}
+                itemData={itemData}
+                itemTypesData={itemTypesData}
+                sensorProcessedData={sensorProcessedData}
+              />
+            )}
+        </Grid>
+        <Grid item xs={12}>
+          <div className="reportingSwitchViewSection">
+            <Typography
+              className="reportingSectionTitleHeading"
+              variant="h5"
             >
-              {!tileView
-                ? <ViewCompactIcon />
-                : <ViewComfyIcon />}
-            </IconButton>
+              {!_.isEmpty(selectedShipment) && selectedShipment.name
+                ? `Map View - Shipment: ${selectedShipment.name}`
+                : 'Map View'}
+            </Typography>
           </div>
-          <div className="reportingInfoContainer">
-            <Card>
-              <CardContent>
-                <Grid container>
-                  {selectedShipment
-                    ? (_.map(
-                      SHIPMENT_OVERVIEW_COLUMNS,
-                      (column, index) => (
-                        <Grid
-                          item
-                          className="reportingInfoSection"
-                          xs={12}
-                          sm={6}
-                          md={6}
-                          key={`col${index}:${column.name}`}
-                        >
-                          <Typography variant="h6">
-                            {column.label}
-                          </Typography>
-                          {column.name === 'custody_info' && selectedShipment[column.name]
-                            ? (
-                              <div
-                                key="custody_info_last"
-                                style={{
-                                  marginBottom: 10,
-                                  color: theme.palette.background.dark,
-                                }}
-                              >
-                                <Typography variant="body1">
-                                  {`Name: ${_.find(selectedShipment[column.name], { has_current_custody: true })
-                                    ? _.find(selectedShipment[column.name], { has_current_custody: true }).custodian_name
-                                    : 'N/A'}`}
-                                </Typography>
-                                <Typography variant="body1">
-                                  {`Custodian Address: ${selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })]
-                                    ? selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })].address
-                                    : 'N/A'}`}
-                                </Typography>
-                              </div>
-                            ) : (
-                              <Typography variant="body1">
-                                {getShipmentValue(column.name)}
-                              </Typography>
-                            )}
-                        </Grid>
-                      ),
-                    ))
-                    : (
-                      <Typography
-                        variant="h6"
-                        align="center"
-                      >
-                        Select a shipment to view reporting data
-                      </Typography>
-                    )}
-                </Grid>
-              </CardContent>
-            </Card>
-          </div>
+          <MapComponent
+            isMarkerShown={!_.isEmpty(markers)}
+            showPath
+            markers={markers}
+            googleMapURL={window.env.MAP_API_URL}
+            zoom={_.isEmpty(markers) ? 4 : 12}
+            setSelectedMarker={setSelectedMarker}
+            loadingElement={<div style={{ height: '100%' }} />}
+            containerElement={<div style={{ height: '625px' }} />}
+            mapElement={<div style={{ height: '100%' }} />}
+            unitOfMeasure={unitData}
+          />
         </Grid>
       </Grid>
       <Grid container className="reportingContainer" sx={{ marginTop: _.isEmpty(selectedShipment) ? 4 : -1 }}>
@@ -490,10 +456,9 @@ const Reporting = () => {
             className="reportingSectionTitleHeading"
             variant="h5"
           >
-            {selectedShipment
-              && selectedShipment.name
-              && `Graph View - Shipment: ${selectedShipment.name}`}
-            {!selectedShipment && 'Graph View'}
+            {!_.isEmpty(selectedShipment) && selectedShipment.name
+              ? `Graph View - Shipment: ${selectedShipment.name}`
+              : 'Graph View'}
           </Typography>
         </div>
         <Grid item xs={2} sm={1.1} md={1}>
@@ -522,12 +487,7 @@ const Reporting = () => {
                 data={allGraphs[selectedGraph]}
                 selectedGraph={selectedGraph}
                 unitOfMeasure={unitData}
-                minTemp={allGraphs.minTemp}
-                maxTemp={allGraphs.maxTemp}
-                minHumidity={allGraphs.minHumidity}
-                maxHumidity={allGraphs.maxHumidity}
-                shockThreshold={allGraphs.shockThreshold}
-                lightThreshold={allGraphs.lightThreshold}
+                selectedShipment={selectedShipment}
                 timeGap={selectedShipment.measurement_time || 5}
                 minColor={theme.palette.info.main}
                 maxColor={theme.palette.error.main}
@@ -553,6 +513,7 @@ const Reporting = () => {
         selectedShipment={selectedShipment}
         selectedMarker={selectedShipment && selectedMarker}
         unitOfMeasure={unitData}
+        timezone={timeZone}
       />
       <AlertsReport
         sensorReport={reports}
@@ -565,6 +526,7 @@ const Reporting = () => {
         unitOfMeasure={unitData}
         shouldScroll={!!locShipmentID}
       />
+      <GenerateReport open={showGenerateReport} setOpen={setShowGenerateReport} />
     </Box>
   );
 };
