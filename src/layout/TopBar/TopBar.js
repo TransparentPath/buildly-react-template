@@ -49,6 +49,9 @@ const TopBar = ({
   history,
 }) => {
   const user = getUser();
+  const isAdmin = checkForAdmin(user);
+  const isSuperAdmin = checkForGlobalAdmin(user);
+  const org_uuid = user.organization.organization_uuid;
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [settingEl, setSettingEl] = useState(null);
@@ -65,10 +68,6 @@ const TopBar = ({
   const [language, setLanguage] = useState(null);
   const [mainMenuOpen, setMainMenuOpen] = useState(false);
 
-  let isAdmin = false;
-  let isSuperAdmin = false;
-  let org_uuid = user.organization.organization_uuid;
-
   const { displayAlert } = useAlert();
   const { data, setTimezone } = useStore();
 
@@ -77,11 +76,12 @@ const TopBar = ({
       setOrganization(user.organization.name);
     }
     if (!language) {
-      setLanguage(user.user_language);
+      if (!_.isEmpty(user.user_language)) {
+        setLanguage(user.user_language);
+      } else {
+        setLanguage('English');
+      }
     }
-    isAdmin = checkForAdmin(user);
-    isSuperAdmin = checkForGlobalAdmin(user);
-    org_uuid = user.organization.organization_uuid;
   }
 
   useEffect(() => {
@@ -98,8 +98,6 @@ const TopBar = ({
     { refetchOnWindowFocus: false },
   );
 
-  const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert);
-
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', org_uuid],
     () => getUnitQuery(org_uuid, displayAlert),
@@ -112,6 +110,8 @@ const TopBar = ({
     { refetchOnWindowFocus: false },
   );
 
+  const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert);
+
   const setGoogleTrans = () => {
     // remove cookies
     document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
@@ -123,9 +123,9 @@ const TopBar = ({
 
       // set new googtrans cookies
       const googtransLng = document.cookie.split('googtrans')[1].split(';')[0].split('/')[2];
-      const lng = LANGUAGES.find((item) => item.value === googtransLng);
+      const lng = LANGUAGES.find((item) => _.isEqual(item.value, googtransLng));
       if (user && lng && !_.isEqual(user.user_language, lng.label)) {
-        const newLng = LANGUAGES.find((item) => item.label === user.user_language);
+        const newLng = LANGUAGES.find((item) => _.isEqual(item.label, user.user_language));
         document.cookie = `googtrans=/auto/${newLng.value}; Path=/; Domain=${window.location.hostname}`;
         // eslint-disable-next-line no-alert
         alert('Detected language change. So need to reload the website. It might take a little while for this.');
@@ -133,9 +133,9 @@ const TopBar = ({
       }
     } else if (user && user.user_language) {
       const isReloaded = sessionStorage.getItem('isReloaded');
-      const newLng = LANGUAGES.find((item) => item.label === user.user_language);
+      const newLng = LANGUAGES.find((item) => _.isEqual(item.label, user.user_language));
       document.cookie = `googtrans=/auto/${newLng.value}; Path=/; Domain=${window.location.hostname}`;
-      if (!isReloaded && user.user_language !== 'English') {
+      if (!isReloaded && !_.isEqual(user.user_language, 'English')) {
         sessionStorage.setItem('isReloaded', 'true');
         // eslint-disable-next-line no-alert
         alert('Detected language change. So need to reload the website. It might take a little while for this.');
@@ -152,7 +152,7 @@ const TopBar = ({
 
   const filterAndSetDisplayOrgs = (orgs) => {
     if (orgs) {
-      const producerOrgs = orgs.filter((org) => org.organization_type === 2);
+      const producerOrgs = orgs.filter((org) => _.isEqual(org.organization_type, 2));
       const resellerOrgs = orgs.filter((org) => org.is_reseller);
       const resellerCustomerOrgIds = resellerOrgs.flatMap((org) => org.reseller_customer_orgs || []);
       const customerOrgs = orgs.filter((org) => resellerCustomerOrgIds.includes(org.id));
@@ -176,10 +176,12 @@ const TopBar = ({
 
   const handleOrganizationChange = (e) => {
     const organization_name = e.target ? e.target.value : e;
-    if (organization !== organization_name) {
+    if (!_.isEqual(organization, organization_name)) {
       setOrganization(organization_name);
       const adminOrgs = JSON.parse(localStorage.getItem('adminOrgs'));
-      const { organization_uuid } = isSuperAdmin ? _.filter(orgData, (org) => org.name === organization_name)[0] : _.filter(adminOrgs, (org) => org.name === organization_name)[0];
+      const { organization_uuid } = isSuperAdmin
+        ? _.filter(orgData, (org) => _.isEqual(org.name, organization_name))[0]
+        : _.filter(adminOrgs, (org) => _.isEqual(org.name, organization_name))[0];
       const updateData = {
         id: user.id,
         organization_uuid,
@@ -193,7 +195,7 @@ const TopBar = ({
 
   const handleLanguageChange = (e) => {
     const selected_language = e.target.value;
-    if (language !== selected_language) {
+    if (!_.isEqual(language, selected_language)) {
       setLanguage(selected_language);
       const updateData = {
         id: user.id,
@@ -339,7 +341,7 @@ const TopBar = ({
               {!_.isEmpty(displayOrgs) && displayOrgs.map((org) => (
                 <MenuItem className="notranslate" key={org.id} value={org.name} style={{ display: org.organization_type !== 2 && 'none' }}>
                   {org.name}
-                  {org.reseller_customer_orgs && (
+                  {org.is_reseller && !_.isEmpty(org.reseller_customer_orgs) && (
                     <IconButton
                       onClick={(event) => handleSubmenuClick(event, org)}
                       className="topBarOrgSelectInput"
