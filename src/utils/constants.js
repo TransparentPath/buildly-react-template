@@ -85,6 +85,41 @@ export const getColumns = (timezone, dateFormat, timeFormat) => ([
   },
 ]);
 
+export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
+  {
+    name: 'name',
+    label: 'Name',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
+    },
+  },
+  {
+    name: 'create_date',
+    label: 'Created At',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+    },
+  },
+  {
+    name: 'edit_date',
+    label: 'Last Edited At',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+    },
+  },
+]);
+
 export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   {
     name: 'name',
@@ -173,6 +208,9 @@ export const getMappingOrg = (allOrgs) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
       customBodyRender: (value) => {
         let returnValue = '-';
         if (value) {
@@ -235,6 +273,9 @@ export const custodianColumns = [
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -434,6 +475,9 @@ export const itemColumns = (currUnit) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1592,6 +1636,9 @@ export const gatewayColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1738,6 +1785,9 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {

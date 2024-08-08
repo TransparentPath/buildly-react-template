@@ -117,9 +117,12 @@ const AlertsReport = ({
             className="reportingAlertTitle"
             variant="h5"
           >
-            {shipmentName
-              ? `Alerts Report - Shipment: ${shipmentName}`
-              : 'Alerts Report'}
+            {shipmentName ? (
+              <>
+                <span>Alerts Report - Shipment: </span>
+                <span className="notranslate">{shipmentName}</span>
+              </>
+            ) : 'Alerts Report'}
           </Typography>
         </div>
         <DataTableWrapper

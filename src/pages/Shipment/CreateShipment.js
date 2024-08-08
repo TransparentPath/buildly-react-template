@@ -1318,12 +1318,15 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 2 : 0}>
                 <TextField
+                  className="notranslate"
                   variant="outlined"
                   id="status"
                   select
                   fullWidth
                   placeholder="Select..."
-                  label="Shipment Status"
+                  label={(
+                    <Typography className="translate">Shipment Status</Typography>
+                  )}
                   onBlur={(e) => handleBlur(e, 'required', status, 'status')}
                   InputLabelProps={{ shrink: true }}
                   SelectProps={{ displayEmpty: true }}
@@ -1332,23 +1335,23 @@ const CreateShipment = ({ history, location }) => {
                 >
                   <MenuItem value="">Select</MenuItem>
                   {_.isEmpty(editData) && _.map(CREATE_SHIPMENT_STATUS, (st, idx) => (
-                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                    <MenuItem className="notranslate" key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
                   {!_.isEmpty(editData) && !cannotEdit && !isAdmin && _.map(USER_SHIPMENT_STATUS, (st, idx) => (
-                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                    <MenuItem className="notranslate" key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
                   {!_.isEmpty(editData) && ((cannotEdit && !isAdmin) || (!cannotEdit && isAdmin))
                     && _.map([...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS], (st, idx) => (
-                      <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      <MenuItem className="notranslate" key={`${idx}-${st.label}`} value={st.value}>
                         {st.label}
                       </MenuItem>
                     ))}
                   {!_.isEmpty(editData) && cannotEdit && isAdmin && _.map([...ADMIN_SHIPMENT_STATUS], (st, idx) => (
-                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                    <MenuItem className="notranslate" key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
@@ -1383,7 +1386,7 @@ const CreateShipment = ({ history, location }) => {
                     ))
                   )}
                   renderOption={(props, option, { selected }) => (
-                    <li {...props}>
+                    <li {...props} className="notranslate">
                       <Checkbox
                         icon={uncheckedIcon}
                         checkedIcon={checkedIcon}
@@ -1396,8 +1399,11 @@ const CreateShipment = ({ history, location }) => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
+                      className="notranslate"
                       variant="outlined"
-                      label="Items to be shipped"
+                      label={(
+                        <Typography className="translate">Items to be shipped</Typography>
+                      )}
                       placeholder="Select..."
                     />
                   )}
@@ -1935,11 +1941,14 @@ const CreateShipment = ({ history, location }) => {
             <Grid container spacing={isDesktop ? 4 : 0}>
               <Grid item xs={5} sm={5.5}>
                 <TextField
+                  className="notranslate"
                   id="gateway-type"
                   select
                   fullWidth
                   placeholder="Select..."
-                  label="Tracker platform"
+                  label={(
+                    <Typography className="translate">Tracker platform</Typography>
+                  )}
                   onBlur={(e) => handleBlur(e, 'required', gatewayType, 'gateway-type')}
                   disabled={
                     (!_.isEmpty(editData)
@@ -1953,7 +1962,7 @@ const CreateShipment = ({ history, location }) => {
                 >
                   <MenuItem value="">Select</MenuItem>
                   {!_.isEmpty(gatewayTypesData) && _.map(gatewayTypesData, (gtype) => (
-                    <MenuItem key={gtype.id} value={gtype.name}>
+                    <MenuItem className="notranslate" key={gtype.id} value={gtype.name}>
                       {_.upperFirst(gtype.name)}
                     </MenuItem>
                   ))}

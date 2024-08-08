@@ -39,9 +39,13 @@ const ReportingActiveShipmentDetails = ({ selectedShipment, theme, getShipmentVa
                         }}
                       >
                         <Typography variant="body1">
-                          {`Name: ${_.find(selectedShipment[column.name], { has_current_custody: true })
-                            ? _.find(selectedShipment[column.name], { has_current_custody: true }).custodian_name
-                            : 'N/A'}`}
+                          Name:
+                          {' '}
+                          <span className={_.find(selectedShipment[column.name], { has_current_custody: true }) && 'notranslate'}>
+                            {`${_.find(selectedShipment[column.name], { has_current_custody: true })
+                              ? _.find(selectedShipment[column.name], { has_current_custody: true }).custodian_name
+                              : 'N/A'}`}
+                          </span>
                         </Typography>
                         <Typography variant="body1">
                           {`Custodian Address: ${selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })]
@@ -50,7 +54,7 @@ const ReportingActiveShipmentDetails = ({ selectedShipment, theme, getShipmentVa
                         </Typography>
                       </div>
                     ) : (
-                      <Typography variant="body1">
+                      <Typography variant="body1" className={(column.name === 'name' || column.name === 'status' || column.name === 'custodian_name') && 'notranslate'}>
                         {getShipmentValue(column.name)}
                       </Typography>
                     )}

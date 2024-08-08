@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import { Grid, Typography } from '@mui/material';
@@ -8,18 +8,20 @@ import { getIcon, tempUnit } from '@utils/constants';
 import { dateDifference, formatDate } from '@utils/utilMethods';
 import { isMobile } from '@utils/mediaQuery';
 
-const ReportingDetailTable = ({
-  selectedShipment,
-  allGatewayData,
-  timeZone,
-  sensorAlertData,
-  theme,
-  unitOfMeasure,
-  sensorReportData,
-  itemData,
-  itemTypesData,
-  sensorProcessedData,
-}) => {
+const ReportingDetailTable = forwardRef((props, ref) => {
+  const {
+    selectedShipment,
+    allGatewayData,
+    timeZone,
+    sensorAlertData,
+    theme,
+    unitOfMeasure,
+    sensorReportData,
+    itemData,
+    itemTypesData,
+    sensorProcessedData,
+  } = props;
+
   const [trackerActivationDate, setTrackerActivationDate] = useState();
   const [updatedTransitAlerts, setUpdatedTransitAlerts] = useState([]);
   const [updatedStorageAlerts, setUpdatedStorageAlerts] = useState([]);
@@ -228,22 +230,22 @@ const ReportingDetailTable = ({
     );
   };
 
-  const displayItemText = (title, value, spanClass) => (
+  const displayItemText = (title, value, spanClass, translateClass) => (
     <Typography fontWeight={700}>
       {`${title}: `}
-      {value && <span style={{ fontWeight: spanClass ? 500 : 400 }} className={spanClass && spanClass}>{value}</span>}
+      {value && <span style={{ fontWeight: spanClass ? 500 : 400 }} className={`${spanClass && spanClass} ${translateClass && translateClass}`}>{value}</span>}
     </Typography>
   );
 
   return (
-    <div>
+    <div ref={ref}>
       {!_.isEmpty(selectedShipment)
         ? (
           <>
             <Grid container className="reportingDetailTableContainer">
               <Grid container className="reportingDetailTableHeader">
                 <Grid item xs={6} sm={4} md={3} id="itemText">
-                  {displayItemText('Shipment Name', selectedShipment.name)}
+                  {displayItemText('Shipment Name', selectedShipment.name, null, 'notranslate')}
                 </Grid>
                 {!isMobileDevice && <Grid item sm={4} md={6} />}
                 <Grid item xs={6} sm={4} md={3} id="itemText">
@@ -253,7 +255,7 @@ const ReportingDetailTable = ({
               </Grid>
               <Grid container className="reportingDetailTableBody">
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Shipment Status', selectedShipment.status)}
+                  {displayItemText('Shipment Status', selectedShipment.status, null, 'notranslate')}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
                   {displayItemText('Pre-Transit Alerts', 'None')}
@@ -431,7 +433,7 @@ const ReportingDetailTable = ({
                       }
                       return (
                         <Grid item xs={6} md={3} id="itemText">
-                          {displayItemText(`Intermediate Custodian ${index + 1} (${custodianRole})`, custodian_name)}
+                          {displayItemText(`Intermediate Custodian ${index + 1} (${custodianRole})`, custodian_name, null, 'notranslate')}
                         </Grid>
                       );
                     })}
@@ -456,7 +458,7 @@ const ReportingDetailTable = ({
                   _.map(items, (item) => (
                     <Grid container className="reportingDetailTableBody">
                       <Grid item xs={6} md={3} id="itemText">
-                        {displayItemText('Item Name', item.name)}
+                        {displayItemText('Item Name', item.name, null, 'notranslate')}
                       </Grid>
                       <Grid item xs={6} md={3} id="itemText">
                         {displayItemText('# of Units', item.number_of_units)}
@@ -485,6 +487,6 @@ const ReportingDetailTable = ({
         )}
     </div>
   );
-};
+});
 
 export default ReportingDetailTable;

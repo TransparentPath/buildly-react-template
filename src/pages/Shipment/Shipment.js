@@ -892,14 +892,14 @@ const Shipment = ({ history }) => {
                                   Items:
                                 </Typography>
                                 {_.map(_.split(ship.itemNames, ','), (item, idx) => (
-                                  <Typography key={`${item}-${idx}`}>{item}</Typography>
+                                  <Typography className="notranslate" key={`${item}-${idx}`}>{item}</Typography>
                                 ))}
                               </Grid>
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
                                   Status:
                                 </Typography>
-                                <Typography>
+                                <Typography className="notranslate">
                                   {ship.type}
                                 </Typography>
                               </Grid>
@@ -912,7 +912,7 @@ const Shipment = ({ history }) => {
                                   <Typography fontWeight={700}>
                                     {`Logistics company ${idx + 1}:`}
                                   </Typography>
-                                  <Typography>
+                                  <Typography className="notranslate">
                                     {carr}
                                   </Typography>
                                 </Grid>
@@ -921,7 +921,7 @@ const Shipment = ({ history }) => {
                                 <Typography fontWeight={700}>
                                   Receiver:
                                 </Typography>
-                                <Typography>
+                                <Typography className="notranslate">
                                   {ship.destination}
                                 </Typography>
                               </Grid>

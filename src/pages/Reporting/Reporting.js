@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-plusplus */
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import _ from 'lodash';
+import _, { isArray } from 'lodash';
 import moment from 'moment-timezone';
 import {
   Box,
@@ -26,6 +29,7 @@ import {
   REPORT_TYPES,
   getIcon,
   processReportsAndMarkers,
+  SENSOR_REPORT_COLUMNS,
 } from '@utils/constants';
 import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
 import ReportingDetailTable from './components/ReportingDetailTable';
@@ -43,11 +47,15 @@ import { getCustodyQuery } from '@react-query/queries/custodians/getCustodyQuery
 import { getSensorReportQuery } from '@react-query/queries/sensorGateways/getSensorReportQuery';
 import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSensorAlertQuery';
 import { getSensorProcessedDataQuery } from '@react-query/queries/sensorGateways/getSensorProcessedDataQuery';
+import { useReportPDFDownloadMutation } from '@react-query/mutations/notifications/reportPDFDownloadMutation';
 import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ReportingStyles.css';
 import { isDesktop2 } from '@utils/mediaQuery';
 import GenerateReport from './components/GenerateReport';
+import { getTimezone } from '@utils/utilMethods';
+import ExcelJS from 'exceljs';
+import ReportGraph from './components/ReportGraph';
 
 const Reporting = () => {
   const location = useLocation();
@@ -64,7 +72,14 @@ const Reporting = () => {
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
   const [isLoading, setLoading] = useState(false);
+  const [isGenerateReportLoading, setGenerateReportLoading] = useState(false);
   const [showGenerateReport, setShowGenerateReport] = useState(false);
+  const reportingDetailTableRef = useRef();
+  const tempGraphRef = useRef();
+  const humGraphRef = useRef();
+  const shockGraphRef = useRef();
+  const lightGraphRef = useRef();
+  const batteryGraphRef = useRef();
 
   const { displayAlert } = useAlert();
   const { data: timeZone } = useStore();
@@ -150,6 +165,8 @@ const Reporting = () => {
       refetchOnWindowFocus: false,
     },
   );
+
+  const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading } = useReportPDFDownloadMutation(displayAlert);
 
   useEffect(() => {
     if (location.search) {
@@ -267,6 +284,345 @@ const Reporting = () => {
     setMarkers([]);
   };
 
+  const downloadCSV = () => {
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment);
+    const data = _.orderBy(
+      reports,
+      (item) => moment(item.timestamp),
+      ['desc'],
+    );
+    const escapeCSV = (text) => `"${text}"`;
+    const csvHeader = columns.map((col) => {
+      if (col.label === 'Date Time') {
+        return escapeCSV(`${col.label} (${getTimezone(new Date(), timeZone)})`);
+      }
+      return escapeCSV(col.label);
+    }).join(',');
+    const csvBody = data.map((row) => columns.map((col, colIndex) => {
+      let cell = row[col.name];
+      if (!row.location || row.location === 'Error retrieving address') {
+        row.location = 'N/A';
+      }
+      if (_.isEqual(cell, null) || _.isEqual(cell, undefined)) {
+        cell = '';
+      }
+      if (Array.isArray(cell) && cell[0] && cell[0].title) {
+        const titles = cell.map((item) => item.title).join(', ');
+        return escapeCSV(titles);
+      }
+      return escapeCSV(cell);
+    }).join(',')).join('\n');
+
+    const csvData = `${csvHeader}\n${csvBody}`;
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'SensorReportData.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sensor Report Data');
+
+    const borderStyle = {
+      top: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
+      left: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
+      bottom: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
+      right: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
+    };
+
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment);
+    const rows = _.orderBy(
+      reports,
+      (item) => moment(item.timestamp),
+      ['desc'],
+    );
+
+    let maxTempExcursionsCount = 0;
+    let maxHumExcursionsCount = 0;
+    let maxShockExcursionsCount = 0;
+    let maxLightExcursionsCount = 0;
+    let minTempExcursionsCount = 0;
+    let minHumExcursionsCount = 0;
+    let minShockExcursionsCount = 0;
+    let minLightExcursionsCount = 0;
+
+    const descriptionRow = worksheet.addRow([
+      'Color Key',
+      'Tracker ID',
+      'Shipment Name',
+      'Temp. Excursions',
+      'Hum. Excursions',
+      'Shock Excursions',
+      'Light Excursions',
+    ]);
+
+    const descriptionRow1 = worksheet.addRow([
+      'Red, Blue indicate Excursions',
+      selectedShipment.tracker,
+      selectedShipment.name,
+      '',
+      '',
+      '',
+      '',
+    ]);
+
+    const descriptionRow2 = worksheet.addRow([
+      'Green indicates Recovery',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+    ]);
+
+    const descriptionRow3 = worksheet.addRow([
+      'Grey indicates Transit',
+    ]);
+
+    worksheet.addRow([]);
+
+    const headerRow = worksheet.addRow(columns.map((col) => {
+      if (col.label === 'Date Time') {
+        return `Date Time (${getTimezone(new Date(), timeZone)})`;
+      }
+      return col.label;
+    }));
+
+    descriptionRow.eachCell((cell) => {
+      cell.font = {
+        color: { argb: theme.palette.background.black2.replace('#', '') },
+        bold: true,
+      };
+    });
+
+    descriptionRow1.getCell(1).value = {
+      richText: [
+        { text: 'Red', font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+        { text: ', ', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        { text: 'Blue', font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
+        { text: ' indicate Excursions', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+      ],
+    };
+
+    descriptionRow2.getCell(1).value = {
+      richText: [
+        { text: 'Green', font: { color: { argb: theme.palette.success.main.replace('#', '') } } },
+        { text: ' indicates Recovery', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+      ],
+    };
+
+    descriptionRow3.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: theme.palette.background.light6.replace('#', '') },
+      };
+    });
+
+    headerRow.eachCell((cell, colNumber) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: theme.palette.warning.dark.replace('#', '') },
+      };
+      cell.font = {
+        color: { argb: theme.palette.background.black2.replace('#', '') },
+        bold: true,
+      };
+      if ([6, 7, 8, 9, 10, 11, 12, 13].includes(colNumber)) {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      }
+    });
+
+    const dateTimeColIndex = columns.findIndex((col) => col.label === 'Date Time') + 1;
+    const departureTime = moment(selectedShipment.actual_time_of_departure).unix();
+    const arrivalTime = moment(selectedShipment.actual_time_of_arrival).unix();
+
+    rows.forEach((row, rowIndex) => {
+      const dataRow = columns.map((col) => {
+        let cellValue = row[col.name];
+        if (col.name === 'location') {
+          if (!cellValue || cellValue === 'Error retrieving address') {
+            cellValue = 'N/A';
+          }
+        }
+        if (col.name === 'allAlerts' && Array.isArray(cellValue)) {
+          cellValue = cellValue.map((item) => item.title).join(', ');
+        }
+        return cellValue;
+      });
+
+      const rowRef = worksheet.addRow(dataRow);
+      rowRef.eachCell((cell, colNumber) => {
+        if (columns[colNumber - 1].name === 'allAlerts' && Array.isArray(row.allAlerts)) {
+          const alerts = row.allAlerts;
+          const richText = [];
+          alerts.forEach((alert) => {
+            richText.push({ text: alert.title, font: { color: { argb: _.includes(alert.color, 'green') ? theme.palette.success.main.replace('#', '') : alert.color.replace('#', '') } } });
+            richText.push({ text: ', ' });
+          });
+          richText.pop();
+          cell.value = { richText };
+        }
+        if (typeof cell.value === 'number') {
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        }
+      });
+
+      if (Array.isArray(row.allAlerts)) {
+        row.allAlerts.forEach((alert) => {
+          const alertTitle = alert.title.toLowerCase();
+          let colName;
+          let fillColor;
+          if (alertTitle.includes('maximum temperature excursion')) {
+            colName = 'temperature';
+            fillColor = theme.palette.error.light.replace('#', '');
+            maxTempExcursionsCount++;
+          } else if (alertTitle.includes('maximum humidity excursion')) {
+            colName = 'humidity';
+            fillColor = theme.palette.error.light.replace('#', '');
+            maxHumExcursionsCount++;
+          } else if (alertTitle.includes('maximum shock excursion')) {
+            colName = 'shock';
+            fillColor = theme.palette.error.light.replace('#', '');
+            maxShockExcursionsCount++;
+          } else if (alertTitle.includes('maximum light excursion')) {
+            colName = 'light';
+            fillColor = theme.palette.error.light.replace('#', '');
+            maxLightExcursionsCount++;
+          } else if (alertTitle.includes('minimum temperature excursion')) {
+            colName = 'temperature';
+            fillColor = theme.palette.info.light.replace('#', '');
+            minTempExcursionsCount++;
+          } else if (alertTitle.includes('minimum humidity excursion')) {
+            colName = 'humidity';
+            fillColor = theme.palette.info.light.replace('#', '');
+            minHumExcursionsCount++;
+          } else if (alertTitle.includes('minimum shock excursion')) {
+            colName = 'shock';
+            fillColor = theme.palette.info.light.replace('#', '');
+            minShockExcursionsCount++;
+          } else if (alertTitle.includes('minimum light excursion')) {
+            colName = 'light';
+            fillColor = theme.palette.info.light.replace('#', '');
+            minLightExcursionsCount++;
+          }
+          if (colName) {
+            const colIndex = columns.findIndex((col) => col.name === colName);
+            if (colIndex !== -1) {
+              const cell = worksheet.getCell(rowIndex + 7, colIndex + 1);
+              if (cell.value) {
+                cell.fill = {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  fgColor: { argb: fillColor },
+                };
+              }
+            }
+          }
+        });
+      }
+
+      const dateValue = moment(row[columns[dateTimeColIndex - 1].name]).unix();
+      if (dateValue > departureTime && dateValue < arrivalTime) {
+        rowRef.eachCell((cell) => {
+          if (!cell.fill) {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: theme.palette.background.light6.replace('#', '') },
+            };
+          }
+        });
+      }
+    });
+
+    descriptionRow1.getCell(4).value = {
+      richText: [
+        { text: maxTempExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+      ],
+    };
+    descriptionRow1.getCell(5).value = {
+      richText: [
+        { text: maxHumExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+      ],
+    };
+    descriptionRow1.getCell(6).value = {
+      richText: [
+        { text: maxShockExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+      ],
+    };
+    descriptionRow1.getCell(7).value = {
+      richText: [
+        { text: maxLightExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+      ],
+    };
+    descriptionRow2.getCell(4).value = {
+      richText: [
+        { text: minTempExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
+      ],
+    };
+    descriptionRow2.getCell(5).value = {
+      richText: [
+        { text: minHumExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
+      ],
+    };
+    descriptionRow2.getCell(6).value = {
+      richText: [
+        { text: minShockExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
+      ],
+    };
+    descriptionRow2.getCell(7).value = {
+      richText: [
+        { text: minLightExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
+      ],
+    };
+
+    [4, 5, 6, 7].forEach((colIndex) => {
+      descriptionRow.getCell(colIndex).alignment = { vertical: 'middle', horizontal: 'center' };
+      descriptionRow1.getCell(colIndex).alignment = { vertical: 'middle', horizontal: 'center' };
+      descriptionRow2.getCell(colIndex).alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    const totalRows = rows.length + 6;
+    const totalCols = columns.length;
+    for (let rowIndex = 1; rowIndex <= totalRows; rowIndex++) {
+      for (let colIndex = 1; colIndex <= totalCols; colIndex++) {
+        const cell = worksheet.getCell(rowIndex, colIndex);
+        if (!cell.border) {
+          cell.border = borderStyle;
+        }
+      }
+    }
+
+    worksheet.columns.forEach((column, index) => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, (cell) => {
+        const cellValue = cell.value
+          ? cell.value.richText
+            ? cell.value.richText.map((obj) => obj.text).join('')
+            : cell.value.toString()
+          : '';
+        maxLength = Math.max(maxLength, cellValue.length);
+      });
+      column.width = maxLength + 2;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'SensorReportData.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Box mt={5} mb={5}>
       {(isLoadingShipments
@@ -308,18 +664,21 @@ const Reporting = () => {
         <Typography className="reportingDashboardHeading" variant="h4">
           Reporting
         </Typography>
-        <Button
-          type="button"
-          variant="contained"
-          color="primary"
-          className="reportingDashboardButton"
-          onClick={() => setShowGenerateReport(true)}
-        >
-          Generate Report
-          <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
-            <InfoIcon fontSize="small" className="reportingDashboardButtonIcon" />
-          </Tooltip>
-        </Button>
+        {!_.isEmpty(shipmentFilter) && !_.isEqual(shipmentFilter, 'Active') && (
+          <Button
+            type="button"
+            variant="contained"
+            color="primary"
+            className="reportingDashboardButton"
+            onClick={() => setShowGenerateReport(true)}
+            disabled={isGenerateReportLoading || isReportPDFDownloading}
+          >
+            Generate Report
+            <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
+              <InfoIcon fontSize="small" className="reportingDashboardButtonIcon" />
+            </Tooltip>
+          </Button>
+        )}
       </Box>
       <Grid container spacing={2}>
         <Grid item xs={12}>
@@ -372,8 +731,10 @@ const Reporting = () => {
               id="shipment-name"
               select
               required
-              className="reportingSelectInput"
-              label="Shipment Name"
+              className="reportingSelectInput notranslate"
+              label={(
+                <span className="translate">Shipment Name</span>
+              )}
               value={
                 selectedShipment
                   ? selectedShipment.id
@@ -395,6 +756,7 @@ const Reporting = () => {
                     <MenuItem
                       key={index}
                       value={shipment.id}
+                      className="notranslate"
                     >
                       {shipment.name}
                     </MenuItem>
@@ -412,6 +774,7 @@ const Reporting = () => {
             )
             : (
               <ReportingDetailTable
+                ref={reportingDetailTableRef}
                 selectedShipment={selectedShipment}
                 allGatewayData={allGatewayData}
                 timeZone={timeZone}
@@ -431,9 +794,12 @@ const Reporting = () => {
               className="reportingSectionTitleHeading"
               variant="h5"
             >
-              {!_.isEmpty(selectedShipment) && selectedShipment.name
-                ? `Map View - Shipment: ${selectedShipment.name}`
-                : 'Map View'}
+              {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
+                <>
+                  <span>Map View - Shipment: </span>
+                  <span className="notranslate">{selectedShipment.name}</span>
+                </>
+              ) : 'Map View'}
             </Typography>
           </div>
           <MapComponent
@@ -456,9 +822,12 @@ const Reporting = () => {
             className="reportingSectionTitleHeading"
             variant="h5"
           >
-            {!_.isEmpty(selectedShipment) && selectedShipment.name
-              ? `Graph View - Shipment: ${selectedShipment.name}`
-              : 'Graph View'}
+            {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
+              <>
+                <span>Graph View - Shipment: </span>
+                <span className="notranslate">{selectedShipment.name}</span>
+              </>
+            ) : 'Graph View'}
           </Typography>
         </div>
         <Grid item xs={2} sm={1.1} md={1}>
@@ -487,8 +856,13 @@ const Reporting = () => {
                 data={allGraphs[selectedGraph]}
                 selectedGraph={selectedGraph}
                 unitOfMeasure={unitData}
-                selectedShipment={selectedShipment}
-                timeGap={selectedShipment.measurement_time || 5}
+                minTemp={allGraphs.minTemp}
+                maxTemp={allGraphs.maxTemp}
+                minHumidity={allGraphs.minHumidity}
+                maxHumidity={allGraphs.maxHumidity}
+                shockThreshold={allGraphs.shockThreshold}
+                lightThreshold={allGraphs.lightThreshold}
+                timeGap={!_.isEmpty(selectedShipment) ? selectedShipment.measurement_time : 5}
                 minColor={theme.palette.info.main}
                 maxColor={theme.palette.error.main}
               />
@@ -514,6 +888,8 @@ const Reporting = () => {
         selectedMarker={selectedShipment && selectedMarker}
         unitOfMeasure={unitData}
         timezone={timeZone}
+        downloadCSV={downloadCSV}
+        downloadExcel={downloadExcel}
       />
       <AlertsReport
         sensorReport={reports}
@@ -526,7 +902,67 @@ const Reporting = () => {
         unitOfMeasure={unitData}
         shouldScroll={!!locShipmentID}
       />
-      <GenerateReport open={showGenerateReport} setOpen={setShowGenerateReport} />
+      <ReportGraph
+        ref={tempGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="temperature"
+        data={allGraphs}
+        hidden={!showGenerateReport}
+      />
+      <ReportGraph
+        ref={humGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="humidity"
+        data={allGraphs}
+        hidden={!showGenerateReport}
+      />
+      <ReportGraph
+        ref={shockGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="shock"
+        data={allGraphs}
+        hidden={!showGenerateReport}
+      />
+      <ReportGraph
+        ref={lightGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="light"
+        data={allGraphs}
+        hidden={!showGenerateReport}
+      />
+      <ReportGraph
+        ref={batteryGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="battery"
+        data={allGraphs}
+        hidden={!showGenerateReport}
+      />
+      <GenerateReport
+        open={showGenerateReport}
+        setOpen={setShowGenerateReport}
+        tableRef={reportingDetailTableRef}
+        tempGraphRef={tempGraphRef}
+        humGraphRef={humGraphRef}
+        shockGraphRef={shockGraphRef}
+        lightGraphRef={lightGraphRef}
+        batteryGraphRef={batteryGraphRef}
+        isGenerateReportLoading={isGenerateReportLoading}
+        setGenerateReportLoading={setGenerateReportLoading}
+        downloadCSV={downloadCSV}
+        downloadExcel={downloadExcel}
+        reportPDFDownloadMutation={reportPDFDownloadMutation}
+        selectedShipment={selectedShipment}
+      />
     </Box>
   );
 };

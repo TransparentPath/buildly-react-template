@@ -156,7 +156,8 @@ const TopBar = ({
       const resellerOrgs = orgs.filter((org) => org.is_reseller);
       const resellerCustomerOrgIds = resellerOrgs.flatMap((org) => org.reseller_customer_orgs || []);
       const customerOrgs = orgs.filter((org) => resellerCustomerOrgIds.includes(org.id));
-      setDisplayOrgs([...producerOrgs, ...customerOrgs]);
+      const filteredProducerOrgs = producerOrgs.filter((producerOrg) => !customerOrgs.some((customerOrg) => _.lowerCase(customerOrg.name) === _.lowerCase(producerOrg.name)));
+      setDisplayOrgs([...filteredProducerOrgs, ...customerOrgs]);
     }
   };
 
@@ -336,7 +337,7 @@ const TopBar = ({
               onClick={(e) => setMainMenuOpen(!mainMenuOpen)}
             >
               {!_.isEmpty(displayOrgs) && displayOrgs.map((org) => (
-                <MenuItem className="notranslate" key={org.id} value={org.name} style={{ display: org.organization_type === 1 && 'none' }}>
+                <MenuItem className="notranslate" key={org.id} value={org.name} style={{ display: org.organization_type !== 2 && 'none' }}>
                   {org.name}
                   {org.reseller_customer_orgs && (
                     <IconButton
@@ -411,6 +412,7 @@ const TopBar = ({
             isSuperAdmin
               ? orgData.filter((org) => submenuOrg.reseller_customer_orgs.includes(org.organization_uuid)).map((org) => (
                 <MenuItem
+                  className="notranslate"
                   key={org.organization_uuid}
                   onClick={() => handleOrganizationChange(org.name)}
                 >
