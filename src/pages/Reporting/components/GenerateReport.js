@@ -70,15 +70,22 @@ const GenerateReport = ({
     });
   };
 
-  async function captureScreenshot(ref) {
+  async function captureScreenshot(ref, width, height) {
     try {
       if (ref.current) {
-        const canvas = await html2canvas(ref.current, {
-          width: 100,
-          height: 100,
-          scale: 1,
-        });
-        return canvas.toDataURL();
+        const canvas = await html2canvas(ref.current);
+        const resizedCanvas = document.createElement('canvas');
+        const context = resizedCanvas.getContext('2d');
+        resizedCanvas.width = width;
+        resizedCanvas.height = height;
+        resizedCanvas.style.width = `${width}px`;
+        resizedCanvas.style.height = `${height}px`;
+        context.drawImage(
+          canvas,
+          0, 0, canvas.width, canvas.height,
+          0, 0, width, height,
+        );
+        return resizedCanvas.toDataURL();
       }
     } catch (error) {
       console.error('Error capturing screenshot:', error);
@@ -89,6 +96,7 @@ const GenerateReport = ({
   const handleSubmit = async (event) => {
     event.preventDefault();
     setGenerateReportLoading(true);
+    let base64DataArray = [];
     if (_.isEqual(selectedFormats.csv, true)) {
       setOpen(false);
       downloadCSV();
@@ -98,28 +106,20 @@ const GenerateReport = ({
       downloadExcel();
     }
     if (_.isEqual(selectedFormats.pdf, true)) {
-      const base64DataArray = [];
       try {
-        const canvas1 = await html2canvas(tableRef.current);
-        const canvas2 = await html2canvas(tempGraphRef.current);
-        const canvas3 = await html2canvas(humGraphRef.current);
-        const canvas4 = await html2canvas(shockGraphRef.current);
-        const canvas5 = await html2canvas(lightGraphRef.current);
-        const canvas6 = await html2canvas(batteryGraphRef.current);
+        const dataUrl1 = await captureScreenshot(tableRef, 535, 535);
+        const dataUrl2 = await captureScreenshot(tempGraphRef, 535, 260);
+        const dataUrl3 = await captureScreenshot(humGraphRef, 535, 260);
+        const dataUrl4 = await captureScreenshot(shockGraphRef, 535, 260);
+        const dataUrl5 = await captureScreenshot(lightGraphRef, 535, 260);
+        const dataUrl6 = await captureScreenshot(batteryGraphRef, 535, 260);
         setOpen(false);
-        const dataUrl1 = await canvas1.toDataURL();
         if (dataUrl1) base64DataArray.push(dataUrl1);
-        const dataUrl2 = await canvas2.toDataURL();
         if (dataUrl2) base64DataArray.push(dataUrl2);
-        const dataUrl3 = await canvas3.toDataURL();
         if (dataUrl3) base64DataArray.push(dataUrl3);
-        const dataUrl4 = await canvas4.toDataURL();
         if (dataUrl4) base64DataArray.push(dataUrl4);
-        const dataUrl5 = await canvas5.toDataURL();
         if (dataUrl5) base64DataArray.push(dataUrl5);
-        const dataUrl6 = await canvas6.toDataURL();
         if (dataUrl6) base64DataArray.push(dataUrl6);
-        console.log(base64DataArray);
       } catch (error) {
         setOpen(false);
         console.log(error);
@@ -131,6 +131,7 @@ const GenerateReport = ({
       };
       reportPDFDownloadMutation(apiData);
     }
+    base64DataArray = [];
     setSelectedFormats({
       csv: false,
       excel: false,

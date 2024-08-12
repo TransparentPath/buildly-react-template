@@ -161,7 +161,7 @@ const Reporting = () => {
     ['processedSensorData', selectedShipment, shipmentFilter],
     () => getSensorProcessedDataQuery(selectedShipment, displayAlert),
     {
-      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable,
+      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEqual(shipmentFilter, 'Active'),
       refetchOnWindowFocus: false,
     },
   );

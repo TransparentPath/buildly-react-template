@@ -293,7 +293,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               </Grid>
               <Grid container className="reportingDetailTableBody">
                 <Grid item xs={6} sm={4} md={3} id="itemText">
-                  {displayItemText('Shipment Origin Custodian', originCustodianName)}
+                  {displayItemText('Shipment Origin Custodian', originCustodianName, null, 'notranslate')}
                 </Grid>
                 {!isMobileDevice && <Grid item sm={4} md={6} />}
                 <Grid item xs={6} sm={4} md={3} id="itemText" fontWeight="700">
@@ -302,7 +302,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               </Grid>
               <Grid container className="reportingDetailTableBody">
                 <Grid item xs={6} sm={4} md={3} id="itemText">
-                  {displayItemText('Shipment Destination Custodian', destinationCustodianName)}
+                  {displayItemText('Shipment Destination Custodian', destinationCustodianName, null, 'notranslate')}
                 </Grid>
                 {!isMobileDevice && <Grid item sm={4} md={6} />}
                 <Grid item xs={6} sm={4} md={3} id="itemText" fontWeight="700">
