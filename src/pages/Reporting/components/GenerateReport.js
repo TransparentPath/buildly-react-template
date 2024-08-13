@@ -21,7 +21,6 @@ import { getUser } from '@context/User.context';
 import { getIcon, REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
-// import html2canvas from 'html2canvas';
 import { toJpeg } from 'html-to-image';
 
 const GenerateReport = ({
