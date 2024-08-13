@@ -1812,6 +1812,9 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1836,6 +1839,9 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1867,6 +1873,9 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
       customBodyRender: (value) => (
         <Typography sx={{ whiteSpace: 'break-spaces', maxWidth: '400px' }}>
           {value}
@@ -2164,19 +2173,34 @@ export const userColumns = () => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
 ]);
 
 export const getGroupsFormattedRow = (groups, orgs) => {
-  const formattedData = _.map(groups, (g) => ({
-    ...g,
-    display_permission_name: _.isEqual(g.id, 1)
+  const formattedData = _.map(groups, (g) => {
+    const organizationName = _.find(orgs, { organization_uuid: g.organization })
+      ? _.find(orgs, { organization_uuid: g.organization }).name
+      : '';
+
+    const displayPermissionName = _.isEqual(g.id, 1)
       ? g.name
-      : `${g.name} - ${_.find(orgs, { organization_uuid: g.organization })
-        ? _.find(orgs, { organization_uuid: g.organization }).name
-        : ''}`,
-  }));
+      : (
+        <span>
+          {g.name}
+          {' - '}
+          <span className="notranslate">{organizationName}</span>
+        </span>
+      );
+
+    return {
+      ...g,
+      display_permission_name: displayPermissionName,
+    };
+  });
 
   return _.orderBy(formattedData, 'display_permission_name', 'asc');
 };

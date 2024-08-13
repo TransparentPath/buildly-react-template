@@ -157,7 +157,7 @@ const TopBar = ({
       const resellerCustomerOrgIds = resellerOrgs.flatMap((org) => org.reseller_customer_orgs || []);
       const customerOrgs = orgs.filter((org) => resellerCustomerOrgIds.includes(org.id));
       const filteredProducerOrgs = producerOrgs.filter((producerOrg) => !customerOrgs.some((customerOrg) => _.lowerCase(customerOrg.name) === _.lowerCase(producerOrg.name)));
-      setDisplayOrgs([...filteredProducerOrgs, ...customerOrgs]);
+      setDisplayOrgs(filteredProducerOrgs);
     }
   };
 
@@ -339,7 +339,7 @@ const TopBar = ({
               onClick={(e) => setMainMenuOpen(!mainMenuOpen)}
             >
               {!_.isEmpty(displayOrgs) && displayOrgs.map((org) => (
-                <MenuItem className="notranslate" key={org.id} value={org.name} style={{ display: org.organization_type !== 2 && 'none' }}>
+                <MenuItem className="notranslate" key={org.id} value={org.name}>
                   {org.name}
                   {org.is_reseller && !_.isEmpty(org.reseller_customer_orgs) && (
                     <IconButton
@@ -423,6 +423,7 @@ const TopBar = ({
               ))
               : !_.isEmpty(JSON.parse(localStorage.getItem('adminOrgs'))) && JSON.parse(localStorage.getItem('adminOrgs')).filter((org) => submenuOrg.reseller_customer_orgs.includes(org.organization_uuid)).map((org) => (
                 <MenuItem
+                  className="notranslate"
                   key={org.organization_uuid}
                   onClick={() => handleOrganizationChange(org.name)}
                 >

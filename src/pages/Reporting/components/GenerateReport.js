@@ -2,8 +2,6 @@
 /* eslint-disable no-console */
 import React, { useState, useRef } from 'react';
 import _ from 'lodash';
-import FormModal from '@components/Modal/FormModal';
-import GraphComponent from '@components/GraphComponent/GraphComponent';
 import {
   Button,
   Checkbox,
@@ -16,10 +14,15 @@ import {
   Typography,
 } from '@mui/material';
 import '../ReportingStyles.css';
+import Loader from '@components/Loader/Loader';
+import FormModal from '@components/Modal/FormModal';
+import GraphComponent from '@components/GraphComponent/GraphComponent';
+import { getUser } from '@context/User.context';
 import { getIcon, REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
+import { toJpeg } from 'html-to-image';
 
 const GenerateReport = ({
   open,
@@ -37,7 +40,9 @@ const GenerateReport = ({
   reportPDFDownloadMutation,
   selectedShipment,
 }) => {
+  const user = getUser();
   const [openConfirmModal, setConfirmModal] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [selectedFormats, setSelectedFormats] = useState({
     csv: false,
     excel: false,
@@ -73,19 +78,17 @@ const GenerateReport = ({
   async function captureScreenshot(ref, width, height) {
     try {
       if (ref.current) {
-        const canvas = await html2canvas(ref.current);
-        const resizedCanvas = document.createElement('canvas');
-        const context = resizedCanvas.getContext('2d');
-        resizedCanvas.width = width;
-        resizedCanvas.height = height;
-        resizedCanvas.style.width = `${width}px`;
-        resizedCanvas.style.height = `${height}px`;
-        context.drawImage(
-          canvas,
-          0, 0, canvas.width, canvas.height,
-          0, 0, width, height,
-        );
-        return resizedCanvas.toDataURL();
+        const dataUrl = await toJpeg(ref.current, {
+          quality: 1,
+          width,
+          height,
+          style: {
+            transform: 'scale(0.5)',
+            transformOrigin: 'top left',
+          },
+          backgroundColor: '#fff',
+        });
+        return dataUrl;
       }
     } catch (error) {
       console.error('Error capturing screenshot:', error);
@@ -96,7 +99,7 @@ const GenerateReport = ({
   const handleSubmit = async (event) => {
     event.preventDefault();
     setGenerateReportLoading(true);
-    let base64DataArray = [];
+    setLoading(true);
     if (_.isEqual(selectedFormats.csv, true)) {
       setOpen(false);
       downloadCSV();
@@ -106,14 +109,16 @@ const GenerateReport = ({
       downloadExcel();
     }
     if (_.isEqual(selectedFormats.pdf, true)) {
+      const base64DataArray = [];
       try {
-        const dataUrl1 = await captureScreenshot(tableRef, 535, 535);
-        const dataUrl2 = await captureScreenshot(tempGraphRef, 535, 260);
-        const dataUrl3 = await captureScreenshot(humGraphRef, 535, 260);
-        const dataUrl4 = await captureScreenshot(shockGraphRef, 535, 260);
-        const dataUrl5 = await captureScreenshot(lightGraphRef, 535, 260);
-        const dataUrl6 = await captureScreenshot(batteryGraphRef, 535, 260);
+        const dataUrl1 = await captureScreenshot(tableRef, 535, 900);
+        const dataUrl2 = await captureScreenshot(tempGraphRef, 535, 500);
+        const dataUrl3 = await captureScreenshot(humGraphRef, 535, 500);
+        const dataUrl4 = await captureScreenshot(shockGraphRef, 535, 500);
+        const dataUrl5 = await captureScreenshot(lightGraphRef, 535, 500);
+        const dataUrl6 = await captureScreenshot(batteryGraphRef, 535, 500);
         setOpen(false);
+        setLoading(false);
         if (dataUrl1) base64DataArray.push(dataUrl1);
         if (dataUrl2) base64DataArray.push(dataUrl2);
         if (dataUrl3) base64DataArray.push(dataUrl3);
@@ -126,12 +131,11 @@ const GenerateReport = ({
       }
       const apiData = {
         shipment_name: selectedShipment.name,
-        user_email: 'tanmay@buildly.io',
+        user_email: user.email,
         images_data: base64DataArray,
       };
       reportPDFDownloadMutation(apiData);
     }
-    base64DataArray = [];
     setSelectedFormats({
       csv: false,
       excel: false,
@@ -150,6 +154,7 @@ const GenerateReport = ({
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
       >
+        {isLoading && <Loader open={isLoading} />}
         <form
           className="generateReportFormContainer"
           noValidate
