@@ -21,12 +21,13 @@ import { getUser } from '@context/User.context';
 import { getIcon, REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
-import { toJpeg } from 'html-to-image';
+import { toJpeg, toPng } from 'html-to-image';
 
 const GenerateReport = ({
   open,
   setOpen,
   tableRef,
+  mapRef,
   tempGraphRef,
   humGraphRef,
   shockGraphRef,
@@ -77,14 +78,8 @@ const GenerateReport = ({
   async function captureScreenshot(ref, width, height) {
     try {
       if (ref.current) {
-        const dataUrl = await toJpeg(ref.current, {
+        const dataUrl = await toPng(ref.current, {
           quality: 1,
-          width,
-          height,
-          style: {
-            transform: 'scale(0.5)',
-            transformOrigin: 'top left',
-          },
           backgroundColor: '#fff',
         });
         return dataUrl;
@@ -110,12 +105,13 @@ const GenerateReport = ({
     if (_.isEqual(selectedFormats.pdf, true)) {
       const base64DataArray = [];
       try {
-        const dataUrl1 = await captureScreenshot(tableRef, 535, 900);
-        const dataUrl2 = await captureScreenshot(tempGraphRef, 535, 500);
-        const dataUrl3 = await captureScreenshot(humGraphRef, 535, 500);
-        const dataUrl4 = await captureScreenshot(shockGraphRef, 535, 500);
-        const dataUrl5 = await captureScreenshot(lightGraphRef, 535, 500);
-        const dataUrl6 = await captureScreenshot(batteryGraphRef, 535, 500);
+        const dataUrl1 = await captureScreenshot(tableRef);
+        const dataUrl2 = await captureScreenshot(mapRef);
+        const dataUrl3 = await captureScreenshot(tempGraphRef);
+        const dataUrl4 = await captureScreenshot(humGraphRef);
+        const dataUrl5 = await captureScreenshot(shockGraphRef);
+        const dataUrl6 = await captureScreenshot(lightGraphRef);
+        const dataUrl7 = await captureScreenshot(batteryGraphRef);
         setOpen(false);
         setLoading(false);
         if (dataUrl1) base64DataArray.push(dataUrl1);
@@ -124,6 +120,7 @@ const GenerateReport = ({
         if (dataUrl4) base64DataArray.push(dataUrl4);
         if (dataUrl5) base64DataArray.push(dataUrl5);
         if (dataUrl6) base64DataArray.push(dataUrl6);
+        if (dataUrl7) base64DataArray.push(dataUrl7);
       } catch (error) {
         setOpen(false);
         console.log(error);

@@ -75,6 +75,7 @@ const Reporting = () => {
   const [isGenerateReportLoading, setGenerateReportLoading] = useState(false);
   const [showGenerateReport, setShowGenerateReport] = useState(false);
   const reportingDetailTableRef = useRef();
+  const mapRef = useRef();
   const tempGraphRef = useRef();
   const humGraphRef = useRef();
   const shockGraphRef = useRef();
@@ -788,7 +789,7 @@ const Reporting = () => {
               />
             )}
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} ref={mapRef}>
           <div className="reportingSwitchViewSection">
             <Typography
               className="reportingSectionTitleHeading"
@@ -951,6 +952,7 @@ const Reporting = () => {
         open={showGenerateReport}
         setOpen={setShowGenerateReport}
         tableRef={reportingDetailTableRef}
+        mapRef={mapRef}
         tempGraphRef={tempGraphRef}
         humGraphRef={humGraphRef}
         shockGraphRef={shockGraphRef}
