@@ -1854,7 +1854,14 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       customBodyRender: (value) => (
         !_.isEmpty(value)
           ? (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                width: 50,
+                flexWrap: 'wrap',
+              }}
+            >
               {_.map(value, (item, idx) => (
                 <div key={`icon-${idx}-${item.id}`}>
                   {getIcon(item)}
