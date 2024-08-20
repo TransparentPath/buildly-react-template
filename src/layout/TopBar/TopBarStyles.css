@@ -59,10 +59,6 @@
   border: 1px solid var(--color-palette-background-light2);
 }
 
-.topBarOrganizationHidden {
-  display: none;
-}
-
 @media screen and (max-width: 600px) {
   .topbarAppBar {
     height: 56px;
