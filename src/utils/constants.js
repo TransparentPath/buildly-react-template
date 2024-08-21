@@ -610,63 +610,89 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
 ];
 
 export const getIcon = (item) => {
-  const { id, color, title } = item;
+  const {
+    id, color, title, count,
+  } = item;
   switch (id) {
     case 'temperature':
     case 'probe':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <TempIcon style={{ fill: color }} />
-        </Tooltip>
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <TempIcon style={{ fill: color }} />
+          </Tooltip>
+          {!_.isEmpty(count) ? `(${count})` : ''}
+        </>
       );
 
     case 'light':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <LightIcon style={{ fill: color }} />
-        </Tooltip>
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <LightIcon style={{ fill: color }} />
+          </Tooltip>
+          {!_.isEmpty(count) ? `(${count})` : ''}
+        </>
       );
 
     case 'shock':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <ShockIcon style={{ fill: color }} />
-        </Tooltip>
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <ShockIcon style={{ fill: color }} />
+          </Tooltip>
+          {!_.isEmpty(count) ? `(${count})` : ''}
+        </>
       );
 
     case 'tilt':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <TiltIcon fill={color} />
-        </Tooltip>
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <TiltIcon fill={color} />
+          </Tooltip>
+          {!_.isEmpty(count) ? `(${count})` : ''}
+        </>
       );
 
     case 'humidity':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <HumidIcon style={{ fill: color }} />
-        </Tooltip>
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <HumidIcon style={{ fill: color }} />
+          </Tooltip>
+          {!_.isEmpty(count) ? `(${count})` : ''}
+        </>
       );
 
     case 'battery':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <BatteryIcon style={{ fill: color }} />
-        </Tooltip>
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <BatteryIcon style={{ fill: color }} />
+          </Tooltip>
+          {!_.isEmpty(count) ? `(${count})` : ''}
+        </>
       );
 
     case 'pressure':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <PressureIcon fill={color} />
-        </Tooltip>
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <PressureIcon fill={color} />
+          </Tooltip>
+          {!_.isEmpty(count) ? `(${count})` : ''}
+        </>
       );
 
     case 'time':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <AccessTimeIcon style={{ fill: color }} />
-        </Tooltip>
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <AccessTimeIcon style={{ fill: color }} />
+          </Tooltip>
+          {!_.isEmpty(count) ? `(${count})` : ''}
+        </>
       );
 
     default:

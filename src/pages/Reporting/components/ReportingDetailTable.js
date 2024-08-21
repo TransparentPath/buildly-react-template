@@ -96,9 +96,11 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
         }
         const alertObj = { id: alert.parameter_type, color, title };
-        setUpdatedTransitAlerts([...updatedTransitAlerts, alertObj]);
-        const objFound = !!(_.find(processedTransitAlerts, alertObj));
-        if (!objFound) {
+        const objFound = _.find(processedTransitAlerts, (obj) => obj.title === alertObj.title);
+        if (!_.isEmpty(objFound)) {
+          objFound.count += 1;
+        } else {
+          alertObj.count = 1;
           processedTransitAlerts = [...processedTransitAlerts, alertObj];
         }
       });
@@ -114,9 +116,13 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
         }
         const alertObj = { id: alert.parameter_type, color, title };
-        setUpdatedStorageAlerts([...updatedStorageAlerts, alertObj]);
-        const objFound = !!(_.find(processedStorageAlerts, alertObj));
-        if (!objFound) {
+        const objFound = _.find(processedStorageAlerts, (obj) => obj.title === alertObj.title);
+        if (!_.isEmpty(objFound)) {
+          objFound.count += 1;
+          _.remove(processedStorageAlerts, (obj) => obj.title === objFound.title);
+          processedStorageAlerts = [...processedStorageAlerts, objFound];
+        } else {
+          alertObj.count = 1;
           processedStorageAlerts = [...processedStorageAlerts, alertObj];
         }
       });
@@ -249,7 +255,15 @@ const ReportingDetailTable = forwardRef((props, ref) => {
                 </Grid>
                 {!isMobileDevice && <Grid item sm={4} md={6} />}
                 <Grid item xs={6} sm={4} md={3} id="itemText">
-                  {displayItemText('Tracker ID', selectedShipment.tracker)}
+                  <Typography fontWeight={700}>
+                    Tracker ID:
+                    {' '}
+                    <span style={{ fontWeight: 400 }}>{selectedShipment.tracker}</span>
+                    {' T: '}
+                    <span style={{ fontWeight: 400 }}>{`${selectedShipment.transmission_time} Min.`}</span>
+                    {' M: '}
+                    <span style={{ fontWeight: 400 }}>{`${selectedShipment.measurement_time} Min.`}</span>
+                  </Typography>
                   {displayItemText('Activated', trackerActivationDate)}
                 </Grid>
               </Grid>
@@ -258,37 +272,37 @@ const ReportingDetailTable = forwardRef((props, ref) => {
                   {displayItemText('Shipment Status', selectedShipment.status, null, 'notranslate')}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Pre-Transit Alerts', 'None')}
+                  {displayItemText('Pre-Transit Excursions', 'None')}
                 </Grid>
-                <Grid item xs={6} md={3} display="flex" flexWrap="wrap" id="itemText">
+                <Grid item xs={6} md={3} display="flex" flexWrap="wrap" alignItems="center" id="itemText">
                   <Typography fontWeight={700} marginRight={1}>
-                    Transit Alerts:
+                    Transit Excursions:
                   </Typography>
-                  <span style={{ fontWeight: 400 }}>
+                  <div style={{ fontWeight: 400 }}>
                     {!_.isEmpty(updatedTransitAlerts)
                       ? _.map(updatedTransitAlerts, (item, idx) => (
-                        <span key={`icon-${idx}-${item.id}`}>
+                        <div key={`icon-${idx}-${item.id}`}>
                           {getIcon(item)}
-                          {' '}
-                        </span>
+                          {_.isEqual(idx, _.size(updatedTransitAlerts) - 1) ? ' ' : ', '}
+                        </div>
                       ))
                       : 'None'}
-                  </span>
+                  </div>
                 </Grid>
-                <Grid item xs={6} md={3} display="flex" flexWrap="wrap" id="itemText">
+                <Grid item xs={6} md={3} display="flex" flexWrap="wrap" alignItems="center" id="itemText">
                   <Typography fontWeight={700} marginRight={1}>
-                    Post-Transit/Storage Alerts:
+                    Post-Transit/Storage Excursions:
                   </Typography>
-                  <span style={{ fontWeight: 400 }}>
+                  <div style={{ fontWeight: 400 }}>
                     {!_.isEmpty(updatedStorageAlerts)
                       ? _.map(updatedStorageAlerts, (item, idx) => (
-                        <span key={`icon-${idx}-${item.id}`}>
+                        <div key={`icon-${idx}-${item.id}`}>
                           {getIcon(item)}
-                          {' '}
-                        </span>
+                          {_.isEqual(idx, _.size(updatedStorageAlerts) - 1) ? ' ' : ', '}
+                        </div>
                       ))
                       : 'None'}
-                  </span>
+                  </div>
                 </Grid>
               </Grid>
               <Grid container className="reportingDetailTableBody">
@@ -311,13 +325,13 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               </Grid>
               <Grid container className="reportingDetailTableBody">
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Departure Timestamp', `${formatDate(selectedShipment.actual_time_of_departure || selectedShipment.estimated_time_of_departure)} ${selectedShipment.actual_time_of_departure ? '(Actual)' : '(Estimated)'}`)}
+                  {displayItemText('Departure Timestamp', `${formatDate(selectedShipment.actual_time_of_departure || selectedShipment.estimated_time_of_departure, timeZone)} ${selectedShipment.actual_time_of_departure ? '(Actual)' : '(Estimated)'}`)}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Arrival/Last Location Timestamp', `${formatDate(selectedShipment.actual_time_of_arrival || selectedShipment.estimated_time_of_arrival)} ${selectedShipment.actual_time_of_arrival ? '(Actual)' : '(Estimated)'}`)}
+                  {displayItemText('Arrival/Last Location Timestamp', `${formatDate(selectedShipment.actual_time_of_arrival || selectedShipment.estimated_time_of_arrival, timeZone)} ${selectedShipment.actual_time_of_arrival ? '(Actual)' : '(Estimated)'}`)}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Shipment End Timestamp', formatDate(selectedShipment.edit_date))}
+                  {displayItemText('Shipment End Timestamp', formatDate(selectedShipment.edit_date, timeZone))}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
                   {displayItemText('Shipment Total Timestamp', dateDifference(selectedShipment.create_date, selectedShipment.edit_date))}

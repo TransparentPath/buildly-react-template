@@ -56,6 +56,7 @@ import GenerateReport from './components/GenerateReport';
 import { getTimezone } from '@utils/utilMethods';
 import ExcelJS from 'exceljs';
 import ReportGraph from './components/ReportGraph';
+import ReportMap from './components/ReportMap';
 
 const Reporting = () => {
   const location = useLocation();
@@ -789,7 +790,7 @@ const Reporting = () => {
               />
             )}
         </Grid>
-        <Grid item xs={12} ref={mapRef}>
+        <Grid item xs={12}>
           <div className="reportingSwitchViewSection">
             <Typography
               className="reportingSectionTitleHeading"
@@ -903,6 +904,14 @@ const Reporting = () => {
         unitOfMeasure={unitData}
         shouldScroll={!!locShipmentID}
       />
+      <ReportMap
+        ref={mapRef}
+        selectedShipment={selectedShipment}
+        markers={markers}
+        setSelectedMarker={setSelectedMarker}
+        unitOfMeasure={unitData}
+        hidden={!showGenerateReport}
+      />
       <ReportGraph
         ref={tempGraphRef}
         selectedShipment={selectedShipment}
@@ -948,7 +957,7 @@ const Reporting = () => {
         data={allGraphs}
         hidden={!showGenerateReport}
       />
-      <GenerateReport
+      {/* <GenerateReport
         open={showGenerateReport}
         setOpen={setShowGenerateReport}
         tableRef={reportingDetailTableRef}
@@ -964,7 +973,7 @@ const Reporting = () => {
         downloadExcel={downloadExcel}
         reportPDFDownloadMutation={reportPDFDownloadMutation}
         selectedShipment={selectedShipment}
-      />
+      /> */}
     </Box>
   );
 };

@@ -193,7 +193,7 @@ const GenerateReport = ({
                         name="pdf"
                       />
                     )}
-                    label="PDF report (sent via email)"
+                    label="PDF report (sent via email within 24 hours)"
                   />
                 </FormGroup>
               </FormControl>
