@@ -1,7 +1,7 @@
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 
-export const useReportPDFDownloadMutation = (displayAlert) => useMutation(
+export const useReportPDFDownloadMutation = (setGenerateReportLoading, displayAlert) => useMutation(
   async (reportPDFData) => {
     const response = await httpService.makePostRequestWithoutHeaders(
       'post',
@@ -12,7 +12,8 @@ export const useReportPDFDownloadMutation = (displayAlert) => useMutation(
   },
   {
     onSuccess: () => {
-      displayAlert('success', 'Report sent on email successfully');
+      displayAlert('success', 'You can now download the report');
+      setGenerateReportLoading(false);
     },
   },
   {

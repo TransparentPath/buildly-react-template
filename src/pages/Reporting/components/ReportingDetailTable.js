@@ -4,7 +4,7 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import { Grid, Typography } from '@mui/material';
 import '../ReportingStyles.css';
-import { getIcon, tempUnit } from '@utils/constants';
+import { getIconWithCount, tempUnit } from '@utils/constants';
 import { dateDifference, formatDate } from '@utils/utilMethods';
 import { isMobile } from '@utils/mediaQuery';
 
@@ -20,6 +20,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     itemData,
     itemTypesData,
     sensorProcessedData,
+    userLanguage,
   } = props;
 
   const [trackerActivationDate, setTrackerActivationDate] = useState();
@@ -269,40 +270,40 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               </Grid>
               <Grid container className="reportingDetailTableBody">
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Shipment Status', selectedShipment.status, null, 'notranslate')}
+                  {displayItemText('Shipment Status', selectedShipment.status, null, _.lowerCase(userLanguage) !== 'English' ? 'notranslate' : 'translate')}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
                   {displayItemText('Pre-Transit Excursions', 'None')}
                 </Grid>
-                <Grid item xs={6} md={3} display="flex" flexWrap="wrap" alignItems="center" id="itemText">
+                <Grid item xs={6} md={3} display="flex" flexWrap="wrap" id="itemText">
                   <Typography fontWeight={700} marginRight={1}>
                     Transit Excursions:
                   </Typography>
-                  <div style={{ fontWeight: 400 }}>
+                  <span style={{ fontWeight: 400, display: 'flex' }}>
                     {!_.isEmpty(updatedTransitAlerts)
                       ? _.map(updatedTransitAlerts, (item, idx) => (
-                        <div key={`icon-${idx}-${item.id}`}>
-                          {getIcon(item)}
+                        <span key={`icon-${idx}-${item.id}`} style={{ display: 'flex' }}>
+                          {getIconWithCount(item)}
                           {_.isEqual(idx, _.size(updatedTransitAlerts) - 1) ? ' ' : ', '}
-                        </div>
+                        </span>
                       ))
                       : 'None'}
-                  </div>
+                  </span>
                 </Grid>
-                <Grid item xs={6} md={3} display="flex" flexWrap="wrap" alignItems="center" id="itemText">
+                <Grid item xs={6} md={3} display="flex" flexWrap="wrap" id="itemText">
                   <Typography fontWeight={700} marginRight={1}>
                     Post-Transit/Storage Excursions:
                   </Typography>
-                  <div style={{ fontWeight: 400 }}>
+                  <span style={{ fontWeight: 400, display: 'flex' }}>
                     {!_.isEmpty(updatedStorageAlerts)
                       ? _.map(updatedStorageAlerts, (item, idx) => (
-                        <div key={`icon-${idx}-${item.id}`}>
-                          {getIcon(item)}
+                        <span key={`icon-${idx}-${item.id}`} style={{ display: 'flex' }}>
+                          {getIconWithCount(item)}
                           {_.isEqual(idx, _.size(updatedStorageAlerts) - 1) ? ' ' : ', '}
-                        </div>
+                        </span>
                       ))
                       : 'None'}
-                  </div>
+                  </span>
                 </Grid>
               </Grid>
               <Grid container className="reportingDetailTableBody">

@@ -46,6 +46,7 @@ const Shipment = ({ history }) => {
   const muiTheme = useTheme();
   const user = getUser();
   const organization = user.organization.organization_uuid;
+  const userLanguage = user.user_language;
 
   const { displayAlert } = useAlert();
   const { data } = useStore();
@@ -800,6 +801,7 @@ const Shipment = ({ history }) => {
                 _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
                   ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
                   : '',
+                userLanguage,
               ),
               {
                 name: 'battery_levels',
@@ -901,7 +903,7 @@ const Shipment = ({ history }) => {
                                 <Typography fontWeight={700}>
                                   Status:
                                 </Typography>
-                                <Typography className="notranslate">
+                                <Typography>
                                   {ship.type}
                                 </Typography>
                               </Grid>

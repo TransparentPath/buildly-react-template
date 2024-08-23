@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 import _ from 'lodash';
 import {
@@ -9,7 +10,9 @@ import {
 import { SHIPMENT_OVERVIEW_COLUMNS } from '@utils/constants';
 import '../ReportingStyles.css';
 
-const ReportingActiveShipmentDetails = ({ selectedShipment, theme, getShipmentValue }) => (
+const ReportingActiveShipmentDetails = ({
+  selectedShipment, theme, getShipmentValue, userLanguage,
+}) => (
   <div className="reportingInfoContainer">
     <Card>
       <CardContent>
@@ -54,7 +57,7 @@ const ReportingActiveShipmentDetails = ({ selectedShipment, theme, getShipmentVa
                         </Typography>
                       </div>
                     ) : (
-                      <Typography variant="body1" className={(column.name === 'name' || column.name === 'status' || column.name === 'custodian_name') && 'notranslate'}>
+                      <Typography variant="body1" className={column.className ? column.className : column.name === 'status' ? _.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate' : null}>
                         {getShipmentValue(column.name)}
                       </Typography>
                     )}
