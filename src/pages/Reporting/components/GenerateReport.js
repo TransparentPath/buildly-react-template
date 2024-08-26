@@ -3,6 +3,7 @@
 /* eslint-disable no-console */
 import React, { useState, useRef, useEffect } from 'react';
 import _ from 'lodash';
+import { toJpeg, toPng } from 'html-to-image';
 import {
   Button,
   Checkbox,
@@ -23,8 +24,6 @@ import { getUser } from '@context/User.context';
 import { getIcon, REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
-import { toJpeg, toPng } from 'html-to-image';
-import { useStore } from '@zustand/reportPdf/reportPdfStore';
 
 const GenerateReport = ({
   open,
@@ -36,17 +35,16 @@ const GenerateReport = ({
   shockGraphRef,
   lightGraphRef,
   batteryGraphRef,
-  isGenerateReportLoading,
-  setGenerateReportLoading,
   downloadCSV,
   downloadExcel,
   reportPDFDownloadMutation,
   selectedShipment,
-  reportPDFMutationData,
+  isReportPDFDownloading,
+  data,
+  setData,
 }) => {
   const user = getUser();
   const theme = useTheme();
-  const { data, setData } = useStore();
   const [openConfirmModal, setConfirmModal] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [selectedFormats, setSelectedFormats] = useState({
@@ -55,24 +53,6 @@ const GenerateReport = ({
     pdf: false,
   });
   const selectedReport = !_.isEmpty(selectedShipment) && !_.isEmpty(data) && _.find(data, (obj) => obj.shipment_name === selectedShipment.name);
-
-  useEffect(() => {
-    if (!_.isEmpty(reportPDFMutationData)) {
-      const tempData = {
-        shipment_name: selectedShipment.name,
-        pdfUrl: reportPDFMutationData.download_url,
-      };
-      const existingIndex = _.findIndex(data, { shipment_name: selectedShipment.name });
-      let updatedData;
-      if (existingIndex !== -1) {
-        updatedData = [...data];
-        updatedData[existingIndex] = tempData;
-      } else {
-        updatedData = [...data, tempData];
-      }
-      setData(updatedData);
-    }
-  }, [reportPDFMutationData]);
 
   const discardFormData = () => {
     setSelectedFormats({
@@ -118,7 +98,6 @@ const GenerateReport = ({
 
   const generatePdfReport = async (event) => {
     event.preventDefault();
-    setGenerateReportLoading(true);
     setLoading(true);
     const base64DataArray = [];
     try {
@@ -151,6 +130,7 @@ const GenerateReport = ({
       pdf: false,
     });
     setLoading(false);
+    setOpen(false);
   };
 
   const downloadFiles = async (event) => {
@@ -164,6 +144,7 @@ const GenerateReport = ({
     if (selectedFormats.pdf && selectedReport.pdfUrl) {
       const link = document.createElement('a');
       link.href = selectedReport.pdfUrl;
+      link.target = '_blank';
       link.download = `${selectedShipment.name}.pdf`;
       document.body.appendChild(link);
       link.click();
@@ -224,6 +205,7 @@ const GenerateReport = ({
                         checked={selectedFormats.pdf}
                         onChange={handleFormatChange}
                         name="pdf"
+                        disabled={(_.isEmpty(selectedReport) || (!_.isEmpty(selectedReport) && !selectedReport.pdfUrl))}
                       />
                     )}
                     label={!_.isEmpty(selectedReport) ? 'PDF File' : 'PDF report (generate may take several minutes)'}
@@ -240,7 +222,7 @@ const GenerateReport = ({
                 variant="contained"
                 color="primary"
                 className="generateReportButton"
-                disabled={isGenerateReportLoading ? true : !selectedFormats.pdf ? true : !_.isEmpty(selectedReport)}
+                disabled={isReportPDFDownloading || (!_.isEmpty(selectedReport) && selectedReport.pdfUrl)}
                 onClick={generatePdfReport}
               >
                 Generate PDF Report
@@ -255,7 +237,7 @@ const GenerateReport = ({
                 className="generateReportButton"
                 onClick={downloadFiles}
                 disabled={
-                  !(selectedFormats.csv || selectedFormats.excel || (selectedFormats.pdf && !_.isEmpty(selectedReport)))
+                  !(selectedFormats.csv || selectedFormats.excel || selectedFormats.pdf)
                 }
               >
                 Download

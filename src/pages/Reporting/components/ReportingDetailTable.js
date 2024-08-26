@@ -3,10 +3,11 @@ import React, { useState, useEffect, forwardRef } from 'react';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import { Grid, Typography } from '@mui/material';
-import '../ReportingStyles.css';
+import { getUser } from '@context/User.context';
 import { getIconWithCount, tempUnit } from '@utils/constants';
 import { dateDifference, formatDate } from '@utils/utilMethods';
 import { isMobile } from '@utils/mediaQuery';
+import '../ReportingStyles.css';
 
 const ReportingDetailTable = forwardRef((props, ref) => {
   const {
@@ -20,8 +21,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     itemData,
     itemTypesData,
     sensorProcessedData,
-    userLanguage,
   } = props;
+  const userLanguage = getUser().user_language;
 
   const [trackerActivationDate, setTrackerActivationDate] = useState();
   const [updatedTransitAlerts, setUpdatedTransitAlerts] = useState([]);
@@ -240,7 +241,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
   const displayItemText = (title, value, spanClass, translateClass) => (
     <Typography fontWeight={700}>
       {`${title}: `}
-      {value && <span style={{ fontWeight: spanClass ? 500 : 400 }} className={`${spanClass && spanClass} ${translateClass && translateClass}`}>{value}</span>}
+      {value && <span style={{ fontWeight: spanClass ? 500 : 400 }} className={`${!!spanClass && spanClass} ${!!translateClass && translateClass}`}>{value}</span>}
     </Typography>
   );
 
@@ -270,7 +271,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               </Grid>
               <Grid container className="reportingDetailTableBody">
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Shipment Status', selectedShipment.status, null, _.lowerCase(userLanguage) !== 'English' ? 'notranslate' : 'translate')}
+                  {displayItemText('Shipment Status', selectedShipment.status, null, _.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate')}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
                   {displayItemText('Pre-Transit Excursions', 'None')}

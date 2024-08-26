@@ -1,7 +1,8 @@
 import { useMutation } from 'react-query';
+import _ from 'lodash';
 import { httpService } from '@modules/http/http.service';
 
-export const useReportPDFDownloadMutation = (setGenerateReportLoading, displayAlert) => useMutation(
+export const useReportPDFDownloadMutation = (storeData, setStoreData, displayAlert) => useMutation(
   async (reportPDFData) => {
     const response = await httpService.makePostRequestWithoutHeaders(
       'post',
@@ -11,9 +12,24 @@ export const useReportPDFDownloadMutation = (setGenerateReportLoading, displayAl
     return response.data;
   },
   {
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      const { shipment_name } = variables;
+      if (!_.isEmpty(data)) {
+        const tempData = {
+          shipment_name,
+          pdfUrl: data.download_url,
+        };
+        const existingIndex = _.findIndex(data, { shipment_name });
+        let updatedData;
+        if (existingIndex !== -1) {
+          updatedData = [...storeData];
+          updatedData[existingIndex] = tempData;
+        } else {
+          updatedData = [...storeData, tempData];
+        }
+        setStoreData(updatedData);
+      }
       displayAlert('success', 'You can now download the report');
-      setGenerateReportLoading(false);
     },
   },
   {

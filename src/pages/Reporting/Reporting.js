@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import _, { isArray } from 'lodash';
 import moment from 'moment-timezone';
+import ExcelJS from 'exceljs';
 import {
   Box,
   Grid,
@@ -50,20 +51,19 @@ import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSens
 import { getSensorProcessedDataQuery } from '@react-query/queries/sensorGateways/getSensorProcessedDataQuery';
 import { useReportPDFDownloadMutation } from '@react-query/mutations/notifications/reportPDFDownloadMutation';
 import useAlert from '@hooks/useAlert';
-import { useStore } from '@zustand/timezone/timezoneStore';
-import './ReportingStyles.css';
+import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
+import { useStore as useReportPdfStore } from '@zustand/reportPdf/reportPdfStore';
 import { isDesktop2 } from '@utils/mediaQuery';
-import GenerateReport from './components/GenerateReport';
 import { getTimezone } from '@utils/utilMethods';
-import ExcelJS from 'exceljs';
+import GenerateReport from './components/GenerateReport';
 import ReportGraph from './components/ReportGraph';
 import ReportMap from './components/ReportMap';
+import './ReportingStyles.css';
 
 const Reporting = () => {
   const location = useLocation();
   const theme = useTheme();
   const organization = getUser().organization.organization_uuid;
-  const userLanguage = getUser().user_language;
 
   const [locShipmentID, setLocShipmentID] = useState('');
   const [shipmentFilter, setShipmentFilter] = useState('Active');
@@ -75,7 +75,6 @@ const Reporting = () => {
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
   const [isLoading, setLoading] = useState(false);
-  const [isGenerateReportLoading, setGenerateReportLoading] = useState(false);
   const [showGenerateReport, setShowGenerateReport] = useState(false);
   const reportingDetailTableRef = useRef();
   const mapRef = useRef();
@@ -86,7 +85,8 @@ const Reporting = () => {
   const batteryGraphRef = useRef();
 
   const { displayAlert } = useAlert();
-  const { data: timeZone } = useStore();
+  const { data: timeZone } = useTimezoneStore();
+  const { data: reportURLData, setData: setReportURLData } = useReportPdfStore();
 
   let isShipmentDataAvailable = false;
 
@@ -170,7 +170,7 @@ const Reporting = () => {
     },
   );
 
-  const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading, data: reportPDFMutationData } = useReportPDFDownloadMutation(setGenerateReportLoading, displayAlert);
+  const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading } = useReportPDFDownloadMutation(reportURLData, setReportURLData, displayAlert);
 
   useEffect(() => {
     if (location.search) {
@@ -739,7 +739,7 @@ const Reporting = () => {
             color="primary"
             className="reportingDashboardButton"
             onClick={() => setShowGenerateReport(true)}
-            disabled={isGenerateReportLoading || isReportPDFDownloading}
+            disabled={isReportPDFDownloading || _.isEmpty(selectedShipment)}
           >
             Generate Insights Report
             <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
@@ -838,7 +838,6 @@ const Reporting = () => {
                 selectedShipment={selectedShipment}
                 theme={theme}
                 getShipmentValue={getShipmentValue}
-                userLanguage={userLanguage}
               />
             )
             : (
@@ -854,7 +853,6 @@ const Reporting = () => {
                 itemData={itemData}
                 itemTypesData={itemTypesData}
                 sensorProcessedData={sensorProcessedData}
-                userLanguage={userLanguage}
               />
             )}
         </Grid>
@@ -1035,13 +1033,13 @@ const Reporting = () => {
         shockGraphRef={shockGraphRef}
         lightGraphRef={lightGraphRef}
         batteryGraphRef={batteryGraphRef}
-        isGenerateReportLoading={isGenerateReportLoading}
-        setGenerateReportLoading={setGenerateReportLoading}
         downloadCSV={downloadCSV}
         downloadExcel={downloadExcel}
         reportPDFDownloadMutation={reportPDFDownloadMutation}
         selectedShipment={selectedShipment}
-        reportPDFMutationData={reportPDFMutationData}
+        isReportPDFDownloading={isReportPDFDownloading}
+        data={reportURLData}
+        setData={setReportURLData}
       />
     </Box>
   );
