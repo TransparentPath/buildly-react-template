@@ -361,13 +361,9 @@ const Reporting = () => {
       'Color Key',
       'Tracker ID',
       'Shipment Name',
-      'Time Intervals',
-      'Max. Thresholds',
-      'Min. Thresholds',
-      'Temp. Excursions',
-      'Hum. Excursions',
-      'Shock Excursions',
-      'Light Excursions',
+      'Tracker Intervals',
+      'Max. / Min. Thresholds',
+      'Excursions',
     ]);
 
     const descriptionRow1 = worksheet.addRow([
@@ -375,12 +371,6 @@ const Reporting = () => {
       selectedShipment.tracker,
       selectedShipment.name,
       `Transmission: ${selectedShipment.transmission_time} min.`,
-      `Temperature: ${_.orderBy(selectedShipment.max_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
-      `Temperature: ${_.orderBy(selectedShipment.min_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
-      '',
-      '',
-      '',
-      '',
     ]);
 
     const descriptionRow2 = worksheet.addRow([
@@ -388,29 +378,13 @@ const Reporting = () => {
       '',
       '',
       `Measurement: ${selectedShipment.measurement_time} min.`,
-      `Humidity: ${_.orderBy(selectedShipment.max_excursion_humidity, ['set_at'], ['desc'])[0].value}%`,
-      `Humidity: ${_.orderBy(selectedShipment.min_excursion_humidity, ['set_at'], ['desc'])[0].value}%`,
-      '',
-      '',
-      '',
-      '',
     ]);
 
     const descriptionRow3 = worksheet.addRow([
       'Grey indicates Transit',
-      '',
-      '',
-      '',
-      `Shock: ${_.orderBy(selectedShipment.shock_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} G`,
     ]);
 
-    const descriptionRow4 = worksheet.addRow([
-      '',
-      '',
-      '',
-      '',
-      `Light: ${_.orderBy(selectedShipment.light_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} LUX`,
-    ]);
+    const descriptionRow4 = worksheet.addRow([]);
 
     worksheet.addRow([]);
 
@@ -585,70 +559,139 @@ const Reporting = () => {
       const firstGreyRow = worksheet.getRow(greyRows[0]);
       const lastGreyRow = worksheet.getRow(greyRows[greyRows.length - 1]);
       firstGreyRow.getCell(1).value.richText.push({
-        text: ', Arrived',
+        text: ' Arrived',
         font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
       });
       lastGreyRow.getCell(1).value.richText.push({
-        text: ', En route',
+        text: ' En route',
         font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
       });
     }
 
-    if (maxTempExcursionsCount !== 0) {
-      descriptionRow1.getCell(7).value = {
-        richText: [
+    // Add max and min threshold values
+    descriptionRow1.getCell(5).value = {
+      richText: [
+        { text: 'Temperature: ' },
+        {
+          text: `${_.orderBy(selectedShipment.max_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+        { text: ' ' },
+        {
+          text: `${_.orderBy(selectedShipment.min_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        },
+      ],
+    };
+
+    descriptionRow2.getCell(5).value = {
+      richText: [
+        { text: 'Humidity: ' },
+        {
+          text: `${_.orderBy(selectedShipment.max_excursion_humidity, ['set_at'], ['desc'])[0].value}%`,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+        { text: ' ' },
+        {
+          text: `${_.orderBy(selectedShipment.min_excursion_humidity, ['set_at'], ['desc'])[0].value}%`,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        },
+      ],
+    };
+
+    descriptionRow4.getCell(5).value = {
+      richText: [
+        { text: 'Light: ' },
+        {
+          text: `${_.orderBy(selectedShipment.light_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} LUX`,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+      ],
+    };
+
+    descriptionRow3.getCell(5).value = {
+      richText: [
+        { text: 'Shock: ' },
+        {
+          text: `${_.orderBy(selectedShipment.shock_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} G`,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+      ],
+    };
+
+    // Add excursion count
+    if ((maxTempExcursionsCount !== 0) || (minTempExcursionsCount !== 0)) {
+      let richText = [{ text: 'Temperature: ' }];
+      if (maxTempExcursionsCount !== 0) {
+        richText = [
+          ...richText,
           { text: maxTempExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-        ],
-      };
-    }
-    if (maxHumExcursionsCount !== 0) {
-      descriptionRow1.getCell(8).value = {
-        richText: [
-          { text: maxHumExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-        ],
-      };
-    }
-    if (maxShockExcursionsCount !== 0) {
-      descriptionRow1.getCell(9).value = {
-        richText: [
-          { text: maxShockExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-        ],
-      };
-    }
-    if (maxLightExcursionsCount !== 0) {
-      descriptionRow1.getCell(10).value = {
-        richText: [
-          { text: maxLightExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-        ],
-      };
-    }
-    if (minTempExcursionsCount !== 0) {
-      descriptionRow2.getCell(7).value = {
-        richText: [
+          { text: ' ' },
+        ];
+      }
+      if (minTempExcursionsCount !== 0) {
+        richText = [
+          ...richText,
           { text: minTempExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        ],
-      };
+        ];
+      }
+
+      descriptionRow1.getCell(6).value = { richText };
     }
-    if (minHumExcursionsCount !== 0) {
-      descriptionRow2.getCell(8).value = {
-        richText: [
+
+    if ((maxHumExcursionsCount !== 0) || (minHumExcursionsCount !== 0)) {
+      let richText = [{ text: 'Humidity: ' }];
+      if (maxHumExcursionsCount !== 0) {
+        richText = [
+          ...richText,
+          { text: maxHumExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+          { text: ' ' },
+        ];
+      }
+      if (minHumExcursionsCount !== 0) {
+        richText = [
+          ...richText,
           { text: minHumExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        ],
-      };
+        ];
+      }
+
+      descriptionRow1.getCell(6).value = { richText };
     }
-    if (minShockExcursionsCount !== 0) {
-      descriptionRow2.getCell(9).value = {
-        richText: [
+
+    if ((maxShockExcursionsCount !== 0) || (minShockExcursionsCount !== 0)) {
+      let richText = [{ text: 'Shock: ' }];
+      if (maxShockExcursionsCount !== 0) {
+        richText = [
+          ...richText,
+          { text: maxShockExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+        ];
+      }
+      if (minShockExcursionsCount !== 0) {
+        richText = [
+          ...richText,
           { text: minShockExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        ],
-      };
+        ];
+      }
+
+      descriptionRow1.getCell(6).value = { richText };
     }
-    if (minLightExcursionsCount !== 0) {
-      descriptionRow2.getCell(10).value = {
-        richText: [
+
+    if ((maxLightExcursionsCount !== 0) || (minLightExcursionsCount !== 0)) {
+      let richText = [{ text: 'Light: ' }];
+      if (maxLightExcursionsCount !== 0) {
+        richText = [
+          ...richText,
+          { text: maxLightExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+        ];
+      }
+      if (minLightExcursionsCount !== 0) {
+        richText = [
+          ...richText,
           { text: minLightExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        ],
-      };
+        ];
+      }
+
+      descriptionRow1.getCell(6).value = { richText };
     }
 
     [7, 8, 9, 10].forEach((colIndex) => {
@@ -741,7 +784,7 @@ const Reporting = () => {
             onClick={() => setShowGenerateReport(true)}
             disabled={isReportPDFDownloading || _.isEmpty(selectedShipment)}
           >
-            Generate Insights Report
+            Insights Report
             <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
               <InfoIcon fontSize="small" className="reportingDashboardButtonIcon" />
             </Tooltip>
@@ -873,9 +916,10 @@ const Reporting = () => {
           <MapComponent
             isMarkerShown={!_.isEmpty(markers)}
             showPath
+            screenshotMapCenter
             markers={markers}
             googleMapURL={window.env.MAP_API_URL}
-            zoom={_.isEmpty(markers) ? 4 : 12}
+            zoom={_.isEmpty(markers) ? 4 : 8}
             setSelectedMarker={setSelectedMarker}
             loadingElement={<div style={{ height: '100%' }} />}
             containerElement={<div style={{ height: '625px' }} />}
