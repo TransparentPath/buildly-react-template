@@ -558,14 +558,40 @@ const Reporting = () => {
     if (_.size(greyRows) > 0) {
       const firstGreyRow = worksheet.getRow(greyRows[0]);
       const lastGreyRow = worksheet.getRow(greyRows[greyRows.length - 1]);
-      firstGreyRow.getCell(1).value.richText.push({
-        text: ' Arrived',
-        font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
-      });
-      lastGreyRow.getCell(1).value.richText.push({
-        text: ' En route',
-        font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
-      });
+
+      let firstGreyRowRichText = firstGreyRow.getCell(1).value.richText;
+      let lastGreyRowRichText = lastGreyRow.getCell(1).value.richText;
+
+      if (_.size(firstGreyRowRichText) > 0) {
+        firstGreyRowRichText = [
+          ...firstGreyRowRichText,
+          {
+            text: ', Arrived',
+            font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
+          },
+        ];
+      } else {
+        firstGreyRowRichText = [
+          { text: 'Arrived', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        ];
+      }
+
+      if (_.size(lastGreyRowRichText) > 0) {
+        lastGreyRowRichText = [
+          ...lastGreyRowRichText,
+          {
+            text: ', En route',
+            font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
+          },
+        ];
+      } else {
+        lastGreyRowRichText = [
+          { text: 'En route', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        ];
+      }
+
+      firstGreyRow.getCell(1).value = { richText: firstGreyRowRichText };
+      lastGreyRow.getCell(1).value = { richText: lastGreyRowRichText };
     }
 
     // Add max and min threshold values
