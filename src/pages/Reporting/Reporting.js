@@ -316,8 +316,8 @@ const Reporting = () => {
     if (_.size(rowsWithinTimeRange) > 0) {
       const firstRowIndex = data.findIndex((row) => row === rowsWithinTimeRange[0]);
       const lastRowIndex = data.findIndex((row) => row === rowsWithinTimeRange[_.size(rowsWithinTimeRange) - 1]);
-      data[firstRowIndex].allAlerts.push({ title: 'Arrived' });
-      data[lastRowIndex].allAlerts.push({ title: 'En route' });
+      data[firstRowIndex].allAlerts.push({ title: 'Arrived', color: '#000' });
+      data[lastRowIndex].allAlerts.push({ title: 'En route', color: '#000' });
     }
 
     const csvBody = data.map((row) => columns.map((col, colIndex) => {
@@ -569,45 +569,6 @@ const Reporting = () => {
         greyRows.push(rowRef.number);
       }
     });
-
-    if (_.size(greyRows) > 0) {
-      const firstGreyRow = worksheet.getRow(greyRows[0]);
-      const lastGreyRow = worksheet.getRow(greyRows[greyRows.length - 1]);
-
-      let firstGreyRowRichText = firstGreyRow.getCell(1).value.richText;
-      let lastGreyRowRichText = lastGreyRow.getCell(1).value.richText;
-
-      if (_.size(firstGreyRowRichText) > 0) {
-        firstGreyRowRichText = [
-          ...firstGreyRowRichText,
-          {
-            text: ', Arrived',
-            font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
-          },
-        ];
-      } else {
-        firstGreyRowRichText = [
-          { text: 'Arrived', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
-        ];
-      }
-
-      if (_.size(lastGreyRowRichText) > 0) {
-        lastGreyRowRichText = [
-          ...lastGreyRowRichText,
-          {
-            text: ', En route',
-            font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
-          },
-        ];
-      } else {
-        lastGreyRowRichText = [
-          { text: 'En route', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
-        ];
-      }
-
-      firstGreyRow.getCell(1).value = { richText: firstGreyRowRichText };
-      lastGreyRow.getCell(1).value = { richText: lastGreyRowRichText };
-    }
 
     descriptionRow1.getCell(5).value = {
       richText: [
