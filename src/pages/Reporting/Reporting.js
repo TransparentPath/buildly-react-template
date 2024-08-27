@@ -305,6 +305,21 @@ const Reporting = () => {
       }
       return escapeCSV(col.label);
     }).join(',');
+
+    const dateTimeColumnIndex = columns.findIndex((col) => col.label === 'Date Time');
+    const departureTime = moment(selectedShipment.actual_time_of_departure).unix();
+    const arrivalTime = moment(selectedShipment.actual_time_of_arrival).unix();
+    const rowsWithinTimeRange = data.filter((row) => {
+      const dateTimeValue = moment(row[columns[dateTimeColumnIndex].name]).unix();
+      return dateTimeValue >= departureTime && dateTimeValue <= arrivalTime;
+    });
+    if (_.size(rowsWithinTimeRange) > 0) {
+      const firstRowIndex = data.findIndex((row) => row === rowsWithinTimeRange[0]);
+      const lastRowIndex = data.findIndex((row) => row === rowsWithinTimeRange[_.size(rowsWithinTimeRange) - 1]);
+      data[firstRowIndex].allAlerts.push({ title: 'Arrived' });
+      data[lastRowIndex].allAlerts.push({ title: 'En route' });
+    }
+
     const csvBody = data.map((row) => columns.map((col, colIndex) => {
       let cell = row[col.name];
       if (!row.location || row.location === 'Error retrieving address') {
@@ -594,17 +609,15 @@ const Reporting = () => {
       lastGreyRow.getCell(1).value = { richText: lastGreyRowRichText };
     }
 
-    // Add max and min threshold values
     descriptionRow1.getCell(5).value = {
       richText: [
-        { text: 'Temperature: ' },
+        { text: 'Temperature:' },
         {
-          text: `${_.orderBy(selectedShipment.max_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
+          text: ` ${_.orderBy(selectedShipment.max_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
           font: { color: { argb: theme.palette.error.main.replace('#', '') } },
         },
-        { text: ' ' },
         {
-          text: `${_.orderBy(selectedShipment.min_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
+          text: ` ${_.orderBy(selectedShipment.min_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
           font: { color: { argb: theme.palette.info.main.replace('#', '') } },
         },
       ],
@@ -612,113 +625,93 @@ const Reporting = () => {
 
     descriptionRow2.getCell(5).value = {
       richText: [
-        { text: 'Humidity: ' },
+        { text: 'Humidity:' },
         {
-          text: `${_.orderBy(selectedShipment.max_excursion_humidity, ['set_at'], ['desc'])[0].value}%`,
+          text: ` ${_.orderBy(selectedShipment.max_excursion_humidity, ['set_at'], ['desc'])[0].value}%`,
           font: { color: { argb: theme.palette.error.main.replace('#', '') } },
         },
-        { text: ' ' },
         {
-          text: `${_.orderBy(selectedShipment.min_excursion_humidity, ['set_at'], ['desc'])[0].value}%`,
+          text: ` ${_.orderBy(selectedShipment.min_excursion_humidity, ['set_at'], ['desc'])[0].value}%`,
           font: { color: { argb: theme.palette.info.main.replace('#', '') } },
-        },
-      ],
-    };
-
-    descriptionRow4.getCell(5).value = {
-      richText: [
-        { text: 'Light: ' },
-        {
-          text: `${_.orderBy(selectedShipment.light_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} LUX`,
-          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
         },
       ],
     };
 
     descriptionRow3.getCell(5).value = {
       richText: [
-        { text: 'Shock: ' },
+        { text: 'Shock:' },
         {
-          text: `${_.orderBy(selectedShipment.shock_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} G`,
+          text: ` ${_.orderBy(selectedShipment.shock_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} G`,
           font: { color: { argb: theme.palette.error.main.replace('#', '') } },
         },
       ],
     };
 
-    // Add excursion count
-    if ((maxTempExcursionsCount !== 0) || (minTempExcursionsCount !== 0)) {
-      let richText = [{ text: 'Temperature: ' }];
-      if (maxTempExcursionsCount !== 0) {
-        richText = [
-          ...richText,
-          { text: maxTempExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-          { text: ' ' },
-        ];
-      }
-      if (minTempExcursionsCount !== 0) {
-        richText = [
-          ...richText,
-          { text: minTempExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        ];
-      }
+    descriptionRow4.getCell(5).value = {
+      richText: [
+        { text: 'Light:' },
+        {
+          text: ` ${_.orderBy(selectedShipment.light_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} LUX`,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+      ],
+    };
 
-      descriptionRow1.getCell(6).value = { richText };
-    }
+    descriptionRow1.getCell(6).value = {
+      richText: [
+        { text: 'Temperature:' },
+        {
+          text: maxTempExcursionsCount > 0 ? ` ${maxTempExcursionsCount}` : '',
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+        {
+          text: minTempExcursionsCount > 0 ? ` ${minTempExcursionsCount}` : '',
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        },
+      ],
+    };
 
-    if ((maxHumExcursionsCount !== 0) || (minHumExcursionsCount !== 0)) {
-      let richText = [{ text: 'Humidity: ' }];
-      if (maxHumExcursionsCount !== 0) {
-        richText = [
-          ...richText,
-          { text: maxHumExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-          { text: ' ' },
-        ];
-      }
-      if (minHumExcursionsCount !== 0) {
-        richText = [
-          ...richText,
-          { text: minHumExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        ];
-      }
+    descriptionRow2.getCell(6).value = {
+      richText: [
+        { text: 'Humidity:' },
+        {
+          text: maxHumExcursionsCount > 0 ? ` ${maxHumExcursionsCount}` : '',
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+        {
+          text: minHumExcursionsCount > 0 ? ` ${minHumExcursionsCount}` : '',
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        },
+      ],
+    };
 
-      descriptionRow1.getCell(6).value = { richText };
-    }
+    descriptionRow3.getCell(6).value = {
+      richText: [
+        { text: 'Shock:' },
+        {
+          text: maxShockExcursionsCount > 0 ? ` ${maxShockExcursionsCount}` : '',
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+        {
+          text: minShockExcursionsCount > 0 ? ` ${minShockExcursionsCount}` : '',
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        },
+      ],
+    };
 
-    if ((maxShockExcursionsCount !== 0) || (minShockExcursionsCount !== 0)) {
-      let richText = [{ text: 'Shock: ' }];
-      if (maxShockExcursionsCount !== 0) {
-        richText = [
-          ...richText,
-          { text: maxShockExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-        ];
-      }
-      if (minShockExcursionsCount !== 0) {
-        richText = [
-          ...richText,
-          { text: minShockExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        ];
-      }
-
-      descriptionRow1.getCell(6).value = { richText };
-    }
-
-    if ((maxLightExcursionsCount !== 0) || (minLightExcursionsCount !== 0)) {
-      let richText = [{ text: 'Light: ' }];
-      if (maxLightExcursionsCount !== 0) {
-        richText = [
-          ...richText,
-          { text: maxLightExcursionsCount, font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-        ];
-      }
-      if (minLightExcursionsCount !== 0) {
-        richText = [
-          ...richText,
-          { text: minLightExcursionsCount, font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        ];
-      }
-
-      descriptionRow1.getCell(6).value = { richText };
-    }
+    descriptionRow4.getCell(6).value = {
+      richText: [
+        { text: 'Light:' },
+        {
+          text: maxLightExcursionsCount > 0 ? ` ${maxLightExcursionsCount}` : '',
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+        {
+          text: minLightExcursionsCount > 0 ? ` ${minLightExcursionsCount}` : '',
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        },
+      ],
+    };
 
     [7, 8, 9, 10].forEach((colIndex) => {
       descriptionRow.getCell(colIndex).alignment = { vertical: 'middle', horizontal: 'center' };
@@ -945,7 +938,7 @@ const Reporting = () => {
             screenshotMapCenter
             markers={markers}
             googleMapURL={window.env.MAP_API_URL}
-            zoom={_.isEmpty(markers) ? 4 : 8}
+            zoom={_.isEmpty(markers) ? 4 : 7}
             setSelectedMarker={setSelectedMarker}
             loadingElement={<div style={{ height: '100%' }} />}
             containerElement={<div style={{ height: '625px' }} />}

@@ -35,7 +35,7 @@ export const ReportMap = forwardRef((props, ref) => {
           noInfoIndex
           markers={markers}
           googleMapURL={window.env.MAP_API_URL}
-          zoom={8}
+          zoom={7}
           setSelectedMarker={setSelectedMarker}
           loadingElement={<div style={{ height: '100%' }} />}
           containerElement={<div style={{ height: '625px' }} />}
