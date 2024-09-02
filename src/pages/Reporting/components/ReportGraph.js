@@ -22,11 +22,12 @@ const ReportGraph = forwardRef((props, ref) => {
     <Grid
       ref={ref}
       container
-      className={hidden ? 'reportingContainer2' : ''}
+      // className={hidden ? 'reportingContainer2' : ''}
+      className="reportingContainer2"
       sx={{ marginTop: 4 }}
     >
       <div className="reportingSwitchViewSection">
-        <Typography width="100%" className="reportingSectionTitleHeading" variant="h5">
+        <Typography className="reportingSectionTitleHeading" variant="h5">
           {!_.isEmpty(selectedShipment) && selectedShipment.name
             ? `Graph View - Shipment: ${selectedShipment.name}`
             : 'Graph View'}

@@ -58,6 +58,7 @@ import SensorReport from './components/SensorReport';
 import GenerateReport from './components/GenerateReport';
 import ReportGraph from './components/ReportGraph';
 import './ReportingStyles.css';
+import ReportMap from './components/ReportMap';
 
 const Reporting = () => {
   const location = useLocation();
@@ -967,12 +968,9 @@ const Reporting = () => {
               />
             )}
         </Grid>
-        <Grid ref={mapRef} item xs={12}>
+        <Grid item xs={12}>
           <div className="reportingSwitchViewSection">
-            <Typography
-              className="reportingSectionTitleHeading"
-              variant="h5"
-            >
+            <Typography className="reportingSectionTitleHeading" variant="h5">
               {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
                 <>
                   <span>Map View - Shipment: </span>
@@ -998,10 +996,7 @@ const Reporting = () => {
       </Grid>
       <Grid container className="reportingContainer" sx={{ marginTop: _.isEmpty(selectedShipment) ? 4 : -1 }}>
         <div className="reportingSwitchViewSection">
-          <Typography
-            className="reportingSectionTitleHeading"
-            variant="h5"
-          >
+          <Typography className="reportingSectionTitleHeading" variant="h5">
             {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
               <>
                 <span>Graph View - Shipment: </span>
@@ -1082,6 +1077,14 @@ const Reporting = () => {
         timezone={timeZone}
         unitOfMeasure={unitData}
         shouldScroll={!!locShipmentID}
+      />
+      <ReportMap
+        ref={mapRef}
+        hidden={!showGenerateReport}
+        selectedShipment={selectedShipment}
+        markers={markers}
+        setSelectedMarker={setSelectedMarker}
+        unitData={unitData}
       />
       <ReportGraph
         ref={tempGraphRef}
