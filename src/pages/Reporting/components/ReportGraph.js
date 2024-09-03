@@ -15,16 +15,13 @@ const ReportGraph = forwardRef((props, ref) => {
     theme,
     graphType,
     data,
-    hidden,
   } = props;
 
   return (
     <Grid
       ref={ref}
       container
-      // className={hidden ? 'reportingContainer2' : ''}
       className="reportingContainer2"
-      sx={{ marginTop: 4 }}
     >
       <div className="reportingSwitchViewSection">
         <Typography className="reportingSectionTitleHeading" variant="h5">

@@ -1085,7 +1085,6 @@ const Reporting = () => {
         theme={theme}
         graphType="temperature"
         data={allGraphs}
-        hidden={!showGenerateReport}
       />
       <ReportGraph
         ref={humGraphRef}
@@ -1094,7 +1093,6 @@ const Reporting = () => {
         theme={theme}
         graphType="humidity"
         data={allGraphs}
-        hidden={!showGenerateReport}
       />
       <ReportGraph
         ref={shockGraphRef}
@@ -1103,7 +1101,6 @@ const Reporting = () => {
         theme={theme}
         graphType="shock"
         data={allGraphs}
-        hidden={!showGenerateReport}
       />
       <ReportGraph
         ref={lightGraphRef}
@@ -1112,7 +1109,6 @@ const Reporting = () => {
         theme={theme}
         graphType="light"
         data={allGraphs}
-        hidden={!showGenerateReport}
       />
       <ReportGraph
         ref={batteryGraphRef}
@@ -1121,7 +1117,6 @@ const Reporting = () => {
         theme={theme}
         graphType="battery"
         data={allGraphs}
-        hidden={!showGenerateReport}
       />
       <GenerateReport
         open={showGenerateReport}

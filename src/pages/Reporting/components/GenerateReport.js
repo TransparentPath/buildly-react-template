@@ -85,7 +85,6 @@ const GenerateReport = ({
     if (ref.current) {
       try {
         const canvas = await html2canvas(ref.current, {
-          allowTaint: true,
           useCORS: true,
         });
         return canvas.toDataURL('image/png');
