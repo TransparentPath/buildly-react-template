@@ -58,7 +58,6 @@ import SensorReport from './components/SensorReport';
 import GenerateReport from './components/GenerateReport';
 import ReportGraph from './components/ReportGraph';
 import './ReportingStyles.css';
-import ReportMap from './components/ReportMap';
 
 const Reporting = () => {
   const location = useLocation();
@@ -341,7 +340,7 @@ const Reporting = () => {
     }).join(',')).join('\n');
 
     const csvData = `${csvHeader}\n${csvBody}`;
-    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([`\ufeff${csvData}`], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `${selectedShipment.name}.csv`;
@@ -968,7 +967,7 @@ const Reporting = () => {
               />
             )}
         </Grid>
-        <Grid item xs={12}>
+        <Grid ref={mapRef} item xs={12}>
           <div className="reportingSwitchViewSection">
             <Typography className="reportingSectionTitleHeading" variant="h5">
               {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
@@ -983,9 +982,10 @@ const Reporting = () => {
             isMarkerShown={!_.isEmpty(markers)}
             showPath
             screenshotMapCenter
+            noInitialInfo
             markers={markers}
             googleMapURL={window.env.MAP_API_URL}
-            zoom={_.isEmpty(markers) ? 4 : 7}
+            zoom={_.isEmpty(markers) ? 4 : 5}
             setSelectedMarker={setSelectedMarker}
             loadingElement={<div style={{ height: '100%' }} />}
             containerElement={<div style={{ height: '625px' }} />}
@@ -1077,14 +1077,6 @@ const Reporting = () => {
         timezone={timeZone}
         unitOfMeasure={unitData}
         shouldScroll={!!locShipmentID}
-      />
-      <ReportMap
-        ref={mapRef}
-        hidden={!showGenerateReport}
-        selectedShipment={selectedShipment}
-        markers={markers}
-        setSelectedMarker={setSelectedMarker}
-        unitData={unitData}
       />
       <ReportGraph
         ref={tempGraphRef}
