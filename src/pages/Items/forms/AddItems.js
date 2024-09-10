@@ -232,12 +232,15 @@ const AddItems = ({
             <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid className="itemInputWithTooltip" item xs={12}>
                 <TextField
+                  className="notranslate"
                   variant="outlined"
                   margin="normal"
                   required
                   fullWidth
                   id="item_name"
-                  label="Item Name"
+                  label={(
+                    <span className="translate">Item Name</span>
+                  )}
                   name="item_name"
                   autoComplete="item_name"
                   error={formError.item_name && formError.item_name.error}

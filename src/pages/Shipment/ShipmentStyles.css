@@ -1,3 +1,17 @@
+.shipmentMaxColor {
+  color: var(--color-palette-error-main);
+}
+
+.shipmentMinColor {
+  color: var(--color-palette-info-main);
+}
+
+.shipmentGridTimeCenter {
+  align-content: center;
+  text-align: center;
+  margin-right: 15px;
+}
+
 .shipmentTitle {
   padding: 16px;
   background-color: var(--color-palette-primary-light);
@@ -15,6 +29,41 @@
 
 .shipmentTab {
   color: var(--color-palette-background-default);
+}
+
+.shipmentDataTableHeader {
+  background-color: var(--color-palette-primary-dark);
+  color: var(--color-palette-background-default);
+  width: 100%;
+  display: flex;
+  height: 70px;
+  padding-left: 15px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.shipmentDataTableHeader .Mui-selected {
+  background-color: var(--color-palette-primary-dark) !important;
+  border-color: var(--color-palette-primary-main) !important;
+  border-width: 0 0 2px 0 !important;
+  border-style: solid !important;
+  border-radius: 0 !important;
+}
+
+.shipmentDataTableHeaderItem {
+  border: 0;
+  height: 70px;
+  padding-right: 12px;
+}
+
+.shipmentDataTableHeaderItem:hover {
+  border: 0;
+  background-color: var(--color-palette-primary-dark);
+}
+
+.shipmentDataTableHeaderItem:focus {
+  border: 0;
+  background-color: var(--color-palette-primary-dark);
 }
 
 .shipmentDataTable {
@@ -144,10 +193,12 @@
   -webkit-appearance: none;
   margin: 0px;
 }
+
 .createShipmentNumberInput input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0px;
 }
+
 .createShipmentNumberInput input[type="number"] {
   -moz-appearance: textfield;
 }
@@ -219,6 +270,12 @@
 .createShipmentActionButtons2 {
   padding: 14px 32px;
   margin-right: 16px;
+}
+
+.createShipmentGuidanceList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  list-style-type: disc;
 }
 
 @media screen and (max-width: 620px) {

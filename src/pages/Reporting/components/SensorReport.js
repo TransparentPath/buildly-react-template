@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import _ from 'lodash';
+import _, { isArray } from 'lodash';
 import moment from 'moment-timezone';
 import {
   Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
   Typography,
 } from '@mui/material';
+import { CloudDownload as DownloadIcon } from '@mui/icons-material';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { SENSOR_REPORT_COLUMNS } from '@utils/constants';
 import '../ReportingStyles.css';
@@ -12,12 +17,16 @@ import '../ReportingStyles.css';
 const SensorReport = ({
   sensorReport,
   shipmentName,
+  selectedShipment,
   selectedMarker,
   unitOfMeasure,
   timezone,
+  downloadCSV,
+  downloadExcel,
 }) => {
   const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     const sortedData = _.orderBy(
@@ -53,6 +62,14 @@ const SensorReport = ({
     ) * (order === 'desc' ? 1 : -1));
   };
 
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Grid className="reportingSensorRoot" container spacing={2}>
       <Grid item xs={12}>
@@ -61,9 +78,12 @@ const SensorReport = ({
             className="reportingSensorReportTitle"
             variant="h5"
           >
-            {shipmentName
-              ? `Sensor Report - Shipment: ${shipmentName}`
-              : 'Sensor Report'}
+            {shipmentName ? (
+              <>
+                <span>Sensor Report - Shipment: </span>
+                <span className="notranslate">{shipmentName}</span>
+              </>
+            ) : 'Sensor Report'}
           </Typography>
         </div>
         <DataTableWrapper
@@ -73,13 +93,7 @@ const SensorReport = ({
           rows={rows}
           columns={SENSOR_REPORT_COLUMNS(
             unitOfMeasure,
-            timezone,
-            _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-              ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-              : '',
-            _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-              ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
-              : '',
+            selectedShipment,
           )}
           selectable={{
             rows: 'multiple',
@@ -90,13 +104,40 @@ const SensorReport = ({
           customSort={customSort}
           extraOptions={{
             customToolbar: () => (
-              <Typography variant="caption" className="reportingSensorTableTitle">
-                <span style={{ fontStyle: 'italic', fontWeight: '700' }}>bold/italic alerts</span>
-                {' '}
-                indicates alerts outside of selected transmission
-              </Typography>
+              <>
+                <Typography variant="caption" className="reportingSensorTableTitle">
+                  <span style={{ fontStyle: 'italic', fontWeight: '700' }}>bold/italic alerts</span>
+                  {' '}
+                  indicates alerts outside of selected transmission
+                </Typography>
+                <Tooltip title="Download Options" placement="bottom">
+                  <IconButton className="reportingSensorTableExcelDownload" onClick={handleMenuOpen}>
+                    <DownloadIcon />
+                  </IconButton>
+                </Tooltip>
+                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                  <MenuItem
+                    onClick={() => {
+                      downloadCSV();
+                      handleMenuClose();
+                    }}
+                  >
+                    Download CSV
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      downloadExcel();
+                      handleMenuClose();
+                    }}
+                  >
+                    Download Excel
+                  </MenuItem>
+                </Menu>
+              </>
             ),
           }}
+          className="reportingSensorDataTable"
+          shouldUseAllColumns
         />
       </Grid>
     </Grid>

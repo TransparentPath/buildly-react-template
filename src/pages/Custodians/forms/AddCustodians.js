@@ -116,10 +116,6 @@ const AddCustodians = ({ history, location }) => {
 
   const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert);
 
-  /**
-   * Submit The form and add/edit custodian
-   * @param {Event} event the default submit event
-   */
   const handleSubmit = (event) => {
     event.preventDefault();
     const contactFormValue = {
@@ -170,13 +166,6 @@ const AddCustodians = ({ history, location }) => {
       addCustodianMutation([custodianFormValue, contactFormValue]);
     }
   };
-
-  /**
-   * Handle input field blur event
-   * @param {Event} e Event
-   * @param {String} validation validation type if any
-   * @param {Object} input input field
-   */
 
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
@@ -237,12 +226,15 @@ const AddCustodians = ({ history, location }) => {
                 sm={6}
               >
                 <TextField
+                  className="notranslate"
                   variant="outlined"
                   margin="normal"
                   required
                   fullWidth
                   id="company"
-                  label="Company Name"
+                  label={(
+                    <span className="translate">Company Name</span>
+                  )}
                   name="company"
                   autoComplete="company"
                   error={formError.company && formError.company.error}

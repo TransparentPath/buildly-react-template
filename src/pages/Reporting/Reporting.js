@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-plusplus */
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import _ from 'lodash';
+import _, { isArray } from 'lodash';
 import moment from 'moment-timezone';
+import ExcelJS from 'exceljs';
+import { useQuery } from 'react-query';
 import {
   Box,
   Grid,
@@ -9,33 +14,22 @@ import {
   ListItem,
   Typography,
   TextField,
-  IconButton,
   MenuItem,
   ToggleButton,
   ToggleButtonGroup,
-  CardContent,
-  Card,
   useTheme,
+  Tooltip,
+  Button,
 } from '@mui/material';
-import {
-  ViewComfy as ViewComfyIcon,
-  ViewCompact as ViewCompactIcon,
-} from '@mui/icons-material';
+import { InfoOutlined as InfoIcon } from '@mui/icons-material';
 import GraphComponent from '@components/GraphComponent/GraphComponent';
 import Loader from '@components/Loader/Loader';
 import MapComponent from '@components/MapComponent/MapComponent';
 import { getUser } from '@context/User.context';
-import {
-  getShipmentOverview,
-  SHIPMENT_OVERVIEW_COLUMNS,
-  REPORT_TYPES,
-  getIcon,
-  processReportsAndMarkers,
-} from '@utils/constants';
-import AlertsReport from './components/AlertsReport';
-import SensorReport from './components/SensorReport';
-import { useQuery } from 'react-query';
+import useAlert from '@hooks/useAlert';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
+import { getItemQuery } from '@react-query/queries/items/getItemQuery';
+import { getItemTypeQuery } from '@react-query/queries/items/getItemTypeQuery';
 import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQuery';
 import { getContactQuery } from '@react-query/queries/custodians/getContactQuery';
 import { getShipmentsQuery } from '@react-query/queries/shipments/getShipmentsQuery';
@@ -43,10 +37,27 @@ import { getAllGatewayQuery } from '@react-query/queries/sensorGateways/getAllGa
 import { getCustodyQuery } from '@react-query/queries/custodians/getCustodyQuery';
 import { getSensorReportQuery } from '@react-query/queries/sensorGateways/getSensorReportQuery';
 import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSensorAlertQuery';
-import useAlert from '@hooks/useAlert';
-import { useStore } from '@zustand/timezone/timezoneStore';
-import './ReportingStyles.css';
+import { getSensorProcessedDataQuery } from '@react-query/queries/sensorGateways/getSensorProcessedDataQuery';
+import { useReportPDFDownloadMutation } from '@react-query/mutations/notifications/reportPDFDownloadMutation';
+import {
+  getShipmentOverview,
+  REPORT_TYPES,
+  getIcon,
+  processReportsAndMarkers,
+  SENSOR_REPORT_COLUMNS,
+  tempUnit,
+} from '@utils/constants';
 import { isDesktop2 } from '@utils/mediaQuery';
+import { getTimezone } from '@utils/utilMethods';
+import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
+import { useStore as useReportPdfStore } from '@zustand/reportPdf/reportPdfStore';
+import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
+import ReportingDetailTable from './components/ReportingDetailTable';
+import AlertsReport from './components/AlertsReport';
+import SensorReport from './components/SensorReport';
+import GenerateReport from './components/GenerateReport';
+import ReportGraph from './components/ReportGraph';
+import './ReportingStyles.css';
 
 const Reporting = () => {
   const location = useLocation();
@@ -54,7 +65,6 @@ const Reporting = () => {
   const organization = getUser().organization.organization_uuid;
 
   const [locShipmentID, setLocShipmentID] = useState('');
-  const [tileView, setTileView] = useState(true);
   const [shipmentFilter, setShipmentFilter] = useState('Active');
   const [selectedGraph, setSelectedGraph] = useState('temperature');
   const [selectedShipment, setSelectedShipment] = useState(null);
@@ -64,9 +74,19 @@ const Reporting = () => {
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
   const [isLoading, setLoading] = useState(false);
+  const [showGenerateReport, setShowGenerateReport] = useState(false);
+  const reportingDetailTableRef = useRef();
+  const mapRef = useRef();
+  const tempGraphRef = useRef();
+  const humGraphRef = useRef();
+  const shockGraphRef = useRef();
+  const lightGraphRef = useRef();
+  const batteryGraphRef = useRef();
+  const alertsTableRef = useRef();
 
   const { displayAlert } = useAlert();
-  const { data: timeZone } = useStore();
+  const { data: timeZone } = useTimezoneStore();
+  const { data: reportURLData, setData: setReportURLData } = useReportPdfStore();
 
   let isShipmentDataAvailable = false;
 
@@ -81,6 +101,18 @@ const Reporting = () => {
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
     () => getUnitQuery(organization, displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: itemData, isLoading: isLoadingItems } = useQuery(
+    ['items', organization],
+    () => getItemQuery(organization, displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
+    ['itemTypes', organization],
+    () => getItemTypeQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
@@ -128,6 +160,24 @@ const Reporting = () => {
       refetchOnWindowFocus: false,
     },
   );
+
+  const { data: sensorProcessedData, isLoading: isLoadingSensorProcessedData } = useQuery(
+    ['processedSensorData', selectedShipment, shipmentFilter],
+    () => getSensorProcessedDataQuery(selectedShipment, displayAlert),
+    {
+      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEqual(shipmentFilter, 'Active'),
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading } = useReportPDFDownloadMutation(reportURLData, setReportURLData, displayAlert);
+
+  const dateFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+    : '';
+  const timeFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+    : '';
 
   useEffect(() => {
     if (location.search) {
@@ -203,12 +253,6 @@ const Reporting = () => {
     let returnValue;
     if (selectedShipment[value] !== null) {
       if (moment(selectedShipment[value], true).isValid()) {
-        const dateFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-          ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-          : '';
-        const timeFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-          ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
-          : '';
         returnValue = moment(selectedShipment[value])
           .tz(timeZone).format(`${dateFormat} ${timeFormat}`);
       } else if (typeof (selectedShipment[value]) !== 'object') {
@@ -245,10 +289,543 @@ const Reporting = () => {
     setMarkers([]);
   };
 
+  const downloadCSV = () => {
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false);
+    const data = _.orderBy(
+      reports,
+      (item) => moment(item.timestamp),
+      ['desc'],
+    );
+    const rows = _.cloneDeep(data);
+    const escapeCSV = (text) => `"${text}"`;
+    const csvHeader = columns.map((col) => {
+      if (col.label === 'Date Time') {
+        const timeArray = _.split(timeFormat, ' ');
+        const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour';
+        const formattedLabel = `${col.label} (${getTimezone(new Date(), timeZone)}) (${dateFormat} ${timePeriod})`;
+        return escapeCSV(formattedLabel);
+      }
+      if (col.name === 'temperature') {
+        return escapeCSV(`TEMP ${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`);
+      }
+      if (col.name === 'battery') {
+        return escapeCSV('BATTERY (%)');
+      }
+      return escapeCSV(col.label);
+    }).join(',');
+
+    const dateTimeColumnIndex = columns.findIndex((col) => col.label === 'Date Time');
+    const departureTime = moment(selectedShipment.actual_time_of_departure).unix();
+    const arrivalTime = moment(selectedShipment.actual_time_of_arrival).unix();
+    const rowsWithinTimeRange = rows.filter((row) => {
+      const dateTimeValue = moment(row[columns[dateTimeColumnIndex].name]).unix();
+      return dateTimeValue >= departureTime && dateTimeValue <= arrivalTime;
+    });
+    if (_.size(rowsWithinTimeRange) > 0) {
+      const firstRowIndex = rows.findIndex((row) => row === rowsWithinTimeRange[0]);
+      const lastRowIndex = rows.findIndex((row) => row === rowsWithinTimeRange[_.size(rowsWithinTimeRange) - 1]);
+      rows[firstRowIndex].allAlerts.push({ title: 'Arrived', color: '#000' });
+      rows[lastRowIndex].allAlerts.push({ title: 'En route', color: '#000' });
+    }
+
+    const csvBody = rows.map((row) => columns.map((col, colIndex) => {
+      let cell = row[col.name];
+      if (col.label === 'Date Time' && !_.isEmpty(cell)) {
+        return escapeCSV(moment(cell).tz(timeZone).format(`${dateFormat} ${timeFormat}`));
+      }
+      if (!row.location || row.location === 'Error retrieving address') {
+        row.location = 'N/A';
+      }
+      if (row.location === 'N/A') {
+        row.lat = 'N/A';
+        row.lng = 'N/A';
+      }
+      if (_.isEqual(cell, null) || _.isEqual(cell, undefined)) {
+        cell = '';
+      }
+      if (Array.isArray(cell) && cell[0] && cell[0].title) {
+        const titles = cell.map((item) => item.title).join(', ');
+        return escapeCSV(titles);
+      }
+      return escapeCSV(cell);
+    }).join(',')).join('\n');
+
+    const csvData = `${csvHeader}\n${csvBody}`;
+    const blob = new Blob([`\ufeff${csvData}`], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${selectedShipment.name}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sensor Report Data');
+
+    const borderStyle = {
+      top: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
+      left: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
+      bottom: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
+      right: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
+    };
+
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false);
+    const data = _.orderBy(
+      reports,
+      (item) => moment(item.timestamp),
+      ['desc'],
+    );
+    const rows = _.cloneDeep(data);
+    const selectedItems = !_.isEmpty(itemData) && itemData.filter((obj) => selectedShipment.items.includes(obj.url));
+
+    const custodiansArray = selectedShipment.custody_info.map((info) => {
+      const custodianContact = selectedShipment.contact_info.find((contact) => info.custodian_data.contact_data.includes(contact.url)) || {};
+      return {
+        custodian_name: info.custodian_name,
+        custodian_type: info.custodian_data.custodian_type.includes(1) ? 'Shipper' : info.custodian_data.custodian_type.includes(2) ? 'Logistics Provider' : info.custodian_data.custodian_type.includes(3) ? 'Warehouse' : 'Receiver',
+        custodian_address: `${custodianContact.address1}, ${custodianContact.city}, ${custodianContact.state}, ${custodianContact.country}, ${custodianContact.postal_code}`,
+      };
+    });
+    const sortedCustodiansArray = _.sortBy(custodiansArray, (custodian) => {
+      if (custodian.custodian_type === 'Shipper') return 0;
+      if (custodian.custodian_type === 'Receiver') return 2;
+      return 1;
+    });
+
+    let maxTempExcursionsCount = 0;
+    let maxHumExcursionsCount = 0;
+    let maxShockExcursionsCount = 0;
+    let maxLightExcursionsCount = 0;
+    let minTempExcursionsCount = 0;
+    let minHumExcursionsCount = 0;
+    let minShockExcursionsCount = 0;
+    let minLightExcursionsCount = 0;
+
+    const descriptionRow = worksheet.addRow([
+      'Color Key',
+      'Tracker ID',
+      'Shipment Name',
+      'Item Name(s)',
+      'Custodian Type',
+      'Custodian Name',
+      'Custodian Address',
+      'Tracker Intervals',
+      'Max. / Min. Thresholds',
+      'Excursions',
+      'Shipment Status',
+    ]);
+
+    descriptionRow.eachCell((cell) => {
+      cell.font = {
+        color: { argb: theme.palette.background.black2.replace('#', '') },
+        bold: true,
+      };
+    });
+
+    const descriptionRow1 = worksheet.addRow([
+      '',
+      selectedShipment.tracker,
+      selectedShipment.name,
+      `${!_.isEmpty(selectedItems) ? selectedItems.map((obj) => obj.name).join(', ') : ''}`,
+      sortedCustodiansArray[0].custodian_type,
+      sortedCustodiansArray[0].custodian_name,
+      sortedCustodiansArray[0].custodian_address,
+      `Transmission: ${selectedShipment.transmission_time} min.`,
+      '',
+      '',
+      selectedShipment.status,
+    ]);
+
+    descriptionRow1.getCell(1).value = {
+      richText: [
+        { text: 'Red', font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+        { text: ', ', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        { text: 'Blue', font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
+        { text: ' indicate Excursions', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+      ],
+    };
+
+    descriptionRow1.getCell(9).value = {
+      richText: [
+        { text: 'Temperature:' },
+        {
+          text: ` ${_.orderBy(selectedShipment.max_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))} `,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+        {
+          text: ` ${_.orderBy(selectedShipment.min_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))} `,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        },
+      ],
+    };
+
+    const descriptionRow2 = worksheet.addRow([
+      '',
+      '',
+      '',
+      '',
+      sortedCustodiansArray[1].custodian_type,
+      sortedCustodiansArray[1].custodian_name,
+      sortedCustodiansArray[1].custodian_address,
+      `Measurement: ${selectedShipment.measurement_time} min.`,
+    ]);
+
+    descriptionRow2.getCell(1).value = {
+      richText: [
+        { text: 'Green', font: { color: { argb: theme.palette.success.main.replace('#', '') } } },
+        { text: ' indicates Recovery', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+      ],
+    };
+
+    descriptionRow2.getCell(9).value = {
+      richText: [
+        { text: 'Humidity:' },
+        {
+          text: ` ${_.orderBy(selectedShipment.max_excursion_humidity, ['set_at'], ['desc'])[0].value}% `,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+        {
+          text: ` ${_.orderBy(selectedShipment.min_excursion_humidity, ['set_at'], ['desc'])[0].value}% `,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        },
+      ],
+    };
+
+    const descriptionRow3 = worksheet.addRow([
+      'Grey indicates Transit',
+      '',
+      '',
+      '',
+      _.size(sortedCustodiansArray) > 2 ? sortedCustodiansArray[2].custodian_type : '',
+      _.size(sortedCustodiansArray) > 2 ? sortedCustodiansArray[2].custodian_name : '',
+      _.size(sortedCustodiansArray) > 2 ? sortedCustodiansArray[2].custodian_address : '',
+    ]);
+
+    descriptionRow3.eachCell((cell, colNumber) => {
+      if (colNumber === 1) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: theme.palette.background.light6.replace('#', '') },
+        };
+      }
+    });
+
+    descriptionRow3.getCell(9).value = {
+      richText: [
+        { text: 'Shock:' },
+        {
+          text: ` ${_.orderBy(selectedShipment.shock_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} G`,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+      ],
+    };
+
+    const descriptionRow4 = worksheet.addRow([]);
+
+    descriptionRow4.getCell(5).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_type : '';
+    descriptionRow4.getCell(6).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_name : '';
+    descriptionRow4.getCell(7).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_address : '';
+
+    descriptionRow4.getCell(9).value = {
+      richText: [
+        { text: 'Light:' },
+        {
+          text: ` ${_.orderBy(selectedShipment.light_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} LUX`,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        },
+      ],
+    };
+
+    sortedCustodiansArray.forEach((custodian, index) => {
+      if (index > 3) {
+        const descriptionRows = worksheet.addRow([]);
+        descriptionRows.getCell(5).value = custodian.custodian_type;
+        descriptionRows.getCell(6).value = custodian.custodian_name;
+        descriptionRows.getCell(7).value = custodian.custodian_address;
+      }
+    });
+
+    worksheet.addRow([]);
+
+    const headerRow = worksheet.addRow(columns.map((col) => {
+      if (col.label === 'Date Time') {
+        const timeArray = _.split(timeFormat, ' ');
+        const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour';
+        const formattedLabel = `Date Time (${getTimezone(new Date(), timeZone)}) (${dateFormat} ${timePeriod})`;
+        return formattedLabel;
+      }
+      if (col.name === 'battery') {
+        return 'BATTERY (%)';
+      }
+      return col.label;
+    }));
+
+    headerRow.eachCell((cell, colNumber) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: theme.palette.warning.dark.replace('#', '') },
+      };
+      cell.font = {
+        color: { argb: theme.palette.background.black2.replace('#', '') },
+        bold: true,
+      };
+      if ([6, 7, 8, 9, 10].includes(colNumber)) {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      }
+    });
+
+    const dateTimeColIndex = columns.findIndex((col) => col.label === 'Date Time') + 1;
+    const departureTime = moment(selectedShipment.actual_time_of_departure).unix();
+    const arrivalTime = moment(selectedShipment.actual_time_of_arrival).unix();
+    const greyRows = [];
+
+    rows.forEach((row, rowIndex) => {
+      const dataRow = columns.map((col) => {
+        let cellValue = row[col.name];
+        if (col.name === 'location') {
+          if (!cellValue || cellValue === 'Error retrieving address') {
+            cellValue = 'N/A';
+          }
+        }
+        if (row.location === 'N/A') {
+          row.lat = 'N/A';
+          row.lng = 'N/A';
+        }
+        if (col.name === 'allAlerts' && Array.isArray(cellValue)) {
+          cellValue = cellValue.map((item) => item.title).join(', ');
+        }
+        return cellValue;
+      });
+
+      const rowRef = worksheet.addRow(dataRow);
+      rowRef.eachCell((cell, colNumber) => {
+        const columnName = columns[colNumber - 1].name;
+        if (columnName === 'allAlerts' && Array.isArray(row.allAlerts)) {
+          const alerts = row.allAlerts;
+          const richText = [];
+          alerts.forEach((alert) => {
+            richText.push({ text: alert.title, font: { color: { argb: _.includes(alert.color, 'green') ? theme.palette.success.main.replace('#', '') : alert.color.replace('#', '') } } });
+            richText.push({ text: ', ' });
+          });
+          richText.pop();
+          cell.value = { richText };
+        }
+        if (typeof cell.value === 'number') {
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        }
+        if (columnName === 'lat' || columnName === 'lng') {
+          cell.alignment = { horizontal: 'left' };
+        }
+      });
+
+      if (Array.isArray(row.allAlerts)) {
+        row.allAlerts.forEach((alert) => {
+          const alertTitle = alert.title.toLowerCase();
+          let colName;
+          let fillColor;
+          if (alertTitle.includes('maximum temperature excursion')) {
+            colName = 'temperature';
+            fillColor = theme.palette.error.light.replace('#', '');
+            maxTempExcursionsCount++;
+          } else if (alertTitle.includes('maximum humidity excursion')) {
+            colName = 'humidity';
+            fillColor = theme.palette.error.light.replace('#', '');
+            maxHumExcursionsCount++;
+          } else if (alertTitle.includes('maximum shock excursion')) {
+            colName = 'shock';
+            fillColor = theme.palette.error.light.replace('#', '');
+            maxShockExcursionsCount++;
+          } else if (alertTitle.includes('maximum light excursion')) {
+            colName = 'light';
+            fillColor = theme.palette.error.light.replace('#', '');
+            maxLightExcursionsCount++;
+          } else if (alertTitle.includes('minimum temperature excursion')) {
+            colName = 'temperature';
+            fillColor = theme.palette.info.light.replace('#', '');
+            minTempExcursionsCount++;
+          } else if (alertTitle.includes('minimum humidity excursion')) {
+            colName = 'humidity';
+            fillColor = theme.palette.info.light.replace('#', '');
+            minHumExcursionsCount++;
+          } else if (alertTitle.includes('minimum shock excursion')) {
+            colName = 'shock';
+            fillColor = theme.palette.info.light.replace('#', '');
+            minShockExcursionsCount++;
+          } else if (alertTitle.includes('minimum light excursion')) {
+            colName = 'light';
+            fillColor = theme.palette.info.light.replace('#', '');
+            minLightExcursionsCount++;
+          }
+          if (colName) {
+            const colIndex = columns.findIndex((col) => col.name === colName);
+            if (colIndex !== -1) {
+              const cell = worksheet.getCell(_.size(sortedCustodiansArray) <= 4 ? rowIndex + 8 : rowIndex + 8 + _.size(sortedCustodiansArray) - 4, colIndex + 1);
+              if (cell.value) {
+                cell.fill = {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  fgColor: { argb: fillColor },
+                };
+              }
+            }
+          }
+        });
+      }
+
+      descriptionRow1.getCell(10).value = {
+        richText: [
+          { text: 'Temperature:' },
+          {
+            text: maxTempExcursionsCount > 0 ? ` ${maxTempExcursionsCount} ` : '',
+            font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+          },
+          {
+            text: minTempExcursionsCount > 0 ? ` ${minTempExcursionsCount} ` : '',
+            font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+          },
+        ],
+      };
+
+      descriptionRow2.getCell(10).value = {
+        richText: [
+          { text: 'Humidity:' },
+          {
+            text: maxHumExcursionsCount > 0 ? ` ${maxHumExcursionsCount} ` : '',
+            font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+          },
+          {
+            text: minHumExcursionsCount > 0 ? ` ${minHumExcursionsCount} ` : '',
+            font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+          },
+        ],
+      };
+
+      descriptionRow3.getCell(10).value = {
+        richText: [
+          { text: 'Shock:' },
+          {
+            text: maxShockExcursionsCount > 0 ? ` ${maxShockExcursionsCount} ` : '',
+            font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+          },
+          {
+            text: minShockExcursionsCount > 0 ? ` ${minShockExcursionsCount} ` : '',
+            font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+          },
+        ],
+      };
+
+      descriptionRow4.getCell(10).value = {
+        richText: [
+          { text: 'Light:' },
+          {
+            text: maxLightExcursionsCount > 0 ? ` ${maxLightExcursionsCount} ` : '',
+            font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+          },
+          {
+            text: minLightExcursionsCount > 0 ? ` ${minLightExcursionsCount} ` : '',
+            font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+          },
+        ],
+      };
+
+      const dateValue = moment(row[columns[dateTimeColIndex - 1].name]).unix();
+      if (dateValue >= departureTime && dateValue <= arrivalTime) {
+        rowRef.eachCell((cell, colNumber) => {
+          if (!cell.fill) {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: theme.palette.background.light6.replace('#', '') },
+            };
+          }
+        });
+        greyRows.push(rowRef.number);
+      }
+    });
+
+    if (_.size(greyRows) > 0) {
+      const firstGreyRow = worksheet.getRow(greyRows[0]);
+      const lastGreyRow = worksheet.getRow(greyRows[greyRows.length - 1]);
+
+      let firstGreyRowRichText = firstGreyRow.getCell(1).value.richText;
+      let lastGreyRowRichText = lastGreyRow.getCell(1).value.richText;
+
+      if (_.size(firstGreyRowRichText) > 0) {
+        firstGreyRowRichText = [
+          ...firstGreyRowRichText,
+          {
+            text: ', Arrived',
+            font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
+          },
+        ];
+      } else {
+        firstGreyRowRichText = [
+          { text: 'Arrived', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        ];
+      }
+
+      if (_.size(lastGreyRowRichText) > 0) {
+        lastGreyRowRichText = [
+          ...lastGreyRowRichText,
+          {
+            text: ', En route',
+            font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
+          },
+        ];
+      } else {
+        lastGreyRowRichText = [
+          { text: 'En route', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        ];
+      }
+
+      firstGreyRow.getCell(1).value = { richText: firstGreyRowRichText };
+      lastGreyRow.getCell(1).value = { richText: lastGreyRowRichText };
+    }
+
+    const totalRows = _.size(sortedCustodiansArray) <= 4 ? rows.length + 7 : rows.length + 7 + _.size(sortedCustodiansArray) - 4;
+    const totalCols = columns.length + 1;
+    for (let rowIndex = 1; rowIndex <= totalRows; rowIndex++) {
+      for (let colIndex = 1; colIndex <= totalCols; colIndex++) {
+        const cell = worksheet.getCell(rowIndex, colIndex);
+        if (!cell.border) {
+          cell.border = borderStyle;
+        }
+      }
+    }
+
+    worksheet.columns.forEach((column, index) => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, (cell) => {
+        const cellValue = cell.value
+          ? cell.value.richText
+            ? cell.value.richText.map((obj) => obj.text).join('')
+            : cell.value.toString()
+          : '';
+        maxLength = Math.max(maxLength, cellValue.length);
+      });
+      column.width = maxLength + 2;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${selectedShipment.name}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Box mt={5} mb={5}>
       {(isLoadingShipments
         || isLoadingUnits
+        || isLoadingItems
+        || isLoadingItemTypes
         || isLoadingCustodians
         || isLoadingContact
         || isLoadingAllGateways
@@ -259,10 +836,13 @@ const Reporting = () => {
         || isFetchingShipments
         || isFetchingAllGateways
         || isFetchingSensorAlerts
-        || isFetchingSensorReports)
+        || isFetchingSensorReports
+        || isLoadingSensorProcessedData)
         && (
           <Loader open={isLoadingShipments
             || isLoadingUnits
+            || isLoadingItems
+            || isLoadingItemTypes
             || isLoadingCustodians
             || isLoadingContact
             || isLoadingAllGateways
@@ -273,61 +853,32 @@ const Reporting = () => {
             || isFetchingShipments
             || isFetchingAllGateways
             || isFetchingSensorAlerts
-            || isFetchingSensorReports}
+            || isFetchingSensorReports
+            || isLoadingSensorProcessedData}
           />
         )}
-      <Typography className="reportingDashboardHeading" variant="h4">
-        Reporting
-      </Typography>
+      <Box className="reportingDashboardContainer">
+        <Typography className="reportingDashboardHeading" variant="h4">
+          Reporting
+        </Typography>
+        {!_.isEmpty(shipmentFilter) && !_.isEqual(shipmentFilter, 'Active') && (
+          <Button
+            type="button"
+            variant="contained"
+            color="primary"
+            className="reportingDashboardButton"
+            onClick={() => setShowGenerateReport(true)}
+            disabled={isReportPDFDownloading || _.isEmpty(selectedShipment)}
+          >
+            Insights Report
+            <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
+              <InfoIcon fontSize="small" className="reportingDashboardButtonIcon" />
+            </Tooltip>
+          </Button>
+        )}
+      </Box>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={tileView ? 6 : 12}>
-          <div className="reportingSwitchViewSection">
-            <Typography
-              className="reportingSectionTitleHeading"
-              variant="h5"
-            >
-              {selectedShipment
-                && selectedShipment.name
-                && `Map View - Shipment: ${selectedShipment.name}`}
-              {!selectedShipment && 'Map View'}
-            </Typography>
-            <IconButton
-              onClick={() => setTileView(!tileView)}
-              color="inherit"
-              aria-label="menu"
-              sx={{
-                display: {
-                  xs: 'none',
-                  md: 'block',
-                },
-                marginTop: 0.7,
-              }}
-            >
-              {!tileView
-                ? <ViewCompactIcon />
-                : <ViewComfyIcon />}
-            </IconButton>
-          </div>
-          <MapComponent
-            isMarkerShown={!_.isEmpty(markers)}
-            showPath
-            markers={markers}
-            googleMapURL={window.env.MAP_API_URL}
-            zoom={_.isEmpty(markers) ? 4 : 12}
-            setSelectedMarker={setSelectedMarker}
-            loadingElement={
-              <div style={{ height: '100%' }} />
-            }
-            containerElement={
-              <div style={{ height: '625px' }} />
-            }
-            mapElement={
-              <div style={{ height: '100%' }} />
-            }
-            unitOfMeasure={unitData}
-          />
-        </Grid>
-        <Grid item xs={12} md={tileView ? 6 : 12}>
+        <Grid item xs={12}>
           <div className="reportingSwitchViewSection">
             <ToggleButtonGroup
               color="secondary"
@@ -377,8 +928,10 @@ const Reporting = () => {
               id="shipment-name"
               select
               required
-              className="reportingSelectInput"
-              label="Shipment Name"
+              className="reportingSelectInput notranslate"
+              label={(
+                <span className="translate">Shipment Name</span>
+              )}
               value={
                 selectedShipment
                   ? selectedShipment.id
@@ -400,100 +953,74 @@ const Reporting = () => {
                     <MenuItem
                       key={index}
                       value={shipment.id}
+                      className="notranslate"
                     >
                       {shipment.name}
                     </MenuItem>
                   ),
                 )}
             </TextField>
-            <IconButton
-              onClick={() => setTileView(!tileView)}
-              color="default"
-              aria-label="menu"
-              sx={{
-                display: {
-                  xs: 'none',
-                  md: 'block',
-                },
-                marginTop: 0.75,
-              }}
-            >
-              {!tileView
-                ? <ViewCompactIcon />
-                : <ViewComfyIcon />}
-            </IconButton>
           </div>
-          <div className="reportingInfoContainer">
-            <Card>
-              <CardContent>
-                <Grid container>
-                  {selectedShipment
-                    ? (_.map(
-                      SHIPMENT_OVERVIEW_COLUMNS,
-                      (column, index) => (
-                        <Grid
-                          item
-                          className="reportingInfoSection"
-                          xs={12}
-                          sm={6}
-                          md={6}
-                          key={`col${index}:${column.name}`}
-                        >
-                          <Typography variant="h6">
-                            {column.label}
-                          </Typography>
-                          {column.name === 'custody_info' && selectedShipment[column.name]
-                            ? (
-                              <div
-                                key="custody_info_last"
-                                style={{
-                                  marginBottom: 10,
-                                  color: theme.palette.background.dark,
-                                }}
-                              >
-                                <Typography variant="body1">
-                                  {`Name: ${_.find(selectedShipment[column.name], { has_current_custody: true })
-                                    ? _.find(selectedShipment[column.name], { has_current_custody: true }).custodian_name
-                                    : 'N/A'}`}
-                                </Typography>
-                                <Typography variant="body1">
-                                  {`Custodian Address: ${selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })]
-                                    ? selectedShipment.contact_info[_.findIndex(selectedShipment[column.name], { has_current_custody: true })].address
-                                    : 'N/A'}`}
-                                </Typography>
-                              </div>
-                            ) : (
-                              <Typography variant="body1">
-                                {getShipmentValue(column.name)}
-                              </Typography>
-                            )}
-                        </Grid>
-                      ),
-                    ))
-                    : (
-                      <Typography
-                        variant="h6"
-                        align="center"
-                      >
-                        Select a shipment to view reporting data
-                      </Typography>
-                    )}
-                </Grid>
-              </CardContent>
-            </Card>
+          {!_.isEmpty(shipmentFilter) && _.isEqual(shipmentFilter, 'Active')
+            ? (
+              <ReportingActiveShipmentDetails
+                selectedShipment={selectedShipment}
+                theme={theme}
+                getShipmentValue={getShipmentValue}
+              />
+            )
+            : (
+              <ReportingDetailTable
+                ref={reportingDetailTableRef}
+                selectedShipment={selectedShipment}
+                allGatewayData={allGatewayData}
+                timeZone={timeZone}
+                sensorAlertData={sensorAlertData}
+                theme={theme}
+                unitOfMeasure={unitData}
+                sensorReportData={sensorReportData}
+                itemData={itemData}
+                itemTypesData={itemTypesData}
+                sensorProcessedData={sensorProcessedData}
+              />
+            )}
+        </Grid>
+        <Grid ref={mapRef} item xs={12}>
+          <div className="reportingSwitchViewSection">
+            <Typography className="reportingSectionTitleHeading" variant="h5">
+              {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
+                <>
+                  <span>Map View - Shipment: </span>
+                  <span className="notranslate">{selectedShipment.name}</span>
+                </>
+              ) : 'Map View'}
+            </Typography>
           </div>
+          <MapComponent
+            isMarkerShown={!_.isEmpty(markers)}
+            showPath
+            screenshotMapCenter
+            noInitialInfo
+            markers={markers}
+            googleMapURL={window.env.MAP_API_URL}
+            zoom={4}
+            setSelectedMarker={setSelectedMarker}
+            loadingElement={<div style={{ height: '100%' }} />}
+            containerElement={<div style={{ height: '625px' }} />}
+            mapElement={<div style={{ height: '100%' }} />}
+            unitOfMeasure={unitData}
+          />
         </Grid>
       </Grid>
       <Grid container className="reportingContainer" sx={{ marginTop: _.isEmpty(selectedShipment) ? 4 : -1 }}>
         <div className="reportingSwitchViewSection">
-          <Typography
-            className="reportingSectionTitleHeading"
-            variant="h5"
-          >
-            {selectedShipment
-              && selectedShipment.name
-              && `Graph View - Shipment: ${selectedShipment.name}`}
-            {!selectedShipment && 'Graph View'}
+          <Typography className="reportingSectionTitleHeading" variant="h5">
+            {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
+              <>
+                <span>Graph View - Shipment: </span>
+                <span className="notranslate">{selectedShipment.name}</span>
+              </>
+            ) : 'Graph View'}
           </Typography>
         </div>
         <Grid item xs={2} sm={1.1} md={1}>
@@ -504,7 +1031,7 @@ const Reporting = () => {
           >
             {_.map(REPORT_TYPES(unitData), (item, index) => (
               <ListItem
-                key={`iconItem${index}${item.id}`}
+                key={`iconItem${index}${item.id} `}
                 button
                 selected={selectedGraph === item.id}
                 onClick={() => setSelectedGraph(item.id)}
@@ -528,7 +1055,7 @@ const Reporting = () => {
                 maxHumidity={allGraphs.maxHumidity}
                 shockThreshold={allGraphs.shockThreshold}
                 lightThreshold={allGraphs.lightThreshold}
-                timeGap={selectedShipment.measurement_time || 5}
+                timeGap={!_.isEmpty(selectedShipment) ? selectedShipment.measurement_time : 5}
                 minColor={theme.palette.info.main}
                 maxColor={theme.palette.error.main}
               />
@@ -550,11 +1077,15 @@ const Reporting = () => {
           { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
         )}
         shipmentName={selectedShipment && selectedShipment.name}
+        selectedShipment={selectedShipment}
         selectedMarker={selectedShipment && selectedMarker}
         unitOfMeasure={unitData}
         timezone={timeZone}
+        downloadCSV={downloadCSV}
+        downloadExcel={downloadExcel}
       />
       <AlertsReport
+        ref={alertsTableRef}
         sensorReport={reports}
         alerts={_.filter(
           sensorAlertData,
@@ -564,6 +1095,65 @@ const Reporting = () => {
         timezone={timeZone}
         unitOfMeasure={unitData}
         shouldScroll={!!locShipmentID}
+      />
+      <ReportGraph
+        ref={tempGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="temperature"
+        data={allGraphs}
+      />
+      <ReportGraph
+        ref={humGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="humidity"
+        data={allGraphs}
+      />
+      <ReportGraph
+        ref={shockGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="shock"
+        data={allGraphs}
+      />
+      <ReportGraph
+        ref={lightGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="light"
+        data={allGraphs}
+      />
+      <ReportGraph
+        ref={batteryGraphRef}
+        selectedShipment={selectedShipment}
+        unitOfMeasure={unitData}
+        theme={theme}
+        graphType="battery"
+        data={allGraphs}
+      />
+      <GenerateReport
+        open={showGenerateReport}
+        setOpen={setShowGenerateReport}
+        tableRef={reportingDetailTableRef}
+        mapRef={mapRef}
+        tempGraphRef={tempGraphRef}
+        humGraphRef={humGraphRef}
+        shockGraphRef={shockGraphRef}
+        lightGraphRef={lightGraphRef}
+        batteryGraphRef={batteryGraphRef}
+        alertsTableRef={alertsTableRef}
+        downloadCSV={downloadCSV}
+        downloadExcel={downloadExcel}
+        reportPDFDownloadMutation={reportPDFDownloadMutation}
+        selectedShipment={selectedShipment}
+        isReportPDFDownloading={isReportPDFDownloading}
+        data={reportURLData}
+        setData={setReportURLData}
       />
     </Box>
   );

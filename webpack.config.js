@@ -5,6 +5,9 @@ const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
+const packageJSON = require('./package.json');
+
+const buildDate = new Date().toUTCString();
 
 module.exports = (env, argv) => {
   const webpackConfig = {
@@ -91,7 +94,9 @@ module.exports = (env, argv) => {
     output: {
       path: path.resolve(__dirname, 'dist/'),
       publicPath: '/',
-      filename: 'bundle.js',
+      filename: '[name].[hash:8].js',
+      sourceMapFilename: '[name].[hash:8].map',
+      chunkFilename: '[id].[hash:8].js',
     },
     devServer: {
       contentBase: path.join(__dirname, 'public/'),
@@ -102,6 +107,10 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
+      new webpack.DefinePlugin({
+        VERSION: JSON.stringify(packageJSON.version),
+        BUILDDATE: JSON.stringify(buildDate),
+      }),
       new HtmlWebPackPlugin({
         template: './src/index.html',
         filename: './index.html',
@@ -120,7 +129,7 @@ module.exports = (env, argv) => {
     webpackConfig.plugins = [
       ...webpackConfig.plugins,
       new CopyPlugin([
-        { from: '.env.development.local', to: 'environment.json' },
+        { from: '.env.development.local', to: 'environment.js' },
       ]),
     ];
   }

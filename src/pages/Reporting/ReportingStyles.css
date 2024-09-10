@@ -1,11 +1,34 @@
 /* Reporting Main Styles */
+.reportingDashboardContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .reportingDashboardHeading {
   font-weight: bold;
   margin-bottom: 0.5em;
 }
 
+.reportingDashboardButton {
+  height: 40px;
+}
+
+.reportingDashboardButtonIcon {
+  margin-top: 0;
+  margin-left: 5px;
+}
+
 .reportingContainer {
+  margin-top: 20px;
   margin-bottom: 24px;
+}
+
+.reportingContainer2 {
+  margin-top: 20px;
+  margin-bottom: 24px;
+  position: absolute;
+  top: -9999px;
 }
 
 .reportingSwitchViewSection {
@@ -26,12 +49,9 @@
 }
 
 .reportingSectionTitleHeading {
-  flex: 1;
   padding: 8px 16px;
   text-transform: uppercase;
   font-size: 18px;
-  display: flex;
-  align-items: center;
 }
 
 .reportingInfoContainer {
@@ -59,6 +79,11 @@
   margin: 0px auto;
 }
 
+.reportingGraphIconBar2 {
+  background-color: var(--color-palette-primary-light);
+  height: 100%;
+}
+
 .reportingSelectInput {
   margin-left: 8px;
 }
@@ -78,12 +103,9 @@
 }
 
 .reportingSensorReportTitle {
-  flex: 1;
   padding: 8px 16px;
   text-transform: uppercase;
   font-size: 18px;
-  display: flex;
-  align-items: center;
 }
 
 .reportingSensorLeftHeader span {
@@ -91,10 +113,14 @@
 }
 
 .reportingSensorTableTitle {
-  color: var(--color-palette-background-default);
   position: absolute;
+  color: var(--color-palette-background-default);
   left: 10px;
   bottom: 5px;
+}
+
+.reportingSensorTableExcelDownload {
+  order: 99;
 }
 
 /* Alert Component Styles */
@@ -112,10 +138,63 @@
 }
 
 .reportingAlertTitle {
-  flex: 1;
   padding: 8px 16px;
   text-transform: uppercase;
   font-size: 18px;
-  display: flex;
-  align-items: center;
+}
+
+/* Reporting Detail Table Styles */
+.reportingDetailTableContainer {
+  margin-top: 20px;
+  border: 1px solid var(--color-palette-background-black);
+}
+
+.reportingDetailTableHeader {
+  color: var(--color-palette-background-default);
+}
+
+.reportingDetailTableHeader #itemText {
+  padding: 5px;
+  background-color: var(--color-palette-primary-dark) !important;
+}
+
+.reportingDetailTableHeader>* {
+  border: 1px solid var(--color-palette-background-black);
+}
+
+.reportingDetailTableContainer .reportingDetailTableBody:nth-child(even) #itemText {
+  background-color: var(--color-palette-background-light2);
+  padding: 5px;
+}
+
+.reportingDetailTableContainer .reportingDetailTableBody:nth-child(odd) #itemText {
+  background-color: var(--color-palette-background-light5);
+  padding: 5px;
+}
+
+.reportingDetailTableContainer .reportingDetailTableBody>* {
+  border: 1px solid var(--color-palette-background-black);
+}
+
+.reportingRedText {
+  color: var(--color-palette-error-main);
+}
+
+.reportingInfoText {
+  color: var(--color-palette-info-main);
+}
+
+.reportingGreenText {
+  color: var(--color-palette-success-main);
+}
+
+/* Generate Report Section Styles */
+.generateReportFormContainer {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.generateReportButton {
+  margin: 24px 0px 16px;
+  border-radius: 18px;
 }

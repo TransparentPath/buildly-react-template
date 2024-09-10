@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useCallback, useEffect, useState } from 'react';
 import Geocode from 'react-geocode';
@@ -65,6 +66,7 @@ import {
   USER_SHIPMENT_STATUS,
   TIVE_GATEWAY_TIMES,
   UOM_TEMPERATURE_CHOICES,
+  INCOMPLETED_SHIPMENT_STATUS,
 } from '@utils/mock';
 import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
@@ -95,6 +97,8 @@ const CreateShipment = ({ history, location }) => {
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
   const user = getUser();
   const organization = user && user.organization;
+  const organizationUuid = organization && organization.organization_uuid;
+  const userLanguage = user.user_language;
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
 
   const { displayAlert } = useAlert();
@@ -135,41 +139,79 @@ const CreateShipment = ({ history, location }) => {
     (!_.isEmpty(editData) && editData.estimated_time_of_arrival)
     || moment().add(1, 'day'),
   );
+  const [actualDepartureDateTime, setActualDepartureDateTime] = useState(
+    (!_.isEmpty(editData) && editData.actual_time_of_departure)
+    || null,
+  );
+  const [actualArrivalDateTime, setActualArrivalDateTime] = useState(
+    (!_.isEmpty(editData) && editData.actual_time_of_arrival)
+    || null,
+  );
   const status = useInput((!_.isEmpty(editData) && editData.status) || 'Planned');
   const cannotEdit = !_.isEmpty(editData) && _.includes(_.map(ADMIN_SHIPMENT_STATUS, 'value'), editData.status);
 
   const [items, setItems] = useState((!_.isEmpty(editData) && editData.items) || []);
   const [itemRows, setItemRows] = useState([]);
 
+  const minExcursionTempData = !_.isEmpty(editData)
+    ? _.orderBy(editData.min_excursion_temp, 'set_at', 'desc')[0].value
+    : undefined;
+  const maxExcursionTempData = !_.isEmpty(editData)
+    ? _.orderBy(editData.max_excursion_temp, 'set_at', 'desc')[0].value
+    : undefined;
+  const minExcursionHumData = !_.isEmpty(editData)
+    ? _.orderBy(editData.min_excursion_humidity, 'set_at', 'desc')[0].value
+    : undefined;
+  const maxExcursionHumData = !_.isEmpty(editData)
+    ? _.orderBy(editData.max_excursion_humidity, 'set_at', 'desc')[0].value
+    : undefined;
+  const shockThresholdData = !_.isEmpty(editData)
+    ? _.orderBy(editData.shock_threshold, 'set_at', 'desc')[0].value
+    : undefined;
+  const lightThresholdData = !_.isEmpty(editData)
+    ? _.orderBy(editData.light_threshold, 'set_at', 'desc')[0].value
+    : undefined;
   const min_excursion_temp = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.min_excursion_temp, 'set_at', 'desc')[0].value)
-    || (organization && organization.default_min_temperature)
-    || 0,
+    minExcursionTempData !== undefined && minExcursionTempData !== null
+      ? minExcursionTempData
+      : organization && organization.default_min_temperature !== undefined && organization.default_min_temperature !== null
+        ? organization.default_min_temperature
+        : 0,
   );
   const max_excursion_temp = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.max_excursion_temp, 'set_at', 'desc')[0].value)
-    || (organization && organization.default_max_temperature)
-    || 100,
+    maxExcursionTempData !== undefined && maxExcursionTempData !== null
+      ? maxExcursionTempData
+      : organization && organization.default_max_temperature !== undefined && organization.default_max_temperature !== null
+        ? organization.default_max_temperature
+        : 100,
   );
   const min_excursion_humidity = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.min_excursion_humidity, 'set_at', 'desc')[0].value)
-    || (organization && organization.default_min_humidity)
-    || 0,
+    minExcursionHumData !== undefined && minExcursionHumData !== null
+      ? minExcursionHumData
+      : organization && organization.default_min_humidity !== undefined && organization.default_min_humidity !== null
+        ? organization.default_min_humidity
+        : 0,
   );
   const max_excursion_humidity = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.max_excursion_humidity, 'set_at', 'desc')[0].value)
-    || (organization && organization.default_max_humidity)
-    || 100,
+    maxExcursionHumData !== undefined && maxExcursionHumData !== null
+      ? maxExcursionHumData
+      : organization && organization.default_max_humidity !== undefined && organization.default_max_humidity !== null
+        ? organization.default_max_humidity
+        : 100,
   );
   const shock_threshold = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.shock_threshold, 'set_at', 'desc')[0].value)
-    || (organization && organization.default_shock)
-    || 4,
+    shockThresholdData !== undefined && shockThresholdData !== null
+      ? shockThresholdData
+      : organization && organization.default_shock !== undefined && organization.default_shock !== null
+        ? organization.default_shock
+        : 4,
   );
   const light_threshold = useInput(
-    (!_.isEmpty(editData) && _.orderBy(editData.light_threshold, 'set_at', 'desc')[0].value)
-    || (organization && organization.default_light)
-    || 5,
+    lightThresholdData !== undefined && lightThresholdData !== null
+      ? lightThresholdData
+      : organization && organization.default_light !== undefined && organization.default_light !== null
+        ? organization.default_light
+        : 5,
   );
 
   const supressTempAlerts = useInput(
@@ -227,15 +269,15 @@ const CreateShipment = ({ history, location }) => {
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
   const { data: shipmentTemplateData, isLoading: isLoadingShipmentTemplates } = useQuery(
-    ['shipmentTemplates', organization.organization_uuid],
-    () => getShipmentTemplatesQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['shipmentTemplates', organizationUuid],
+    () => getShipmentTemplatesQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
-    ['custodians', organization.organization_uuid],
-    () => getCustodianQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['custodians', organizationUuid],
+    () => getCustodianQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
@@ -245,33 +287,33 @@ const CreateShipment = ({ history, location }) => {
   );
 
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
-    ['contact', organization.organization_uuid],
-    () => getContactQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['contact', organizationUuid],
+    () => getContactQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
-    ['unit', organization.organization_uuid],
-    () => getUnitQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['unit', organizationUuid],
+    () => getUnitQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
-    ['items', organization.organization_uuid],
-    () => getItemQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['items', organizationUuid],
+    () => getItemQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
-    ['itemTypes', organization.organization_uuid],
-    () => getItemTypeQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['itemTypes', organizationUuid],
+    () => getItemTypeQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
-    ['gateways', organization.organization_uuid],
-    () => getGatewayQuery(organization.organization_uuid, displayAlert),
-    { refetchOnWindowFocus: false },
+    ['gateways', organizationUuid],
+    () => getGatewayQuery(organizationUuid, displayAlert),
+    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   const { data: gatewayTypesData, isLoading: isLoadingGatewayTypes } = useQuery(
@@ -283,23 +325,20 @@ const CreateShipment = ({ history, location }) => {
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies'],
     () => getCustodyQuery(encodeURIComponent(editData.shipment_uuid), displayAlert),
-    {
-      enabled: !_.isEmpty(editData),
-      refetchOnWindowFocus: false,
-    },
+    { enabled: !_.isEmpty(editData), refetchOnWindowFocus: false },
   );
 
   const { mutate: deleteCustodyMutation, isLoading: isDeletingCustody } = useDeleteCustodyMutation(displayAlert);
 
-  const { mutate: addShipmentTemplateMutation, isLoading: isAddingShipmentTemplate } = useAddShipmentTemplateMutation(organization.organization_uuid, displayAlert);
+  const { mutate: addShipmentTemplateMutation, isLoading: isAddingShipmentTemplate } = useAddShipmentTemplateMutation(organizationUuid, displayAlert);
 
-  const { mutate: editShipmentTemplateMutation, isLoading: isEditingShipmentTemplate } = useEditShipmentTemplateMutation(organization.organization_uuid, displayAlert);
+  const { mutate: editShipmentTemplateMutation, isLoading: isEditingShipmentTemplate } = useEditShipmentTemplateMutation(organizationUuid, displayAlert);
 
-  const { mutate: deleteShipmentTemplateMutation, isLoading: isDeletingShipmentTemplate } = useDeleteShipmentTemplateMutation(organization.organization_uuid, displayAlert);
+  const { mutate: deleteShipmentTemplateMutation, isLoading: isDeletingShipmentTemplate } = useDeleteShipmentTemplateMutation(organizationUuid, displayAlert);
 
-  const { mutate: addShipmentMutation, isLoading: isAddingShipment } = useAddShipmentMutation(organization.organization_uuid, history, routes.SHIPMENT, displayAlert);
+  const { mutate: addShipmentMutation, isLoading: isAddingShipment } = useAddShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert);
 
-  const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organization.organization_uuid, history, routes.SHIPMENT, displayAlert);
+  const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert);
 
   useEffect(() => {
     if (!_.isEmpty(editData)) {
@@ -617,7 +656,7 @@ const CreateShipment = ({ history, location }) => {
         !supressShockAlerts.value ? 'shock' : '',
         !supressLightAlerts.value ? 'light' : '',
       ], ''),
-      organization_uuid: organization.organization_uuid,
+      organization_uuid: organizationUuid,
     };
     if (_.isEmpty(tmplt)) {
       addShipmentTemplateMutation(templateFormValue);
@@ -662,7 +701,7 @@ const CreateShipment = ({ history, location }) => {
         !supressShockAlerts.value ? 'shock' : '',
         !supressLightAlerts.value ? 'light' : '',
       ], ''),
-      organization_uuid: organization.organization_uuid,
+      organization_uuid: organizationUuid,
     };
 
     if (template && (
@@ -779,7 +818,7 @@ const CreateShipment = ({ history, location }) => {
       estimated_time_of_arrival: arrivalDateTime,
       estimated_time_of_departure: departureDateTime,
       items,
-      organization_uuid: organization.organization_uuid,
+      organization_uuid: organizationUuid,
       platform_name: gatewayType.value,
       max_excursion_temp: [
         { value: parseInt(max_excursion_temp.value, 10), set_at: setAt },
@@ -1089,12 +1128,15 @@ const CreateShipment = ({ history, location }) => {
                 <Grid container spacing={2}>
                   <Grid item xs={8}>
                     <TextField
+                      className="notranslate"
                       variant="outlined"
                       id="origin-custodian"
                       select
                       fullWidth
                       placeholder="Select..."
-                      label="Origin Custodian"
+                      label={(
+                        <span className="translate">Origin Custodian</span>
+                      )}
                       onBlur={(e) => handleBlur(e, 'required', originCustodian, 'origin-custodian')}
                       value={originCustodian}
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'start')}
@@ -1104,7 +1146,7 @@ const CreateShipment = ({ history, location }) => {
                     >
                       <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(originList) && _.map(originList, (cust) => (
-                        <MenuItem key={cust.custodian_uuid} value={cust.url}>
+                        <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
                         </MenuItem>
                       ))}
@@ -1160,12 +1202,15 @@ const CreateShipment = ({ history, location }) => {
                 <Grid container spacing={2} mt={isMobile() ? 1.5 : -2}>
                   <Grid item xs={8}>
                     <TextField
+                      className="notranslate"
                       variant="outlined"
                       id="destination-custodian"
                       select
                       fullWidth
                       placeholder="Select..."
-                      label="Destination Custodian"
+                      label={(
+                        <span className="translate">Destination Custodian</span>
+                      )}
                       onBlur={(e) => handleBlur(e, 'required', destinationCustodian, 'destination-custodian')}
                       value={destinationCustodian}
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'end')}
@@ -1175,7 +1220,7 @@ const CreateShipment = ({ history, location }) => {
                     >
                       <MenuItem value="">Select</MenuItem>
                       {!_.isEmpty(destinationList) && _.map(destinationList, (cust) => (
-                        <MenuItem key={cust.custodian_uuid} value={cust.url}>
+                        <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
                         </MenuItem>
                       ))}
@@ -1229,7 +1274,7 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 1.5 : -2.5} className="createShipmentAdjustSpacing">
                 <DatePickerComponent
-                  label="Shipment start"
+                  label="Estimated Shipment Start"
                   selectedDate={moment(departureDateTime).tz(data)}
                   disabled={cannotEdit}
                   hasTime
@@ -1251,7 +1296,7 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 0 : -2.5} className={isMobile() ? 'createShipmentAdjustSpacing' : ''}>
                 <DatePickerComponent
-                  label="Shipment end"
+                  label="Estimated Shipment End"
                   selectedDate={moment(arrivalDateTime).tz(data)}
                   disabled={cannotEdit}
                   hasTime
@@ -1268,14 +1313,57 @@ const CreateShipment = ({ history, location }) => {
                   }
                 />
               </Grid>
+              <Grid item xs={11} sm={5.5} mt={isMobile() ? 1.5 : -2.5} className="createShipmentAdjustSpacing">
+                {actualDepartureDateTime && (
+                  <DatePickerComponent
+                    label="Actual Shipment Start"
+                    selectedDate={moment(actualDepartureDateTime).tz(data)}
+                    disabled
+                    hasTime
+                    dateFormat={
+                      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                        : ''
+                    }
+                    timeFormat={
+                      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+                        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+                        : ''
+                    }
+                  />
+                )}
+              </Grid>
+              <Grid item xs={11} sm={5.5} mt={isMobile() ? 0 : -2.5} className={isMobile() ? 'createShipmentAdjustSpacing' : ''}>
+                {actualArrivalDateTime && (
+                  <DatePickerComponent
+                    label="Actual Shipment Arrival"
+                    selectedDate={moment(actualArrivalDateTime).tz(data)}
+                    disabled
+                    hasTime
+                    dateFormat={
+                      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+                        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+                        : ''
+                    }
+                    timeFormat={
+                      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+                        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+                        : ''
+                    }
+                  />
+                )}
+              </Grid>
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 2 : 0}>
                 <TextField
+                  className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'}
                   variant="outlined"
                   id="status"
                   select
                   fullWidth
                   placeholder="Select..."
-                  label="Shipment Status"
+                  label={(
+                    <span className="translate">Shipment Status</span>
+                  )}
                   onBlur={(e) => handleBlur(e, 'required', status, 'status')}
                   InputLabelProps={{ shrink: true }}
                   SelectProps={{ displayEmpty: true }}
@@ -1284,21 +1372,26 @@ const CreateShipment = ({ history, location }) => {
                 >
                   <MenuItem value="">Select</MenuItem>
                   {_.isEmpty(editData) && _.map(CREATE_SHIPMENT_STATUS, (st, idx) => (
-                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                    <MenuItem className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'} key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
-                  {!cannotEdit && !isAdmin && _.map(USER_SHIPMENT_STATUS, (st, idx) => (
-                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                  {!_.isEmpty(editData) && !cannotEdit && !isAdmin && _.map(USER_SHIPMENT_STATUS, (st, idx) => (
+                    <MenuItem className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'} key={`${idx}-${st.label}`} value={st.value}>
                       {st.label}
                     </MenuItem>
                   ))}
-                  {((cannotEdit && isAdmin) || (!_.isEmpty(editData) && !cannotEdit && isAdmin))
+                  {!_.isEmpty(editData) && ((cannotEdit && !isAdmin) || (!cannotEdit && isAdmin))
                     && _.map([...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS], (st, idx) => (
-                      <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      <MenuItem className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'} key={`${idx}-${st.label}`} value={st.value}>
                         {st.label}
                       </MenuItem>
                     ))}
+                  {!_.isEmpty(editData) && cannotEdit && isAdmin && _.map([...ADMIN_SHIPMENT_STATUS], (st, idx) => (
+                    <MenuItem className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'} key={`${idx}-${st.label}`} value={st.value}>
+                      {st.label}
+                    </MenuItem>
+                  ))}
                 </TextField>
               </Grid>
               <Grid item xs={1} className="createShipmentOuterAsterisk" mt={isMobile() ? -1.75 : 0}>*</Grid>
@@ -1330,7 +1423,7 @@ const CreateShipment = ({ history, location }) => {
                     ))
                   )}
                   renderOption={(props, option, { selected }) => (
-                    <li {...props}>
+                    <li {...props} className="notranslate">
                       <Checkbox
                         icon={uncheckedIcon}
                         checkedIcon={checkedIcon}
@@ -1343,8 +1436,11 @@ const CreateShipment = ({ history, location }) => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
+                      className="notranslate"
                       variant="outlined"
-                      label="Items to be shipped"
+                      label={(
+                        <span className="translate">Items to be shipped</span>
+                      )}
                       placeholder="Select..."
                     />
                   )}
@@ -1636,12 +1732,15 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={8.5} sm={9.5} ml={isMobile() ? 2 : 0}>
                 <TextField
+                  className="notranslate"
                   variant="outlined"
                   fullWidth
                   disabled={cannotEdit}
                   id="shipment-name"
                   name="shipment-name"
-                  label="Shipment Name"
+                  label={(
+                    <span className="translate">Shipment Name</span>
+                  )}
                   autoComplete="shipment-name"
                   onBlur={(e) => handleBlur(e, 'required', shipmentName, 'shipment-name')}
                   {...shipmentName.bind}
@@ -1761,12 +1860,15 @@ const CreateShipment = ({ history, location }) => {
                     <Grid container spacing={4} mt={0}>
                       <Grid item xs={6} sm={5} lg={5.5}>
                         <TextField
+                          className="notranslate"
                           id={`add-cust-${addCust.custodian_uuid}`}
                           select
                           fullWidth
                           disabled={cannotEdit}
                           placeholder="Select..."
-                          label={`Custodian ${index + 1}`}
+                          label={(
+                            <span className="translate">{`Custodian ${index + 1}`}</span>
+                          )}
                           value={addCust}
                           onChange={(e) => {
                             const newList = _.map(
@@ -1786,7 +1888,7 @@ const CreateShipment = ({ history, location }) => {
                               ..._.without(additionalCustodians, addCust),
                               _.find(carrierList, { url: destinationCustodian }),
                             ), (cust) => (
-                              <MenuItem key={cust.custodian_uuid} value={cust}>
+                              <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust}>
                                 {cust.name}
                               </MenuItem>
                             ))}
@@ -1833,13 +1935,16 @@ const CreateShipment = ({ history, location }) => {
               <Grid item xs={11.5} mt={isMobile() ? 2 : 0}>
                 {showAddCustodian && (
                   <TextField
+                    className="notranslate"
                     variant="outlined"
                     id="additional-custodian"
                     select
                     fullWidth
                     disabled={cannotEdit}
                     placeholder="Select..."
-                    label="Add carriers/warehouses"
+                    label={(
+                      <span className="translate">Add carriers/warehouses</span>
+                    )}
                     onChange={(e) => {
                       setAdditionalCustocations([...additionalCustodians, e.target.value]);
                       setShowAddCustodian(false);
@@ -1855,7 +1960,7 @@ const CreateShipment = ({ history, location }) => {
                         ...additionalCustodians,
                         _.find(carrierList, { url: destinationCustodian }),
                       ), (cust) => (
-                        <MenuItem key={cust.custodian_uuid} value={cust}>
+                        <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust}>
                           {cust.name}
                         </MenuItem>
                       ))}
@@ -1882,11 +1987,14 @@ const CreateShipment = ({ history, location }) => {
             <Grid container spacing={isDesktop ? 4 : 0}>
               <Grid item xs={5} sm={5.5}>
                 <TextField
+                  className="notranslate"
                   id="gateway-type"
                   select
                   fullWidth
                   placeholder="Select..."
-                  label="Tracker platform"
+                  label={(
+                    <span className="translate">Tracker platform</span>
+                  )}
                   onBlur={(e) => handleBlur(e, 'required', gatewayType, 'gateway-type')}
                   disabled={
                     (!_.isEmpty(editData)
@@ -1900,7 +2008,7 @@ const CreateShipment = ({ history, location }) => {
                 >
                   <MenuItem value="">Select</MenuItem>
                   {!_.isEmpty(gatewayTypesData) && _.map(gatewayTypesData, (gtype) => (
-                    <MenuItem key={gtype.id} value={gtype.name}>
+                    <MenuItem className="notranslate" key={gtype.id} value={gtype.name}>
                       {_.upperFirst(gtype.name)}
                     </MenuItem>
                   ))}
@@ -1939,87 +2047,108 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
             </Grid>
             {gateway && gateway.value && (
-              <Grid item xs={11.5} className="createShipmentGatewayDetails">
-                <Typography variant="body1" component="div">
-                  Battery Level:
-                </Typography>
-                {gateway.value.last_known_battery_level
-                  && _.gte(_.toNumber(gateway.value.last_known_battery_level), 90)
-                  && (
-                    <BatteryFullIcon htmlColor={theme.palette.success.main} />
-                  )}
-                {gateway.value.last_known_battery_level
-                  && _.lt(_.toNumber(gateway.value.last_known_battery_level), 90)
-                  && _.gte(_.toNumber(gateway.value.last_known_battery_level), 60)
-                  && (
-                    <Battery80Icon htmlColor={theme.palette.warning.main} />
-                  )}
-                {gateway.value.last_known_battery_level
-                  && _.lt(_.toNumber(gateway.value.last_known_battery_level), 60)
-                  && (
-                    <Battery50Icon htmlColor={theme.palette.error.main} />
-                  )}
-                {!gateway.value.last_known_battery_level && (
-                  <BatteryFullIcon />
-                )}
-                <Typography variant="body1" component="div">
-                  {gateway.value.last_known_battery_level ? `${gateway.value.last_known_battery_level}%` : 'N/A'}
-                </Typography>
-              </Grid>
-            )}
-            {gateway && gateway.value && (
-              <Grid item xs={12}>
-                <Grid container spacing={4}>
-                  <Grid item xs={6} />
-                  <Grid item xs={2.75}>
-                    <TextField
-                      id="transmission-interval"
-                      select
-                      fullWidth
-                      disabled={cannotEdit}
-                      placeholder="Select..."
-                      label="Transmission interval"
-                      onBlur={(e) => handleBlur(e, 'required', transmissionInterval, 'transmission-interval')}
-                      InputLabelProps={{ shrink: true }}
-                      SelectProps={{ displayEmpty: true }}
-                      value={transmissionInterval.value}
-                      onChange={(e) => {
-                        transmissionInterval.setValue(e.target.value);
-                        measurementInterval.setValue(e.target.value);
-                      }}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {!_.isEmpty(TIVE_GATEWAY_TIMES)
-                        && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
-                          <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                            {time.label}
-                          </MenuItem>
-                        ))}
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={2.75}>
-                    <TextField
-                      id="measurement-interval"
-                      select
-                      fullWidth
-                      disabled={cannotEdit}
-                      placeholder="Select..."
-                      label="Measurement interval"
-                      onBlur={(e) => handleBlur(e, 'required', measurementInterval, 'measurement-interval')}
-                      InputLabelProps={{ shrink: true }}
-                      SelectProps={{ displayEmpty: true }}
-                      {...measurementInterval.bind}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
-                        _.filter(TIVE_GATEWAY_TIMES, (t) => (_.includes(gatewayType.value, 'ProofTracker') ? t.value === transmissionInterval.value : t.value <= transmissionInterval.value)),
-                        (time, index) => (
-                          <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                            {time.label}
-                          </MenuItem>
-                        ),
+              <Grid container spacing={4}>
+                <Grid item xs={6}>
+                  <Typography variant="body1" component="div">
+                    Transmission/Measurement interval setting general guidance (may vary depending upon battery level, type, and conditions):
+                  </Typography>
+                  <Typography>
+                    <ul className="createShipmentGuidanceList">
+                      <li>5 minutes = &lt;1 week</li>
+                      <li>10 minutes = &lt;2 weeks</li>
+                      <li>20 minutes = &lt;3 weeks</li>
+                      <li>30 minutes = &lt;1 month</li>
+                      <li>1 hour = &lt;2 months</li>
+                      <li>2 hours = &lt;3 months</li>
+                      <li>6 hours = &lt;4 months</li>
+                      <li>12 hours = &lt;6 months</li>
+                    </ul>
+                  </Typography>
+                  <Typography variant="caption" component="div" fontStyle="italic" color={theme.palette.background.light}>
+                    Note: numbers above based on 100% battery charge, non-lithium battery, in 0C-10C (32F-50F) temperature environment.
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Grid item xs={12} className="createShipmentGatewayDetails">
+                    <Typography variant="body1" component="div">
+                      Battery Level:
+                    </Typography>
+                    {gateway.value.last_known_battery_level
+                      && _.gte(_.toNumber(gateway.value.last_known_battery_level), 90)
+                      && (
+                        <BatteryFullIcon htmlColor={theme.palette.success.main} />
                       )}
-                    </TextField>
+                    {gateway.value.last_known_battery_level
+                      && _.lt(_.toNumber(gateway.value.last_known_battery_level), 90)
+                      && _.gte(_.toNumber(gateway.value.last_known_battery_level), 60)
+                      && (
+                        <Battery80Icon htmlColor={theme.palette.warning.main} />
+                      )}
+                    {gateway.value.last_known_battery_level
+                      && _.lt(_.toNumber(gateway.value.last_known_battery_level), 60)
+                      && (
+                        <Battery50Icon htmlColor={theme.palette.error.main} />
+                      )}
+                    {!gateway.value.last_known_battery_level && (
+                      <BatteryFullIcon />
+                    )}
+                    <Typography variant="body1" component="div">
+                      {gateway.value.last_known_battery_level ? `${gateway.value.last_known_battery_level}%` : 'N/A'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={11}>
+                    <Grid container spacing={4}>
+                      <Grid item xs={6}>
+                        <TextField
+                          id="transmission-interval"
+                          select
+                          fullWidth
+                          disabled={cannotEdit}
+                          placeholder="Select..."
+                          label="Transmission interval"
+                          onBlur={(e) => handleBlur(e, 'required', transmissionInterval, 'transmission-interval')}
+                          InputLabelProps={{ shrink: true }}
+                          SelectProps={{ displayEmpty: true }}
+                          value={transmissionInterval.value}
+                          onChange={(e) => {
+                            transmissionInterval.setValue(e.target.value);
+                            measurementInterval.setValue(e.target.value);
+                          }}
+                        >
+                          <MenuItem value="">Select</MenuItem>
+                          {!_.isEmpty(TIVE_GATEWAY_TIMES)
+                            && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
+                              <MenuItem key={`${time.value}-${index}`} value={time.value}>
+                                {time.label}
+                              </MenuItem>
+                            ))}
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          id="measurement-interval"
+                          select
+                          fullWidth
+                          disabled={cannotEdit}
+                          placeholder="Select..."
+                          label="Measurement interval"
+                          onBlur={(e) => handleBlur(e, 'required', measurementInterval, 'measurement-interval')}
+                          InputLabelProps={{ shrink: true }}
+                          SelectProps={{ displayEmpty: true }}
+                          {...measurementInterval.bind}
+                        >
+                          <MenuItem value="">Select</MenuItem>
+                          {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
+                            _.filter(TIVE_GATEWAY_TIMES, (t) => (_.includes(gatewayType.value, 'ProofTracker') ? t.value === transmissionInterval.value : t.value <= transmissionInterval.value)),
+                            (time, index) => (
+                              <MenuItem key={`${time.value}-${index}`} value={time.value}>
+                                {time.label}
+                              </MenuItem>
+                            ),
+                          )}
+                        </TextField>
+                      </Grid>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
@@ -2044,7 +2173,7 @@ const CreateShipment = ({ history, location }) => {
                 id="shipment-name-final"
                 fullWidth
                 disabled
-                className="createShipmentFinalNameDisplay"
+                className="createShipmentFinalNameDisplay noTranslate"
                 value={shipmentName.value}
               />
             </Grid>
@@ -2099,8 +2228,7 @@ const CreateShipment = ({ history, location }) => {
                   disabled={isAddingShipment
                     || isEditingShipment
                     || isDeletingCustody
-                    || submitDisabled()
-                    || cannotEdit}
+                    || submitDisabled()}
                   onClick={(e) => handleSubmit(e, true)}
                   className="createShipmentActionButtons"
                 >

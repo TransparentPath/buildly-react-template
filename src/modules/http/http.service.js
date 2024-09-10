@@ -65,10 +65,10 @@ function makeOptionsRequest(method, url, useJwt) {
   return fetch(url, options);
 }
 
-function makeRequestWithoutHeaders(method, url) {
+function makeRequestWithoutHeaders(method, url, body) {
   const options = {
     method,
-    data: undefined,
+    data: body,
     headers: null,
     returnPromise: true,
     responseType: null,

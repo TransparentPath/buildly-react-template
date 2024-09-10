@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import moment from 'moment-timezone';
 
 export const numberWithCommas = (x) => {
   if (!x) return '';
@@ -66,4 +67,29 @@ export const uomDistanceUpdate = (currentUom, radius) => {
   }
 
   return convertedRadius;
+};
+
+export const extractCountry = (address) => {
+  const countryRegex = /(?:^|,)\s*([A-Za-z\s]+)$/;
+  const matches = address.match(countryRegex);
+  if (matches && matches[1]) {
+    return matches[1].trim();
+  }
+  return null;
+};
+
+export const formatDate = (value, timeZone, displayFormat) => moment(value).tz(timeZone).format(displayFormat);
+
+export const getTimezone = (value, timeZone) => moment.tz(value, timeZone).format('z');
+
+export const dateDifference = (initialDate, finalDate) => {
+  const date1 = moment(initialDate);
+  const date2 = moment(finalDate);
+  const diff = date2.diff(date1);
+  const duration = moment.duration(diff);
+  const days = Math.floor(duration.asDays());
+  const hours = duration.hours();
+  const minutes = duration.minutes();
+  const dateString = `${days} days, ${hours} hrs., ${minutes} min.`;
+  return dateString;
 };

@@ -27,35 +27,64 @@ import {
 
 export const MapComponent = (props) => {
   const {
-    markers, setSelectedMarker, geofence, unitOfMeasure,
+    markers,
+    setSelectedMarker,
+    geofence,
+    unitOfMeasure,
+    allMarkers,
+    zoom,
+    screenshotMapCenter,
+    noInitialInfo,
   } = props;
   const [center, setCenter] = useState({
     lat: 47.606209,
     lng: -122.332069,
   });
+  const [mapZoom, setMapZoom] = useState(zoom);
   const [showInfoIndex, setShowInfoIndex] = useState({});
   const [polygon, setPolygon] = useState({});
 
   useEffect(() => {
-    setMapCenter();
+    if (screenshotMapCenter) {
+      const meanCenter = { lat: _.mean(_.map(markers, 'lat')), lng: _.mean(_.map(markers, 'lng')) };
+      setMapCenter(meanCenter);
+    } else {
+      setMapCenter('');
+    }
   }, [unitOfMeasure]);
 
   useEffect(() => {
-    if (!_.isEmpty(markers) && markers[0].lat && markers[0].lng) {
+    if (!_.isEmpty(markers) && markers[0] && markers[0].lat && markers[0].lng) {
       setCenter({
         lat: markers[0].lat,
         lng: markers[0].lng,
       });
-      setShowInfoIndex(markers[0]);
+      setMapZoom(zoom);
+      if (!noInitialInfo) {
+        setShowInfoIndex(markers[0]);
+      }
       if (setSelectedMarker) {
         setSelectedMarker(markers[0]);
       }
     }
-
     if (_.isEmpty(markers)) {
-      setMapCenter();
+      if (!_.isEmpty(allMarkers)) {
+        const allMarkerItems = [].concat(...allMarkers);
+        const countries = allMarkerItems.map((item) => item && item.country);
+        const uniqueCountries = [...new Set(countries)];
+        if (uniqueCountries.length === 1) {
+          setMapCenter(uniqueCountries[0]);
+          setMapZoom(4);
+        } else {
+          setMapCenter('Algeria');
+          setMapZoom(2.5);
+        }
+      } else {
+        setMapCenter('');
+        setMapZoom(4);
+      }
     }
-  }, [markers]);
+  }, [markers, allMarkers]);
 
   useEffect(() => {
     if (geofence && !_.isEmpty(geofence.coordinates)) {
@@ -71,9 +100,12 @@ export const MapComponent = (props) => {
     }
   }, [geofence]);
 
-  const setMapCenter = () => {
-    const address = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
-      && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure;
+  const setMapCenter = (mapCenter) => {
+    let address = mapCenter;
+    if (_.isEmpty(address)) {
+      address = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+        && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure;
+    }
 
     if (address) {
       Geocode.setApiKey(window.env.GEO_CODE_API);
@@ -105,23 +137,35 @@ export const MapComponent = (props) => {
     }
   };
 
+  const groupMarkersByLocation = (Markers) => {
+    const grouped = !_.isEmpty(Markers) && _.groupBy(Markers, (marker) => !_.isEmpty(marker) && `${marker.lat},${marker.lng}`);
+    return _.mapValues(grouped, (group) => {
+      const uniqueShipmentNames = new Set(group.map((item) => !_.isEmpty(item) && item.shipment.name));
+      return uniqueShipmentNames.size;
+    });
+  };
+
+  const overlapCounts = groupMarkersByLocation(_.flatten(allMarkers));
+
   return (
     <RenderedMap
       {...props}
       theme={useTheme()}
       onMarkerDrag={onMarkerDrag}
       center={center}
+      mapZoom={mapZoom}
       polygon={polygon}
       showInfoIndex={showInfoIndex}
       onMarkerSelect={onMarkerSelect}
       unitOfMeasure={unitOfMeasure}
+      overlapCounts={overlapCounts}
     />
   );
 };
 
 const RenderedMap = withScriptjs(
   withGoogleMap((props) => (
-    <GoogleMap zoom={props.zoom} center={props.center}>
+    <GoogleMap zoom={props.mapZoom} center={props.center}>
       {!props.isMarkerShown && props.allMarkers && !_.isEmpty(props.allMarkers)
         && _.map(props.allMarkers, (shipMarkers, idx) => (
           <MarkerClusterer
@@ -173,7 +217,7 @@ const RenderedMap = withScriptjs(
             ]}
           >
             {_.map(shipMarkers, (marker, inx) => (
-              <Marker key={`${marker.lat}-${marker.lng}-${inx}`} position={{ lat: marker.lat, lng: marker.lng }} />
+              <Marker visible={false} key={`${marker.lat}-${marker.lng}-${inx}`} position={{ lat: marker.lat, lng: marker.lng }} />
             ))}
           </MarkerClusterer>
         ))}
@@ -183,7 +227,7 @@ const RenderedMap = withScriptjs(
           <Marker
             key={index}
             position={{ lat: mark.lat, lng: mark.lng }}
-            zIndex={mark.color !== 'green' && 1000}
+            zIndex={_.isEqual(mark.color, 'green') && 1000}
             icon={{
               path:
                 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',

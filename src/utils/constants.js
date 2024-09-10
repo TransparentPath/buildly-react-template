@@ -2,7 +2,9 @@
 import React from 'react';
 import moment from 'moment-timezone';
 import _ from 'lodash';
-import { SvgIcon, Tooltip, Typography } from '@mui/material';
+import {
+  SvgIcon, Tooltip, Typography, Grid,
+} from '@mui/material';
 import {
   AccessTime as AccessTimeIcon,
   BatteryStdOutlined as BatteryIcon,
@@ -11,7 +13,8 @@ import {
   LightModeOutlined as LightIcon,
   OpacityOutlined as HumidIcon,
 } from '@mui/icons-material';
-import { numberWithCommas } from './utilMethods';
+import { extractCountry, numberWithCommas } from './utilMethods';
+import { TIVE_GATEWAY_TIMES } from '@utils/mock';
 
 const showValue = (value, timezone, dateFormat, timeFormat) => (
   value && value !== '-'
@@ -58,6 +61,41 @@ export const getColumns = (timezone, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+    },
+  },
+  {
+    name: 'create_date',
+    label: 'Created At',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+    },
+  },
+  {
+    name: 'edit_date',
+    label: 'Last Edited At',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+    },
+  },
+]);
+
+export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
+  {
+    name: 'name',
+    label: 'Name',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -170,6 +208,9 @@ export const getMappingOrg = (allOrgs) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
       customBodyRender: (value) => {
         let returnValue = '-';
         if (value) {
@@ -232,6 +273,9 @@ export const custodianColumns = [
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -431,6 +475,9 @@ export const itemColumns = (currUnit) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -523,6 +570,7 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
   {
     name: 'name',
     label: 'Shipment Name',
+    className: 'notranslate',
   },
   {
     name: 'status',
@@ -555,6 +603,7 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
   {
     name: 'custodian_name',
     label: 'Custodian Name',
+    className: 'notranslate',
   },
   {
     name: 'custody_info',
@@ -569,49 +618,49 @@ export const getIcon = (item) => {
     case 'probe':
       return (
         <Tooltip title={title || _.capitalize(id)} placement="right">
-          <TempIcon style={{ fill: color }} />
+          <TempIcon style={{ fill: color, width: '24px', height: '24px' }} />
         </Tooltip>
       );
 
     case 'light':
       return (
         <Tooltip title={title || _.capitalize(id)} placement="right">
-          <LightIcon style={{ fill: color }} />
+          <LightIcon style={{ fill: color, width: '24px', height: '24px' }} />
         </Tooltip>
       );
 
     case 'shock':
       return (
         <Tooltip title={title || _.capitalize(id)} placement="right">
-          <ShockIcon style={{ fill: color }} />
+          <ShockIcon style={{ fill: color, width: '24px', height: '24px' }} />
         </Tooltip>
       );
 
     case 'tilt':
       return (
         <Tooltip title={title || _.capitalize(id)} placement="right">
-          <TiltIcon fill={color} />
+          <TiltIcon fill={color} style={{ width: '24px', height: '24px' }} />
         </Tooltip>
       );
 
     case 'humidity':
       return (
         <Tooltip title={title || _.capitalize(id)} placement="right">
-          <HumidIcon style={{ fill: color }} />
+          <HumidIcon style={{ fill: color, width: '24px', height: '24px' }} />
         </Tooltip>
       );
 
     case 'battery':
       return (
         <Tooltip title={title || _.capitalize(id)} placement="right">
-          <BatteryIcon style={{ fill: color }} />
+          <BatteryIcon style={{ fill: color, width: '24px', height: '24px' }} />
         </Tooltip>
       );
 
     case 'pressure':
       return (
         <Tooltip title={title || _.capitalize(id)} placement="right">
-          <PressureIcon fill={color} />
+          <PressureIcon fill={color} style={{ width: '24px', height: '24px' }} />
         </Tooltip>
       );
 
@@ -620,6 +669,97 @@ export const getIcon = (item) => {
         <Tooltip title={title || _.capitalize(id)} placement="right">
           <AccessTimeIcon style={{ fill: color }} />
         </Tooltip>
+      );
+
+    default:
+      return null;
+  }
+};
+
+export const getIconWithCount = (item) => {
+  const {
+    id, color, title, count,
+  } = item;
+  switch (id) {
+    case 'temperature':
+    case 'probe':
+      return (
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <TempIcon style={{ fill: color }} />
+          </Tooltip>
+          {`(${count})`}
+        </>
+      );
+
+    case 'light':
+      return (
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <LightIcon style={{ fill: color }} />
+          </Tooltip>
+          {`(${count})`}
+        </>
+      );
+
+    case 'shock':
+      return (
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <ShockIcon style={{ fill: color }} />
+          </Tooltip>
+          {`(${count})`}
+        </>
+      );
+
+    case 'tilt':
+      return (
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <TiltIcon fill={color} />
+          </Tooltip>
+          {`(${count})`}
+        </>
+      );
+
+    case 'humidity':
+      return (
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <HumidIcon style={{ fill: color }} />
+          </Tooltip>
+          {`(${count})`}
+        </>
+      );
+
+    case 'battery':
+      return (
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <BatteryIcon style={{ fill: color }} />
+          </Tooltip>
+          {`(${count})`}
+        </>
+      );
+
+    case 'pressure':
+      return (
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <PressureIcon fill={color} />
+          </Tooltip>
+          {`(${count})`}
+        </>
+      );
+
+    case 'time':
+      return (
+        <>
+          <Tooltip title={title || _.capitalize(id)} placement="right">
+            <AccessTimeIcon style={{ fill: color }} />
+          </Tooltip>
+          {`(${count})`}
+        </>
       );
 
     default:
@@ -725,7 +865,7 @@ export const getShipmentOverview = (
       const gateways = _.filter(gatewayData, (gateway) => (
         _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
       ));
-      editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ', '))) || 'N/A';
+      editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.uniq(_.map(gateways, 'name')), ', '))) || 'N/A';
     }
 
     shipmentList = [...shipmentList, editedShipment];
@@ -1217,9 +1357,9 @@ export const tempUnit = (uomt) => {
   let unit = '';
   if (uomt) {
     if (_.isEqual(_.toLower(uomt.unit_of_measure), 'fahrenheit')) {
-      unit = '\u00b0F';
+      unit = '°F';
     } else if (_.isEqual(_.toLower(uomt.unit_of_measure), 'celsius')) {
-      unit = '\u00b0C';
+      unit = '°C';
     }
   }
 
@@ -1241,17 +1381,17 @@ export const MARKER_DATA = (unitOfMeasure) => ([
   { id: 'light', unit: 'LUX' },
 ]);
 
-export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone, dateFormat, timeFormat) => {
+export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
   const getCellStyle = (tableMeta) => ({
     fontWeight: (
       _.some(
-        _.range(3, 8), (i) => _.isEqual(tableMeta.rowData[i], null)
+        _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
         ? '700' : '400'),
     fontStyle: (
       _.some(
-        _.range(3, 8), (i) => _.isEqual(tableMeta.rowData[i], null)
+        _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
         ? 'italic' : 'normal'),
@@ -1307,6 +1447,58 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone, dateFormat, timeF
           style: { maxWidth: '300px', wordWrap: 'break-word' },
           className: 'reportingSensorLeftHeader',
         }),
+        customBodyRender: (value) => (
+          <div>
+            {!_.isEqual(value, null) && !_.isEqual(value, undefined) && !_.isEqual(value, 'Error retrieving address')
+              ? value : 'N/A'}
+          </div>
+        ),
+      },
+    },
+    {
+      name: 'lat',
+      label: 'Latitude',
+      options: {
+        sort: true,
+        sortThirdClickReset: true,
+        filter: true,
+        setCellProps: () => ({
+          style: { maxWidth: '300px', wordWrap: 'break-word' },
+          className: 'reportingSensorLeftHeader',
+        }),
+        customBodyRender: (value, tableMeta) => {
+          const locationValue = tableMeta.rowData[tableMeta.columnIndex - 1];
+          return (
+            <div>
+              {!_.isEqual(locationValue, 'N/A')
+                ? (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')
+                : 'N/A'}
+            </div>
+          );
+        },
+      },
+    },
+    {
+      name: 'lng',
+      label: 'Longitude',
+      options: {
+        sort: true,
+        sortThirdClickReset: true,
+        filter: true,
+        setCellProps: () => ({
+          style: { maxWidth: '300px', wordWrap: 'break-word' },
+          className: 'reportingSensorLeftHeader',
+        }),
+        customBodyRender: (value, tableMeta) => {
+          const locationValue = tableMeta.rowData[tableMeta.columnIndex - 2];
+          return (
+            <div>
+              {!_.isEqual(locationValue, 'N/A')
+                ? (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')
+                : 'N/A'}
+            </div>
+          );
+        },
       },
     },
     {
@@ -1371,17 +1563,31 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, timezone, dateFormat, timeF
     },
     {
       name: 'battery',
-      label: 'BATTERY (%)',
+      label: 'BATTERY (%) WITH INTERVALS',
       options: {
         sort: true,
         sortThirdClickReset: true,
         filter: true,
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
-        customBodyRender: (value, tableMeta) => (
-          <div style={getCellStyle(tableMeta)}>
-            {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : '')}
-          </div>
-        ),
+        customBodyRender: (value, tableMeta) => {
+          const tTime = _.find(TIVE_GATEWAY_TIMES, { value: selectedShipment ? selectedShipment.transmission_time : '' });
+          const mTime = _.find(TIVE_GATEWAY_TIMES, { value: selectedShipment ? selectedShipment.measurement_time : '' });
+          return (
+            <Grid container spacing={1}>
+              <Grid item xs={4} style={{ alignContent: 'center', textAlign: 'center' }}>
+                <div style={getCellStyle(tableMeta)}>
+                  {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : '')}
+                </div>
+              </Grid>
+              {!_.isEqual(value, null) && !_.isEqual(value, undefined) && (
+                <Grid item xs={8}>
+                  <Typography variant="body1">{`T: ${tTime ? tTime.short_label : 'N/A'}`}</Typography>
+                  <Typography variant="body1">{`M: ${mTime ? mTime.short_label : 'N/A'}`}</Typography>
+                </Grid>
+              )}
+            </Grid>
+          );
+        },
       },
     },
     {
@@ -1482,23 +1688,52 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
     },
   },
   {
-    name: 'create_date',
+    name: 'location',
     label: 'Location',
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => {
-        let location = 'N/A';
-        if (value && value !== '-') {
-          const dt = moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`);
-          const report = _.find(sensorReport, { timestamp: dt });
-          if (report) {
-            location = report.location;
-          }
-        }
-
-        return location;
+      customBodyRender: (value) => <div>{value}</div>,
+      setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
+    },
+  },
+  {
+    name: 'latitude',
+    label: 'Latitude',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value, tableMeta) => {
+        const locationValue = tableMeta.rowData[tableMeta.columnIndex - 1];
+        return (
+          <div>
+            {!_.isEqual(locationValue, 'N/A')
+              ? (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')
+              : 'N/A'}
+          </div>
+        );
+      },
+      setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
+    },
+  },
+  {
+    name: 'longitude',
+    label: 'Longitude',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value, tableMeta) => {
+        const locationValue = tableMeta.rowData[tableMeta.columnIndex - 2];
+        return (
+          <div>
+            {!_.isEqual(locationValue, 'N/A')
+              ? (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')
+              : 'N/A'}
+          </div>
+        );
       },
       setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
     },
@@ -1522,6 +1757,9 @@ export const gatewayColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1660,7 +1898,7 @@ export const GATEWAY_STATUS = [
   { value: 'in-transit', name: 'In-transit' },
 ];
 
-export const shipmentColumns = (timezone, dateFormat) => ([
+export const shipmentColumns = (timezone, dateFormat, language) => ([
   {
     name: 'status',
     label: 'Status',
@@ -1668,6 +1906,9 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: _.lowerCase(language) === 'english' ? 'notranslate' : 'translate',
+      }),
     },
   },
   {
@@ -1692,6 +1933,9 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1716,6 +1960,9 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1728,7 +1975,14 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       customBodyRender: (value) => (
         !_.isEmpty(value)
           ? (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                width: 50,
+                flexWrap: 'wrap',
+              }}
+            >
               {_.map(value, (item, idx) => (
                 <div key={`icon-${idx}-${item.id}`}>
                   {getIcon(item)}
@@ -1747,6 +2001,9 @@ export const shipmentColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
       customBodyRender: (value) => (
         <Typography sx={{ whiteSpace: 'break-spaces', maxWidth: '400px' }}>
           {value}
@@ -1757,15 +2014,6 @@ export const shipmentColumns = (timezone, dateFormat) => ([
   {
     name: 'tracker',
     label: 'Tracker',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-    },
-  },
-  {
-    name: 'battery_levels',
-    label: 'Tracker Battery Level (%)',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1900,6 +2148,7 @@ export const getShipmentFormattedRow = (
       editedShipment.allMarkers = _.map(reports, (report) => ({
         lat: report.report_entry.report_latitude || '*',
         lng: report.report_entry.report_longitude || '*',
+        country: extractCountry(report.report_entry.report_location || ''),
         shipment: editedShipment,
       }));
 
@@ -1966,6 +2215,9 @@ export const templateColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1975,6 +2227,9 @@ export const templateColumns = (timezone, dateFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -2025,6 +2280,9 @@ export const userColumns = () => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -2043,19 +2301,34 @@ export const userColumns = () => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
 ]);
 
 export const getGroupsFormattedRow = (groups, orgs) => {
-  const formattedData = _.map(groups, (g) => ({
-    ...g,
-    display_permission_name: _.isEqual(g.id, 1)
+  const formattedData = _.map(groups, (g) => {
+    const organizationName = _.find(orgs, { organization_uuid: g.organization })
+      ? _.find(orgs, { organization_uuid: g.organization }).name
+      : '';
+
+    const displayPermissionName = _.isEqual(g.id, 1)
       ? g.name
-      : `${g.name} - ${_.find(orgs, { organization_uuid: g.organization })
-        ? _.find(orgs, { organization_uuid: g.organization }).name
-        : ''}`,
-  }));
+      : (
+        <span>
+          {g.name}
+          {' - '}
+          <span className="notranslate">{organizationName}</span>
+        </span>
+      );
+
+    return {
+      ...g,
+      display_permission_name: displayPermissionName,
+    };
+  });
 
   return _.orderBy(formattedData, 'display_permission_name', 'asc');
 };

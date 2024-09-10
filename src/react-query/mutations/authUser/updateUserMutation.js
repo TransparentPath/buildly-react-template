@@ -27,9 +27,10 @@ export const useUpdateUserMutation = (
       `${window.env.API_URL}coreuser/`,
     );
     oauthService.setCurrentCoreUser(coreuser, user);
+    return updateUserData;
   },
   {
-    onSuccess: () => {
+    onSuccess: (data) => {
       if (history) {
         const route = window.location.pathname;
         history.push('/');

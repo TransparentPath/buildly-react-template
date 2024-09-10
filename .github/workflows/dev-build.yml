@@ -1,14 +1,14 @@
-name: Build and Push Docker Image to Demo
+name: Build and Push Docker Image to Dev
 
 on:
   push:
     branches:
-      - demo
+      - master
 
 env:
   PROJECT_ID: spry-bricolage-298920
   REGION: us
-  IMAGE_NAME: us-docker.pkg.dev/spry-bricolage-298920/gcr.io/demo/react-ui
+  IMAGE_NAME: us-docker.pkg.dev/spry-bricolage-298920/gcr.io/dev/react-ui
 
 jobs:
   build:

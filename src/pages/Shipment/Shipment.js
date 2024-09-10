@@ -11,11 +11,11 @@ import {
   FormLabel,
   Grid,
   Stack,
-  Tab,
   TableCell,
   TableRow,
-  Tabs,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Tooltip,
   Typography,
   useTheme,
@@ -40,23 +40,18 @@ import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSens
 import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
+import { TIVE_GATEWAY_TIMES } from '@utils/mock';
 
 const Shipment = ({ history }) => {
   const muiTheme = useTheme();
   const user = getUser();
   const organization = user.organization.organization_uuid;
+  const userLanguage = user.user_language;
 
   const { displayAlert } = useAlert();
   const { data } = useStore();
 
   let isShipmentDataAvailable = false;
-
-  const subNav = [
-    { label: 'Active', value: 'Active' },
-    { label: 'Completed', value: 'Completed' },
-    { label: 'Battery Depleted', value: 'Battery Depleted' },
-    { label: 'Damaged', value: 'Damaged' },
-  ];
 
   const [shipmentFilter, setShipmentFilter] = useState('Active');
   const [rows, setRows] = useState([]);
@@ -145,22 +140,6 @@ const Shipment = ({ history }) => {
   const isLoadingSensorReports = selectedShipment ? isLoadingReports2 : isLoadingReports1;
   const isFetchingSensorReports = selectedShipment ? isFetchingReports2 : isFetchingReports1;
 
-  const HeaderElements = () => (
-    <Tabs
-      value={shipmentFilter}
-      onChange={filterTabClicked}
-      className="shipmentTabs"
-    >
-      {_.map(subNav, (itemProps, index) => (
-        <Tab
-          {...itemProps}
-          key={`tab${index}:${itemProps.value}`}
-          className="shipmentTab"
-        />
-      ))}
-    </Tabs>
-  );
-
   useEffect(() => {
     const formattedRows = getShipmentFormattedRow(
       shipmentData,
@@ -247,17 +226,17 @@ const Shipment = ({ history }) => {
     if (!_.isEmpty(filteredAlerts)) {
       const alerts = _.filter(filteredAlerts, (alert) => !alert.recovered_alert_id);
       const arrivedAlerts = _.filter(alerts, (alert) => {
-        const createDate = new Date(alert.create_date).getTime();
+        const createDate = moment(alert.create_date).unix();
         return (
-          createDate >= (new Date(shipment.actual_time_of_departure).getTime() || new Date(shipment.estimated_time_of_departure).getTime())
-          && createDate <= (new Date(shipment.actual_time_of_arrival).getTime() || new Date(shipment.estimated_time_of_arrival).getTime())
+          createDate >= (moment(shipment.actual_time_of_departure).unix() || moment(shipment.estimated_time_of_departure).unix())
+          && createDate <= (moment(shipment.actual_time_of_arrival).unix() || moment(shipment.estimated_time_of_arrival).unix())
         );
       });
       const activeAlerts = _.filter(alerts, (alert) => {
-        const createDate = new Date(alert.create_date).getTime();
+        const createDate = moment(alert.create_date).unix();
         return !(
-          createDate >= (new Date(shipment.actual_time_of_departure).getTime() || new Date(shipment.estimated_time_of_departure).getTime())
-          && createDate <= (new Date(shipment.actual_time_of_arrival).getTime() || new Date(shipment.estimated_time_of_arrival).getTime())
+          createDate >= (moment(shipment.actual_time_of_departure).unix() || moment(shipment.estimated_time_of_departure).unix())
+          && createDate <= (moment(shipment.actual_time_of_arrival).unix() || moment(shipment.estimated_time_of_arrival).unix())
         );
       });
       if (_.isEmpty(shipment.actual_time_of_arrival)) {
@@ -370,7 +349,7 @@ const Shipment = ({ history }) => {
       titleColor: 'inherit',
       label: 'Shipment completed',
       content: _.isEqual(shipment.status, 'Completed')
-        ? moment(shipment.edit_date).tz(data).format(`${dateFormat} ${timeFormat}`)
+        ? moment(shipment.actual_time_of_completion || shipment.edit_date).tz(data).format(`${dateFormat} ${timeFormat}`)
         : moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).add(24, 'h').tz(data).format(`${dateFormat} ${timeFormat}`),
       caption: !_.isEqual(shipment.status, 'Completed') ? '(Estimated Time)' : '(Actual Time)',
       active: _.isEqual(shipment.status, 'Completed'),
@@ -378,7 +357,7 @@ const Shipment = ({ history }) => {
       info: false,
       completed: shipment.last_fujitsu_verification_datetime && _.lte(
         _.isEqual(shipment.status, 'Completed')
-          ? moment(shipment.edit_date).unix()
+          ? moment(shipment.actual_time_of_completion || shipment.edit_date).unix()
           : moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).add(24, 'h').unix(),
         moment(shipment.last_fujitsu_verification_datetime).unix(),
       ),
@@ -568,13 +547,39 @@ const Shipment = ({ history }) => {
       && marker.light !== null && marker.light !== undefined
       && marker.battery !== null && marker.battery !== undefined
     );
+    const maxTemp = selectedShipment && _.orderBy(selectedShipment.max_excursion_temp, 'set_at', 'desc')[0];
+    const minTemp = selectedShipment && _.orderBy(selectedShipment.min_excursion_temp, 'set_at', 'desc')[0];
+    const maxHum = selectedShipment && _.orderBy(selectedShipment.max_excursion_humidity, 'set_at', 'desc')[0];
+    const minHum = selectedShipment && _.orderBy(selectedShipment.min_excursion_humidity, 'set_at', 'desc')[0];
+    const maxShock = selectedShipment && _.orderBy(selectedShipment.shock_threshold, 'set_at', 'desc')[0];
+    const maxLight = selectedShipment && _.orderBy(selectedShipment.light_threshold, 'set_at', 'desc')[0];
 
     return isValidData && (
       <>
-        <Typography>{`Temp: ${marker.temperature}`}</Typography>
-        <Typography>{`Humidity: ${marker.humidity}`}</Typography>
-        <Typography>{`Shock: ${marker.shock}`}</Typography>
-        <Typography>{`Light: ${marker.light}`}</Typography>
+        <Grid container flex>
+          <Typography>Temp (</Typography>
+          <Typography className="shipmentMaxColor">{maxTemp.value}</Typography>
+          <Typography>/</Typography>
+          <Typography className="shipmentMinColor">{minTemp.value}</Typography>
+          <Typography>{`): ${marker.temperature}`}</Typography>
+        </Grid>
+        <Grid container flex>
+          <Typography>Humidity (</Typography>
+          <Typography className="shipmentMaxColor">{maxHum.value}</Typography>
+          <Typography>/</Typography>
+          <Typography className="shipmentMinColor">{minHum.value}</Typography>
+          <Typography>{`): ${marker.humidity}`}</Typography>
+        </Grid>
+        <Grid container flex>
+          <Typography>Shock (</Typography>
+          <Typography className="shipmentMaxColor">{maxShock.value}</Typography>
+          <Typography>{`): ${marker.shock}`}</Typography>
+        </Grid>
+        <Grid container flex>
+          <Typography>Light (</Typography>
+          <Typography className="shipmentMaxColor">{maxLight.value}</Typography>
+          <Typography>{`): ${marker.light}`}</Typography>
+        </Grid>
         <Typography>{`Battery: ${marker.battery}`}</Typography>
       </>
     );
@@ -588,24 +593,48 @@ const Shipment = ({ history }) => {
       || marker.light === null || marker.light === undefined
       || marker.battery === null || marker.battery === undefined
     );
+    const maxTemp = selectedShipment && _.orderBy(selectedShipment.max_excursion_temp, 'set_at', 'desc')[0];
+    const minTemp = selectedShipment && _.orderBy(selectedShipment.min_excursion_temp, 'set_at', 'desc')[0];
+    const maxHum = selectedShipment && _.orderBy(selectedShipment.max_excursion_humidity, 'set_at', 'desc')[0];
+    const minHum = selectedShipment && _.orderBy(selectedShipment.min_excursion_humidity, 'set_at', 'desc')[0];
+    const maxShock = selectedShipment && _.orderBy(selectedShipment.shock_threshold, 'set_at', 'desc')[0];
+    const maxLight = selectedShipment && _.orderBy(selectedShipment.light_threshold, 'set_at', 'desc')[0];
 
     return hasInvalidData && (
       <Grid item xs={12}>
         <Typography fontWeight={700} fontStyle="italic">
           Irregular Transmission:
         </Typography>
-        {renderSensorValue('Temp', marker.temperature)}
-        {renderSensorValue('Humidity', marker.humidity)}
-        {renderSensorValue('Shock', marker.shock)}
-        {renderSensorValue('Light', marker.light)}
+        {renderSensorValue('Temp ', marker.temperature, maxTemp.value, minTemp.value)}
+        {renderSensorValue('Humidity ', marker.humidity, maxHum.value, minHum.value)}
+        {renderSensorValue('Shock ', marker.shock, maxShock.value)}
+        {renderSensorValue('Light ', marker.light, maxLight.value)}
         {renderSensorValue('Battery', marker.battery)}
       </Grid>
     );
   };
 
-  const renderSensorValue = (label, value) => (
+  const renderSensorValue = (label, value, max = null, min = null) => (
     !_.isEqual(value, null) && !_.isEqual(value, undefined) && (
-      <Typography>{`${label}: ${value}`}</Typography>
+      <Grid container flex>
+        <Typography>{label}</Typography>
+        {(max || min) && (
+          <Typography>(</Typography>
+        )}
+        {max && (
+          <Typography className="shipmentMaxColor">{max}</Typography>
+        )}
+        {max && min && (
+          <Typography>/</Typography>
+        )}
+        {min && (
+          <Typography className="shipmentMinColor">{min}</Typography>
+        )}
+        {(max || min) && (
+          <Typography>)</Typography>
+        )}
+        <Typography>{`: ${value}`}</Typography>
+      </Grid>
     )
   );
 
@@ -646,7 +675,7 @@ const Shipment = ({ history }) => {
       </Button>
       <Grid container>
         <Grid item xs={12}>
-          <div className="shipmentTitle">
+          <div className={selectedShipment ? 'shipmentTitle notranslate' : 'shipmentTitle'}>
             <Typography variant="h6">
               {selectedShipment ? selectedShipment.name : 'All shipments'}
             </Typography>
@@ -659,7 +688,7 @@ const Shipment = ({ history }) => {
             showPath
             markers={markers}
             googleMapURL={window.env.MAP_API_URL}
-            zoom={_.isEmpty(markers) ? 4 : 12}
+            zoom={_.isEmpty(markers) ? 2.5 : 12}
             setSelectedMarker={setSelectedMarker}
             loadingElement={
               <div style={{ height: '100%' }} />
@@ -673,6 +702,49 @@ const Shipment = ({ history }) => {
             clusterClick={processMarkers}
             unitOfMeasure={unitData}
           />
+        </Grid>
+        <Grid item xs={12} className="shipmentDataTableHeader">
+          <ToggleButtonGroup
+            color="secondary"
+            value={shipmentFilter}
+          >
+            <ToggleButton
+              value="Active"
+              size="medium"
+              selected={shipmentFilter === 'Active'}
+              className="shipmentDataTableHeaderItem"
+              onClick={(event, value) => filterTabClicked(event, value)}
+            >
+              Active
+            </ToggleButton>
+            <ToggleButton
+              value="Completed"
+              size="medium"
+              selected={shipmentFilter === 'Completed'}
+              className="shipmentDataTableHeaderItem"
+              onClick={(event, value) => filterTabClicked(event, value)}
+            >
+              Completed
+            </ToggleButton>
+            <ToggleButton
+              value="Battery Depleted"
+              size="medium"
+              selected={shipmentFilter === 'Battery Depleted'}
+              className="shipmentDataTableHeaderItem"
+              onClick={(event, value) => filterTabClicked(event, value)}
+            >
+              Battery Depleted
+            </ToggleButton>
+            <ToggleButton
+              value="Damaged"
+              size="medium"
+              selected={shipmentFilter === 'Damaged'}
+              className="shipmentDataTableHeaderItem"
+              onClick={(event, value) => filterTabClicked(event, value)}
+            >
+              Damaged
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Grid>
         <Grid item xs={12} className="shipmentDataTable">
           <DataTableWrapper
@@ -712,7 +784,7 @@ const Shipment = ({ history }) => {
                   filter: true,
                   customBodyRenderLite: (dataIndex) => (
                     <Typography
-                      className="shipmentName"
+                      className="shipmentName notranslate"
                       onClick={(e) => {
                         history.push(routes.CREATE_SHIPMENT, {
                           ship: _.omit(rows[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
@@ -729,13 +801,56 @@ const Shipment = ({ history }) => {
                 _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
                   ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
                   : '',
+                userLanguage,
               ),
+              {
+                name: 'battery_levels',
+                label: 'Battery (%) with Intervals',
+                options: {
+                  sort: true,
+                  sortThirdClickReset: true,
+                  filter: true,
+                  setCellProps: () => ({
+                    style: {
+                      width: '300px',
+                      maxWidth: '300px',
+                    },
+                  }),
+                  customBodyRenderLite: (dataIndex) => {
+                    const ship = rows[dataIndex];
+                    const tTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.transmission_time });
+                    const mTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.measurement_time });
+
+                    return (
+                      <Grid container>
+                        <Grid item className="shipmentGridTimeCenter">
+                          <Typography variant="body1">
+                            {ship.battery_levels}
+                          </Typography>
+                        </Grid>
+                        <Grid item flex={1}>
+                          <Typography variant="body1">
+                            {`T: ${tTime ? tTime.short_label : 'N/A'}`}
+                          </Typography>
+                          <Typography variant="body1">
+                            {`M: ${mTime ? mTime.short_label : 'N/A'}`}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    );
+                  },
+                },
+              },
             ]}
             extraOptions={{
               expandableRows: true,
               expandableRowsHeader: false,
               expandableRowsOnClick: true,
-              customToolbar: () => (<HeaderElements style={{ right: '180%' }} />),
+              download: false,
+              filter: false,
+              print: false,
+              search: false,
+              viewColumns: false,
               setRowProps: (row, dataIndex, rowIndex) => ({
                 style: { color: _.isEqual(row[2], 'Planned') ? muiTheme.palette.background.light : 'inherit' },
               }),
@@ -763,7 +878,6 @@ const Shipment = ({ history }) => {
                         <CustomizedSteppers steps={steps} />
                       </TableCell>
                     </TableRow>
-
                     <TableRow>
                       <TableCell colSpan={colSpan}>
                         <Grid container spacing={2}>
@@ -777,27 +891,24 @@ const Shipment = ({ history }) => {
                                   {ship.order_number}
                                 </Typography>
                               </Grid>
-
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
                                   Items:
                                 </Typography>
                                 {_.map(_.split(ship.itemNames, ','), (item, idx) => (
-                                  <Typography key={`${item}-${idx}`}>{item}</Typography>
+                                  <Typography className="notranslate" key={`${item}-${idx}`}>{item}</Typography>
                                 ))}
                               </Grid>
-
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
                                   Status:
                                 </Typography>
-                                <Typography>
+                                <Typography className="notranslate">
                                   {ship.type}
                                 </Typography>
                               </Grid>
                             </Grid>
                           </Grid>
-
                           <Grid item xs={2}>
                             <Grid container rowGap={1}>
                               {_.map(ship.carriers, (carr, idx) => (
@@ -805,23 +916,21 @@ const Shipment = ({ history }) => {
                                   <Typography fontWeight={700}>
                                     {`Logistics company ${idx + 1}:`}
                                   </Typography>
-                                  <Typography>
+                                  <Typography className="notranslate">
                                     {carr}
                                   </Typography>
                                 </Grid>
                               ))}
-
                               <Grid item xs={12}>
                                 <Typography fontWeight={700}>
                                   Receiver:
                                 </Typography>
-                                <Typography>
+                                <Typography className="notranslate">
                                   {ship.destination}
                                 </Typography>
                               </Grid>
                             </Grid>
                           </Grid>
-
                           <Grid item xs={2}>
                             {!_.isEmpty(markers) && markers[0] && (
                               <Grid container rowGap={1}>
@@ -836,7 +945,6 @@ const Shipment = ({ history }) => {
                               </Grid>
                             )}
                           </Grid>
-
                           <Grid item xs={2}>
                             {!_.isEmpty(markers) && markers[0] && (
                               <Grid container rowGap={1}>
@@ -853,7 +961,6 @@ const Shipment = ({ history }) => {
                               </Grid>
                             )}
                           </Grid>
-
                           <Grid item xs={4} alignItems="end" justifyContent="end">
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
@@ -870,7 +977,6 @@ const Shipment = ({ history }) => {
                                   value={ship.note || ''}
                                 />
                               </Grid>
-
                               <Grid item xs={12}>
                                 <FormControl
                                   fullWidth
@@ -886,7 +992,6 @@ const Shipment = ({ history }) => {
                                   <FormLabel component="legend" className="shipmentLegend">
                                     Attached Files
                                   </FormLabel>
-
                                   <Stack direction="row" spacing={1}>
                                     {!_.isEmpty(ship.uploaded_pdf)
                                       && _.map(ship.uploaded_pdf, (file, idx) => (
