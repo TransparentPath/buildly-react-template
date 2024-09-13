@@ -1002,12 +1002,9 @@ const Reporting = () => {
             screenshotMapCenter
             noInitialInfo
             markers={markers}
-            googleMapURL={window.env.MAP_API_URL}
             zoom={4}
             setSelectedMarker={setSelectedMarker}
-            loadingElement={<div style={{ height: '100%' }} />}
-            containerElement={<div style={{ height: '625px' }} />}
-            mapElement={<div style={{ height: '100%' }} />}
+            containerStyle={{ height: '625px' }}
             unitOfMeasure={unitData}
           />
         </Grid>
