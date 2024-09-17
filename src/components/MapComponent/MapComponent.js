@@ -39,6 +39,7 @@ export const MapComponent = (props) => {
     geofence,
     containerStyle,
     setSelectedCluster,
+    selectedCluster,
   } = props;
 
   const [center, setCenter] = useState({ lat: 47.606209, lng: -122.332069 });
@@ -168,12 +169,17 @@ export const MapComponent = (props) => {
           <MarkerClusterer
             key={idx}
             averageCenter
+            zoomOnClick={false}
             enableRetinaIcons
-            zoomOnClick
             gridSize={60}
             title={!_.isEmpty(shipMarkers) ? _.first(shipMarkers).shipment.name : ''}
             onClick={(e) => {
               setSelectedCluster(!_.isEmpty(shipMarkers) && _.first(shipMarkers));
+              setCenter({
+                lat: !_.isEmpty(shipMarkers) && _.first(shipMarkers).lat,
+                lng: !_.isEmpty(shipMarkers) && _.first(shipMarkers).lng,
+              });
+              setMapZoom(18);
             }}
             styles={[
               {

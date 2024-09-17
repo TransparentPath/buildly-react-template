@@ -165,10 +165,10 @@ const Shipment = ({ history }) => {
     itemData, allGatewayData, sensorAlertData, sensorReportData]);
 
   useEffect(() => {
-    if (_.isEmpty(markers) && _.isEmpty(selectedCluster)) {
-      setZoom(4);
-    } else {
+    if (!_.isEmpty(markers) || !_.isEmpty(selectedCluster)) {
       setZoom(12);
+    } else {
+      setZoom(4);
     }
   }, [markers, selectedCluster]);
 
@@ -189,8 +189,6 @@ const Shipment = ({ history }) => {
       }, 2000);
     }
   }, [selectedShipment, expandedRows]);
-
-  console.log(shipmentData, rows);
 
   useEffect(() => {
     if (!_.isEmpty(selectedCluster) && !_.isEmpty(rows)) {
@@ -755,6 +753,7 @@ const Shipment = ({ history }) => {
             containerStyle={{ height: '600px' }}
             unitOfMeasure={unitData}
             setSelectedCluster={setSelectedCluster}
+            selectedCluster={selectedCluster}
           />
         </Grid>
         <Grid item xs={12} className="shipmentDataTableHeader">
