@@ -330,9 +330,6 @@ const Reporting = () => {
 
     const csvBody = rows.map((row) => columns.map((col, colIndex) => {
       let cell = row[col.name];
-      if (col.label === 'Date Time' && !_.isEmpty(cell)) {
-        return escapeCSV(moment(cell).tz(timeZone).format(`${dateFormat} ${timeFormat}`));
-      }
       if (!row.location || row.location === 'Error retrieving address') {
         row.location = 'N/A';
       }
@@ -1069,10 +1066,6 @@ const Reporting = () => {
       </Grid>
       <SensorReport
         sensorReport={reports}
-        alerts={_.filter(
-          sensorAlertData,
-          { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
-        )}
         shipmentName={selectedShipment && selectedShipment.name}
         selectedShipment={selectedShipment}
         selectedMarker={selectedShipment && selectedMarker}
