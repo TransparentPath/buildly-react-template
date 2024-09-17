@@ -250,8 +250,8 @@ const Reporting = () => {
   }, [selectedShipment, markers, allGraphs, reports]);
 
   const getShipmentValue = (value) => {
-    let returnValue;
-    if (selectedShipment[value] !== null) {
+    let returnValue = '';
+    if (!_.isEqual(selectedShipment[value], null)) {
       if (moment(selectedShipment[value], true).isValid()) {
         returnValue = moment(selectedShipment[value])
           .tz(timeZone).format(`${dateFormat} ${timeFormat}`);
@@ -265,7 +265,7 @@ const Reporting = () => {
         }
       }
     } else {
-      returnValue = 'NA';
+      returnValue = 'N/A';
     }
     return returnValue;
   };
