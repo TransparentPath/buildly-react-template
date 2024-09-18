@@ -78,7 +78,13 @@ export const MapComponent = (props) => {
       }
     }
     if (_.isEmpty(markers)) {
-      if (!_.isEmpty(allMarkers)) {
+      if (!_.isEmpty(selectedCluster)) {
+        setCenter({
+          lat: selectedCluster.lat,
+          lng: selectedCluster.lng,
+        });
+        setMapZoom(18);
+      } else if (!_.isEmpty(allMarkers)) {
         const allMarkerItems = [].concat(...allMarkers);
         const countries = allMarkerItems.map((item) => item && item.country);
         const uniqueCountries = [...new Set(countries)];
@@ -157,6 +163,8 @@ export const MapComponent = (props) => {
   const overlapCounts = groupMarkersByLocation(_.flatten(allMarkers));
 
   if (!isLoaded) return <div>Loading Map...</div>;
+
+  console.log(mapZoom);
 
   return (
     <GoogleMap
