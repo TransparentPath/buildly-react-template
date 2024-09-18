@@ -164,8 +164,6 @@ export const MapComponent = (props) => {
 
   if (!isLoaded) return <div>Loading Map...</div>;
 
-  console.log(mapZoom);
-
   return (
     <GoogleMap
       mapContainerStyle={containerStyle}
