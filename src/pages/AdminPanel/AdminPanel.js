@@ -14,6 +14,7 @@ import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import Configuration from './Configuration/Configuration';
 // import ImportExport from './ImportExport/ImportExport';
 import ConsortiumSettings from './Consortium/ConsortiumSettings';
+import TrackerOrder from './TrackerOrder/TrackerOrder';
 import './AdminPanelStyles.css';
 
 const AdminPanel = ({
@@ -38,6 +39,7 @@ const AdminPanel = ({
     subNav = [
       ...subNav,
       { label: 'Consortium', value: 'consortium' },
+      { label: 'Order More Trackers', value: 'order more trackers' },
     ];
   }
 

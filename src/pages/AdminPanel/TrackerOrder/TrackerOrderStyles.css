@@ -1,0 +1,23 @@
+.trackerOrderContainer {
+  border-radius: 4px !important;
+  border: 1px solid var(--color-palette-background-light);
+}
+
+.trackerOrderNumberInput input::-webkit-outer-spin-button,
+.trackerOrderNumberInput input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0px;
+}
+
+.trackerOrderNumberInput input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.trackerOrderSummaryDialog {
+  max-width: max-content;
+}
+
+.trackerOrderSummaryDialogContent {
+  padding: 30px 20px 50px 20px;
+  overflow-y: auto;
+}

@@ -65,3 +65,8 @@ export const LANGUAGES = [
   { value: 'ja', label: 'Japanese' },
   { value: 'it', label: 'Italian' },
 ];
+
+export const ORDER_TYPES = [
+  { value: 'Tive Non Lithium Solo 5G', label: 'Tive Non Lithium Solo 5G' },
+  { value: 'Tive Lithium Solo 5G', label: 'Tive Lithium Solo 5G' },
+];
