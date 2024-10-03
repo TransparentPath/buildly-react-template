@@ -2481,3 +2481,24 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat) =
     },
   },
 ]);
+
+export const getRecipientAddressColumns = () => ([
+  {
+    name: 'name',
+    label: 'Name',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'address',
+    label: 'Address',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+]);
