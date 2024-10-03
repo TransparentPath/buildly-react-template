@@ -5,10 +5,12 @@ import { useQuery } from 'react-query';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { getUser } from '@context/User.context';
 import useAlert from '@hooks/useAlert';
+import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
 import { getRecipientAddressQuery } from '@react-query/queries/recipientaddress/getRecipientAddressQuery';
 import { useDeleteRecipientAddressMutation } from '@react-query/mutations/recipientaddress/deleteRecipientAddressMutation';
 import { routes } from '@routes/routesConstants';
 import { getRecipientAddressColumns } from '@utils/constants';
+import { useStore } from '@zustand/timezone/timezoneStore';
 import AddRecipientAddress from '../forms/AddRecipientAddress';
 
 const RecipientAddress = ({ redirectTo, history }) => {
@@ -17,6 +19,7 @@ const RecipientAddress = ({ redirectTo, history }) => {
   const [deleteId, setDeleteId] = useState(null);
 
   const { displayAlert } = useAlert();
+  const { data } = useStore();
 
   const addPath = redirectTo
     ? `${redirectTo}/recipient-address`
@@ -25,6 +28,12 @@ const RecipientAddress = ({ redirectTo, history }) => {
   const editPath = redirectTo
     ? `${redirectTo}/recipient-address`
     : `${routes.CONFIGURATION}/recipient-address/edit`;
+
+  const { data: unitData, isLoading: isLoadingUnits } = useQuery(
+    ['unit', organization],
+    () => getUnitQuery(organization, displayAlert),
+    { refetchOnWindowFocus: false },
+  );
 
   const { data: recipientAddressData, isLoading: isLoadingRecipientAddresses } = useQuery(
     ['recipientAddresses', organization],
@@ -61,11 +70,19 @@ const RecipientAddress = ({ redirectTo, history }) => {
   return (
     <DataTableWrapper
       noSpace
-      loading={isLoadingRecipientAddresses || isDeletingRecipientAddress}
+      loading={isLoadingRecipientAddresses || isDeletingRecipientAddress || isLoadingUnits}
       rows={recipientAddressData || []}
-      columns={getRecipientAddressColumns()}
+      columns={getRecipientAddressColumns(
+        data,
+        _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+          ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+          : '',
+        _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+          ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+          : '',
+      )}
       filename="RecipientAddress"
-      addButtonHeading="Recipient Address"
+      addButtonHeading="Add Address"
       onAddButtonClick={onAddButtonClick}
       editAction={editType}
       deleteAction={deleteType}

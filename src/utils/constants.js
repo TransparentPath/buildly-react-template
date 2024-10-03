@@ -2482,7 +2482,7 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat) =
   },
 ]);
 
-export const getRecipientAddressColumns = () => ([
+export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => ([
   {
     name: 'name',
     label: 'Name',
@@ -2499,6 +2499,26 @@ export const getRecipientAddressColumns = () => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+    },
+  },
+  {
+    name: 'create_date',
+    label: 'Created At',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+    },
+  },
+  {
+    name: 'edit_date',
+    label: 'Last Edited At',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
     },
   },
 ]);
