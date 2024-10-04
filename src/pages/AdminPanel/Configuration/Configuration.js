@@ -40,6 +40,20 @@ const Configuration = (props) => {
               <OrganizationSettings {...props} />
             </AccordionDetails>
           </Accordion>
+          <Accordion className="adminPanelAccordion">
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="recipient-address-content"
+              id="recipient-address-header"
+            >
+              <Typography variant="h5">
+                Recipient Address
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <RecipientAddress {...props} />
+            </AccordionDetails>
+          </Accordion>
         </div>
       )}
       {superAdmin && (

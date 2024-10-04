@@ -304,6 +304,9 @@ export const custodianColumns = [
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        style: { maxWidth: '300px', wordWrap: 'break-word' },
+      }),
     },
   },
   {
@@ -1790,6 +1793,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({ style: { width: '50px' } }),
     },
   },
   {
@@ -1887,6 +1891,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({ style: { width: '50px' } }),
       customBodyRender: (value) => {
         const onPress = () => {
           const link = document.createElement('a');
@@ -1898,9 +1903,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
           document.body.removeChild(link);
         };
         return (value && (
-          <span style={{ marginLeft: '25px', cursor: 'pointer' }}>
-            <LaunchIcon onClick={onPress} style={{ fill: theme.palette.primary.main, width: '24px', height: '24px' }} />
-          </span>
+          <LaunchIcon onClick={onPress} style={{ fill: theme.palette.primary.main, width: '100%', margin: 'auto' }} />
         ));
       },
     },

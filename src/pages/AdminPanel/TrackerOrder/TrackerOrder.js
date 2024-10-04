@@ -7,6 +7,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  Grid,
+  Typography,
 } from '@mui/material';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { getUser } from '@context/User.context';
@@ -14,11 +16,11 @@ import useAlert from '@hooks/useAlert';
 import { getTrackerOrderQuery } from '@react-query/queries/trackerorder/getTrackerOrderQuery';
 import { routes } from '@routes/routesConstants';
 import { getTrackerOrderColumns } from '@utils/constants';
-import AddTrackerOrder from '../forms/AddTrackerOrder';
+import AddTrackerOrder from './forms/AddTrackerOrder';
 import { isTablet } from '@utils/mediaQuery';
 
 const TrackerOrder = ({ redirectTo, history }) => {
-  const organization = getUser().organization.organization_uuid;
+  const { organization_uuid, name } = getUser().organization;
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -29,8 +31,8 @@ const TrackerOrder = ({ redirectTo, history }) => {
     : `${routes.CONFIGURATION}/tracker-order/add`;
 
   const { data: trackerOrderData, isLoading: isLoadingTrackerOrder } = useQuery(
-    ['trackerOrders', organization],
-    () => getTrackerOrderQuery(organization, displayAlert),
+    ['trackerOrders', organization_uuid],
+    () => getTrackerOrderQuery(organization_uuid, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
@@ -76,7 +78,64 @@ const TrackerOrder = ({ redirectTo, history }) => {
         className="trackerOrderSummaryDialog"
       >
         <DialogContent className="trackerOrderSummaryDialogContent">
-          Content
+          <Grid container className="trackerOrderSummaryContent">
+            <Grid item xs={12}>
+              <Typography variant="h6">ORDER SUMMARY</Typography>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Typography variant="h6">
+                Date:
+                {' '}
+                <span>{selectedOrder.order_date}</span>
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6">
+                Order Number:
+                {' '}
+                <span>{selectedOrder.order_number}</span>
+              </Typography>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Typography variant="h6">
+                Recipient:
+                {' '}
+                <span>{selectedOrder.order_recipient}</span>
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6">
+                Type:
+                {' '}
+                <span>{selectedOrder.order_type}</span>
+              </Typography>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Typography variant="h6">
+                Customer:
+                {' '}
+                <span>{name}</span>
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6">
+                Quantity:
+                {' '}
+                <span>{selectedOrder.order_quantity}</span>
+              </Typography>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Typography variant="h6">
+                Recipient Address:
+                {' '}
+                <span>{selectedOrder.order_address}</span>
+              </Typography>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button
