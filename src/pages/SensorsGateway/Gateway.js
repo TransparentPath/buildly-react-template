@@ -266,45 +266,43 @@ const Gateway = ({ history, redirectTo }) => {
               },
             );
 
-            return (
-              <>
-                {!_.isEqual(custodianName, '-')
-                  ? (
-                    <Box className="inventoryContainer">
-                      <Typography className="inventoryTitle">{custodianName.toUpperCase()}</Typography>
-                      <Box className="inventoryAvailableContainer">
-                        <div className="inventoryAvailableCountContainer">
-                          <Typography className="inventoryAvailableCount">{availableCount}</Typography>
-                        </div>
-                        <Typography className="inventoryAvailableText">Available</Typography>
-                      </Box>
-                      <Box className="inventoryAssignedContainer">
-                        <div className="inventoryAssignedCountContainer">
-                          <Typography>{assignedCount}</Typography>
-                        </div>
-                        <Typography className="inventoryAssignedText">Assigned</Typography>
-                      </Box>
-                      <Box className="inventoryInTransitContainer">
-                        <div className="inventoryInTransitCountContainer">
-                          <Typography>{inTransitCount}</Typography>
-                        </div>
-                        <Typography className="inventoryInTransitText">In Transit</Typography>
-                      </Box>
-                      <Box className="inventoryUnavailableContainer">
-                        <div className="inventoryUnavailableCountContainer">
-                          <Typography>{unavailableCount}</Typography>
-                        </div>
-                        <Typography className="inventoryUnavailableText">Unavailable</Typography>
-                      </Box>
-                    </Box>
-                  ) : (
-                    <Box className="inventoryContainer">
-                      <Typography>UNASSIGNED</Typography>
-                      <Typography className="inventoryUnassignedText">{_.size(trackers)}</Typography>
-                    </Box>
-                  )}
-              </>
-            );
+            const returnEle = !_.isEqual(custodianName, '-')
+              ? (
+                <Box key={`shipper-${index}`} className="inventoryContainer">
+                  <Typography className="inventoryTitle">{custodianName.toUpperCase()}</Typography>
+                  <Box className="inventoryAvailableContainer">
+                    <div className="inventoryAvailableCountContainer">
+                      <Typography className="inventoryAvailableCount">{availableCount}</Typography>
+                    </div>
+                    <Typography className="inventoryAvailableText">Available</Typography>
+                  </Box>
+                  <Box className="inventoryAssignedContainer">
+                    <div className="inventoryAssignedCountContainer">
+                      <Typography>{assignedCount}</Typography>
+                    </div>
+                    <Typography className="inventoryAssignedText">Assigned</Typography>
+                  </Box>
+                  <Box className="inventoryInTransitContainer">
+                    <div className="inventoryInTransitCountContainer">
+                      <Typography>{inTransitCount}</Typography>
+                    </div>
+                    <Typography className="inventoryInTransitText">In Transit</Typography>
+                  </Box>
+                  <Box className="inventoryUnavailableContainer">
+                    <div className="inventoryUnavailableCountContainer">
+                      <Typography>{unavailableCount}</Typography>
+                    </div>
+                    <Typography className="inventoryUnavailableText">Unavailable</Typography>
+                  </Box>
+                </Box>
+              ) : (
+                <Box key={`shipper-${index}`} className="inventoryContainer">
+                  <Typography>UNASSIGNED</Typography>
+                  <Typography className="inventoryUnassignedText">{_.size(trackers)}</Typography>
+                </Box>
+              );
+
+            return returnEle;
           })}
         </Grid>
       </Grid>

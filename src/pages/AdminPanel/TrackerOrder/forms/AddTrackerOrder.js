@@ -8,6 +8,8 @@ import {
   Typography,
   MenuItem,
 } from '@mui/material';
+import tiveLithium from '@assets/tive_lithium.png';
+import tiveNonLithium from '@assets/tive_non_lithium.png';
 import Loader from '@components/Loader/Loader';
 import FormModal from '@components/Modal/FormModal';
 import { getUser } from '@context/User.context';
@@ -18,6 +20,7 @@ import { useAddTrackerOrderMutation } from '@react-query/mutations/trackerorder/
 import { validators } from '@utils/validators';
 import { isDesktop } from '@utils/mediaQuery';
 import { ORDER_TYPES } from '@utils/mock';
+import { FlightSafeIcon, FlightUnsafeIcon } from '@utils/constants';
 import '../TrackerOrderStyles.css';
 
 const AddTrackerOrder = ({ history, location }) => {
@@ -78,7 +81,7 @@ const AddTrackerOrder = ({ history, location }) => {
       ...reOrderData,
       order_date: new Date(),
       order_type: order_type.value,
-      order_quantity: order_quantity.value,
+      order_quantity: _.toNumber(order_quantity.value),
       order_recipient: order_recipient.value,
       order_address: order_address.value,
       organization_uuid,
@@ -143,75 +146,110 @@ const AddTrackerOrder = ({ history, location }) => {
             noValidate
             onSubmit={handleSubmit}
           >
-            <Grid container spacing={isDesktop() ? 2 : 0}>
-              <Grid item xs={12} md={6}>
-                <Grid container className="trackerOrderContainer">
-                  <Typography variant="h6">TRACKER</Typography>
+            <Grid container columnGap={2}>
+              <Grid item xs={12} md={5.8} className="addOrderContainer">
+                <Grid container>
+                  <Grid item xs={12} padding={2}>
+                    <Typography className="trackerOrderBold">TRACKER</Typography>
+                  </Grid>
 
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    id="order-type"
-                    select
-                    {...order_type.bind}
-                  >
-                    {_.map(ORDER_TYPES, (ot, index) => (
-                      <MenuItem key={`${ot.value}-${index}`} value={ot.value}>
-                        {ot.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  <Grid item xs={12} className="addOrderTextField">
+                    <TextField
+                      variant="outlined"
+                      fullWidth
+                      id="order-type"
+                      select
+                      label="Tracker Type"
+                      {...order_type.bind}
+                    >
+                      <MenuItem value="">Select</MenuItem>
+                      {_.map(ORDER_TYPES, (ot, index) => (
+                        <MenuItem key={`${ot.value}-${index}`} value={ot.value}>
+                          <Typography component="div" className="addOrderTypeWithIcon">
+                            {ot.label}
+                            <span>{_.includes(ot.label, 'Non') ? <FlightSafeIcon /> : <FlightUnsafeIcon />}</span>
+                          </Typography>
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
 
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    type="number"
-                    className="trackerOrderNumberInput"
-                    id="order-quantity"
-                    name="order-quantity"
-                    autoComplete="order-quantity"
-                    {...order_quantity.bind}
-                  />
+                  <Grid item xs={12} className="addOrderDeviceImage">
+                    {order_type.value && _.includes(order_type.value, 'Non') && (
+                      <img
+                        src={tiveNonLithium}
+                        alt={order_type.value}
+                      />
+                    )}
+                    {order_type.value && !_.includes(order_type.value, 'Non') && (
+                      <img
+                        src={tiveLithium}
+                        alt={order_type.value}
+                      />
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12} textAlign="center">
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      type="number"
+                      className="addOrderNumberInput"
+                      id="order-quantity"
+                      name="order-quantity"
+                      label="Tracker Quantity"
+                      autoComplete="order-quantity"
+                      {...order_quantity.bind}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
 
-              <Grid item xs={12} md={6}>
-                <Grid container className="trackerOrderContainer">
-                  <Typography variant="h6">RECIPIENT</Typography>
+              <Grid item xs={12} md={5.8} className="addOrderContainer addOrderContainerSmallScreen">
+                <Grid container>
+                  <Grid item xs={12} padding={2}>
+                    <Typography className="trackerOrderBold">RECIPIENT</Typography>
+                  </Grid>
 
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    id="order-recipient"
-                    select
-                    value={order_recipient.value}
-                    onChange={(e) => {
-                      order_recipient.setValue(e.target.value);
-                      order_address.setValue(e.target.data.address);
-                    }}
-                  >
-                    {_.map(recipientAddressData, (ra, index) => (
-                      <MenuItem key={`${ra.name}-${index}`} value={ra.name} data={ra}>
-                        {ra.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  <Grid item xs={12} className="addOrderTextField">
+                    <TextField
+                      variant="outlined"
+                      fullWidth
+                      select
+                      required
+                      id="order-recipient"
+                      label="Order Recipient"
+                      value={_.find(recipientAddressData, { name: order_recipient.value, address: order_address.value })}
+                      onChange={(e) => {
+                        order_recipient.setValue(e.target.value.name);
+                        order_address.setValue(e.target.value.address);
+                      }}
+                    >
+                      {_.map(recipientAddressData, (ra, index) => (
+                        <MenuItem key={`${ra.name}-${index}`} value={ra}>
+                          {ra.name}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
 
-                  <TextField
-                    disabled
-                    fullWidth
-                    multiline
-                    variant="outlined"
-                    margin="normal"
-                    id="order-address"
-                    name="order-address"
-                    autoComplete="order-address"
-                    {...order_address.bind}
-                  />
+                  <Grid item xs={12} className="addOrderTextArea">
+                    <TextField
+                      disabled
+                      fullWidth
+                      multiline
+                      variant="outlined"
+                      margin="normal"
+                      id="order-address"
+                      name="order-address"
+                      autoComplete="order-address"
+                      {...order_address.bind}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
 
-              <Grid container spacing={2} justifyContent="center">
+              <Grid container spacing={2} justifyContent="center" className="addOrderActions">
                 <Grid item xs={6} sm={5.15} md={4}>
                   <Button
                     type="submit"

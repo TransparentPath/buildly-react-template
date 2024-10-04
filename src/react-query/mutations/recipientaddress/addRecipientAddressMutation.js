@@ -23,8 +23,8 @@ export const useAddRecipientAddressMutation = (history, redirectTo, displayAlert
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating recipient address');
+      onError: (error, variables, context) => {
+        displayAlert('error', `Recipient ${variables.name} might already exsist. Please cross check`);
       },
     },
   );

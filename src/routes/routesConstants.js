@@ -19,5 +19,6 @@ export const routes = {
   CONFIGURATION: '/app/admin-panel/configuration',
   // IMPORT_EXPORT: '/app/admin-panel/import-export',
   CONSORTIUM: '/app/admin-panel/consortium',
+  TRACKERORDER: '/app/admin-panel/order-more-trackers',
   CREATE_SHIPMENT: '/app/create-shipment',
 };

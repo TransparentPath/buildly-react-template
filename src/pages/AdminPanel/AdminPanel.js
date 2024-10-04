@@ -39,7 +39,7 @@ const AdminPanel = ({
     subNav = [
       ...subNav,
       { label: 'Consortium', value: 'consortium' },
-      { label: 'Order More Trackers', value: 'order more trackers' },
+      { label: 'Order More Trackers', value: 'order-more-trackers' },
     ];
   }
 
@@ -85,6 +85,7 @@ const AdminPanel = ({
             />
           )} */}
           <Route path={routes.CONSORTIUM} component={ConsortiumSettings} />
+          <Route path={routes.TRACKERORDER} component={TrackerOrder} />
         </Box>
       )}
       {!isAdmin && (
