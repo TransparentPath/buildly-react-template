@@ -521,7 +521,7 @@ export const itemColumns = (currUnit) => ([
       filter: true,
       customBodyRender: (value) => (
         value && value !== '-'
-          ? `${numberWithCommas(value)}`
+          ? `${numberWithCommas(_.round(value, 2))}`
           : value
       ),
     },
