@@ -14,7 +14,7 @@ import {
   OpacityOutlined as HumidIcon,
   Launch as LaunchIcon,
 } from '@mui/icons-material';
-import { extractCountry, numberWithCommas } from './utilMethods';
+import { extractCountry } from './utilMethods';
 import { TIVE_GATEWAY_TIMES } from '@utils/mock';
 
 const showValue = (value, timezone, dateFormat, timeFormat) => (
@@ -190,7 +190,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => _.round(_.toNumber(value), 1),
+      customBodyRender: (value) => _.round(_.toNumber(value), 2),
     },
   },
   {
@@ -200,7 +200,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => _.round(_.toNumber(value), 0),
+      customBodyRender: (value) => _.round(_.toNumber(value), 2),
     },
   },
   {
@@ -463,7 +463,7 @@ export const delayColumns = [
       sortThirdClickReset: true,
       customBodyRender: (value) => (
         value && value !== '-'
-          ? `$${numberWithCommas(value)}`
+          ? `$${value}`
           : value
       ),
     },
@@ -554,7 +554,7 @@ export const itemColumns = (currUnit) => ([
       filter: true,
       customBodyRender: (value) => (
         value && value !== '-'
-          ? `${numberWithCommas(value)} ${currUnit}`
+          ? `${value} ${currUnit}`
           : value
       ),
     },
@@ -568,7 +568,7 @@ export const itemColumns = (currUnit) => ([
       filter: true,
       customBodyRender: (value) => (
         value && value !== '-'
-          ? `${numberWithCommas(value)}`
+          ? `${_.round(_.toNumber(value), 2)}`
           : value
       ),
     },
