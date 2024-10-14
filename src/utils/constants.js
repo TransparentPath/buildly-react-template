@@ -1750,15 +1750,41 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sortThirdClickReset: true,
       filter: true,
       customBodyRender: (value) => {
+        const containerStyle = {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: value ? theme.palette.success.light : theme.palette.background.light,
+          borderRadius: '50px',
+          width: '50px',
+        };
         const circleStyle = {
           height: '10px',
           width: '10px',
           borderRadius: '50%',
-          display: 'block',
-          backgroundColor: value ? 'green' : 'grey',
-          marginLeft: '15px',
+          backgroundColor: value ? theme.palette.success.main : theme.palette.background.dark,
+          marginLeft: value ? '5px' : '0px',
+          marginRight: value ? '0px' : '5px',
         };
-        return <span style={circleStyle} />;
+        const textStyle = {
+          fontSize: '12px',
+        };
+        return (
+          <span style={containerStyle}>
+            {value ? (
+              <>
+                <span style={textStyle}>ON</span>
+                <span style={circleStyle} />
+              </>
+            ) : (
+              <>
+                <span style={circleStyle} />
+                <span style={textStyle}>OFF</span>
+              </>
+            )}
+          </span>
+        );
       },
     },
   },
@@ -1811,6 +1837,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
             case 'assigned':
               return {
                 backgroundColor: theme.palette.primary.main,
+                color: theme.palette.background.default,
                 padding: '4px 8px',
                 borderRadius: '6px',
               };
@@ -1907,6 +1934,18 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
   },
 ]);
 
+export const newGatewayColumns = () => ([
+  {
+    name: 'name',
+    label: 'Tracker Identifier',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+]);
+
 export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, custodianData) => {
   if (
     data
@@ -1979,7 +2018,7 @@ export const GATEWAY_STATUS = [
   { value: 'in-transit', name: 'In-transit' },
 ];
 
-export const shipmentColumns = (timezone, dateFormat, language) => ([
+export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
   {
     name: 'status',
     label: 'Status',
@@ -1999,12 +2038,17 @@ export const shipmentColumns = (timezone, dateFormat, language) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => (
-        value && value !== '-'
-          ? moment(value).tz(timezone)
-            .format(`${dateFormat}`)
-          : value
-      ),
+      customBodyRender: (value, tableMeta) => {
+        const delayed = tableMeta.rowData[tableMeta.columnIndex + 7];
+        const status = tableMeta.rowData[tableMeta.columnIndex - 1];
+        return (
+          value && value !== '-' ? (
+            <span style={{ color: delayed && status === 'Planned' ? muiTheme.palette.error.main : 'inherit' }}>
+              {moment(value).tz(timezone).format(`${dateFormat}`)}
+            </span>
+          ) : value
+        );
+      },
     },
   },
   {
@@ -2099,6 +2143,13 @@ export const shipmentColumns = (timezone, dateFormat, language) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+    },
+  },
+  {
+    name: 'delayed',
+    label: 'Delayed',
+    options: {
+      display: false,
     },
   },
 ]);
@@ -2343,6 +2394,9 @@ export const userColumns = () => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
