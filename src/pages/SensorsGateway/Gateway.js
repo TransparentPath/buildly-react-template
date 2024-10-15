@@ -114,10 +114,6 @@ const Gateway = ({ history, redirectTo }) => {
 
   const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(organization, null, null, displayAlert);
 
-  const addPath = redirectTo
-    ? `${redirectTo}/gateways`
-    : `${routes.TRACKERS}/gateway/add`;
-
   const editPath = redirectTo
     ? `${redirectTo}/gateways`
     : `${routes.TRACKERS}/gateway/edit`;
@@ -132,6 +128,8 @@ const Gateway = ({ history, redirectTo }) => {
           custodianData,
         ),
       );
+    } else {
+      setRows([]);
     }
   }, [gatewayData, gatewayTypesData, shipmentData, custodianData]);
 
@@ -142,6 +140,8 @@ const Gateway = ({ history, redirectTo }) => {
         uniqueShippers = uniqueShippers.filter((shipper) => shipper !== '-').concat('-');
       }
       setShippers(uniqueShippers);
+    } else {
+      setShippers([]);
     }
   }, [rows]);
 
@@ -157,16 +157,6 @@ const Gateway = ({ history, redirectTo }) => {
       type: 'edit',
       from: redirectTo || routes.TRACKERS,
       data: item,
-      gatewayTypesData,
-      unitData,
-      custodianData,
-      contactInfo,
-    });
-  };
-
-  const onAddButtonClick = () => {
-    history.push(addPath, {
-      from: redirectTo || routes.TRACKERS,
       gatewayTypesData,
       unitData,
       custodianData,
@@ -234,6 +224,7 @@ const Gateway = ({ history, redirectTo }) => {
             </Button>
           )}
         </Grid>
+
         {isSuperAdmin && (
           <GatewayActions
             handleSyncGateways={handleSyncGateways}
@@ -245,6 +236,7 @@ const Gateway = ({ history, redirectTo }) => {
           />
         )}
       </Grid>
+
       <AddShipper
         open={showAddShipper}
         setOpen={setShowAddShipper}
@@ -253,10 +245,12 @@ const Gateway = ({ history, redirectTo }) => {
         orgData={orgData}
         custodianTypesData={custodianTypesData}
       />
+
       <Grid container mt={3} pb={4}>
         {_.isEmpty(shippers) && (
           <Typography className="gatewayEmptyText">No data to display</Typography>
         )}
+
         {!_.isEmpty(shippers) && (
           <Grid item xs={12} sm={8} lg={9}>
             {shippers.map((custodianName, index) => (
@@ -270,6 +264,7 @@ const Gateway = ({ history, redirectTo }) => {
                     {_.isEqual(custodianName, '-') ? 'UNASSIGNED TRACKERS' : custodianName.toUpperCase()}
                   </Typography>
                 </AccordionSummary>
+
                 <AccordionDetails>
                   <DataTableWrapper
                     hideAddButton
@@ -298,98 +293,95 @@ const Gateway = ({ history, redirectTo }) => {
                       }
                     }}
                     selected={selectedIndices[custodianName]}
-                    addButtonHeading="Add Tracker"
-                    onAddButtonClick={onAddButtonClick}
                     editAction={editGatewayAction}
                   />
-                  <Route path={`${addPath}`} component={AddGateway} />
                   <Route path={`${editPath}/:id`} component={AddGateway} />
                 </AccordionDetails>
               </Accordion>
             ))}
           </Grid>
         )}
-        {!_.isEmpty(shippers)
-          && (
-            <Grid item xs={12} sm={3.5} lg={2.7} className="gatewayInventoryContainer">
-              {!_.isEmpty(shippers) && shippers.map((custodianName, index) => {
-                const trackers = rows.filter((row) => row.custodian.toString() === custodianName);
-                const {
-                  availableCount,
-                  assignedCount,
-                  inTransitCount,
-                  unavailableCount,
-                } = trackers.reduce(
-                  (acc, tracker) => {
-                    if (tracker.gateway_status === 'available') {
-                      acc.availableCount++;
-                    } else if (tracker.gateway_status === 'assigned') {
-                      acc.assignedCount++;
-                    } else if (tracker.gateway_status === 'in-transit') {
-                      acc.inTransitCount++;
-                    } else if (tracker.gateway_status === 'unavailable') {
-                      acc.unavailableCount++;
-                    }
-                    return acc;
-                  },
-                  {
-                    availableCount: 0,
-                    assignedCount: 0,
-                    inTransitCount: 0,
-                    unavailableCount: 0,
-                  },
-                );
 
-                return (
-                  <div key={index}>
-                    {!_.isEqual(custodianName, '-')
-                      ? (
-                        <Box className="inventoryContainer">
-                          <Typography className="inventoryTitle">{custodianName.toUpperCase()}</Typography>
-                          {availableCount > 0 && (
-                            <Box className="inventorySubContainer inventoryAvailable">
-                              <div className="inventoryCountContainer">
-                                <Typography>{availableCount}</Typography>
-                              </div>
-                              <Typography className="inventoryText">Available</Typography>
-                            </Box>
-                          )}
-                          {assignedCount > 0 && (
-                            <Box className="inventorySubContainer inventoryAssigned">
-                              <div className="inventoryCountContainer">
-                                <Typography>{assignedCount}</Typography>
-                              </div>
-                              <Typography className="inventoryText">Assigned</Typography>
-                            </Box>
-                          )}
-                          {inTransitCount > 0 && (
-                            <Box className="inventorySubContainer inventoryInTransit">
-                              <div className="inventoryCountContainer">
-                                <Typography>{inTransitCount}</Typography>
-                              </div>
-                              <Typography className="inventoryText">In Transit</Typography>
-                            </Box>
-                          )}
-                          {unavailableCount > 0 && (
-                            <Box className="inventorySubContainer inventoryUnavailable">
-                              <div className="inventoryCountContainer">
-                                <Typography>{unavailableCount}</Typography>
-                              </div>
-                              <Typography className="inventoryText">Unavailable</Typography>
-                            </Box>
-                          )}
-                        </Box>
-                      ) : (
-                        <Box className="inventoryContainer">
-                          <Typography>UNASSIGNED</Typography>
-                          <Typography className="inventoryUnassignedText">{_.size(trackers)}</Typography>
-                        </Box>
-                      )}
-                  </div>
-                );
-              })}
-            </Grid>
-          )}
+        {!_.isEmpty(shippers) && (
+          <Grid item xs={12} sm={3.5} lg={2.7} className="gatewayInventoryContainer">
+            {!_.isEmpty(shippers) && shippers.map((custodianName, index) => {
+              const trackers = rows.filter((row) => row.custodian.toString() === custodianName);
+              const {
+                availableCount,
+                assignedCount,
+                inTransitCount,
+                unavailableCount,
+              } = trackers.reduce(
+                (acc, tracker) => {
+                  if (tracker.gateway_status === 'available') {
+                    acc.availableCount++;
+                  } else if (tracker.gateway_status === 'assigned') {
+                    acc.assignedCount++;
+                  } else if (tracker.gateway_status === 'in-transit') {
+                    acc.inTransitCount++;
+                  } else if (tracker.gateway_status === 'unavailable') {
+                    acc.unavailableCount++;
+                  }
+                  return acc;
+                },
+                {
+                  availableCount: 0,
+                  assignedCount: 0,
+                  inTransitCount: 0,
+                  unavailableCount: 0,
+                },
+              );
+
+              return (
+                <div key={index}>
+                  {!_.isEqual(custodianName, '-')
+                    ? (
+                      <Box className="inventoryContainer">
+                        <Typography className="inventoryTitle">{custodianName.toUpperCase()}</Typography>
+                        {availableCount > 0 && (
+                          <Box className="inventorySubContainer inventoryAvailable">
+                            <div className="inventoryCountContainer">
+                              <Typography>{availableCount}</Typography>
+                            </div>
+                            <Typography className="inventoryText">Available</Typography>
+                          </Box>
+                        )}
+                        {assignedCount > 0 && (
+                          <Box className="inventorySubContainer inventoryAssigned">
+                            <div className="inventoryCountContainer">
+                              <Typography>{assignedCount}</Typography>
+                            </div>
+                            <Typography className="inventoryText">Assigned</Typography>
+                          </Box>
+                        )}
+                        {inTransitCount > 0 && (
+                          <Box className="inventorySubContainer inventoryInTransit">
+                            <div className="inventoryCountContainer">
+                              <Typography>{inTransitCount}</Typography>
+                            </div>
+                            <Typography className="inventoryText">In Transit</Typography>
+                          </Box>
+                        )}
+                        {unavailableCount > 0 && (
+                          <Box className="inventorySubContainer inventoryUnavailable">
+                            <div className="inventoryCountContainer">
+                              <Typography>{unavailableCount}</Typography>
+                            </div>
+                            <Typography className="inventoryText">Unavailable</Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    ) : (
+                      <Box className="inventoryContainer">
+                        <Typography>UNASSIGNED</Typography>
+                        <Typography className="inventoryUnassignedText">{_.size(trackers)}</Typography>
+                      </Box>
+                    )}
+                </div>
+              );
+            })}
+          </Grid>
+        )}
       </Grid>
     </div>
   );
