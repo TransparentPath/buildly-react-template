@@ -30,7 +30,7 @@ const GraphComponent = ({
   const options = {
     responsive: true,
     scales: {
-      xAxes: [
+      x: [
         {
           type: 'time',
           time: {
@@ -43,7 +43,7 @@ const GraphComponent = ({
           },
         },
       ],
-      yAxes: [
+      y: [
         {
           ticks: {
             beginAtZero: true,
