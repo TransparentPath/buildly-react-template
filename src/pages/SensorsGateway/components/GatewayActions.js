@@ -6,6 +6,7 @@ import {
   TextField,
   MenuItem,
   Typography,
+  Tooltip,
 } from '@mui/material';
 import { CloudSync as CloudSyncIcon } from '@mui/icons-material';
 import { useInput } from '@hooks/useInput';
@@ -157,7 +158,9 @@ const GatewayActions = ({
   return (
     <>
       <Grid item xs={12} sm={6} className="gatewayHeaderActionContainer">
-        <CloudSyncIcon className="gatewaySyncIcon" onClick={handleSyncGateways} />
+        <Tooltip placement="bottom" title="Sync Trackers">
+          <CloudSyncIcon className="gatewaySyncIcon" onClick={handleSyncGateways} />
+        </Tooltip>
         <TextField
           className="gatewayActions"
           variant="outlined"
