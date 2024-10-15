@@ -138,7 +138,7 @@ const Devices = ({ isNewDevices }) => {
               variant="contained"
               color="primary"
               style={{ marginLeft: '20px', marginTop: '8px' }}
-              disabled={isFetchingNewGateway || isEditingGateway || isLoadingGateways}
+              disabled={isFetchingNewGateway || isEditingGateway || isLoadingGateways || _.isEmpty(selectedRows) || _.isEmpty(organization)}
               onClick={handleSubmit}
             >
               OK

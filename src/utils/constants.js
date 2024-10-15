@@ -600,6 +600,7 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
   {
     name: 'tracker',
     label: 'Tracker',
+    className: 'notranslate',
   },
   {
     name: 'custodian_name',
@@ -1795,6 +1796,9 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {
@@ -1942,6 +1946,9 @@ export const newGatewayColumns = () => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
 ]);
@@ -2143,6 +2150,9 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      setCellProps: () => ({
+        className: 'notranslate',
+      }),
     },
   },
   {

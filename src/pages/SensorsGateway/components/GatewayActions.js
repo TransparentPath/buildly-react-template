@@ -200,12 +200,13 @@ const GatewayActions = ({
           <Grid container spacing={isDesktop() ? 2 : 0}>
             <Grid className="gatewayInputWithTooltip" item xs={12}>
               <TextField
+                className="notranslate"
                 variant="outlined"
                 margin="normal"
                 required
                 fullWidth
                 id="selectedTrackers"
-                label="Selected Trackers"
+                label={<span className="translate">Selected Trackers</span>}
                 disabled
                 multiline
                 value={selectedRows.map((tracker) => tracker.name).join('\n')}

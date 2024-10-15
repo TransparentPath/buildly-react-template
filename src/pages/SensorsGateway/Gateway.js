@@ -254,56 +254,61 @@ const Gateway = ({ history, redirectTo }) => {
         custodianTypesData={custodianTypesData}
       />
       <Grid container mt={3} pb={4}>
-        <Grid item xs={12} sm={8} lg={9}>
-          {!_.isEmpty(shippers) && shippers.map((custodianName, index) => (
-            <Accordion key={index} className="gatewayAccordion">
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls={_.isEqual(custodianName, '-') ? 'unassigned-content' : `${custodianName}-content`}
-                id={_.isEqual(custodianName, '-') ? 'unassigned-header' : `${custodianName}-header`}
-              >
-                <Typography className="gatewayAccordingHeading">
-                  {_.isEqual(custodianName, '-') ? 'UNASSIGNED TRACKERS' : custodianName.toUpperCase()}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <DataTableWrapper
-                  hideAddButton
-                  filename={_.isEqual(custodianName, '-') ? 'Unassigned Trackers' : `${custodianName} Trackers`}
-                  rows={rows.filter((row) => row.custodian.toString() === custodianName) || []}
-                  columns={gatewayColumns(
-                    data,
-                    _.find(
-                      unitData,
-                      (unit) => _.toLower(unit.unit_of_measure_for) === 'date',
-                    )
-                      ? _.find(
+        {_.isEmpty(shippers) && (
+          <Typography className="gatewayEmptyText">No data to display</Typography>
+        )}
+        {!_.isEmpty(shippers) && (
+          <Grid item xs={12} sm={8} lg={9}>
+            {shippers.map((custodianName, index) => (
+              <Accordion key={index} className="gatewayAccordion">
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls={_.isEqual(custodianName, '-') ? 'unassigned-content' : `${custodianName}-content`}
+                  id={_.isEqual(custodianName, '-') ? 'unassigned-header' : `${custodianName}-header`}
+                >
+                  <Typography className="gatewayAccordingHeading">
+                    {_.isEqual(custodianName, '-') ? 'UNASSIGNED TRACKERS' : custodianName.toUpperCase()}
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <DataTableWrapper
+                    hideAddButton
+                    filename={_.isEqual(custodianName, '-') ? 'Unassigned Trackers' : `${custodianName} Trackers`}
+                    rows={rows.filter((row) => row.custodian.toString() === custodianName) || []}
+                    columns={gatewayColumns(
+                      data,
+                      _.find(
                         unitData,
                         (unit) => _.toLower(unit.unit_of_measure_for) === 'date',
-                      ).unit_of_measure
-                      : '',
-                    theme,
-                  )}
-                  selectable={{
-                    rows: isSuperAdmin ? 'multiple' : 'none',
-                    rowsHeader: !!isSuperAdmin,
-                  }}
-                  onRowSelectionChange={(rowsSelectedData, allRows, rowsSelected) => {
-                    if (isSuperAdmin) {
-                      handleSelectedTrackers(allRows, custodianName);
-                    }
-                  }}
-                  selected={selectedIndices[custodianName]}
-                  addButtonHeading="Add Tracker"
-                  onAddButtonClick={onAddButtonClick}
-                  editAction={editGatewayAction}
-                />
-                <Route path={`${addPath}`} component={AddGateway} />
-                <Route path={`${editPath}/:id`} component={AddGateway} />
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </Grid>
+                      )
+                        ? _.find(
+                          unitData,
+                          (unit) => _.toLower(unit.unit_of_measure_for) === 'date',
+                        ).unit_of_measure
+                        : '',
+                      theme,
+                    )}
+                    selectable={{
+                      rows: isSuperAdmin ? 'multiple' : 'none',
+                      rowsHeader: !!isSuperAdmin,
+                    }}
+                    onRowSelectionChange={(rowsSelectedData, allRows, rowsSelected) => {
+                      if (isSuperAdmin) {
+                        handleSelectedTrackers(allRows, custodianName);
+                      }
+                    }}
+                    selected={selectedIndices[custodianName]}
+                    addButtonHeading="Add Tracker"
+                    onAddButtonClick={onAddButtonClick}
+                    editAction={editGatewayAction}
+                  />
+                  <Route path={`${addPath}`} component={AddGateway} />
+                  <Route path={`${editPath}/:id`} component={AddGateway} />
+                </AccordionDetails>
+              </Accordion>
+            ))}
+          </Grid>
+        )}
         {!_.isEmpty(shippers)
           && (
             <Grid item xs={12} sm={3.5} lg={2.7} className="gatewayInventoryContainer">

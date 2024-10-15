@@ -11,8 +11,20 @@
 }
 
 .gatewayActions {
+  width: 192px;
   margin-left: 20px;
-  width: 185px;
+}
+
+.gatewayActions .MuiOutlinedInput-input {
+  padding: 8px 28px 8px 16px;
+}
+
+.gatewayActions .MuiFormLabel-root {
+  margin-top: -8px;
+}
+
+.gatewayActions .Mui-focused {
+  margin-top: 0 !important;
 }
 
 .gatewaySyncIcon {
@@ -29,6 +41,13 @@
 .gatewayInputWithTooltip {
   display: flex;
   align-items: center;
+}
+
+.gatewayEmptyText {
+  font-size: 20px;
+  margin: 0 auto;
+  font-weight: 700;
+  margin-top: 100px;
 }
 
 .gatewayAccordion {
