@@ -53,6 +53,7 @@ const DataTableWrapper = ({
   onUploadData,
   downloadTemplateHeading,
   uploadDataHeading,
+  onRowSelectionChange,
 }) => {
   const user = getUser();
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
@@ -127,6 +128,7 @@ const DataTableWrapper = ({
       ? selectable.rowsHideCheckboxes
       : false,
     rowsSelected: selected || [],
+    onRowSelectionChange,
     rowsPerPageOptions: [5, 10, 15],
     downloadOptions: noOptionsIcon
       ? {
