@@ -1,3 +1,4 @@
+/* Add order css */
 .addOrderContainer {
   border-radius: 4px;
   border: 1px solid var(--color-palette-background-light);
@@ -7,12 +8,20 @@
   font-weight: bold;
 }
 
-.trackerOrderPrimaryColor {
-  color: var(--color-palette-primary-main);
+.addOrderMoreIcon {
+  color: var(--color-palette-background-default);
+  background-color: var(--color-palette-primary-main);
 }
 
-.trackerOrderNormalFont {
-  font-weight: normal;
+.addOrderMoreIcon:hover {
+  color: var(--color-palette-background-default);
+  background-color: var(--color-palette-secondary-main);
+}
+
+.addOrderTypeContainer {
+  border-top: 1px solid var(--color-palette-background-light);
+  padding-top: 32px;
+  margin: 0 24px;
 }
 
 .addOrderTypeWithIcon {
@@ -29,29 +38,20 @@
 .addOrderTextField {
   margin: 32px;
   margin-bottom: 16px;
+  margin-top: 0;
 }
 
-.addOrderDeviceImage {
+.orderDeviceImage {
   text-align: center;
 }
 
-.addOrderDeviceImage > img {
+.orderDeviceImage > img {
   width: 100px;
 }
 
-.addOrderNumberInput {
-  margin-bottom: 16px;
-  width: 35%;
-}
-
-.addOrderNumberInput input::-webkit-outer-spin-button,
-.addOrderNumberInput input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0px;
-}
-
-.addOrderNumberInput input[type="number"] {
-  -moz-appearance: textfield;
+.addOrderQuantityField {
+  width: 30%;
+  margin-bottom: 32px;
 }
 
 .addOrderTextArea {
@@ -62,6 +62,15 @@
 .addOrderActions {
   margin-top: 32px;
   margin-bottom: 32px;
+}
+
+/* Tracker order css */
+.trackerOrderPrimaryColor {
+  color: var(--color-palette-primary-main);
+}
+
+.trackerOrderNormalFont {
+  font-weight: normal;
 }
 
 .orderSummaryDialogContent {
@@ -85,6 +94,61 @@
   text-align: end;
 }
 
+/* Cart css */
+.cartModalRoot {
+  margin: 0px;
+  padding: 40px;
+  padding-bottom: 0;
+}
+
+.cartContainer {
+  border: 1px solid var(--color-palette-background-light);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.75);
+  -webkit-box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.75);
+  -moz-box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.75);
+}
+
+.cartTitle {
+  color: var(--color-palette-primary-main);
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.cartNoOrder {
+  padding: 64px;
+}
+
+.cartMarginTop32 {
+  margin-top: 32px;
+}
+
+.cartMarginTop16 {
+  margin-top: 16px;
+}
+
+.cartRemoveButton {
+  margin-top: 8px;
+  border-radius: 16px;
+}
+
+.cartTopBorder {
+  border-top: 1px solid var(--color-palette-background-light);
+}
+
+.cartTypeTopBorder {
+  height: 2px;
+  width: 85%;
+  margin: 16px 0;
+  border-top: 1px solid var(--color-palette-background-light);
+}
+
+.cartActions {
+  margin: 16px 0;
+}
+
+/* Media css */
 @media screen and (max-width: 960px) {
   .addOrderContainerSmallScreen {
     margin-top: 32px;

@@ -7,7 +7,9 @@ import {
   TextField,
   Typography,
   MenuItem,
+  IconButton,
 } from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
 import tiveLithium from '@assets/tive_lithium.png';
 import tiveNonLithium from '@assets/tive_non_lithium.png';
 import Loader from '@components/Loader/Loader';
@@ -16,25 +18,29 @@ import { getUser } from '@context/User.context';
 import useAlert from '@hooks/useAlert';
 import { useInput } from '@hooks/useInput';
 import { getRecipientAddressQuery } from '@react-query/queries/recipientaddress/getRecipientAddressQuery';
-import { useAddTrackerOrderMutation } from '@react-query/mutations/trackerorder/addTrackerOrderMutation';
 import { validators } from '@utils/validators';
 import { isDesktop } from '@utils/mediaQuery';
 import { ORDER_TYPES } from '@utils/mock';
 import { FlightSafeIcon, FlightUnsafeIcon } from '@utils/constants';
+import { useCartStore } from '@zustand/cart/cartStore';
 import '../TrackerOrderStyles.css';
 
 const AddTrackerOrder = ({ history, location }) => {
   const { organization_uuid } = getUser().organization;
   const [openFormModal, setFormModal] = useState(true);
   const [openConfirmModal, setConfirmModal] = useState(false);
+  const [showAddMore, setShowAddMore] = useState(false);
 
   const { displayAlert } = useAlert();
+  const { data: cartData, setCart } = useCartStore();
 
   const reOrderPage = location.state && location.state.type === 're-order';
   const reOrderData = (reOrderPage && location.state.data) || {};
 
-  const order_type = useInput((reOrderData && reOrderData.order_type) || '', { required: true });
-  const order_quantity = useInput((reOrderData && reOrderData.order_quantity) || '', { required: true });
+  const placeholderType = useInput('', { required: true });
+  const placeholderQuantity = useInput(0, { required: true });
+  const order_type = useInput((reOrderData && reOrderData.order_type) || [], { required: true });
+  const order_quantity = useInput((reOrderData && reOrderData.order_quantity) || [], { required: true });
   const order_recipient = useInput((reOrderData && reOrderData.order_recipient) || '', { required: true });
   const order_address = useInput((reOrderData && reOrderData.order_address) || '', { required: true });
   const [formError, setFormError] = useState({});
@@ -69,8 +75,6 @@ const AddTrackerOrder = ({ history, location }) => {
     }
   };
 
-  const { mutate: addTrackerOrderMutation, isLoading: isAddingTrackerOrder } = useAddTrackerOrderMutation(history, location.state.from, displayAlert);
-
   /**
    * Submit The form and add/edit custodian type
    * @param {Event} event the default submit event
@@ -81,13 +85,14 @@ const AddTrackerOrder = ({ history, location }) => {
       ...reOrderData,
       order_date: new Date(),
       order_type: order_type.value,
-      order_quantity: _.toNumber(order_quantity.value),
+      order_quantity: order_quantity.value,
       order_recipient: order_recipient.value,
       order_address: order_address.value,
       organization_uuid,
     };
 
-    addTrackerOrderMutation(data);
+    setCart([...cartData, data]);
+    discardFormData();
   };
 
   /**
@@ -118,7 +123,7 @@ const AddTrackerOrder = ({ history, location }) => {
 
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
-    if (!order_type.value || !order_quantity.value || !order_recipient.value || !order_address.value) {
+    if (!order_type.value || _.isEmpty(order_type.value) || !order_quantity.value || _.isEmpty(order_quantity.value) || !order_recipient.value || !order_address.value) {
       return true;
     }
     let errorExists = false;
@@ -141,67 +146,173 @@ const AddTrackerOrder = ({ history, location }) => {
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
-          {(isAddingTrackerOrder || isLoadingRecipientAddresses) && <Loader open={isAddingTrackerOrder || isLoadingRecipientAddresses} />}
-          <form
-            noValidate
-            onSubmit={handleSubmit}
-          >
+          {isLoadingRecipientAddresses && <Loader open={isLoadingRecipientAddresses} />}
+          <form noValidate onSubmit={handleSubmit}>
             <Grid container columnGap={2}>
               <Grid item xs={12} md={5.8} className="addOrderContainer">
                 <Grid container>
-                  <Grid item xs={12} padding={2}>
+                  <Grid item xs={6} padding={2}>
                     <Typography className="trackerOrderBold">TRACKER</Typography>
                   </Grid>
 
-                  <Grid item xs={12} className="addOrderTextField">
-                    <TextField
-                      variant="outlined"
-                      fullWidth
-                      id="order-type"
-                      select
-                      label="Tracker Type"
-                      {...order_type.bind}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {_.map(ORDER_TYPES, (ot, index) => (
-                        <MenuItem key={`${ot.value}-${index}`} value={ot.value}>
-                          <Typography component="div" className="addOrderTypeWithIcon">
-                            {ot.label}
-                            <span>{_.includes(ot.label, 'Non') ? <FlightSafeIcon /> : <FlightUnsafeIcon />}</span>
-                          </Typography>
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-
-                  <Grid item xs={12} className="addOrderDeviceImage">
-                    {order_type.value && _.includes(order_type.value, 'Non') && (
-                      <img
-                        src={tiveNonLithium}
-                        alt={order_type.value}
-                      />
-                    )}
-                    {order_type.value && !_.includes(order_type.value, 'Non') && (
-                      <img
-                        src={tiveLithium}
-                        alt={order_type.value}
-                      />
+                  <Grid item xs={6} padding={2} textAlign="end">
+                    {(_.size(_.without(ORDER_TYPES, ..._.filter(ORDER_TYPES, (o) => _.includes(order_type.value, o.value)))) > 0) && (
+                      <IconButton
+                        className="addOrderMoreIcon"
+                        onClick={(e) => {
+                          setShowAddMore(true);
+                          placeholderType.setValue('');
+                          placeholderQuantity.setValue(0);
+                        }}
+                      >
+                        <AddIcon />
+                      </IconButton>
                     )}
                   </Grid>
 
-                  <Grid item xs={12} textAlign="center">
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      type="number"
-                      className="addOrderNumberInput"
-                      id="order-quantity"
-                      name="order-quantity"
-                      label="Tracker Quantity"
-                      autoComplete="order-quantity"
-                      {...order_quantity.bind}
-                    />
-                  </Grid>
+                  {!_.isEmpty(order_type.value) && !_.isEmpty(order_quantity.value) && _.map(order_type.value, (orty, idx) => (
+                    <Grid container key={`${idx}-${orty}`} className={idx > 0 ? 'addOrderTypeContainer' : ''}>
+                      <Grid item xs={12} className="addOrderTextField">
+                        <TextField
+                          variant="outlined"
+                          fullWidth
+                          id={`order-type-${idx}`}
+                          select
+                          label="Tracker Type"
+                          value={orty}
+                          onChange={(e) => {
+                            const newList = _.map(
+                              order_type.value,
+                              (o, i) => (i === idx ? e.target.value : o),
+                            );
+                            order_type.setValue(newList);
+                          }}
+                        >
+                          <MenuItem value="">Select</MenuItem>
+                          {_.map(ORDER_TYPES, (ot, index) => (
+                            <MenuItem key={`${ot.value}-${index}`} value={ot.value}>
+                              <Typography component="div" className="addOrderTypeWithIcon">
+                                {ot.label}
+                                <span>{_.includes(ot.label, 'Non') ? <FlightSafeIcon /> : <FlightUnsafeIcon />}</span>
+                              </Typography>
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Grid>
+
+                      <Grid item xs={12} className="orderDeviceImage">
+                        {orty && _.includes(orty, 'Non') && (
+                          <img
+                            src={tiveNonLithium}
+                            alt={orty}
+                          />
+                        )}
+                        {orty && !_.includes(orty, 'Non') && (
+                          <img
+                            src={tiveLithium}
+                            alt={orty}
+                          />
+                        )}
+                      </Grid>
+
+                      <Grid item xs={12} textAlign="center">
+                        <TextField
+                          variant="outlined"
+                          margin="normal"
+                          type="number"
+                          className="addOrderQuantityField"
+                          id={`order-quantity-${idx}`}
+                          name="order-quantity"
+                          label="Tracker Quantity"
+                          autoComplete="order-quantity"
+                          select
+                          value={order_quantity.value[idx]}
+                          onChange={(e) => {
+                            const newList = _.map(
+                              order_quantity.value,
+                              (oq, i) => (i === idx ? e.target.value : oq),
+                            );
+                            order_quantity.setValue(newList);
+                          }}
+                        >
+                          <MenuItem value={0}>Select</MenuItem>
+                          {_.map([25, 50, 75, 100], (quant, qidx) => (
+                            <MenuItem key={`${qidx}-${quant}`} value={quant}>
+                              {quant}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                  ))}
+
+                  {(showAddMore || (_.isEmpty(order_type.value) && _.isEmpty(order_quantity.value))) && (
+                    <Grid container className={!_.isEmpty(order_type.value) ? 'addOrderTypeContainer' : ''}>
+                      <Grid item xs={12} className="addOrderTextField">
+                        <TextField
+                          variant="outlined"
+                          fullWidth
+                          id="placeholder-order-type"
+                          select
+                          label="Tracker Type"
+                          {...placeholderType.bind}
+                        >
+                          <MenuItem value="">Select</MenuItem>
+                          {_.map(_.without(ORDER_TYPES, ..._.filter(ORDER_TYPES, (o) => _.includes(order_type.value, o.value))), (ot, index) => (
+                            <MenuItem key={`${ot.value}-${index}`} value={ot.value}>
+                              <Typography component="div" className="addOrderTypeWithIcon">
+                                {ot.label}
+                                <span>{_.includes(ot.label, 'Non') ? <FlightSafeIcon /> : <FlightUnsafeIcon />}</span>
+                              </Typography>
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Grid>
+
+                      <Grid item xs={12} className="orderDeviceImage">
+                        {placeholderType.value && _.includes(placeholderType.value, 'Non') && (
+                          <img
+                            src={tiveNonLithium}
+                            alt={placeholderType.value}
+                          />
+                        )}
+                        {placeholderType.value && !_.includes(placeholderType.value, 'Non') && (
+                          <img
+                            src={tiveLithium}
+                            alt={placeholderType.value}
+                          />
+                        )}
+                      </Grid>
+
+                      <Grid item xs={12} textAlign="center">
+                        <TextField
+                          variant="outlined"
+                          margin="normal"
+                          type="number"
+                          className="addOrderQuantityField"
+                          id="placeholder-order-quantity"
+                          name="order-quantity"
+                          label="Tracker Quantity"
+                          autoComplete="order-quantity"
+                          select
+                          value={placeholderQuantity.value}
+                          onChange={(e) => {
+                            placeholderQuantity.setValue(e.target.value);
+                            order_type.setValue([...order_type.value, placeholderType.value]);
+                            order_quantity.setValue([...order_quantity.value, e.target.value]);
+                            setShowAddMore(false);
+                          }}
+                        >
+                          <MenuItem value={0}>Select</MenuItem>
+                          {_.map([25, 50, 75, 100], (quant, qidx) => (
+                            <MenuItem key={`${qidx}-${quant}`} value={quant}>
+                              {quant}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
 
@@ -256,9 +367,9 @@ const AddTrackerOrder = ({ history, location }) => {
                     fullWidth
                     variant="contained"
                     color="primary"
-                    disabled={isAddingTrackerOrder || isLoadingRecipientAddresses || submitDisabled()}
+                    disabled={isLoadingRecipientAddresses || submitDisabled()}
                   >
-                    Place order
+                    Add to cart
                   </Button>
                 </Grid>
 

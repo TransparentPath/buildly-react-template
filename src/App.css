@@ -1,8 +1,8 @@
 #google_translate_element {
-  width:300px;
-  float:right;
-  text-align:right;
-  display:block
+  width: 0;
+  float: right;
+  text-align: right;
+  display: block;
 }
 
 .goog-te-banner-frame.skiptranslate {

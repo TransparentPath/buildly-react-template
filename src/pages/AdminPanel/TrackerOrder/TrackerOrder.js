@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router-dom';
-import _ from 'lodash';
 import { useQuery } from 'react-query';
+import _ from 'lodash';
+import moment from 'moment-timezone';
 import {
+  Badge,
   Button,
   Dialog,
   DialogActions,
@@ -11,7 +13,14 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import { Repeat as RepeatIcon, Summarize as SummarizeIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Repeat as RepeatIcon,
+  ShoppingCart as ShoppingCartIcon,
+  Summarize as SummarizeIcon,
+} from '@mui/icons-material';
+import orderReorderPng from '@assets/order_reorder.png';
+import orderSummaryPng from '@assets/order_summary.png';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { getUser } from '@context/User.context';
 import useAlert from '@hooks/useAlert';
@@ -21,8 +30,9 @@ import { routes } from '@routes/routesConstants';
 import { getTrackerOrderColumns } from '@utils/constants';
 import { isTablet } from '@utils/mediaQuery';
 import { useStore } from '@zustand/timezone/timezoneStore';
+import { useCartStore } from '@zustand/cart/cartStore';
 import AddTrackerOrder from './forms/AddTrackerOrder';
-import moment from 'moment-timezone';
+import ShowCart from './components/ShowCart';
 
 const TrackerOrder = ({ redirectTo, history }) => {
   const { organization_uuid, name } = getUser().organization;
@@ -31,7 +41,8 @@ const TrackerOrder = ({ redirectTo, history }) => {
   const [rows, setRows] = useState([]);
 
   const { displayAlert } = useAlert();
-  const { data } = useStore();
+  const { data: timeZone } = useStore();
+  const { data: cartData } = useCartStore();
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization_uuid],
@@ -76,8 +87,31 @@ const TrackerOrder = ({ redirectTo, history }) => {
     setSelectedOrder(null);
   };
 
+  const onCartClick = () => {
+    history.push(`${routes.TRACKERORDER}/cart`, {
+      from: redirectTo || routes.TRACKERORDER,
+    });
+  };
+
   const finalColumns = [
-    ...getTrackerOrderColumns(data, dateFormat, timeFormat),
+    {
+      name: 'Repeat Order',
+      options: {
+        filter: false,
+        sort: false,
+        empty: true,
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } }),
+        customBodyRenderLite: (dataIndex) => (
+          <div className="orderSummaryIconDiv">
+            <IconButton onClick={(e) => onReOrder(rows[dataIndex])}>
+              {/* <RepeatIcon color="primary" /> */}
+              <img src={orderReorderPng} alt="Re-order" />
+            </IconButton>
+          </div>
+        ),
+      },
+    },
+    ...getTrackerOrderColumns(timeZone, dateFormat, timeFormat),
     {
       name: 'Order Summary',
       options: {
@@ -93,23 +127,8 @@ const TrackerOrder = ({ redirectTo, history }) => {
                 setShowOrderSummary(true);
               }}
             >
-              <SummarizeIcon color="primary" />
-            </IconButton>
-          </div>
-        ),
-      },
-    },
-    {
-      name: 'Repeat Order',
-      options: {
-        filter: false,
-        sort: false,
-        empty: true,
-        setCellHeaderProps: () => ({ style: { textAlign: 'center' } }),
-        customBodyRenderLite: (dataIndex) => (
-          <div className="orderSummaryIconDiv">
-            <IconButton onClick={(e) => onReOrder(rows[dataIndex])}>
-              <RepeatIcon color="primary" />
+              {/* <SummarizeIcon color="primary" /> */}
+              <img src={orderSummaryPng} alt="Summary" />
             </IconButton>
           </div>
         ),
@@ -118,18 +137,41 @@ const TrackerOrder = ({ redirectTo, history }) => {
   ];
 
   return (
-    <>
+    <div>
+      <Grid container>
+        <Grid item xs={9}>
+          <IconButton onClick={onCartClick}>
+            <Badge color="secondary" invisible={false} badgeContent={_.size(cartData)}>
+              <ShoppingCartIcon fontSize="large" color="primary" />
+            </Badge>
+          </IconButton>
+        </Grid>
+
+        <Grid item xs={3} textAlign="end">
+          <Button
+            type="button"
+            variant="contained"
+            color="primary"
+            onClick={onAddButtonClick}
+          >
+            New Order
+            {' '}
+            <AddIcon />
+          </Button>
+        </Grid>
+      </Grid>
+
       <DataTableWrapper
+        hideAddButton
         noSpace
         loading={isLoadingTrackerOrder || isLoadingUnits}
         rows={trackerOrderData || []}
         columns={finalColumns}
         filename="TrackerOrders"
-        addButtonHeading="Place an Order"
-        onAddButtonClick={onAddButtonClick}
         tableHeight="300px"
       >
         <Route path={`${routes.TRACKERORDER}/add`} component={AddTrackerOrder} />
+        <Route path={`${routes.TRACKERORDER}/cart`} component={ShowCart} />
       </DataTableWrapper>
 
       <Dialog
@@ -149,7 +191,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
               <Typography className="trackerOrderBold">
                 Date:
                 {'  '}
-                <span className="trackerOrderNormalFont">{selectedOrder && moment(selectedOrder.order_date).tz(data).format(`${dateFormat} ${timeFormat}`)}</span>
+                <span className="trackerOrderNormalFont">{selectedOrder && moment(selectedOrder.order_date).tz(timeZone).format(`${dateFormat} ${timeFormat}`)}</span>
               </Typography>
             </Grid>
 
@@ -219,7 +261,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
           </Grid>
         </DialogActions>
       </Dialog>
-    </>
+    </div>
   );
 };
 
