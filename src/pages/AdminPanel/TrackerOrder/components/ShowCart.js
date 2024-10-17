@@ -9,6 +9,8 @@ import {
   DialogTitle,
   DialogContent,
   Typography,
+  TextField,
+  MenuItem,
 } from '@mui/material';
 import tiveLithium from '@assets/tive_lithium.png';
 import tiveNonLithium from '@assets/tive_non_lithium.png';
@@ -16,6 +18,7 @@ import { getUser } from '@context/User.context';
 import Loader from '@components/Loader/Loader';
 import useAlert from '@hooks/useAlert';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
+import { useAddTrackerOrderMutation } from '@react-query/mutations/trackerorder/addTrackerOrderMutation';
 import { isMobile } from '@utils/mediaQuery';
 import { FlightSafeIcon, FlightUnsafeIcon } from '@utils/constants';
 import { useStore } from '@zustand/timezone/timezoneStore';
@@ -36,13 +39,15 @@ const ShowCart = ({ history, location }) => {
     { refetchOnWindowFocus: false },
   );
 
-  const dateFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+  const dateFormat = _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'date'))
+    ? _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'date')).unit_of_measure
     : '';
 
-  const timeFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+  const timeFormat = _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'time'))
+    ? _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'time')).unit_of_measure
     : '';
+
+  const { mutate: addTrackerOrderMutation, isLoading: isAddingTrackerOrder } = useAddTrackerOrderMutation(history, location.state.from, displayAlert, setCart);
 
   const closeCart = () => {
     setCartModal(false);
@@ -51,8 +56,38 @@ const ShowCart = ({ history, location }) => {
     }
   };
 
-  const removeType = (cd) => {
-    console.log(cd);
+  const updateOrderQuantity = (cartIndex, itemIndex, newValue) => {
+    const newCartData = _.map(cartData, (cd, index) => {
+      let newCd = cd;
+      if (_.isEqual(index, cartIndex)) {
+        const newOQ = _.map(newCd.order_quantity, (oq, idx) => (_.isEqual(idx, itemIndex) ? newValue : oq));
+        newCd = { ...newCd, order_quantity: newOQ };
+      }
+
+      return newCd;
+    });
+
+    setCart(newCartData);
+  };
+
+  const removeType = (cartIndex, itemIndex) => {
+    const newCartData = _.map(cartData, (cd, index) => {
+      let newCd = cd;
+      if (_.isEqual(index, cartIndex)) {
+        const newOQ = _.filter(newCd.order_quantity, (oq, idx) => !_.isEqual(idx, itemIndex));
+        const newOT = _.filter(newCd.order_type, (ot, idx) => !_.isEqual(idx, itemIndex));
+
+        if (_.size(newOQ) > 0) {
+          newCd = { ...newCd, order_quantity: newOQ, order_type: newOT };
+        } else {
+          newCd = null;
+        }
+      }
+
+      return newCd;
+    });
+
+    setCart(_.without(newCartData, null));
   };
 
   /**
@@ -61,11 +96,11 @@ const ShowCart = ({ history, location }) => {
    */
   const handleSubmit = (event) => {
     event.preventDefault();
+    addTrackerOrderMutation(cartData);
   };
 
   return (
     <div>
-      {isLoadingUnits && <Loader open={isLoadingUnits} />}
       <Dialog
         open={openCartModal}
         onClose={closeCart}
@@ -75,6 +110,7 @@ const ShowCart = ({ history, location }) => {
         aria-labelledby="form-dialog-title"
       >
         <DialogContent className="cartModalRoot">
+          {(isLoadingUnits || isAddingTrackerOrder) && <Loader open={isLoadingUnits || isAddingTrackerOrder} />}
           <form noValidate onSubmit={handleSubmit}>
             <Grid container className="cartContainer">
               <Grid item xs={12} textAlign="center">
@@ -97,9 +133,9 @@ const ShowCart = ({ history, location }) => {
                   className={index > 0 ? 'cartTopBorder' : ''}
                 >
                   <Grid container>
-                    <Grid item xs={6}>
+                    <Grid item xs={6} alignContent="center">
                       {_.map(cd.order_type, (cdot, idx) => (
-                        <Grid container key={`${idx}-${cdot}`}>
+                        <Grid container key={`${idx}-${cdot}`} alignItems="center">
                           <div className={idx > 0 ? 'cartTypeTopBorder' : ''} />
                           <Grid item xs={2.5} className="orderDeviceImage">
                             {cdot && _.includes(cdot, 'Non') && (
@@ -129,13 +165,30 @@ const ShowCart = ({ history, location }) => {
                               {cdot}
                             </Typography>
 
-                            <Typography>
-                              <span className="trackerOrderBold">
+                            <Grid item className="cartQuantityDisplay">
+                              <Typography className="trackerOrderBold">
                                 Quantity:
-                              </span>
-                              {' '}
-                              {cd.order_quantity[idx]}
-                            </Typography>
+                              </Typography>
+
+                              <TextField
+                                variant="outlined"
+                                margin="normal"
+                                type="number"
+                                id="cart-order-quantity"
+                                name="cart-order-quantity"
+                                autoComplete="cart-order-quantity"
+                                select
+                                value={cd.order_quantity[idx]}
+                                onChange={(e) => updateOrderQuantity(index, idx, e.target.value)}
+                              >
+                                <MenuItem value={0}>Select</MenuItem>
+                                {_.map([25, 50, 75, 100], (quant, qidx) => (
+                                  <MenuItem key={`${qidx}-${quant}`} value={quant}>
+                                    {quant}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            </Grid>
 
                             <Button
                               type="button"
@@ -143,7 +196,7 @@ const ShowCart = ({ history, location }) => {
                               color="inherit"
                               size="small"
                               className="cartRemoveButton"
-                              onClick={(e) => removeType(cd)}
+                              onClick={(e) => removeType(index, idx)}
                             >
                               Remove
                             </Button>
@@ -207,6 +260,7 @@ const ShowCart = ({ history, location }) => {
                   fullWidth
                   variant="contained"
                   color="primary"
+                  size="small"
                   disabled={_.isEmpty(cartData)}
                 >
                   Submit
@@ -219,6 +273,7 @@ const ShowCart = ({ history, location }) => {
                   fullWidth
                   variant="outlined"
                   color="primary"
+                  size="small"
                   onClick={closeCart}
                 >
                   Cancel

@@ -56,12 +56,12 @@ const TrackerOrder = ({ redirectTo, history }) => {
     { refetchOnWindowFocus: false },
   );
 
-  const dateFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+  const dateFormat = _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'date'))
+    ? _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'date')).unit_of_measure
     : '';
 
-  const timeFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+  const timeFormat = _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'time'))
+    ? _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'time')).unit_of_measure
     : '';
 
   useEffect(() => {
@@ -83,7 +83,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
   };
 
   const onCloseOrderSummary = () => {
-    setShowOrderSummary(!showOrderSummary);
+    setShowOrderSummary(false);
     setSelectedOrder(null);
   };
 
@@ -141,7 +141,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
       <Grid container>
         <Grid item xs={9}>
           <IconButton onClick={onCartClick}>
-            <Badge color="secondary" invisible={false} badgeContent={_.size(cartData)}>
+            <Badge color="error" showZero badgeContent={_.size(cartData)} className="orderCartBadge">
               <ShoppingCartIcon fontSize="large" color="primary" />
             </Badge>
           </IconButton>
@@ -203,21 +203,21 @@ const TrackerOrder = ({ redirectTo, history }) => {
               </Typography>
             </Grid>
 
-            <Grid item xs={12}>
-              <Typography className="trackerOrderBold">
-                Number of Devices:
-                {'  '}
-                <span className="trackerOrderNormalFont">{selectedOrder && selectedOrder.order_quantity}</span>
-              </Typography>
-            </Grid>
+            {selectedOrder && _.map(selectedOrder.order_type, (sot, index) => (
+              <Grid item xs={12} mt={1}>
+                <Typography className="trackerOrderBold">
+                  Number of Devices:
+                  {'  '}
+                  <span className="trackerOrderNormalFont">{selectedOrder && selectedOrder.order_quantity[index]}</span>
+                </Typography>
 
-            <Grid item xs={12}>
-              <Typography className="trackerOrderBold">
-                Type:
-                {'  '}
-                <span className="trackerOrderNormalFont">{selectedOrder && selectedOrder.order_type}</span>
-              </Typography>
-            </Grid>
+                <Typography className="trackerOrderBold">
+                  Type:
+                  {'  '}
+                  <span className="trackerOrderNormalFont">{sot}</span>
+                </Typography>
+              </Grid>
+            ))}
 
             <Grid item xs={12} mt={2}>
               <Typography className="trackerOrderBold">
@@ -235,7 +235,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
               </Typography>
             </Grid>
 
-            <Grid item xs={12} mt={2}>
+            <Grid item xs={12} md={6} mt={2}>
               <Typography className="trackerOrderBold">
                 Recipient Address:
                 {'  '}

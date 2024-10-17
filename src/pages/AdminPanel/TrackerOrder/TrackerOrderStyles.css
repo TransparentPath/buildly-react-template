@@ -1,21 +1,12 @@
 /* Add order css */
 .addOrderContainer {
+  margin-top: 32px;
   border-radius: 4px;
   border: 1px solid var(--color-palette-background-light);
 }
 
 .trackerOrderBold {
   font-weight: bold;
-}
-
-.addOrderMoreIcon {
-  color: var(--color-palette-background-default);
-  background-color: var(--color-palette-primary-main);
-}
-
-.addOrderMoreIcon:hover {
-  color: var(--color-palette-background-default);
-  background-color: var(--color-palette-secondary-main);
 }
 
 .addOrderTypeContainer {
@@ -59,6 +50,16 @@
   margin-bottom: 16px;
 }
 
+.addOrderMoreTracker {
+  text-decoration: underline;
+  margin-top: 16px;
+  color: var(--color-palette-primary-main);
+}
+
+.addOrderMoreTracker:hover {
+  cursor: pointer;
+}
+
 .addOrderActions {
   margin-top: 32px;
   margin-bottom: 32px;
@@ -71,6 +72,11 @@
 
 .trackerOrderNormalFont {
   font-weight: normal;
+}
+
+.orderCartBadge > .MuiBadge-badge {
+  margin-right: 4px;
+  margin-top: 4px;
 }
 
 .orderSummaryDialogContent {
@@ -128,6 +134,19 @@
   margin-top: 16px;
 }
 
+.cartQuantityDisplay {
+  display: flex;
+}
+
+.cartQuantityDisplay > .MuiTextField-root {
+  margin: 0;
+}
+
+.cartQuantityDisplay > .MuiTextField-root > .MuiInputBase-root {
+  margin-left: 8px;
+  height: 24px;
+}
+
 .cartRemoveButton {
   margin-top: 8px;
   border-radius: 16px;
@@ -150,10 +169,6 @@
 
 /* Media css */
 @media screen and (max-width: 960px) {
-  .addOrderContainerSmallScreen {
-    margin-top: 32px;
-  }
-
   .orderSummaryOrderNumber {
     text-align: start;
   }

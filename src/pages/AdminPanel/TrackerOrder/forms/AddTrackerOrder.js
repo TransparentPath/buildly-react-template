@@ -9,7 +9,6 @@ import {
   MenuItem,
   IconButton,
 } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
 import tiveLithium from '@assets/tive_lithium.png';
 import tiveNonLithium from '@assets/tive_non_lithium.png';
 import Loader from '@components/Loader/Loader';
@@ -34,7 +33,7 @@ const AddTrackerOrder = ({ history, location }) => {
   const { displayAlert } = useAlert();
   const { data: cartData, setCart } = useCartStore();
 
-  const reOrderPage = location.state && location.state.type === 're-order';
+  const reOrderPage = location.state && _.isEqual(location.state.type, 're-order');
   const reOrderData = (reOrderPage && location.state.data) || {};
 
   const placeholderType = useInput('', { required: true });
@@ -141,7 +140,6 @@ const AddTrackerOrder = ({ history, location }) => {
         <FormModal
           open={openFormModal}
           handleClose={closeFormModal}
-          title="Place an Order"
           openConfirmModal={openConfirmModal}
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
@@ -151,23 +149,8 @@ const AddTrackerOrder = ({ history, location }) => {
             <Grid container columnGap={2}>
               <Grid item xs={12} md={5.8} className="addOrderContainer">
                 <Grid container>
-                  <Grid item xs={6} padding={2}>
+                  <Grid item xs={12} padding={2}>
                     <Typography className="trackerOrderBold">TRACKER</Typography>
-                  </Grid>
-
-                  <Grid item xs={6} padding={2} textAlign="end">
-                    {(_.size(_.without(ORDER_TYPES, ..._.filter(ORDER_TYPES, (o) => _.includes(order_type.value, o.value)))) > 0) && (
-                      <IconButton
-                        className="addOrderMoreIcon"
-                        onClick={(e) => {
-                          setShowAddMore(true);
-                          placeholderType.setValue('');
-                          placeholderQuantity.setValue(0);
-                        }}
-                      >
-                        <AddIcon />
-                      </IconButton>
-                    )}
                   </Grid>
 
                   {!_.isEmpty(order_type.value) && !_.isEmpty(order_quantity.value) && _.map(order_type.value, (orty, idx) => (
@@ -183,7 +166,7 @@ const AddTrackerOrder = ({ history, location }) => {
                           onChange={(e) => {
                             const newList = _.map(
                               order_type.value,
-                              (o, i) => (i === idx ? e.target.value : o),
+                              (o, i) => (_.isEqual(i, idx) ? e.target.value : o),
                             );
                             order_type.setValue(newList);
                           }}
@@ -230,7 +213,7 @@ const AddTrackerOrder = ({ history, location }) => {
                           onChange={(e) => {
                             const newList = _.map(
                               order_quantity.value,
-                              (oq, i) => (i === idx ? e.target.value : oq),
+                              (oq, i) => (_.isEqual(i, idx) ? e.target.value : oq),
                             );
                             order_quantity.setValue(newList);
                           }}
@@ -291,9 +274,9 @@ const AddTrackerOrder = ({ history, location }) => {
                           type="number"
                           className="addOrderQuantityField"
                           id="placeholder-order-quantity"
-                          name="order-quantity"
+                          name="placeholder-order-quantity"
                           label="Tracker Quantity"
-                          autoComplete="order-quantity"
+                          autoComplete="placeholder-order-quantity"
                           select
                           value={placeholderQuantity.value}
                           onChange={(e) => {
@@ -316,7 +299,7 @@ const AddTrackerOrder = ({ history, location }) => {
                 </Grid>
               </Grid>
 
-              <Grid item xs={12} md={5.8} className="addOrderContainer addOrderContainerSmallScreen">
+              <Grid item xs={12} md={5.8} className="addOrderContainer">
                 <Grid container>
                   <Grid item xs={12} padding={2}>
                     <Typography className="trackerOrderBold">RECIPIENT</Typography>
@@ -360,6 +343,21 @@ const AddTrackerOrder = ({ history, location }) => {
                 </Grid>
               </Grid>
 
+              <Grid item xs={12}>
+                {(_.size(_.without(ORDER_TYPES, ..._.filter(ORDER_TYPES, (o) => _.includes(order_type.value, o.value)))) > 0) && (
+                  <Typography
+                    className="addOrderMoreTracker"
+                    onClick={(e) => {
+                      setShowAddMore(true);
+                      placeholderType.setValue('');
+                      placeholderQuantity.setValue(0);
+                    }}
+                  >
+                    Add Tracker +
+                  </Typography>
+                )}
+              </Grid>
+
               <Grid container spacing={2} justifyContent="center" className="addOrderActions">
                 <Grid item xs={6} sm={5.15} md={4}>
                   <Button
@@ -370,18 +368,6 @@ const AddTrackerOrder = ({ history, location }) => {
                     disabled={isLoadingRecipientAddresses || submitDisabled()}
                   >
                     Add to cart
-                  </Button>
-                </Grid>
-
-                <Grid item xs={6} sm={5.15} md={4}>
-                  <Button
-                    type="button"
-                    fullWidth
-                    variant="outlined"
-                    color="primary"
-                    onClick={discardFormData}
-                  >
-                    Cancel
                   </Button>
                 </Grid>
               </Grid>

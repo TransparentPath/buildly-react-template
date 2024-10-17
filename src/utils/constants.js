@@ -2651,6 +2651,7 @@ export const getTrackerOrderColumns = (timezone, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      customBodyRender: (value) => _.map(value, (v) => <div>{v}</div>),
     },
   },
   {
@@ -2660,6 +2661,7 @@ export const getTrackerOrderColumns = (timezone, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      customBodyRender: (value) => _.map(value, (v) => <div>{v}</div>),
     },
   },
   {
