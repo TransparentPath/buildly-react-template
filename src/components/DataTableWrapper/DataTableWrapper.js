@@ -44,7 +44,6 @@ const DataTableWrapper = ({
   customTheme,
   noSpace,
   noOptionsIcon,
-  centerLabel,
   extraOptions,
   className,
   shouldUseAllColumns,
@@ -54,6 +53,7 @@ const DataTableWrapper = ({
   onUploadData,
   downloadTemplateHeading,
   uploadDataHeading,
+  onRowSelectionChange,
 }) => {
   const user = getUser();
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
@@ -68,7 +68,6 @@ const DataTableWrapper = ({
           filter: false,
           sort: false,
           empty: true,
-          setCellHeaderProps: () => ({ style: { textAlign: centerLabel ? 'center' : 'start' } }),
           customBodyRenderLite: (dataIndex) => (
             <IconButton
               className="dataTableIconButton"
@@ -129,6 +128,7 @@ const DataTableWrapper = ({
       ? selectable.rowsHideCheckboxes
       : false,
     rowsSelected: selected || [],
+    onRowSelectionChange,
     rowsPerPageOptions: [5, 10, 15],
     downloadOptions: noOptionsIcon
       ? {

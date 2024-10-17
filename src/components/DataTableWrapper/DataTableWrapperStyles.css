@@ -1,3 +1,7 @@
+.MuiTableRow-hover .MuiTableCell-paddingCheckbox {
+  background: var(--color-palette-background-default) !important;
+}
+
 .dataTable .MuiPaper-root>.MuiToolbar-root div:nth-child(2) {
   align-items: center;
   display: flex;
@@ -24,6 +28,7 @@
 .dataTableIconButton {
   padding: 0;
   color: var(--color-palette-primary-dark);
+  text-align: center;
 }
 
 .dataTableIconButton:hover {
