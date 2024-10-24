@@ -9,6 +9,7 @@ import {
   MenuItem,
   IconButton,
 } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 import tiveLithium from '@assets/tive_lithium.png';
 import tiveNonLithium from '@assets/tive_non_lithium.png';
 import Loader from '@components/Loader/Loader';
@@ -91,6 +92,7 @@ const AddTrackerOrder = ({ history, location }) => {
     };
 
     setCart([...cartData, data]);
+    displayAlert('success', 'Order has been added to the cart.');
     discardFormData();
   };
 
@@ -154,8 +156,9 @@ const AddTrackerOrder = ({ history, location }) => {
                   </Grid>
 
                   {!_.isEmpty(order_type.value) && !_.isEmpty(order_quantity.value) && _.map(order_type.value, (orty, idx) => (
-                    <Grid container key={`${idx}-${orty}`} className={idx > 0 ? 'addOrderTypeContainer' : ''}>
-                      <Grid item xs={12} className="addOrderTextField">
+                    <Grid container key={`${idx}-${orty}`}>
+                      <Grid item xs={12} className={idx > 0 ? 'addOrderTypeContainer' : ''} />
+                      <Grid item xs={10} className="addOrderTextFieldWithClose">
                         <TextField
                           variant="outlined"
                           fullWidth
@@ -183,7 +186,19 @@ const AddTrackerOrder = ({ history, location }) => {
                         </TextField>
                       </Grid>
 
-                      <Grid item xs={12} className="orderDeviceImage">
+                      <Grid item xs={1}>
+                        <IconButton
+                          className="addOrderClose"
+                          onClick={(e) => {
+                            order_type.setValue(_.filter(order_type.value, (otv, i) => !_.isEqual(i, idx)));
+                            order_quantity.setValue(_.filter(order_quantity.value, (oqv, i) => !_.isEqual(i, idx)));
+                          }}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      </Grid>
+
+                      <Grid item xs={8} className="orderDeviceImage">
                         {orty && _.includes(orty, 'Non') && (
                           <img
                             src={tiveNonLithium}
@@ -230,8 +245,9 @@ const AddTrackerOrder = ({ history, location }) => {
                   ))}
 
                   {(showAddMore || (_.isEmpty(order_type.value) && _.isEmpty(order_quantity.value))) && (
-                    <Grid container className={!_.isEmpty(order_type.value) ? 'addOrderTypeContainer' : ''}>
-                      <Grid item xs={12} className="addOrderTextField">
+                    <Grid container>
+                      <Grid item xs={12} className={!_.isEmpty(order_type.value) ? 'addOrderTypeContainer' : ''} />
+                      <Grid item xs={!_.isEmpty(order_type.value) ? 10 : 12} className={!_.isEmpty(order_type.value) ? 'addOrderTextFieldWithClose' : 'addOrderTextField'}>
                         <TextField
                           variant="outlined"
                           fullWidth
@@ -251,6 +267,14 @@ const AddTrackerOrder = ({ history, location }) => {
                           ))}
                         </TextField>
                       </Grid>
+
+                      {!_.isEmpty(order_type.value) && (
+                        <Grid item xs={1}>
+                          <IconButton className="addOrderClose" onClick={(e) => setShowAddMore(false)}>
+                            <CloseIcon />
+                          </IconButton>
+                        </Grid>
+                      )}
 
                       <Grid item xs={12} className="orderDeviceImage">
                         {placeholderType.value && _.includes(placeholderType.value, 'Non') && (
@@ -315,8 +339,15 @@ const AddTrackerOrder = ({ history, location }) => {
                       label="Order Recipient"
                       value={_.find(recipientAddressData, { name: order_recipient.value, address: order_address.value })}
                       onChange={(e) => {
+                        const formattedAddress = `${e.target.value.address1
+                          && `${e.target.value.address1},`} ${e.target.value.address2
+                          && `${e.target.value.address2},`} ${e.target.value.city
+                          && `${e.target.value.city},`} ${e.target.value.state
+                          && `${e.target.value.state},`} ${e.target.value.country
+                          && `${e.target.value.country},`} ${e.target.value.postal_code
+                          && `${e.target.value.postal_code}`}`;
                         order_recipient.setValue(e.target.value.name);
-                        order_address.setValue(e.target.value.address);
+                        order_address.setValue(formattedAddress);
                       }}
                     >
                       {_.map(recipientAddressData, (ra, index) => (

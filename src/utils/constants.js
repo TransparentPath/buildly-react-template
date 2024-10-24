@@ -2592,6 +2592,20 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat) =
   },
 ]);
 
+export const getFormattedRecipientAddresses = (recipientAddresses) => {
+  const ra = _.map(recipientAddresses, (address) => ({
+    ...address,
+    formattedAddress: `${address.address1
+      && `${address.address1},`} ${address.address2
+      && `${address.address2},`} ${address.city
+      && `${address.city},`} ${address.state
+      && `${address.state},`} ${address.country
+      && `${address.country},`} ${address.postal_code
+      && `${address.postal_code}`}`,
+  }));
+  return ra;
+};
+
 export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => ([
   {
     name: 'name',
@@ -2603,7 +2617,7 @@ export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => 
     },
   },
   {
-    name: 'address',
+    name: 'formattedAddress',
     label: 'Address',
     options: {
       sort: true,
