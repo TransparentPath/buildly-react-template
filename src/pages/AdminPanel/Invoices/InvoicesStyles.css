@@ -1,0 +1,154 @@
+.invoiceContainer {
+  flex-direction: row;
+  align-items: center;
+  display: flex;
+}
+
+.invoiceContainer2 {
+  justify-content: flex-end;
+}
+
+.invoiceHeading {
+  font-weight: bold;
+}
+
+.invoiceDownloadIcon {
+  margin-top: 0;
+  margin-left: 10px;
+  rotate: 90deg;
+  color: var(--color-palette-primary-main);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.invoiceMonths {
+  width: 192px;
+  margin-top: 8px;
+  margin-left: 20px;
+}
+
+.invoiceMonths .MuiOutlinedInput-input {
+  padding: 8px 28px 8px 16px;
+}
+
+.invoiceEmptyText {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 100px;
+  text-align: center;
+}
+
+.invoiceDetailsContainer {
+  margin-top: 50px;
+  height: 70vh;
+  width: 100%;
+  border: 2px solid var(--color-palette-background-black);
+  border-radius: 16px;
+}
+
+.invoiceChargesContainer {
+  background-color: var(--color-palette-background-light3);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.invoiceChargesDataContainer {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.invoiceMsgText {
+  color: var(--color-palette-primary-main);
+  font-size: 13px;
+}
+
+.invoiceOrderListContainer {
+  width: 100%;
+  margin-top: 10px;
+  overflow-y: auto;
+  height: 240px;
+  padding-right: 10px;
+}
+
+.invoiceOrderListItemContainer {
+  margin-top: 8px;
+  border-bottom: 1px solid gray;
+}
+
+.invoiceOrderListItemSubContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.invoiceOrderListItemContainer:last-child {
+  border-bottom: 0;
+}
+
+.invoiceTextInput {
+  width: 80px;
+  margin-left: 8px;
+}
+
+.invoiceTextInput .MuiInputAdornment-root {
+  margin-right: -8px;
+  margin-left: -10px;
+}
+
+.invoiceTextInput .MuiOutlinedInput-input {
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.invoiceEditIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-palette-primary-main);
+}
+
+.invoiceShipmentsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.invoiceShipmentListContainer {
+  width: 100%;
+  max-height: 58vh;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.invoiceShipmentListScroll {
+  height: 100%;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.invoiceDataEmptyText {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 50px;
+  text-align: center;
+}
+
+@media screen and (max-width: 600px) {
+  .invoiceContainer2 {
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .gatewayActions {
+    width: 250px;
+  }
+}
