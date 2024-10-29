@@ -62,18 +62,14 @@ const AddTrackerOrder = ({ history, location }) => {
       setConfirmModal(true);
     } else {
       setFormModal(false);
-      if (location && location.state) {
-        history.push(location.state.from);
-      }
+      history.push(routes.TRACKERORDER);
     }
   };
 
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
-    if (location && location.state) {
-      history.push(location.state.from);
-    }
+    history.push(routes.TRACKERORDER);
   };
 
   /**
