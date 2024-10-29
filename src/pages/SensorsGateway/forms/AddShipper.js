@@ -394,8 +394,6 @@ const AddShipper = ({
                       ))}
                   </TextField>
                 </Grid>
-              </Grid>
-              <Grid container spacing={isDesktop() ? 2 : 0}>
                 <Grid className="gatewayInputWithTooltip" item xs={12} md={6}>
                   <TextField
                     variant="outlined"

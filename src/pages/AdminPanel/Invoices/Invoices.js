@@ -1,5 +1,7 @@
+/* eslint-disable new-cap */
+/* eslint-disable no-console */
 /* eslint-disable no-confusing-arrow */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Route } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import _, { update } from 'lodash';
@@ -33,6 +35,8 @@ import { checkForGlobalAdmin } from '@utils/utilMethods';
 import { useWhatsappChargesMutation } from '@react-query/mutations/notifications/whatsappChargesMutation';
 import { getTrackerOrderQuery } from '@react-query/queries/trackerorder/getTrackerOrderQuery';
 import { useEditTrackerOrderMutation } from '@react-query/mutations/trackerorder/editTrackerOrderMutation';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const Invoices = () => {
   const user = getUser();
@@ -53,6 +57,8 @@ const Invoices = () => {
     additionalCost: '',
     notes: '',
   });
+
+  const invoicesDetailsRef = useRef();
 
   const { displayAlert } = useAlert();
 
@@ -93,6 +99,39 @@ const Invoices = () => {
     }
     setMainMenuOpen(false);
     setSubmenuAnchorEl(null);
+  };
+
+  const captureScreenshot = async (ref) => {
+    if (ref.current) {
+      try {
+        const canvas = await html2canvas(ref.current, {
+          useCORS: true,
+        });
+        return canvas.toDataURL('image/png');
+      } catch (error) {
+        console.error('Error capturing screenshot:', error);
+      }
+    }
+    return null;
+  };
+
+  const generatePdfReport = async (event) => {
+    event.preventDefault();
+    const base64DataArray = [];
+    try {
+      const dataUrl = await captureScreenshot(invoicesDetailsRef);
+      if (dataUrl) {
+        const pdf = new jsPDF();
+        const padding = 5;
+        const imgProps = pdf.getImageProperties(dataUrl);
+        const pdfWidth = pdf.internal.pageSize.getWidth() - 10;
+        const pdfHeight = ((imgProps.height * pdfWidth) / imgProps.width) - 10;
+        pdf.addImage(dataUrl, 'PNG', padding, padding, pdfWidth, pdfHeight);
+        pdf.save('invoice_report.pdf');
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleSubmit = () => {
@@ -162,7 +201,7 @@ const Invoices = () => {
             Invoicing
           </Typography>
           <Tooltip placement="bottom" title="Download PDF">
-            <LoginIcon className="invoiceDownloadIcon" />
+            <LoginIcon className="invoiceDownloadIcon" onClick={generatePdfReport} />
           </Tooltip>
         </Grid>
         <Grid item xs={12} sm={8} className="invoiceContainer invoiceContainer2">
@@ -206,100 +245,104 @@ const Invoices = () => {
       </Grid>
       {!_.isEmpty(whatsappChargesData)
         ? (
-          <Grid container className="invoiceDetailsContainer">
+          <Grid container className="invoiceDetailsContainer" ref={invoicesDetailsRef}>
             <Grid item xs={12} sm={5} className="invoiceChargesContainer">
-              <Typography variant="body3">CHARGES</Typography>
-              <div className="invoiceChargesDataContainer">
-                <Typography fontSize={16}>{`Total alerts per month: ${whatsappChargesData.alerts_count}`}</Typography>
-                <Typography fontSize={16} mt={1}>{`Total WhatsApp messages: ${whatsappChargesData.total_whatsapp_messages}`}</Typography>
-                {!_.isEmpty(whatsappChargesData.detailed_whatsapp_messages) && whatsappChargesData.detailed_whatsapp_messages.map((item, index) => (
-                  <Typography key={index} className="invoiceMsgText">{`${item.user} - ${item.message_count} message(s)`}</Typography>
-                ))}
+              <div className="invoiceChargeContainer">
+                <Typography variant="body3">CHARGES</Typography>
+                <div className="invoiceChargesDataContainer">
+                  <Typography fontSize={16}>{`Total alerts per month: ${whatsappChargesData.alerts_count}`}</Typography>
+                  <Typography fontSize={16} mt={1}>{`Total WhatsApp messages: ${whatsappChargesData.total_whatsapp_messages}`}</Typography>
+                  {!_.isEmpty(whatsappChargesData.detailed_whatsapp_messages) && whatsappChargesData.detailed_whatsapp_messages.map((item, index) => (
+                    <Typography key={index} className="invoiceMsgText">{`${item.user} - ${item.message_count} message(s)`}</Typography>
+                  ))}
+                </div>
               </div>
-              <Typography mt={2} variant="body3">ORDERS</Typography>
-              <div className="invoiceOrderListContainer">
-                {!_.isEmpty(ordersData) ? ordersData.map((item, index) => (
-                  <div key={index} className="invoiceOrderListItemContainer">
-                    <Typography>
-                      {`Device Order: ${item.order_quantity.map((quantity, i) => (
-                        `${quantity} ${item.order_type && item.order_type[i] ? item.order_type[i] : ''}`
-                      )).join(', ')}`}
-                    </Typography>
-                    <Typography className="invoiceMsgText">{`Order Placed: ${moment(item.order_date).format('DD/MM/YYYY')}`}</Typography>
-                    <div className="invoiceOrderListItemSubContainer">
-                      <Typography className="invoiceMsgText">Shipping Fees:</Typography>
-                      {isEditing.field === 'shippingCost' && isEditing.index === index ? (
-                        <TextField
-                          className="invoiceTextInput"
-                          value={formData.shippingCost}
-                          name="shippingCost"
-                          onChange={handleInputChange}
-                          size="small"
-                          variant="outlined"
-                          InputProps={{
-                            startAdornment: <InputAdornment position="start"><DollarIcon style={{ width: '15px', height: '15px' }} /></InputAdornment>,
-                          }}
-                        />
-                      ) : (
-                        <Typography ml={1} className="invoiceMsgText">{`$${item.shipping_cost}`}</Typography>
-                      )}
-                      <IconButton onClick={() => handleEditClick('shippingCost', index, item.id)}>
+              <div className="invoiceOrderContainer">
+                <Typography mt={2} variant="body3">ORDERS</Typography>
+                <div className="invoiceOrderListContainer">
+                  {!_.isEmpty(ordersData) ? ordersData.map((item, index) => (
+                    <div key={index} className="invoiceOrderListItemContainer">
+                      <Typography>
+                        {`Device Order: ${item.order_quantity.map((quantity, i) => (
+                          `${quantity} ${item.order_type && item.order_type[i] ? item.order_type[i] : ''}`
+                        )).join(', ')}`}
+                      </Typography>
+                      <Typography className="invoiceMsgText">{`Order Placed: ${moment(item.order_date).format('DD/MM/YYYY')}`}</Typography>
+                      <div className="invoiceOrderListItemSubContainer">
+                        <Typography className="invoiceMsgText">Shipping Fees:</Typography>
                         {isEditing.field === 'shippingCost' && isEditing.index === index ? (
-                          <CheckIcon className="invoiceEditIcon" />
+                          <TextField
+                            className="invoiceTextInput"
+                            value={formData.shippingCost}
+                            name="shippingCost"
+                            onChange={handleInputChange}
+                            size="small"
+                            variant="outlined"
+                            InputProps={{
+                              startAdornment: <InputAdornment position="start"><DollarIcon style={{ width: '15px', height: '15px' }} /></InputAdornment>,
+                            }}
+                          />
                         ) : (
-                          <EditIcon className="invoiceEditIcon" />
+                          <Typography ml={1} className="invoiceMsgText">{`$${item.shipping_cost}`}</Typography>
                         )}
-                      </IconButton>
-                    </div>
-                    <div className="invoiceOrderListItemSubContainer">
-                      <Typography className="invoiceMsgText">Additional Fees:</Typography>
-                      {isEditing.field === 'additionalCost' && isEditing.index === index ? (
-                        <TextField
-                          className="invoiceTextInput"
-                          value={formData.additionalCost}
-                          name="additionalCost"
-                          onChange={handleInputChange}
-                          size="small"
-                          variant="outlined"
-                          InputProps={{
-                            startAdornment: <InputAdornment position="start"><DollarIcon style={{ width: '15px', height: '15px' }} /></InputAdornment>,
-                          }}
-                        />
-                      ) : (
-                        <Typography ml={1} className="invoiceMsgText">{`$${item.additional_cost}`}</Typography>
-                      )}
-                      <IconButton onClick={() => handleEditClick('additionalCost', index, item.id)}>
+                        <IconButton onClick={() => handleEditClick('shippingCost', index, item.id)}>
+                          {isEditing.field === 'shippingCost' && isEditing.index === index ? (
+                            <CheckIcon className="invoiceEditIcon" />
+                          ) : (
+                            <EditIcon className="invoiceEditIcon" />
+                          )}
+                        </IconButton>
+                      </div>
+                      <div className="invoiceOrderListItemSubContainer">
+                        <Typography className="invoiceMsgText">Additional Fees:</Typography>
                         {isEditing.field === 'additionalCost' && isEditing.index === index ? (
-                          <CheckIcon className="invoiceEditIcon" />
+                          <TextField
+                            className="invoiceTextInput"
+                            value={formData.additionalCost}
+                            name="additionalCost"
+                            onChange={handleInputChange}
+                            size="small"
+                            variant="outlined"
+                            InputProps={{
+                              startAdornment: <InputAdornment position="start"><DollarIcon style={{ width: '15px', height: '15px' }} /></InputAdornment>,
+                            }}
+                          />
                         ) : (
-                          <EditIcon className="invoiceEditIcon" />
+                          <Typography ml={1} className="invoiceMsgText">{`$${item.additional_cost}`}</Typography>
                         )}
-                      </IconButton>
-                    </div>
-                    <div className="invoiceOrderListItemSubContainer">
-                      <Typography className="invoiceMsgText">Notes:</Typography>
-                      {isEditing.field === 'notes' && isEditing.index === index ? (
-                        <TextField
-                          className="invoiceTextInput"
-                          value={formData.notes}
-                          name="notes"
-                          onChange={handleInputChange}
-                          size="small"
-                          variant="outlined"
-                        />
-                      ) : (
-                        <Typography ml={1} className="invoiceMsgText">{`${item.notes ? item.notes : 'N/A'}`}</Typography>
-                      )}
-                      <IconButton onClick={() => handleEditClick('notes', index, item.id)}>
+                        <IconButton onClick={() => handleEditClick('additionalCost', index, item.id)}>
+                          {isEditing.field === 'additionalCost' && isEditing.index === index ? (
+                            <CheckIcon className="invoiceEditIcon" />
+                          ) : (
+                            <EditIcon className="invoiceEditIcon" />
+                          )}
+                        </IconButton>
+                      </div>
+                      <div className="invoiceOrderListItemSubContainer">
+                        <Typography className="invoiceMsgText">Notes:</Typography>
                         {isEditing.field === 'notes' && isEditing.index === index ? (
-                          <CheckIcon className="invoiceEditIcon" />
+                          <TextField
+                            className="invoiceTextInput"
+                            value={formData.notes}
+                            name="notes"
+                            onChange={handleInputChange}
+                            size="small"
+                            variant="outlined"
+                          />
                         ) : (
-                          <EditIcon className="invoiceEditIcon" />
+                          <Typography ml={1} className="invoiceMsgText">{`${item.notes ? item.notes : 'N/A'}`}</Typography>
                         )}
-                      </IconButton>
+                        <IconButton onClick={() => handleEditClick('notes', index, item.id)}>
+                          {isEditing.field === 'notes' && isEditing.index === index ? (
+                            <CheckIcon className="invoiceEditIcon" />
+                          ) : (
+                            <EditIcon className="invoiceEditIcon" />
+                          )}
+                        </IconButton>
+                      </div>
                     </div>
-                  </div>
-                )) : <Typography className="invoiceDataEmptyText">No orders are available</Typography>}
+                  )) : <Typography className="invoiceDataEmptyText">No orders are available</Typography>}
+                </div>
               </div>
             </Grid>
             <Grid item xs={12} sm={7} className="invoiceShipmentsContainer">
