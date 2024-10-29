@@ -52,6 +52,7 @@ const Invoices = () => {
     field: null,
     index: null,
   });
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [formData, setFormData] = useState({
     shippingCost: '',
     additionalCost: '',
@@ -115,8 +116,9 @@ const Invoices = () => {
     return null;
   };
 
-  const generatePdfReport = async (event) => {
+  const generatePdfInvoice = async (event) => {
     event.preventDefault();
+    setGeneratingPdf(true);
     const base64DataArray = [];
     try {
       const dataUrl = await captureScreenshot(invoicesDetailsRef);
@@ -125,10 +127,11 @@ const Invoices = () => {
         const padding = 5;
         const imgProps = pdf.getImageProperties(dataUrl);
         const pdfWidth = pdf.internal.pageSize.getWidth() - 10;
-        const pdfHeight = ((imgProps.height * pdfWidth) / imgProps.width) - 10;
+        const pdfHeight = pdfWidth - ((imgProps.height * pdfWidth) / imgProps.width);
         pdf.addImage(dataUrl, 'PNG', padding, padding, pdfWidth, pdfHeight);
-        pdf.save('invoice_report.pdf');
+        pdf.save(`${_.toLower(organization)}_${_.toLower(month.value)}_invoice.pdf`);
       }
+      setGeneratingPdf(false);
     } catch (error) {
       console.error(error);
     }
@@ -187,12 +190,14 @@ const Invoices = () => {
       {(isLoadingOrgs
         || isLoadingTrackerOrder
         || isWhatsappChargesLoading
-        || isTrackerOrderEditing)
+        || isTrackerOrderEditing
+        || generatingPdf)
         && (
           <Loader open={isLoadingOrgs
             || isLoadingTrackerOrder
             || isWhatsappChargesLoading
-            || isTrackerOrderEditing}
+            || isTrackerOrderEditing
+            || generatingPdf}
           />
         )}
       <Grid container>
@@ -201,7 +206,7 @@ const Invoices = () => {
             Invoicing
           </Typography>
           <Tooltip placement="bottom" title="Download PDF">
-            <LoginIcon className="invoiceDownloadIcon" onClick={generatePdfReport} />
+            <LoginIcon className="invoiceDownloadIcon" onClick={generatePdfInvoice} />
           </Tooltip>
         </Grid>
         <Grid item xs={12} sm={8} className="invoiceContainer invoiceContainer2">
@@ -247,104 +252,100 @@ const Invoices = () => {
         ? (
           <Grid container className="invoiceDetailsContainer" ref={invoicesDetailsRef}>
             <Grid item xs={12} sm={5} className="invoiceChargesContainer">
-              <div className="invoiceChargeContainer">
-                <Typography variant="body3">CHARGES</Typography>
-                <div className="invoiceChargesDataContainer">
-                  <Typography fontSize={16}>{`Total alerts per month: ${whatsappChargesData.alerts_count}`}</Typography>
-                  <Typography fontSize={16} mt={1}>{`Total WhatsApp messages: ${whatsappChargesData.total_whatsapp_messages}`}</Typography>
-                  {!_.isEmpty(whatsappChargesData.detailed_whatsapp_messages) && whatsappChargesData.detailed_whatsapp_messages.map((item, index) => (
-                    <Typography key={index} className="invoiceMsgText">{`${item.user} - ${item.message_count} message(s)`}</Typography>
-                  ))}
-                </div>
-              </div>
-              <div className="invoiceOrderContainer">
-                <Typography mt={2} variant="body3">ORDERS</Typography>
-                <div className="invoiceOrderListContainer">
-                  {!_.isEmpty(ordersData) ? ordersData.map((item, index) => (
-                    <div key={index} className="invoiceOrderListItemContainer">
-                      <Typography>
-                        {`Device Order: ${item.order_quantity.map((quantity, i) => (
-                          `${quantity} ${item.order_type && item.order_type[i] ? item.order_type[i] : ''}`
-                        )).join(', ')}`}
-                      </Typography>
-                      <Typography className="invoiceMsgText">{`Order Placed: ${moment(item.order_date).format('DD/MM/YYYY')}`}</Typography>
-                      <div className="invoiceOrderListItemSubContainer">
-                        <Typography className="invoiceMsgText">Shipping Fees:</Typography>
+              <Typography variant="body3" component="div" textAlign="center">CHARGES</Typography>
+              <Typography mt={1.25} fontSize={16}>{`Total alerts per month: ${whatsappChargesData.alerts_count}`}</Typography>
+              <Typography fontSize={16} mt={1}>{`Total WhatsApp messages: ${whatsappChargesData.total_whatsapp_messages}`}</Typography>
+              {!_.isEmpty(whatsappChargesData.detailed_whatsapp_messages) && whatsappChargesData.detailed_whatsapp_messages.map((item, index) => (
+                <Typography key={index} className="invoiceMsgText">{`${item.user} - ${item.message_count} message(s)`}</Typography>
+              ))}
+
+              <Typography mt={3.25} variant="body3" component="div" textAlign="center">ORDERS</Typography>
+              <div className="invoiceOrderListContainer">
+                {!_.isEmpty(ordersData) ? ordersData.map((item, index) => (
+                  <div key={index} className="invoiceOrderListItemContainer">
+                    <Typography>
+                      {`Device Order: ${item.order_quantity.map((quantity, i) => (
+                        `${quantity} ${item.order_type && item.order_type[i] ? item.order_type[i] : ''}`
+                      )).join(', ')}`}
+                    </Typography>
+                    <Typography className="invoiceMsgText">{`Order Placed: ${moment(item.order_date).format('DD/MM/YYYY')}`}</Typography>
+                    <div className="invoiceOrderListItemSubContainer">
+                      <Typography className="invoiceMsgText">Shipping Fees:</Typography>
+                      {isEditing.field === 'shippingCost' && isEditing.index === index ? (
+                        <TextField
+                          className="invoiceTextInput"
+                          value={formData.shippingCost}
+                          name="shippingCost"
+                          onChange={handleInputChange}
+                          size="small"
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start"><DollarIcon style={{ width: '15px', height: '15px' }} /></InputAdornment>,
+                          }}
+                        />
+                      ) : (
+                        <Typography ml={1} className="invoiceMsgText">{`$${item.shipping_cost}`}</Typography>
+                      )}
+                      <IconButton onClick={() => handleEditClick('shippingCost', index, item.id)}>
                         {isEditing.field === 'shippingCost' && isEditing.index === index ? (
-                          <TextField
-                            className="invoiceTextInput"
-                            value={formData.shippingCost}
-                            name="shippingCost"
-                            onChange={handleInputChange}
-                            size="small"
-                            variant="outlined"
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start"><DollarIcon style={{ width: '15px', height: '15px' }} /></InputAdornment>,
-                            }}
-                          />
+                          <CheckIcon className="invoiceEditIcon" />
                         ) : (
-                          <Typography ml={1} className="invoiceMsgText">{`$${item.shipping_cost}`}</Typography>
+                          <EditIcon className="invoiceEditIcon" />
                         )}
-                        <IconButton onClick={() => handleEditClick('shippingCost', index, item.id)}>
-                          {isEditing.field === 'shippingCost' && isEditing.index === index ? (
-                            <CheckIcon className="invoiceEditIcon" />
-                          ) : (
-                            <EditIcon className="invoiceEditIcon" />
-                          )}
-                        </IconButton>
-                      </div>
-                      <div className="invoiceOrderListItemSubContainer">
-                        <Typography className="invoiceMsgText">Additional Fees:</Typography>
-                        {isEditing.field === 'additionalCost' && isEditing.index === index ? (
-                          <TextField
-                            className="invoiceTextInput"
-                            value={formData.additionalCost}
-                            name="additionalCost"
-                            onChange={handleInputChange}
-                            size="small"
-                            variant="outlined"
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start"><DollarIcon style={{ width: '15px', height: '15px' }} /></InputAdornment>,
-                            }}
-                          />
-                        ) : (
-                          <Typography ml={1} className="invoiceMsgText">{`$${item.additional_cost}`}</Typography>
-                        )}
-                        <IconButton onClick={() => handleEditClick('additionalCost', index, item.id)}>
-                          {isEditing.field === 'additionalCost' && isEditing.index === index ? (
-                            <CheckIcon className="invoiceEditIcon" />
-                          ) : (
-                            <EditIcon className="invoiceEditIcon" />
-                          )}
-                        </IconButton>
-                      </div>
-                      <div className="invoiceOrderListItemSubContainer">
-                        <Typography className="invoiceMsgText">Notes:</Typography>
-                        {isEditing.field === 'notes' && isEditing.index === index ? (
-                          <TextField
-                            className="invoiceTextInput"
-                            value={formData.notes}
-                            name="notes"
-                            onChange={handleInputChange}
-                            size="small"
-                            variant="outlined"
-                          />
-                        ) : (
-                          <Typography ml={1} className="invoiceMsgText">{`${item.notes ? item.notes : 'N/A'}`}</Typography>
-                        )}
-                        <IconButton onClick={() => handleEditClick('notes', index, item.id)}>
-                          {isEditing.field === 'notes' && isEditing.index === index ? (
-                            <CheckIcon className="invoiceEditIcon" />
-                          ) : (
-                            <EditIcon className="invoiceEditIcon" />
-                          )}
-                        </IconButton>
-                      </div>
+                      </IconButton>
                     </div>
-                  )) : <Typography className="invoiceDataEmptyText">No orders are available</Typography>}
-                </div>
+                    <div className="invoiceOrderListItemSubContainer">
+                      <Typography className="invoiceMsgText">Additional Fees:</Typography>
+                      {isEditing.field === 'additionalCost' && isEditing.index === index ? (
+                        <TextField
+                          className="invoiceTextInput"
+                          value={formData.additionalCost}
+                          name="additionalCost"
+                          onChange={handleInputChange}
+                          size="small"
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start"><DollarIcon style={{ width: '15px', height: '15px' }} /></InputAdornment>,
+                          }}
+                        />
+                      ) : (
+                        <Typography ml={1} className="invoiceMsgText">{`$${item.additional_cost}`}</Typography>
+                      )}
+                      <IconButton onClick={() => handleEditClick('additionalCost', index, item.id)}>
+                        {isEditing.field === 'additionalCost' && isEditing.index === index ? (
+                          <CheckIcon className="invoiceEditIcon" />
+                        ) : (
+                          <EditIcon className="invoiceEditIcon" />
+                        )}
+                      </IconButton>
+                    </div>
+                    <div className="invoiceOrderListItemSubContainer">
+                      <Typography className="invoiceMsgText">Notes:</Typography>
+                      {isEditing.field === 'notes' && isEditing.index === index ? (
+                        <TextField
+                          className="invoiceTextInput"
+                          value={formData.notes}
+                          name="notes"
+                          onChange={handleInputChange}
+                          size="small"
+                          variant="outlined"
+                        />
+                      ) : (
+                        <Typography ml={1} className="invoiceMsgText">{`${item.notes ? item.notes : 'N/A'}`}</Typography>
+                      )}
+                      <IconButton onClick={() => handleEditClick('notes', index, item.id)}>
+                        {isEditing.field === 'notes' && isEditing.index === index ? (
+                          <CheckIcon className="invoiceEditIcon" />
+                        ) : (
+                          <EditIcon className="invoiceEditIcon" />
+                        )}
+                      </IconButton>
+                    </div>
+                  </div>
+                )) : <Typography className="invoiceDataEmptyText">No orders are available</Typography>}
               </div>
             </Grid>
+
             <Grid item xs={12} sm={7} className="invoiceShipmentsContainer">
               <Typography variant="body3">SHIPMENTS</Typography>
               {!_.isEmpty(whatsappChargesData.shipments)

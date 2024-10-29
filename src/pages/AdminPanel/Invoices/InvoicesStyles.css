@@ -43,7 +43,6 @@
   margin-top: 50px;
   border: 2px solid var(--color-palette-background-black);
   border-radius: 16px;
-  height: 500px;
 }
 
 .invoiceChargesContainer {
@@ -51,32 +50,6 @@
   border-radius: 16px;
   padding: 20px;
   padding-bottom: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.invoiceChargeContainer {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-}
-
-.invoiceOrderContainer {
-  margin-top: 10px;
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  height: 50%;
-  padding-bottom: 10px;
-}
-
-.invoiceChargesDataContainer {
-  width: 100%;
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
 }
 
 .invoiceMsgText {
@@ -88,6 +61,7 @@
   padding-right: 10px;
   overflow-y: auto;
   width: 100%;
+  padding-bottom: 20px;
 }
 
 .invoiceOrderListItemContainer {
