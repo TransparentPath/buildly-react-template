@@ -24,6 +24,7 @@ import { ORDER_TYPES } from '@utils/mock';
 import { FlightSafeIcon, FlightUnsafeIcon } from '@utils/constants';
 import { useCartStore } from '@zustand/cart/cartStore';
 import '../TrackerOrderStyles.css';
+import { routes } from '@routes/routesConstants';
 
 const AddTrackerOrder = ({ history, location }) => {
   const { organization_uuid } = getUser().organization;
@@ -134,6 +135,13 @@ const AddTrackerOrder = ({ history, location }) => {
       }
     });
     return errorExists;
+  };
+
+  const onAddRecipient = () => {
+    const addPath = `${routes.CONFIGURATION}/recipient-address/add`;
+    history.push(`${addPath}`, {
+      from: `${routes.TRACKERORDER}/add`,
+    });
   };
 
   return (
@@ -374,7 +382,7 @@ const AddTrackerOrder = ({ history, location }) => {
                 </Grid>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid item xs={5.8}>
                 {(_.size(_.without(ORDER_TYPES, ..._.filter(ORDER_TYPES, (o) => _.includes(order_type.value, o.value)))) > 0) && (
                   <Typography
                     className="addOrderMoreTracker"
@@ -387,6 +395,15 @@ const AddTrackerOrder = ({ history, location }) => {
                     Add Tracker +
                   </Typography>
                 )}
+              </Grid>
+
+              <Grid item xs={5.8} textAlign="end">
+                <Typography
+                  className="addOrderNewRecipient"
+                  onClick={onAddRecipient}
+                >
+                  Add Recipient +
+                </Typography>
               </Grid>
 
               <Grid container spacing={2} justifyContent="center" className="addOrderActions">

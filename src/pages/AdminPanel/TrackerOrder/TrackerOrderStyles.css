@@ -69,6 +69,16 @@
   cursor: pointer;
 }
 
+.addOrderNewRecipient {
+  text-decoration: underline;
+  margin-top: 16px;
+  color: var(--color-palette-primary-main);
+}
+
+.addOrderNewRecipient:hover {
+  cursor: pointer;
+}
+
 .addOrderActions {
   margin-top: 32px;
   margin-bottom: 32px;
