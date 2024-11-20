@@ -56,11 +56,7 @@ const GraphComponent = ({
   const generateDatasets = (type) => {
     let datasets = [{
       label: _.upperCase(selectedGraph),
-      data: _.orderBy(
-        data,
-        (item) => moment(item.x),
-        ['asc'],
-      ),
+      data,
       fill: false,
       showLine: true,
       spanGaps: true,

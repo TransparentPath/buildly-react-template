@@ -1222,60 +1222,60 @@ export const processReportsAndMarkers = (
 
         if (!graphPoint) {
           temperatureData = [
-            ...temperatureData,
             {
               x: dateTime,
               y: temperature,
             },
+            ...temperatureData,
           ];
           lightData = [
-            ...lightData,
             {
               x: dateTime,
               y: report_entry.report_light,
             },
+            ...lightData,
           ];
           shockData = [
-            ...shockData,
             {
               x: dateTime,
               y: report_entry.report_shock,
             },
+            ...shockData,
           ];
           tiltData = [
-            ...tiltData,
             {
               x: dateTime,
               y: report_entry.report_tilt,
             },
+            ...tiltData,
           ];
           humidityData = [
-            ...humidityData,
             {
               x: dateTime,
               y: report_entry.report_humidity,
             },
+            ...humidityData,
           ];
           batteryData = [
-            ...batteryData,
             {
               x: dateTime,
               y: report_entry.report_battery,
             },
+            ...batteryData,
           ];
           pressureData = [
-            ...pressureData,
             {
               x: dateTime,
               y: report_entry.report_pressure,
             },
+            ...pressureData,
           ];
           probeData = [
-            ...probeData,
             {
               x: dateTime,
               y: probe,
             },
+            ...probeData,
           ];
           minTempData = [
             ...minTempData,
