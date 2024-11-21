@@ -382,14 +382,14 @@ const Invoices = () => {
                 ? (
                   <Grid container>
                     {whatsappChargesData.shipments.map((item, index) => (
-                      <>
+                      <React.Fragment key={`${item.name}-${index}`}>
                         <Grid item xs={7}>
                           <Typography variant="body2">{item.name}</Typography>
                         </Grid>
                         <Grid item xs={5}>
                           <Typography variant="body2">{`Tracker: ${item.tracker[0]}`}</Typography>
                         </Grid>
-                      </>
+                      </React.Fragment>
                     ))}
                   </Grid>
                 )
