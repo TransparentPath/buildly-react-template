@@ -84,7 +84,7 @@ const Invoices = () => {
   const { mutate: editTrackerOrderMutation, isLoading: isTrackerOrderEditing } = useEditTrackerOrderMutation(org_uuid, displayAlert);
 
   useEffect(() => {
-    const creationDate = moment(_.find(orgData, { name: organization })?.create_date);
+    const creationDate = moment(_.find(orgData, { name: organization }).create_date);
     const currentYear = moment().year();
     const years = [];
     for (let year = creationDate.year(); year <= currentYear; year++) {
@@ -95,13 +95,12 @@ const Invoices = () => {
 
   useEffect(() => {
     if (selectYear) {
-      const creationDate = moment(_.find(orgData, { name: organization })?.create_date);
+      const creationDate = moment(_.find(orgData, { name: organization }).create_date);
       const currentYear = moment().year();
       const currentMonth = moment().month();
       const isCreationYear = parseInt(selectYear, 10) === creationDate.year();
       const isCurrentYear = parseInt(selectYear, 10) === currentYear;
       const months = [];
-      console.log(isCreationYear, isCurrentYear);
 
       MONTHS.forEach((mth, index) => {
         if (isCreationYear && !isCurrentYear && index >= creationDate.month()) {

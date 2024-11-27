@@ -10,9 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {
-  DisabledByDefault as CancelIcon,
-} from '@mui/icons-material';
+import { DisabledByDefault as CancelIcon } from '@mui/icons-material';
 import useAlert from '@hooks/useAlert';
 import { useInput } from '@hooks/useInput';
 import '../UserManagementStyles.css';
@@ -152,9 +150,7 @@ const AddResellers = ({ open, setOpen }) => {
                   fullWidth
                   select
                   id="resellerOrganization"
-                  label={(
-                    <span className="translate">Select Reseller Organization</span>
-                  )}
+                  label={<span className="translate">Select Reseller Organization</span>}
                   value={resellerOrganization.value.name || ''}
                   onChange={(e) => {
                     const selectedOrg = !_.isEmpty(orgData) && orgData.find((org) => _.isEqual(org.name, e.target.value));
@@ -220,9 +216,7 @@ const AddResellers = ({ open, setOpen }) => {
                 fullWidth
                 select
                 id="selectedResellerOrganization"
-                label={(
-                  <span className="translate">Select Reseller Organization</span>
-                )}
+                label={<span className="translate">Select Reseller Organization</span>}
                 value={selectedResellerOrganization.value.name || ''}
                 onChange={(e) => {
                   const selectedOrg = !_.isEmpty(orgData) && orgData.find((org) => _.isEqual(org.name, e.target.value));
@@ -302,7 +296,7 @@ const AddResellers = ({ open, setOpen }) => {
                       }}
                     >
                       <MenuItem value="">Select</MenuItem>
-                      {!_.isEmpty(orgData) && _.map(_.filter(orgData, (o) => !o.is_reseller && !_.includes(alreadyCustomerOrgs.value, o.organization_uuid)),
+                      {!_.isEmpty(orgData) && _.map(_.filter(orgData, (o) => _.isEqual(o.organization_type, 2) && !o.is_reseller && !_.includes(alreadyCustomerOrgs.value, o.organization_uuid) && !resellerCustomerOrganization.value.some((selected) => selected.organization_uuid === o.organization_uuid)),
                         (org) => (
                           <MenuItem
                             key={`organization-${org.id}`}
