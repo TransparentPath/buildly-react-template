@@ -88,7 +88,7 @@
     "image-webpack-loader": "^4.6.0",
     "jest": "^23.6.0",
     "midgard-core": "^0.1.4",
-    "node-sass": "^6.0.1",
+    "node-sass": "^9.0.0",
     "pngquant": "^4.2.0",
     "react-docgen": "^4.1.1",
     "react-docgen-typescript": "^1.12.4",
