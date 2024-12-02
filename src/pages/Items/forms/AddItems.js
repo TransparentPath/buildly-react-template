@@ -36,7 +36,7 @@ const AddItems = ({
   } = location.state || {};
 
   const editPage = location.state && location.state.type === 'edit';
-  const editData = (location.state && location.state.type === 'edit' && location.state.data) || {};
+  const editData = (editPage && location.state.data) || {};
 
   const item_name = useInput(editData.name || '', {
     required: true,

@@ -53,7 +53,6 @@ import {
 import { isDesktop2 } from '@utils/mediaQuery';
 import { getTimezone } from '@utils/utilMethods';
 import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
-import { useStore as useReportPdfStore } from '@zustand/reportPdf/reportPdfStore';
 import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
 import ReportingDetailTable from './components/ReportingDetailTable';
 import AlertsReport from './components/AlertsReport';
@@ -90,7 +89,6 @@ const Reporting = () => {
 
   const { displayAlert } = useAlert();
   const { data: timeZone } = useTimezoneStore();
-  const { data: reportURLData, setData: setReportURLData } = useReportPdfStore();
 
   let isShipmentDataAvailable = false;
 
@@ -174,7 +172,7 @@ const Reporting = () => {
     },
   );
 
-  const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading } = useReportPDFDownloadMutation(reportURLData, setReportURLData, displayAlert);
+  const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading } = useReportPDFDownloadMutation((shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), locShipmentID, organization, displayAlert);
 
   const dateFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
@@ -974,6 +972,11 @@ const Reporting = () => {
               sx={{
                 marginRight: isDesktop2() ? 0 : 1,
               }}
+              SelectProps={{
+                MenuProps: {
+                  sx: { maxHeight: '350px' },
+                },
+              }}
               onChange={(e) => {
                 const selected = _.find(shipmentOverview, { id: e.target.value });
                 handleShipmentSelection(selected);
@@ -1054,7 +1057,7 @@ const Reporting = () => {
             ) : 'Graph View'}
           </Typography>
         </div>
-        <Grid item xs={2} sm={1.1} md={1}>
+        <Grid item xs={2} sm={1}>
           <List
             component="nav"
             aria-label="main graph-type"
@@ -1073,22 +1076,12 @@ const Reporting = () => {
             ))}
           </List>
         </Grid>
-        <Grid item xs={10} sm={10.9} md={11}>
+        <Grid item xs={10} sm={11}>
           {selectedShipment && selectedGraph && allGraphs && !_.isEmpty(allGraphs) && allGraphs[selectedGraph]
             ? (
               <GraphComponent
                 data={allGraphs[selectedGraph]}
                 selectedGraph={selectedGraph}
-                unitOfMeasure={unitData}
-                minTemp={allGraphs.minTemp}
-                maxTemp={allGraphs.maxTemp}
-                minHumidity={allGraphs.minHumidity}
-                maxHumidity={allGraphs.maxHumidity}
-                shockThreshold={allGraphs.shockThreshold}
-                lightThreshold={allGraphs.lightThreshold}
-                timeGap={!_.isEmpty(selectedShipment) ? selectedShipment.measurement_time : 5}
-                minColor={theme.palette.info.main}
-                maxColor={theme.palette.error.main}
               />
             )
             : (
@@ -1178,9 +1171,6 @@ const Reporting = () => {
         downloadExcel={downloadExcel}
         reportPDFDownloadMutation={reportPDFDownloadMutation}
         selectedShipment={selectedShipment}
-        isReportPDFDownloading={isReportPDFDownloading}
-        data={reportURLData}
-        setData={setReportURLData}
       />
     </Box>
   );

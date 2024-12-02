@@ -43,14 +43,14 @@ const CustomizedSteppers = ({ steps }) => {
         <Stack key={index} sx={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignSelf: 'center' }}>
             {step.titleIcon}
-            <Typography textAlign="center" fontWeight={700} pb={2} pl={step.titleIcon ? 1 : 0} pr={1} fontSize={14} color={step.titleColor}>
+            <Typography className={step.titleIcon ? '' : 'notranslate'} textAlign="center" fontWeight={700} pb={2} pl={step.titleIcon ? 1 : 0} pr={1} fontSize={14} color={step.titleColor}>
               {step.title}
             </Typography>
           </div>
           <Step className={index === 0 ? 'customizedStepperNoLine' : ''}>
             <StepIcon icon={getIcon(step)} />
             <StepLabel>{step.label}</StepLabel>
-            <Typography textAlign="center" fontSize={14} style={{ width: 'max-content', margin: 'auto' }}>{step.content}</Typography>
+            <Typography className="notranslate" textAlign="center" fontSize={14} style={{ width: 'max-content', margin: 'auto' }}>{step.content}</Typography>
             <Typography textAlign="center" fontSize={14}>{step.caption}</Typography>
           </Step>
         </Stack>

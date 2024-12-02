@@ -65,3 +65,29 @@ export const LANGUAGES = [
   { value: 'ja', label: 'Japanese' },
   { value: 'it', label: 'Italian' },
 ];
+
+export const GATEWAY_ACTIONS = [
+  { value: 'Change Status', label: 'Change Status' },
+  { value: 'Remove Tracker', label: 'Remove Tracker' },
+  { value: 'Assign Shipper', label: 'Assign Shipper' },
+];
+
+export const ORDER_TYPES = [
+  { value: 'Tive Non Lithium Solo 5G', label: 'Tive Non Lithium Solo 5G' },
+  { value: 'Tive Lithium Solo 5G', label: 'Tive Lithium Solo 5G' },
+];
+
+export const MONTHS = [
+  { value: 'January', label: 'January' },
+  { value: 'February', label: 'February' },
+  { value: 'March', label: 'March' },
+  { value: 'April', label: 'April' },
+  { value: 'May', label: 'May' },
+  { value: 'June', label: 'June' },
+  { value: 'July', label: 'July' },
+  { value: 'August', label: 'August' },
+  { value: 'September', label: 'September' },
+  { value: 'October', label: 'October' },
+  { value: 'November', label: 'November' },
+  { value: 'December', label: 'December' },
+];
