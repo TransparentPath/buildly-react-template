@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
 import {
@@ -21,12 +22,25 @@ import useAlert from '@hooks/useAlert';
 import '../CustodianStyles.css';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import usePlacesService from 'react-google-autocomplete/lib/usePlacesAutocompleteService';
+import Geocode from 'react-geocode';
 
 const AddCustodians = ({ history, location }) => {
   const [openFormModal, setFormModal] = useState(true);
   const [openConfirmModal, setConfirmModal] = useState(false);
 
   const { displayAlert } = useAlert();
+
+  Geocode.setApiKey(window.env.GEO_CODE_API);
+  Geocode.setLanguage('en');
+
+  const {
+    placePredictions,
+    getPlacePredictions,
+    isPlacePredictionsLoading,
+  } = usePlacesService({
+    apiKey: window.env.MAP_API_KEY,
+  });
 
   const redirectTo = location.state && location.state.from;
   const {
@@ -48,7 +62,7 @@ const AddCustodians = ({ history, location }) => {
   const [numberFocus, setNumberFocus] = useState(false);
   const country = useInput(contactData.country || '', { required: true });
   const state = useInput(contactData.state || '', { required: true });
-  const address_1 = useInput(contactData.address1 || '', { required: true });
+  const [address1, setAddress1] = useState(contactData.address1 || '');
   const address_2 = useInput(contactData.address2 || '');
   const city = useInput(contactData.city || '', { required: true });
   const zip = useInput(contactData.postal_code || '', { required: true });
@@ -84,7 +98,7 @@ const AddCustodians = ({ history, location }) => {
       || city.hasChanged()
       || state.hasChanged()
       || zip.hasChanged()
-      || address_1.hasChanged()
+      || !_.isEqual(address1, '')
       || address_2.hasChanged()
     );
     if (dataHasChanged) {
@@ -126,7 +140,7 @@ const AddCustodians = ({ history, location }) => {
     const contactFormValue = {
       country: country.value,
       state: state.value,
-      address1: address_1.value,
+      address1,
       address2: address_2.value,
       city: city.value,
       postal_code: zip.value,
@@ -205,7 +219,7 @@ const AddCustodians = ({ history, location }) => {
       || !email.value
       || _.isEmpty(number)
       || number.length < 11
-      || !address_1.value
+      || _.isEqual(address1, '')
       || !state.value
       || !country.value
       || !city.value
@@ -220,6 +234,24 @@ const AddCustodians = ({ history, location }) => {
       }
     });
     return errorExists;
+  };
+
+  const handleSelectAddress = (address) => {
+    setAddress1(`${address.terms[0].value}, ${address.terms[1].value}, ${address.terms[2].value}`);
+    Geocode.fromAddress(address.description)
+      .then(({ results }) => {
+        const { lat, lng } = results[0].geometry.location;
+        Geocode.fromLatLng(lat, lng)
+          .then((response) => {
+            const addressComponents = response.results[0].address_components;
+            const locality = addressComponents.find((component) => component.types.includes('locality'))?.long_name;
+            const zipCode = addressComponents.find((component) => component.types.includes('postal_code'))?.long_name;
+            city.setValue(locality);
+            zip.setValue(zipCode);
+          })
+          .catch(console.error);
+      })
+      .catch(console.error);
   };
 
   return (
@@ -424,7 +456,7 @@ const AddCustodians = ({ history, location }) => {
                       onChange={(e) => {
                         country.setValue(e.target.value);
                         state.setValue('');
-                        address_1.setValue('');
+                        setAddress1('');
                         address_2.setValue('');
                         city.setValue('');
                         zip.setValue('');
@@ -488,13 +520,36 @@ const AddCustodians = ({ history, location }) => {
                       label="Address Line 1"
                       name="address_1"
                       autoComplete="address_1"
+                      value={address1}
+                      onChange={(e) => {
+                        getPlacePredictions({
+                          input: e.target.value,
+                          componentRestrictions: {
+                            country: country.value.toLowerCase(),
+                          },
+                        });
+                        setAddress1(e.target.value);
+                      }}
                       disabled={!country.value || !state.value}
                       error={formError.address_1 && formError.address_1.error}
                       helperText={formError.address_1 ? formError.address_1.message : ''}
-                      onBlur={(e) => handleBlur(e, 'required', address_1)}
-                      {...address_1.bind}
+                      onBlur={(e) => handleBlur(e, 'required', address1)}
                     />
                   </Grid>
+                  {placePredictions && _.map(placePredictions, (value, index) => (
+                    <MenuItem
+                      className="notranslate"
+                      style={{ textWrap: 'auto', display: 'flex', width: '100%' }}
+                      key={`custodianState${index}${value}`}
+                      value={value.description}
+                      onClick={() => {
+                        handleSelectAddress(value);
+                        getPlacePredictions({ input: '' });
+                      }}
+                    >
+                      {value.description}
+                    </MenuItem>
+                  ))}
                   <Grid className="custodianInputWithTooltip custodianInputWithTooltip3" item xs={12}>
                     <TextField
                       variant="outlined"
@@ -519,7 +574,7 @@ const AddCustodians = ({ history, location }) => {
                       label="City"
                       name="city"
                       autoComplete="city"
-                      disabled={!country.value || !state.value}
+                      disabled
                       error={formError.city && formError.city.error}
                       helperText={formError.city ? formError.city.message : ''}
                       onBlur={(e) => handleBlur(e, 'required', city)}
@@ -540,7 +595,7 @@ const AddCustodians = ({ history, location }) => {
                       label="ZIP/Postal Code"
                       name="zip"
                       autoComplete="zip"
-                      disabled={!country.value || !state.value}
+                      disabled
                       error={formError.zip && formError.zip.error}
                       helperText={formError.zip ? formError.zip.message : ''}
                       onBlur={(e) => handleBlur(e, 'required', zip)}
