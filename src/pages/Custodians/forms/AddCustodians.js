@@ -3,19 +3,19 @@ import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
 import {
   Button,
-  TextField,
   Card,
   CardContent,
-  Typography,
   Grid,
   MenuItem,
+  TextField,
+  Typography,
 } from '@mui/material';
 import Loader from '@components/Loader/Loader';
 import FormModal from '@components/Modal/FormModal';
 import { getUser } from '@context/User.context';
 import { useInput } from '@hooks/useInput';
 import { validators } from '@utils/validators';
-import { isMobile, isDesktop } from '@utils/mediaQuery';
+import { isMobile, isDesktop, isDesktop2 } from '@utils/mediaQuery';
 import { useAddCustodianMutation } from '@react-query/mutations/custodians/addCustodianMutation';
 import { useEditCustodianMutation } from '@react-query/mutations/custodians/editCustodianMutation';
 import useAlert from '@hooks/useAlert';
@@ -44,7 +44,7 @@ const AddCustodians = ({ history, location }) => {
 
   const redirectTo = location.state && location.state.from;
   const {
-    custodianTypesData, countriesData, unitData, orgData,
+    custodianTypesData, orgData,
   } = location.state || {};
 
   const editPage = location.state && location.state.type === 'edit';
@@ -73,19 +73,6 @@ const AddCustodians = ({ history, location }) => {
   const formTitle = editPage ? 'Edit Custodian' : 'Add Custodian';
 
   const organization = getUser().organization.organization_uuid;
-
-  useEffect(() => {
-    const defaultCountry = !_.isEmpty(unitData) && _.find(
-      unitData,
-      (unit) => _.toLower(unit.unit_of_measure_for) === 'country',
-    ).unit_of_measure;
-    if (!country.value && defaultCountry && !_.isEmpty(countriesData)) {
-      const found = _.find(countriesData, { country: defaultCountry });
-      if (found) {
-        country.setValue(found.iso3);
-      }
-    }
-  }, [unitData, countriesData]);
 
   const closeFormModal = () => {
     const dataHasChanged = (
@@ -237,14 +224,17 @@ const AddCustodians = ({ history, location }) => {
   };
 
   const handleSelectAddress = (address) => {
-    setAddress1(`${address.terms[0].value}, ${address.terms[1].value}, ${address.terms[2].value}`);
+    setAddress1(`${address.terms[0].value}, ${address.terms[1].value}`);
+    address_2.setValue(`${address.terms[2].value}`);
+    state.setValue(`${address.terms[address.terms.length - 2].value}`);
+    country.setValue(`${address.terms[address.terms.length - 1].value}`);
     Geocode.fromAddress(address.description)
       .then(({ results }) => {
         const { lat, lng } = results[0].geometry.location;
         Geocode.fromLatLng(lat, lng)
           .then((response) => {
             const addressComponents = response.results[0].address_components;
-            const locality = addressComponents.find((component) => component.types.includes('locality'))?.long_name;
+            const locality = addressComponents.find((component) => component.types.includes('administrative_area_level_3'))?.long_name;
             const zipCode = addressComponents.find((component) => component.types.includes('postal_code'))?.long_name;
             city.setValue(locality);
             zip.setValue(zipCode);
@@ -296,7 +286,7 @@ const AddCustodians = ({ history, location }) => {
                 item
                 xs={12}
                 md={6}
-                style={{ paddingTop: isDesktop() ? 39 : 10 }}
+                style={{ paddingTop: isDesktop2() ? 39 : 10 }}
               >
                 <TextField
                   variant="outlined"
@@ -342,12 +332,7 @@ const AddCustodians = ({ history, location }) => {
                     ))}
                 </TextField>
               </Grid>
-              <Grid
-                className="custodianInputWithTooltip custodianInputWithTooltip4"
-                item
-                xs={12}
-                md={6}
-              >
+              <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                 <TextField
                   variant="filled"
                   margin="normal"
@@ -402,7 +387,7 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
-                <Grid container spacing={isDesktop() ? 2 : 0}>
+                <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12}>
                     <TextField
                       className="notranslate"
@@ -421,7 +406,7 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
-                <Grid container spacing={isDesktop() ? 2 : 0}>
+                <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip custodianRow" item xs={12}>
                     <Typography className="custodianPhoneLabel">Phone Number *</Typography>
                     <PhoneInput
@@ -438,78 +423,7 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
-                <Grid container spacing={isDesktop() ? 2 : 0}>
-                  <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
-                    <TextField
-                      className="notranslate"
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      id="country"
-                      select
-                      required
-                      label={<span className="translate">Country</span>}
-                      error={formError.country && formError.country.error}
-                      helperText={formError.country ? formError.country.message : ''}
-                      onBlur={(e) => handleBlur(e, 'required', country, 'country')}
-                      value={country.value}
-                      onChange={(e) => {
-                        country.setValue(e.target.value);
-                        state.setValue('');
-                        setAddress1('');
-                        address_2.setValue('');
-                        city.setValue('');
-                        zip.setValue('');
-                      }}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {countriesData && _.map(_.sortBy(_.map(countriesData, (c) => _.pick(c, 'country', 'iso3'))),
-                        (value, index) => (
-                          <MenuItem
-                            className="notranslate"
-                            key={`custodianCountry${index}${value.country}`}
-                            value={value.iso3}
-                          >
-                            {value.country}
-                          </MenuItem>
-                        ))}
-                    </TextField>
-                  </Grid>
-                  <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      id="state"
-                      select
-                      required
-                      label="State/Province"
-                      error={formError.state && formError.state.error}
-                      helperText={formError.state ? formError.state.message : ''}
-                      onBlur={(e) => handleBlur(e, 'required', state, 'state')}
-                      {...state.bind}
-                      disabled={countriesData && !country.value}
-                      placeholder={
-                        countriesData && !country.value
-                          ? 'Select country for states options'
-                          : ''
-                      }
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {countriesData && country.value && _.map(_.sortBy(_.find(countriesData, { iso3: country.value }).states),
-                        (value, index) => (
-                          <MenuItem
-                            className="notranslate"
-                            key={`custodianState${index}${value}`}
-                            value={value.state_code}
-                          >
-                            {value.name}
-                          </MenuItem>
-                        ))}
-                    </TextField>
-                  </Grid>
-                </Grid>
-                <Grid container spacing={isDesktop() ? 2 : 0}>
+                <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12}>
                     <TextField
                       variant="outlined"
@@ -524,33 +438,29 @@ const AddCustodians = ({ history, location }) => {
                       onChange={(e) => {
                         getPlacePredictions({
                           input: e.target.value,
-                          componentRestrictions: {
-                            country: country.value.toLowerCase(),
-                          },
                         });
                         setAddress1(e.target.value);
                       }}
-                      disabled={!country.value || !state.value}
-                      error={formError.address_1 && formError.address_1.error}
-                      helperText={formError.address_1 ? formError.address_1.message : ''}
-                      onBlur={(e) => handleBlur(e, 'required', address1)}
                     />
                   </Grid>
-                  {placePredictions && _.map(placePredictions, (value, index) => (
-                    <MenuItem
-                      className="notranslate"
-                      style={{ textWrap: 'auto', display: 'flex', width: '100%' }}
-                      key={`custodianState${index}${value}`}
-                      value={value.description}
-                      onClick={() => {
-                        handleSelectAddress(value);
-                        getPlacePredictions({ input: '' });
-                      }}
-                    >
-                      {value.description}
-                    </MenuItem>
-                  ))}
-                  <Grid className="custodianInputWithTooltip custodianInputWithTooltip3" item xs={12}>
+                  <div className={!_.isEmpty(placePredictions) ? 'custodianAddressPredictions' : ''}>
+                    {placePredictions && _.map(placePredictions, (value, index) => (
+                      <MenuItem
+                        className="custodianAddressPredictionsItem notranslate"
+                        key={`custodianState${index}${value}`}
+                        value={value.description}
+                        onClick={() => {
+                          handleSelectAddress(value);
+                          getPlacePredictions({ input: '' });
+                        }}
+                      >
+                        {value.description}
+                      </MenuItem>
+                    ))}
+                  </div>
+                </Grid>
+                <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
+                  <Grid className="custodianInputWithTooltip" item xs={12}>
                     <TextField
                       variant="outlined"
                       margin="normal"
@@ -559,12 +469,12 @@ const AddCustodians = ({ history, location }) => {
                       label="Address Line 2"
                       name="address_2"
                       autoComplete="address_2"
-                      disabled={!country.value || !state.value}
+                      disabled
                       {...address_2.bind}
                     />
                   </Grid>
                 </Grid>
-                <Grid container spacing={isDesktop() ? 2 : 0}>
+                <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                     <TextField
                       variant="outlined"
@@ -575,18 +485,38 @@ const AddCustodians = ({ history, location }) => {
                       name="city"
                       autoComplete="city"
                       disabled
-                      error={formError.city && formError.city.error}
-                      helperText={formError.city ? formError.city.message : ''}
-                      onBlur={(e) => handleBlur(e, 'required', city)}
                       {...city.bind}
                     />
                   </Grid>
-                  <Grid
-                    className="custodianInputWithTooltip custodianInputWithTooltip2"
-                    item
-                    xs={12}
-                    md={6}
-                  >
+                  <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      fullWidth
+                      id="state"
+                      label="State/Province"
+                      name="state"
+                      autoComplete="state"
+                      disabled
+                      {...state.bind}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
+                  <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      fullWidth
+                      id="country"
+                      label="Country"
+                      name="country"
+                      autoComplete="country"
+                      disabled
+                      {...country.bind}
+                    />
+                  </Grid>
+                  <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                     <TextField
                       variant="outlined"
                       margin="normal"
@@ -596,9 +526,6 @@ const AddCustodians = ({ history, location }) => {
                       name="zip"
                       autoComplete="zip"
                       disabled
-                      error={formError.zip && formError.zip.error}
-                      helperText={formError.zip ? formError.zip.message : ''}
-                      onBlur={(e) => handleBlur(e, 'required', zip)}
                       {...zip.bind}
                     />
                   </Grid>

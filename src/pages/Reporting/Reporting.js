@@ -64,7 +64,10 @@ import './ReportingStyles.css';
 const Reporting = () => {
   const location = useLocation();
   const theme = useTheme();
-  const organization = getUser().organization.organization_uuid;
+  const user = getUser();
+  const organization = user.organization.organization_uuid;
+  const mapLanguage = user.map_language;
+  const mapRegion = user.map_region;
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
 
   const [locShipmentID, setLocShipmentID] = useState('');
@@ -1067,6 +1070,8 @@ const Reporting = () => {
             setSelectedMarker={setSelectedMarker}
             containerStyle={{ height: '625px' }}
             unitOfMeasure={unitData}
+            mapLanguage={mapLanguage}
+            mapRegion={mapRegion}
           />
         </Grid>
       </Grid>
