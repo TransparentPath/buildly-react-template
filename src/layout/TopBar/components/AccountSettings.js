@@ -92,16 +92,16 @@ const AccountSettings = ({ open, setOpen }) => {
       geo_alert_preferences: geoOptions,
       env_alert_preferences: envOptions,
     };
-    if (whatsappNumber) {
+    if (whatsappNumber !== user.whatsApp_number) {
       userData = { ...userData, whatsApp_number: whatsappNumber };
     }
-    if (timezone.value) {
+    if (timezone.hasChanged()) {
       userData = { ...userData, user_timezone: timezone.value };
     }
-    if (mapLanguage.value) {
+    if (mapLanguage.hasChanged()) {
       userData = { ...userData, map_language: mapLanguage.value };
     }
-    if (mapRegion.value) {
+    if (mapRegion.hasChanged()) {
       userData = { ...userData, map_region: mapRegion.value };
     }
     updateUserMutation(userData);

@@ -12,7 +12,7 @@ import {
   LoadScript,
 } from '@react-google-maps/api';
 import Geocode from 'react-geocode';
-import _, { uniq } from 'lodash';
+import _ from 'lodash';
 import { Grid, useTheme } from '@mui/material';
 import {
   AccessTime as ClockIcon,
