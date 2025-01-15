@@ -911,7 +911,7 @@ const CreateShipment = ({ history, location }) => {
     };
 
     if (!draft && (
-      (_.isEqual('available', updateGateway.gateway_status) && _.isEqual([], updateGateway.shipment_ids))
+      (_.isEqual('available', updateGateway.gateway_status) && (!updateGateway.shipment_ids || _.isEqual([], updateGateway.shipment_ids)))
       || status.hasChanged()
       || _.includes(_.map(ADMIN_SHIPMENT_STATUS, 'value'), status.value)
     )) {
