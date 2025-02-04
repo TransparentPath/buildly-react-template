@@ -43,15 +43,13 @@ import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
 import { TIVE_GATEWAY_TIMES, LANGUAGES } from '@utils/mock';
-import { calculateLatLngBounds } from '@utils/utilMethods';
+import { calculateLatLngBounds, getTranslatedLanguage } from '@utils/utilMethods';
 
 const Shipment = ({ history }) => {
   const muiTheme = useTheme();
   const user = getUser();
   const organization = user.organization.organization_uuid;
   const userLanguage = user.user_language;
-  const mapLanguage = user.map_language;
-  const mapRegion = user.map_region;
 
   const { displayAlert } = useAlert();
   const { data } = useStore();
@@ -142,7 +140,6 @@ const Shipment = ({ history }) => {
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
     : 'English';
   const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()) && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
-  const organizationLanguage = _.find(LANGUAGES, (item) => item.label.toLowerCase() === language.toLowerCase()).value;
 
   const {
     data: reportData2,
@@ -774,8 +771,8 @@ const Shipment = ({ history }) => {
               unitOfMeasure={unitData}
               setSelectedCluster={setSelectedCluster}
               selectedCluster={selectedCluster}
-              mapLanguage={!_.isEmpty(mapLanguage) ? mapLanguage : organizationLanguage}
-              mapRegion={!_.isEmpty(mapRegion) ? mapRegion : organizationCountry}
+              mapLanguage={getTranslatedLanguage()}
+              mapRegion={organizationCountry}
             />
           </Grid>
         )}

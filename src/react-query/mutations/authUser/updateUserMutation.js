@@ -1,4 +1,3 @@
-/* eslint-disable no-alert */
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { oauthService } from '@modules/oauth/oauth.service';
@@ -32,11 +31,6 @@ export const useUpdateUserMutation = (
   },
   {
     onSuccess: (data) => {
-      if (data.map_language || data.map_region) {
-        alert('Detected map change. So need to reload the website. It might take a little while for this.');
-        window.location.reload();
-        return;
-      }
       if (history) {
         const route = window.location.pathname;
         history.push('/');

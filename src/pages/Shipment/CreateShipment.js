@@ -69,7 +69,7 @@ import {
   INCOMPLETED_SHIPMENT_STATUS,
   LANGUAGES,
 } from '@utils/mock';
-import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin, getTranslatedLanguage } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
 import { useQuery } from 'react-query';
 import { getShipmentTemplatesQuery } from '@react-query/queries/shipments/getShipmentTemplatesQuery';
@@ -102,8 +102,6 @@ const CreateShipment = ({ history, location }) => {
   const organizationUuid = organization && organization.organization_uuid;
   const userLanguage = user.user_language;
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
-  const mapLanguage = user.map_language;
-  const mapRegion = user.map_region;
 
   const { displayAlert } = useAlert();
   const { data } = useStore();
@@ -980,7 +978,6 @@ const CreateShipment = ({ history, location }) => {
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
     : 'English';
   const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()) && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
-  const organizationLanguage = _.find(LANGUAGES, (item) => item.label.toLowerCase() === language.toLowerCase()).value;
 
   const isLoaded = isLoadingShipmentTemplates
     || isLoadingCustodians
@@ -1196,8 +1193,8 @@ const CreateShipment = ({ history, location }) => {
                           },
                         ]}
                         unitOfMeasure={unitData}
-                        mapLanguage={!_.isEmpty(mapLanguage) ? mapLanguage : organizationLanguage}
-                        mapRegion={!_.isEmpty(mapRegion) ? mapRegion : organizationCountry}
+                        mapLanguage={getTranslatedLanguage()}
+                        mapRegion={organizationCountry}
                       />
                     </Grid>
                   )}
@@ -1271,8 +1268,8 @@ const CreateShipment = ({ history, location }) => {
                           },
                         ]}
                         unitOfMeasure={unitData}
-                        mapLanguage={!_.isEmpty(mapLanguage) ? mapLanguage : organizationLanguage}
-                        mapRegion={!_.isEmpty(mapRegion) ? mapRegion : organizationCountry}
+                        mapLanguage={getTranslatedLanguage()}
+                        mapRegion={organizationCountry}
                       />
                     </Grid>
                   )}
