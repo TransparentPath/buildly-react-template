@@ -69,7 +69,7 @@ import {
   INCOMPLETED_SHIPMENT_STATUS,
   LANGUAGES,
 } from '@utils/mock';
-import { checkForAdmin, checkForGlobalAdmin, getTranslatedLanguage } from '@utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
 import { useQuery } from 'react-query';
 import { getShipmentTemplatesQuery } from '@react-query/queries/shipments/getShipmentTemplatesQuery';
@@ -977,7 +977,6 @@ const CreateShipment = ({ history, location }) => {
   const language = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
     : 'English';
-  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()) && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   const isLoaded = isLoadingShipmentTemplates
     || isLoadingCustodians
@@ -1179,25 +1178,22 @@ const CreateShipment = ({ history, location }) => {
                     />
                   </Grid>
                   <Grid item xs={1} className="createShipmentInnerAsterisk">*</Grid>
-                  {!isLoaded && (
-                    <Grid item xs={11}>
-                      <MapComponent
-                        isMarkerShown
-                        zoom={10}
-                        containerStyle={{ height: '300px', marginTop: '10px' }}
-                        markers={[
-                          {
-                            lat: startingLocation && _.includes(startingLocation, ',') && parseFloat(startingLocation.split(',')[0]),
-                            lng: startingLocation && _.includes(startingLocation, ',') && parseFloat(startingLocation.split(',')[1]),
-                            radius: (organization && organization.radius) || 0,
-                          },
-                        ]}
-                        unitOfMeasure={unitData}
-                        mapLanguage={getTranslatedLanguage()}
-                        mapRegion={organizationCountry}
-                      />
-                    </Grid>
-                  )}
+                  <Grid item xs={11}>
+                    <MapComponent
+                      isMarkerShown
+                      zoom={10}
+                      containerStyle={{ height: '300px', marginTop: '10px' }}
+                      markers={[
+                        {
+                          lat: startingLocation && _.includes(startingLocation, ',') && parseFloat(startingLocation.split(',')[0]),
+                          lng: startingLocation && _.includes(startingLocation, ',') && parseFloat(startingLocation.split(',')[1]),
+                          radius: (organization && organization.radius) || 0,
+                        },
+                      ]}
+                      unitOfMeasure={unitData}
+                      countriesData={countriesData}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -1254,25 +1250,22 @@ const CreateShipment = ({ history, location }) => {
                     />
                   </Grid>
                   <Grid item xs={1} className="createShipmentInnerAsterisk">*</Grid>
-                  {!isLoaded && (
-                    <Grid item xs={11}>
-                      <MapComponent
-                        isMarkerShown
-                        zoom={10}
-                        containerStyle={{ height: '300px', marginTop: '10px' }}
-                        markers={[
-                          {
-                            lat: endingLocation && _.includes(endingLocation, ',') && parseFloat(endingLocation.split(',')[0]),
-                            lng: endingLocation && _.includes(endingLocation, ',') && parseFloat(endingLocation.split(',')[1]),
-                            radius: (organization && organization.radius) || 0,
-                          },
-                        ]}
-                        unitOfMeasure={unitData}
-                        mapLanguage={getTranslatedLanguage()}
-                        mapRegion={organizationCountry}
-                      />
-                    </Grid>
-                  )}
+                  <Grid item xs={11}>
+                    <MapComponent
+                      isMarkerShown
+                      zoom={10}
+                      containerStyle={{ height: '300px', marginTop: '10px' }}
+                      markers={[
+                        {
+                          lat: endingLocation && _.includes(endingLocation, ',') && parseFloat(endingLocation.split(',')[0]),
+                          lng: endingLocation && _.includes(endingLocation, ',') && parseFloat(endingLocation.split(',')[1]),
+                          radius: (organization && organization.radius) || 0,
+                        },
+                      ]}
+                      unitOfMeasure={unitData}
+                      countriesData={countriesData}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 1.5 : -2.5} className="createShipmentAdjustSpacing">

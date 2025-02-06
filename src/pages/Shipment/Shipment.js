@@ -43,7 +43,7 @@ import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
 import { TIVE_GATEWAY_TIMES, LANGUAGES } from '@utils/mock';
-import { calculateLatLngBounds, getTranslatedLanguage } from '@utils/utilMethods';
+import { calculateLatLngBounds } from '@utils/utilMethods';
 
 const Shipment = ({ history }) => {
   const muiTheme = useTheme();
@@ -139,7 +139,6 @@ const Shipment = ({ history }) => {
   const language = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
     : 'English';
-  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()) && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   const {
     data: reportData2,
@@ -758,24 +757,21 @@ const Shipment = ({ history }) => {
             </Typography>
           </div>
         </Grid>
-        {!isLoaded && (
-          <Grid item xs={12}>
-            <MapComponent
-              allMarkers={allMarkers}
-              isMarkerShown={!_.isEmpty(markers)}
-              showPath
-              markers={markers}
-              zoom={zoom}
-              setSelectedMarker={setSelectedMarker}
-              containerStyle={{ height: '600px' }}
-              unitOfMeasure={unitData}
-              setSelectedCluster={setSelectedCluster}
-              selectedCluster={selectedCluster}
-              mapLanguage={getTranslatedLanguage()}
-              mapRegion={organizationCountry}
-            />
-          </Grid>
-        )}
+        <Grid item xs={12}>
+          <MapComponent
+            allMarkers={allMarkers}
+            isMarkerShown={!_.isEmpty(markers)}
+            showPath
+            markers={markers}
+            zoom={zoom}
+            setSelectedMarker={setSelectedMarker}
+            containerStyle={{ height: '600px' }}
+            unitOfMeasure={unitData}
+            setSelectedCluster={setSelectedCluster}
+            selectedCluster={selectedCluster}
+            countriesData={countriesData}
+          />
+        </Grid>
         <Grid item xs={12} className="shipmentDataTableHeader">
           <ToggleButtonGroup
             color="secondary"

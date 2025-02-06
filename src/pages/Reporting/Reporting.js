@@ -52,7 +52,7 @@ import {
   tempUnit,
 } from '@utils/constants';
 import { isDesktop2 } from '@utils/mediaQuery';
-import { getTimezone, getTranslatedLanguage } from '@utils/utilMethods';
+import { getTimezone } from '@utils/utilMethods';
 import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
 import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
 import ReportingDetailTable from './components/ReportingDetailTable';
@@ -195,7 +195,6 @@ const Reporting = () => {
   const language = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
     : 'English';
-  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()) && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   useEffect(() => {
     if (location.search) {
@@ -1057,21 +1056,18 @@ const Reporting = () => {
               ) : 'Map View'}
             </Typography>
           </div>
-          {!isLoaded && (
-            <MapComponent
-              isMarkerShown={!_.isEmpty(markers)}
-              showPath
-              screenshotMapCenter
-              noInitialInfo
-              markers={markers}
-              zoom={4}
-              setSelectedMarker={setSelectedMarker}
-              containerStyle={{ height: '625px' }}
-              unitOfMeasure={unitData}
-              mapLanguage={getTranslatedLanguage()}
-              mapRegion={organizationCountry}
-            />
-          )}
+          <MapComponent
+            isMarkerShown={!_.isEmpty(markers)}
+            showPath
+            screenshotMapCenter
+            noInitialInfo
+            markers={markers}
+            zoom={4}
+            setSelectedMarker={setSelectedMarker}
+            containerStyle={{ height: '625px' }}
+            unitOfMeasure={unitData}
+            countriesData={countriesData}
+          />
         </Grid>
       </Grid>
       <Grid container className="reportingContainer" sx={{ marginTop: _.isEmpty(selectedShipment) ? 4 : -1 }}>
