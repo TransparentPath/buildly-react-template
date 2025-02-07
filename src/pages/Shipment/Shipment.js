@@ -136,9 +136,8 @@ const Shipment = ({ history }) => {
   const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
-  const language = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
-    : 'English';
+  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
+    && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   const {
     data: reportData2,
@@ -713,6 +712,13 @@ const Shipment = ({ history }) => {
     )
   );
 
+  const getTranslatedLanguage = () => {
+    const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
+    const value = decodeURIComponent(match[2]);
+    const parts = value.split('/');
+    return parts[_.size(parts) - 1];
+  };
+
   return (
     <Box mt={5} mb={5}>
       {isLoaded && <Loader open={isLoaded} />}
@@ -769,7 +775,8 @@ const Shipment = ({ history }) => {
             unitOfMeasure={unitData}
             setSelectedCluster={setSelectedCluster}
             selectedCluster={selectedCluster}
-            countriesData={countriesData}
+            mapCountry={organizationCountry}
+            mapLanguage={getTranslatedLanguage()}
           />
         </Grid>
         <Grid item xs={12} className="shipmentDataTableHeader">

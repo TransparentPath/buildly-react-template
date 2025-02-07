@@ -52,7 +52,7 @@ import {
   tempUnit,
 } from '@utils/constants';
 import { isDesktop2 } from '@utils/mediaQuery';
-import { getTimezone } from '@utils/utilMethods';
+import { getTimezone, getTranslatedLanguage } from '@utils/utilMethods';
 import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
 import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
 import ReportingDetailTable from './components/ReportingDetailTable';
@@ -192,9 +192,8 @@ const Reporting = () => {
   const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
-  const language = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
-    : 'English';
+  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
+    && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   useEffect(() => {
     if (location.search) {
@@ -391,7 +390,7 @@ const Reporting = () => {
         ...max_data.map((x) => x.set_at),
         ...(!_.isEmpty(min_data) ? min_data.map((x) => x.set_at) : []),
       ]),
-    ).sort();
+    ).sort((a, b) => new Date(b) - new Date(a));
 
     let previousMax = null;
     let previousMin = null;
@@ -1066,7 +1065,8 @@ const Reporting = () => {
             setSelectedMarker={setSelectedMarker}
             containerStyle={{ height: '625px' }}
             unitOfMeasure={unitData}
-            countriesData={countriesData}
+            mapCountry={organizationCountry}
+            mapLanguage={getTranslatedLanguage()}
           />
         </Grid>
       </Grid>

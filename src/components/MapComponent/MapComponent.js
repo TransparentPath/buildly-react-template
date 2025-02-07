@@ -22,7 +22,6 @@ import {
 } from '@mui/icons-material';
 import { MARKER_DATA, getIcon } from '@utils/constants';
 import './MapComponentStyles.css';
-import { getTranslatedLanguage } from '@utils/utilMethods';
 
 const libraries = ['places', 'geometry', 'drawing'];
 
@@ -41,7 +40,8 @@ export const MapComponent = (props) => {
     containerStyle,
     setSelectedCluster,
     selectedCluster,
-    countriesData,
+    mapCountry,
+    mapLanguage,
   } = props;
 
   const [center, setCenter] = useState({ lat: 47.606209, lng: -122.332069 });
@@ -53,15 +53,13 @@ export const MapComponent = (props) => {
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
 
-  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()) && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
-
   const theme = useTheme();
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: window.env.MAP_API_KEY,
     libraries,
-    language: getTranslatedLanguage() || 'en',
-    region: (organizationCountry === 'MAR' ? 'MA' : organizationCountry) || 'USA',
+    language: mapLanguage || 'en',
+    region: (mapCountry === 'MAR' ? 'MA' : mapCountry) || 'USA',
   });
 
   useEffect(() => {
@@ -135,7 +133,7 @@ export const MapComponent = (props) => {
 
     if (address) {
       Geocode.setApiKey(window.env.GEO_CODE_API);
-      Geocode.setLanguage(getTranslatedLanguage() || 'en');
+      Geocode.setLanguage(mapLanguage || 'en');
       Geocode.fromAddress(address).then(
         (response) => {
           const { lat, lng } = response.results[0].geometry.location;

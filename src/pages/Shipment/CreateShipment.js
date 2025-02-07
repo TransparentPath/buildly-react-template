@@ -69,7 +69,7 @@ import {
   INCOMPLETED_SHIPMENT_STATUS,
   LANGUAGES,
 } from '@utils/mock';
-import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin, getTranslatedLanguage } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
 import { useQuery } from 'react-query';
 import { getShipmentTemplatesQuery } from '@react-query/queries/shipments/getShipmentTemplatesQuery';
@@ -539,7 +539,7 @@ const CreateShipment = ({ history, location }) => {
 
   const getLatLong = (address, position) => {
     Geocode.setApiKey(window.env.GEO_CODE_API);
-    Geocode.setLanguage('en');
+    Geocode.setLanguage(getTranslatedLanguage() || 'en');
     Geocode.fromAddress(address).then(
       (response) => {
         const { lat, lng } = response.results[0].geometry.location;
@@ -974,9 +974,8 @@ const CreateShipment = ({ history, location }) => {
   const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
-  const language = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
-    : 'English';
+  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
+    && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   const isLoaded = isLoadingShipmentTemplates
     || isLoadingCustodians
@@ -1191,7 +1190,8 @@ const CreateShipment = ({ history, location }) => {
                         },
                       ]}
                       unitOfMeasure={unitData}
-                      countriesData={countriesData}
+                      mapCountry={organizationCountry}
+                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>
@@ -1263,7 +1263,8 @@ const CreateShipment = ({ history, location }) => {
                         },
                       ]}
                       unitOfMeasure={unitData}
-                      countriesData={countriesData}
+                      mapCountry={organizationCountry}
+                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>

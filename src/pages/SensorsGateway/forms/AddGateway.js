@@ -25,6 +25,7 @@ import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import '../GatewayStyles.css';
 import { LANGUAGES } from '@utils/mock';
+import { getTranslatedLanguage } from '@utils/utilMethods';
 
 const AddGateway = ({
   history,
@@ -84,9 +85,8 @@ const AddGateway = ({
   const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
-  const language = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
-    : 'English';
+  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
+    && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   useEffect(() => {
     if (!_.isEmpty(custodianData) && contactInfo) {
@@ -447,7 +447,8 @@ const AddGateway = ({
                           draggable: true,
                         },
                       ]}
-                      countriesData={countriesData}
+                      mapCountry={organizationCountry}
+                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>
