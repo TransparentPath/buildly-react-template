@@ -713,10 +713,17 @@ const Shipment = ({ history }) => {
   );
 
   const getTranslatedLanguage = () => {
-    const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
-    const value = decodeURIComponent(match[2]);
-    const parts = value.split('/');
-    return parts[_.size(parts) - 1];
+    const userLanguageAbbv = _.find(LANGUAGES, (item) => _.isEqual(item.label, userLanguage))?.value;
+    let returnValue = userLanguageAbbv;
+    if (!returnValue) {
+      const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
+      if (match) {
+        const value = decodeURIComponent(match[2]);
+        const parts = value.split('/');
+        returnValue = parts[_.size(parts) - 1];
+      }
+    }
+    return returnValue;
   };
 
   return (
