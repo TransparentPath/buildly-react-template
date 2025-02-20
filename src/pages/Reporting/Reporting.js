@@ -95,13 +95,13 @@ const Reporting = () => {
 
   let isShipmentDataAvailable = false;
 
-  const { data: shipmentData, isLoading: isLoadingShipments, isFetching: isFetchingShipments } = useQuery(
+  const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, locShipmentID, organization],
     () => getShipmentsQuery(organization, (shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), displayAlert, locShipmentID),
     { refetchOnWindowFocus: false },
   );
 
-  isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments && !isFetchingShipments;
+  isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
@@ -139,7 +139,7 @@ const Reporting = () => {
     { refetchOnWindowFocus: false },
   );
 
-  const { data: allGatewayData, isLoading: isLoadingAllGateways, isFetching: isFetchingAllGateways } = useQuery(
+  const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
     ['allGateways'],
     () => getAllGatewayQuery(displayAlert),
     { refetchOnWindowFocus: false },
@@ -154,7 +154,7 @@ const Reporting = () => {
     },
   );
 
-  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts, isFetching: isFetchingSensorAlerts } = useQuery(
+  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts } = useQuery(
     ['sensorAlerts', selectedShipment, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
     {
@@ -163,7 +163,7 @@ const Reporting = () => {
     },
   );
 
-  const { data: sensorReportData, isLoading: isLoadingSensorReports, isFetching: isFetchingSensorReports } = useQuery(
+  const { data: sensorReportData, isLoading: isLoadingSensorReports } = useQuery(
     ['sensorReports', selectedShipment, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
     {
@@ -937,10 +937,6 @@ const Reporting = () => {
     || isLoadingSensorAlerts
     || isLoadingSensorReports
     || isLoading
-    || isFetchingShipments
-    || isFetchingAllGateways
-    || isFetchingSensorAlerts
-    || isFetchingSensorReports
     || isLoadingSensorProcessedData;
 
   return (
