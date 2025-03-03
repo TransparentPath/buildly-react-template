@@ -24,6 +24,7 @@ import theme from '@styles/theme';
 import {
   Experimental_CssVarsProvider as CssVarsProvider,
 } from '@mui/material/styles';
+import TextAnimation from '@components/TextAnimation/TextAnimation';
 import './App.css';
 
 const App = () => (
@@ -31,6 +32,7 @@ const App = () => (
     <AppContext.Provider value={app}>
       <StyledEngineProvider injectFirst>
         <CssVarsProvider theme={theme} defaultMode="light">
+          <TextAnimation />
           <div className="app">
             <CssBaseline />
             <Route

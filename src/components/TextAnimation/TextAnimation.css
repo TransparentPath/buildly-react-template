@@ -1,0 +1,25 @@
+.textAnimationDiv {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 1500;
+  padding: 16px;
+  background-color: var(--color-palette-secondary-main);
+}
+
+.textAnimationText {
+  display: inline-block;
+  opacity: 0;
+  animation-name: text-animation;
+  animation-duration: 20s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+}
+
+@keyframes text-animation {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  50% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 1; }
+}
