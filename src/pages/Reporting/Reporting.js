@@ -73,7 +73,7 @@ const Reporting = () => {
   const [locShipmentID, setLocShipmentID] = useState('');
   const [shipmentFilter, setShipmentFilter] = useState('Active');
   const [selectedGraph, setSelectedGraph] = useState('temperature');
-  const [selectedShipmentID, setSelectedShipmentID] = useState(null);
+  const [selectedShipment, setSelectedShipment] = useState(null);
   const [shipmentOverview, setShipmentOverview] = useState([]);
   const [reports, setReports] = useState([]);
   const [allGraphs, setAllGraphs] = useState([]);
@@ -155,28 +155,28 @@ const Reporting = () => {
   );
 
   const { data: sensorAlertData, isLoading: isLoadingSensorAlerts, isFetching: isFetchingSensorAlerts } = useQuery(
-    ['sensorAlerts', shipmentFilter],
-    () => getSensorAlertQuery(encodeURIComponent(_.find(shipmentOverview, { id: selectedShipmentID }).partner_shipment_id), displayAlert),
+    ['sensorAlerts', selectedShipment, shipmentFilter],
+    () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
     {
-      enabled: !_.isEmpty(_.find(shipmentOverview, { id: selectedShipmentID })) && isShipmentDataAvailable && !_.isEmpty(_.find(shipmentOverview, { id: selectedShipmentID }).partner_shipment_id),
+      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(selectedShipment.partner_shipment_id),
       refetchOnWindowFocus: false,
     },
   );
 
   const { data: sensorReportData, isLoading: isLoadingSensorReports, isFetching: isFetchingSensorReports } = useQuery(
-    ['sensorReports', shipmentFilter],
-    () => getSensorReportQuery(encodeURIComponent(_.find(shipmentOverview, { id: selectedShipmentID }).partner_shipment_id), null, displayAlert),
+    ['sensorReports', selectedShipment, shipmentFilter],
+    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
     {
-      enabled: !_.isEmpty(_.find(shipmentOverview, { id: selectedShipmentID })) && isShipmentDataAvailable && !_.isEmpty(_.find(shipmentOverview, { id: selectedShipmentID }).partner_shipment_id),
+      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(selectedShipment.partner_shipment_id),
       refetchOnWindowFocus: false,
     },
   );
 
   const { data: sensorProcessedData, isLoading: isLoadingSensorProcessedData } = useQuery(
-    ['processedSensorData', shipmentFilter],
-    () => getSensorProcessedDataQuery(_.find(shipmentOverview, { id: selectedShipmentID }), displayAlert),
+    ['processedSensorData', selectedShipment, shipmentFilter],
+    () => getSensorProcessedDataQuery(selectedShipment, displayAlert),
     {
-      enabled: !_.isEmpty(_.find(shipmentOverview, { id: selectedShipmentID })) && isShipmentDataAvailable && !_.isEqual(shipmentFilter, 'Active'),
+      enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEqual(shipmentFilter, 'Active'),
       refetchOnWindowFocus: false,
     },
   );
@@ -214,12 +214,13 @@ const Reporting = () => {
       );
       if (!_.isEmpty(overview)) {
         setShipmentOverview(overview);
-        if (selectedShipmentID) {
-          setSelectedShipmentID(selectedShipmentID);
+        if (selectedShipment) {
+          const selected = _.find(overview, { id: selectedShipment.id });
+          setSelectedShipment(selected);
         }
         if (locShipmentID) {
           const locShip = _.find(overview, { partner_shipment_id: locShipmentID });
-          setSelectedShipmentID(locShip.id);
+          setSelectedShipment(locShip);
           setShipmentFilter(_.includes(['Planned', 'En route', 'Arrived'], locShip.status) ? 'Active' : locShip.status);
         }
       }
@@ -227,12 +228,11 @@ const Reporting = () => {
   }, [shipmentData, custodianData, custodyData, contactInfo, allGatewayData, locShipmentID]);
 
   useEffect(() => {
-    const selectedShipment = _.find(shipmentOverview, { id: selectedShipmentID });
     const alerts = _.filter(
       sensorAlertData,
       (alert) => alert.parameter_type !== 'location' && selectedShipment && alert.shipment_id === selectedShipment.partner_shipment_id,
     );
-    if (_.find(shipmentOverview, { id: selectedShipmentID })) {
+    if (selectedShipment) {
       if (!_.isEmpty(sensorReportData)) {
         const { sensorReportInfo, markersToSet, graphs } = processReportsAndMarkers(
           sensorReportData,
@@ -252,22 +252,10 @@ const Reporting = () => {
         setMarkers([]);
       }
     }
-  }, [sensorReportData, sensorAlertData, selectedShipmentID, timeZone]);
-
-  // useEffect(() => {
-  //   if (selectedShipmentID) {
-  //     setLoading(true);
-  //   }
-  //   if (markers && allGraphs && reports) {
-  //     setTimeout(() => {
-  //       setLoading(false);
-  //     }, 2000);
-  //   }
-  // }, [selectedShipmentID, markers, allGraphs, reports]);
+  }, [sensorReportData, sensorAlertData, selectedShipment, timeZone]);
 
   const getShipmentValue = (value) => {
     let returnValue = '';
-    const selectedShipment = _.find(shipmentOverview, { id: selectedShipmentID });
     if (!_.isEqual(selectedShipment[value], null)) {
       if (moment(selectedShipment[value], true).isValid()) {
         returnValue = moment(selectedShipment[value])
@@ -291,7 +279,7 @@ const Reporting = () => {
     history.replaceState(null, '', location.pathname);
     location.search = '';
     setLocShipmentID('');
-    setSelectedShipmentID(shipment);
+    setSelectedShipment(shipment);
   };
 
   const makeFilterSelection = (value) => {
@@ -300,14 +288,13 @@ const Reporting = () => {
     setLocShipmentID('');
     isShipmentDataAvailable = false;
     setShipmentFilter(value);
-    setSelectedShipmentID(null);
+    setSelectedShipment(null);
     setReports([]);
     setAllGraphs([]);
     setMarkers([]);
   };
 
   const downloadCSV = () => {
-    const selectedShipment = _.find(shipmentOverview, { id: selectedShipmentID });
     const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false);
     const data = _.orderBy(
       reports,
@@ -433,7 +420,6 @@ const Reporting = () => {
   const downloadExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sensor Report Data');
-    const selectedShipment = _.find(shipmentOverview, { id: selectedShipmentID });
 
     const borderStyle = {
       top: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
@@ -922,7 +908,6 @@ const Reporting = () => {
     || isLoadingCustodies
     || isLoadingSensorAlerts
     || isLoadingSensorReports
-    // || isLoading
     || isFetchingSensorAlerts
     || isFetchingSensorReports
     || isLoadingSensorProcessedData;
@@ -941,7 +926,7 @@ const Reporting = () => {
             color="primary"
             className="reportingDashboardButton"
             onClick={() => setShowGenerateReport(true)}
-            disabled={isReportPDFDownloading || !selectedShipmentID}
+            disabled={isReportPDFDownloading || _.isEmpty(selectedShipment)}
           >
             Insights Report
             <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
@@ -1003,14 +988,17 @@ const Reporting = () => {
               required
               className="reportingSelectInput notranslate"
               label={<span className="translate">Shipment Name</span>}
-              value={selectedShipmentID || ''}
+              value={selectedShipment ? selectedShipment.id : ''}
               sx={{ marginRight: isDesktop2() ? 0 : 1 }}
               SelectProps={{
                 MenuProps: {
                   sx: { maxHeight: '350px' },
                 },
               }}
-              onChange={(e) => handleShipmentSelection(e.target.value)}
+              onChange={(e) => {
+                const selected = _.find(shipmentOverview, { id: e.target.value });
+                handleShipmentSelection(selected);
+              }}
             >
               <MenuItem value="">Select</MenuItem>
               {shipmentOverview && !_.isEmpty(shipmentOverview)
@@ -1031,7 +1019,7 @@ const Reporting = () => {
           {!_.isEmpty(shipmentFilter) && _.isEqual(shipmentFilter, 'Active')
             ? (
               <ReportingActiveShipmentDetails
-                selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
+                selectedShipment={selectedShipment}
                 theme={theme}
                 getShipmentValue={getShipmentValue}
               />
@@ -1039,7 +1027,7 @@ const Reporting = () => {
             : (
               <ReportingDetailTable
                 ref={reportingDetailTableRef}
-                selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
+                selectedShipment={selectedShipment}
                 allGatewayData={allGatewayData}
                 timeZone={timeZone}
                 sensorAlertData={sensorAlertData}
@@ -1055,10 +1043,10 @@ const Reporting = () => {
         <Grid ref={mapRef} item xs={12}>
           <div className="reportingSwitchViewSection">
             <Typography className="reportingSectionTitleHeading" variant="h5">
-              {!_.isEmpty(_.find(shipmentOverview, { id: selectedShipmentID })) && _.find(shipmentOverview, { id: selectedShipmentID }).name ? (
+              {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
                 <>
                   <span>Map View - Shipment: </span>
-                  <span className="notranslate">{_.find(shipmentOverview, { id: selectedShipmentID }).name}</span>
+                  <span className="notranslate">{selectedShipment.name}</span>
                 </>
               ) : 'Map View'}
             </Typography>
@@ -1078,13 +1066,13 @@ const Reporting = () => {
           />
         </Grid>
       </Grid>
-      <Grid container className="reportingContainer" sx={{ marginTop: _.isEmpty(_.find(shipmentOverview, { id: selectedShipmentID })) ? 4 : -1 }}>
+      <Grid container className="reportingContainer" sx={{ marginTop: _.isEmpty(selectedShipment) ? 4 : -1 }}>
         <div className="reportingSwitchViewSection">
           <Typography className="reportingSectionTitleHeading" variant="h5">
-            {!_.isEmpty(_.find(shipmentOverview, { id: selectedShipmentID })) && _.find(shipmentOverview, { id: selectedShipmentID }).name ? (
+            {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
               <>
                 <span>Graph View - Shipment: </span>
-                <span className="notranslate">{_.find(shipmentOverview, { id: selectedShipmentID }).name}</span>
+                <span className="notranslate">{selectedShipment.name}</span>
               </>
             ) : 'Graph View'}
           </Typography>
@@ -1109,7 +1097,7 @@ const Reporting = () => {
           </List>
         </Grid>
         <Grid item xs={10} sm={11}>
-          {_.find(shipmentOverview, { id: selectedShipmentID }) && selectedGraph && allGraphs && !_.isEmpty(allGraphs) && allGraphs[selectedGraph]
+          {selectedShipment && selectedGraph && allGraphs && !_.isEmpty(allGraphs) && allGraphs[selectedGraph]
             ? (
               <GraphComponent
                 data={allGraphs[selectedGraph]}
@@ -1128,9 +1116,9 @@ const Reporting = () => {
       </Grid>
       <SensorReport
         sensorReport={reports}
-        shipmentName={_.find(shipmentOverview, { id: selectedShipmentID }) && _.find(shipmentOverview, { id: selectedShipmentID }).name}
-        selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
-        selectedMarker={_.find(shipmentOverview, { id: selectedShipmentID }) && selectedMarker}
+        shipmentName={selectedShipment && selectedShipment.name}
+        selectedShipment={selectedShipment}
+        selectedMarker={selectedShipment && selectedMarker}
         unitOfMeasure={unitData}
         timezone={timeZone}
         downloadCSV={downloadCSV}
@@ -1141,16 +1129,16 @@ const Reporting = () => {
         sensorReport={reports}
         alerts={_.filter(
           sensorAlertData,
-          { shipment_id: _.find(shipmentOverview, { id: selectedShipmentID }) && _.find(shipmentOverview, { id: selectedShipmentID }).partner_shipment_id },
+          { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
         )}
-        shipmentName={_.find(shipmentOverview, { id: selectedShipmentID }) && _.find(shipmentOverview, { id: selectedShipmentID }).name}
+        shipmentName={selectedShipment && selectedShipment.name}
         timezone={timeZone}
         unitOfMeasure={unitData}
         shouldScroll={!!locShipmentID}
       />
       <ReportGraph
         ref={tempGraphRef}
-        selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
+        selectedShipment={selectedShipment}
         unitOfMeasure={unitData}
         theme={theme}
         graphType="temperature"
@@ -1158,7 +1146,7 @@ const Reporting = () => {
       />
       <ReportGraph
         ref={humGraphRef}
-        selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
+        selectedShipment={selectedShipment}
         unitOfMeasure={unitData}
         theme={theme}
         graphType="humidity"
@@ -1166,7 +1154,7 @@ const Reporting = () => {
       />
       <ReportGraph
         ref={shockGraphRef}
-        selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
+        selectedShipment={selectedShipment}
         unitOfMeasure={unitData}
         theme={theme}
         graphType="shock"
@@ -1174,7 +1162,7 @@ const Reporting = () => {
       />
       <ReportGraph
         ref={lightGraphRef}
-        selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
+        selectedShipment={selectedShipment}
         unitOfMeasure={unitData}
         theme={theme}
         graphType="light"
@@ -1182,7 +1170,7 @@ const Reporting = () => {
       />
       <ReportGraph
         ref={batteryGraphRef}
-        selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
+        selectedShipment={selectedShipment}
         unitOfMeasure={unitData}
         theme={theme}
         graphType="battery"
@@ -1202,7 +1190,7 @@ const Reporting = () => {
         downloadCSV={downloadCSV}
         downloadExcel={downloadExcel}
         reportPDFDownloadMutation={reportPDFDownloadMutation}
-        selectedShipment={_.find(shipmentOverview, { id: selectedShipmentID })}
+        selectedShipment={selectedShipment}
       />
     </Box>
   );
