@@ -21,7 +21,9 @@ import profile from '@assets/profile.png';
 import Loader from '@components/Loader/Loader';
 import { getUser } from '@context/User.context';
 import { useInput } from '@hooks/useInput';
+import { useQuery } from 'react-query';
 import useAlert from '@hooks/useAlert';
+import { getCountriesQuery } from '@react-query/queries/shipments/getCountriesQuery';
 import { useUpdateUserMutation } from '@react-query/mutations/authUser/updateUserMutation';
 import { isTablet } from '@utils/mediaQuery';
 import '../TopBarStyles.css';
@@ -39,6 +41,12 @@ const AccountSettings = ({ open, setOpen }) => {
   const timezone = useInput(user.user_timezone);
   const [whatsappNumber, setWhatsappNumber] = useState(user.whatsApp_number || '');
   const [whatsappFocus, setWhatsappFocus] = useState(false);
+
+  const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
+    ['countries'],
+    () => getCountriesQuery(displayAlert),
+    { refetchOnWindowFocus: false },
+  );
 
   const { mutate: updateUserMutation, isLoading: isUpdatingUser } = useUpdateUserMutation(null, displayAlert);
 
@@ -77,10 +85,10 @@ const AccountSettings = ({ open, setOpen }) => {
       geo_alert_preferences: geoOptions,
       env_alert_preferences: envOptions,
     };
-    if (whatsappNumber) {
+    if (whatsappNumber !== user.whatsApp_number) {
       userData = { ...userData, whatsApp_number: whatsappNumber };
     }
-    if (timezone.value) {
+    if (timezone.hasChanged()) {
       userData = { ...userData, user_timezone: timezone.value };
     }
     updateUserMutation(userData);
@@ -96,7 +104,7 @@ const AccountSettings = ({ open, setOpen }) => {
       TransitionComponent={Transition}
       className="accountSettingsDialog"
     >
-      {isUpdatingUser && <Loader open={isUpdatingUser} />}
+      {(isLoadingCountries || isUpdatingUser) && <Loader open={(isLoadingCountries || isUpdatingUser)} />}
       <DialogTitle className="accountSettingsDialogTitle">
         <IconButton className="accountSettingsCloseIcon" onClick={closeAccountSettings}>
           <CloseIcon fontSize="large" />

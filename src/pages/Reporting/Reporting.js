@@ -31,6 +31,7 @@ import MapComponent from '@components/MapComponent/MapComponent';
 import { getUser } from '@context/User.context';
 import useAlert from '@hooks/useAlert';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
+import { getCountriesQuery } from '@react-query/queries/shipments/getCountriesQuery';
 import { getItemQuery } from '@react-query/queries/items/getItemQuery';
 import { getItemTypeQuery } from '@react-query/queries/items/getItemTypeQuery';
 import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQuery';
@@ -51,7 +52,7 @@ import {
   tempUnit,
 } from '@utils/constants';
 import { isDesktop2 } from '@utils/mediaQuery';
-import { getTimezone } from '@utils/utilMethods';
+import { getTimezone, getTranslatedLanguage } from '@utils/utilMethods';
 import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
 import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
 import ReportingDetailTable from './components/ReportingDetailTable';
@@ -60,11 +61,13 @@ import SensorReport from './components/SensorReport';
 import GenerateReport from './components/GenerateReport';
 import ReportGraph from './components/ReportGraph';
 import './ReportingStyles.css';
+import { LANGUAGES } from '@utils/mock';
 
 const Reporting = () => {
   const location = useLocation();
   const theme = useTheme();
-  const organization = getUser().organization.organization_uuid;
+  const user = getUser();
+  const organization = user.organization.organization_uuid;
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
 
   const [locShipmentID, setLocShipmentID] = useState('');
@@ -92,17 +95,23 @@ const Reporting = () => {
 
   let isShipmentDataAvailable = false;
 
-  const { data: shipmentData, isLoading: isLoadingShipments, isFetching: isFetchingShipments } = useQuery(
+  const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, locShipmentID, organization],
     () => getShipmentsQuery(organization, (shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), displayAlert, locShipmentID),
     { refetchOnWindowFocus: false },
   );
 
-  isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments && !isFetchingShipments;
+  isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
     () => getUnitQuery(organization, displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
+    ['countries'],
+    () => getCountriesQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
@@ -130,7 +139,7 @@ const Reporting = () => {
     { refetchOnWindowFocus: false },
   );
 
-  const { data: allGatewayData, isLoading: isLoadingAllGateways, isFetching: isFetchingAllGateways } = useQuery(
+  const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
     ['allGateways'],
     () => getAllGatewayQuery(displayAlert),
     { refetchOnWindowFocus: false },
@@ -145,7 +154,7 @@ const Reporting = () => {
     },
   );
 
-  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts, isFetching: isFetchingSensorAlerts } = useQuery(
+  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts } = useQuery(
     ['sensorAlerts', selectedShipment, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
     {
@@ -154,7 +163,7 @@ const Reporting = () => {
     },
   );
 
-  const { data: sensorReportData, isLoading: isLoadingSensorReports, isFetching: isFetchingSensorReports } = useQuery(
+  const { data: sensorReportData, isLoading: isLoadingSensorReports } = useQuery(
     ['sensorReports', selectedShipment, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
     {
@@ -180,6 +189,11 @@ const Reporting = () => {
   const timeFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
     : '';
+  const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
+    : 'United States';
+  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
+    && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   useEffect(() => {
     if (location.search) {
@@ -370,6 +384,50 @@ const Reporting = () => {
     document.body.removeChild(link);
   };
 
+  const setThresholdsValues = (label, max_data, min_data, unit) => {
+    const timestamps = Array.from(
+      new Set([
+        ...(Array.isArray(max_data) ? max_data.map((x) => x.set_at) : []),
+        ...(Array.isArray(min_data) ? min_data.map((x) => x.set_at) : []),
+      ]),
+    ).sort((a, b) => new Date(b) - new Date(a));
+
+    let previousMax = null;
+    let previousMin = null;
+
+    const richTextResult = [];
+
+    timestamps.forEach((timestamp, index) => {
+      const maxItem = (Array.isArray(max_data) ? max_data : []).find((item) => item.set_at === timestamp);
+
+      const minItem = !_.isEmpty(min_data) && min_data.find((item) => item.set_at === timestamp);
+
+      const currentMax = maxItem ? maxItem.value : previousMax;
+      const currentMin = !_.isEmpty(min_data) ? (minItem ? minItem.value : previousMin) : null;
+
+      if (currentMax !== null) previousMax = currentMax;
+      if (currentMin !== null) previousMin = currentMin;
+
+      richTextResult.push({
+        text: index !== 0 ? `\n${label}: ` : `${label}: `,
+        font: index !== 0 ? { color: { argb: 'FFFFFF' } } : { color: { argb: '000000' } },
+      });
+
+      richTextResult.push({
+        text: `${currentMax}${unit} `,
+        font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+      });
+
+      if (!_.isEmpty(min_data)) {
+        richTextResult.push({
+          text: `${currentMin}${unit}`,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        });
+      }
+    });
+    return richTextResult;
+  };
+
   const downloadExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sensor Report Data');
@@ -457,19 +515,15 @@ const Reporting = () => {
       ],
     };
 
-    descriptionRow1.getCell(9).value = {
-      richText: [
-        { text: 'Temperature:' },
-        {
-          text: ` ${_.orderBy(selectedShipment.max_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))} `,
-          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
-        },
-        {
-          text: ` ${_.orderBy(selectedShipment.min_excursion_temp, ['set_at'], ['desc'])[0].value}${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))} `,
-          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
-        },
-      ],
-    };
+    descriptionRow1.getCell(9).value = { richText: setThresholdsValues('Temperature', selectedShipment.max_excursion_temp, selectedShipment.min_excursion_temp, tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))) };
+    descriptionRow1.eachCell((cell) => {
+      cell.alignment = { wrapText: true, vertical: 'top' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: theme.palette.background.default.replace('#', '') },
+      };
+    });
 
     const descriptionRow2 = worksheet.addRow([
       '',
@@ -489,19 +543,15 @@ const Reporting = () => {
       ],
     };
 
-    descriptionRow2.getCell(9).value = {
-      richText: [
-        { text: 'Humidity:' },
-        {
-          text: ` ${_.orderBy(selectedShipment.max_excursion_humidity, ['set_at'], ['desc'])[0].value}% `,
-          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
-        },
-        {
-          text: ` ${_.orderBy(selectedShipment.min_excursion_humidity, ['set_at'], ['desc'])[0].value}% `,
-          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
-        },
-      ],
-    };
+    descriptionRow2.getCell(9).value = { richText: setThresholdsValues('Humidity', selectedShipment.max_excursion_humidity, selectedShipment.min_excursion_humidity, '%') };
+    descriptionRow2.eachCell((cell) => {
+      cell.alignment = { wrapText: true, vertical: 'top' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: theme.palette.background.default.replace('#', '') },
+      };
+    });
 
     const descriptionRow3 = worksheet.addRow([
       'Grey indicates Transit',
@@ -522,16 +572,16 @@ const Reporting = () => {
         };
       }
     });
+    descriptionRow3.getCell(9).value = { richText: setThresholdsValues('Shock', selectedShipment.shock_threshold, null, 'G') };
 
-    descriptionRow3.getCell(9).value = {
-      richText: [
-        { text: 'Shock:' },
-        {
-          text: ` ${_.orderBy(selectedShipment.shock_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} G`,
-          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
-        },
-      ],
-    };
+    descriptionRow3.eachCell((cell) => {
+      cell.alignment = { wrapText: true, vertical: 'top' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: theme.palette.background.default.replace('#', '') },
+      };
+    });
 
     const descriptionRow4 = worksheet.addRow([]);
 
@@ -539,15 +589,16 @@ const Reporting = () => {
     descriptionRow4.getCell(6).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_name : '';
     descriptionRow4.getCell(7).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_address : '';
 
-    descriptionRow4.getCell(9).value = {
-      richText: [
-        { text: 'Light:' },
-        {
-          text: ` ${_.orderBy(selectedShipment.light_threshold, ['set_at'], ['desc'])[0].value.toFixed(2)} LUX`,
-          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
-        },
-      ],
-    };
+    descriptionRow4.getCell(9).value = { richText: setThresholdsValues('Light', selectedShipment.light_threshold, null, 'LUX') };
+
+    descriptionRow4.eachCell((cell) => {
+      cell.alignment = { wrapText: true, vertical: 'top' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: theme.palette.background.default.replace('#', '') },
+      };
+    });
 
     sortedCustodiansArray.forEach((custodian, index) => {
       if (index > 3) {
@@ -820,6 +871,7 @@ const Reporting = () => {
 
     const totalRows = _.size(sortedCustodiansArray) <= 4 ? rows.length + 7 : rows.length + 7 + _.size(sortedCustodiansArray) - 4;
     const totalCols = columns.length + 1;
+
     for (let rowIndex = 1; rowIndex <= totalRows; rowIndex++) {
       for (let colIndex = 1; colIndex <= totalCols; colIndex++) {
         const cell = worksheet.getCell(rowIndex, colIndex);
@@ -830,16 +882,20 @@ const Reporting = () => {
     }
 
     worksheet.columns.forEach((column, index) => {
-      let maxLength = 0;
-      column.eachCell({ includeEmpty: true }, (cell) => {
-        const cellValue = cell.value
-          ? cell.value.richText
-            ? cell.value.richText.map((obj) => obj.text).join('')
-            : cell.value.toString()
-          : '';
-        maxLength = Math.max(maxLength, cellValue.length);
-      });
-      column.width = maxLength + 2;
+      if (index + 1 === 9) {
+        column.width = 25;
+      } else {
+        let maxLength = 0;
+        column.eachCell({ includeEmpty: true }, (cell) => {
+          const cellValue = cell.value
+            ? cell.value.richText
+              ? cell.value.richText.map((obj) => obj.text).join('')
+              : cell.value.toString()
+            : '';
+          maxLength = Math.max(maxLength, cellValue.length);
+        });
+        column.width = maxLength + 2;
+      }
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
@@ -852,43 +908,23 @@ const Reporting = () => {
     document.body.removeChild(link);
   };
 
+  const isLoaded = isLoadingShipments
+    || isLoadingUnits
+    || isLoadingCountries
+    || isLoadingItems
+    || isLoadingItemTypes
+    || isLoadingCustodians
+    || isLoadingContact
+    || isLoadingAllGateways
+    || isLoadingCustodies
+    || isLoadingSensorAlerts
+    || isLoadingSensorReports
+    || isLoading
+    || isLoadingSensorProcessedData;
+
   return (
     <Box mt={5} mb={5}>
-      {(isLoadingShipments
-        || isLoadingUnits
-        || isLoadingItems
-        || isLoadingItemTypes
-        || isLoadingCustodians
-        || isLoadingContact
-        || isLoadingAllGateways
-        || isLoadingCustodies
-        || isLoadingSensorAlerts
-        || isLoadingSensorReports
-        || isLoading
-        || isFetchingShipments
-        || isFetchingAllGateways
-        || isFetchingSensorAlerts
-        || isFetchingSensorReports
-        || isLoadingSensorProcessedData)
-        && (
-          <Loader open={isLoadingShipments
-            || isLoadingUnits
-            || isLoadingItems
-            || isLoadingItemTypes
-            || isLoadingCustodians
-            || isLoadingContact
-            || isLoadingAllGateways
-            || isLoadingCustodies
-            || isLoadingSensorAlerts
-            || isLoadingSensorReports
-            || isLoading
-            || isFetchingShipments
-            || isFetchingAllGateways
-            || isFetchingSensorAlerts
-            || isFetchingSensorReports
-            || isLoadingSensorProcessedData}
-          />
-        )}
+      {isLoaded && <Loader open={isLoaded} />}
       <Box className="reportingDashboardContainer">
         <Typography className="reportingDashboardHeading" variant="h4">
           Reporting
@@ -1043,6 +1079,8 @@ const Reporting = () => {
             setSelectedMarker={setSelectedMarker}
             containerStyle={{ height: '625px' }}
             unitOfMeasure={unitData}
+            mapCountry={organizationCountry}
+            mapLanguage={getTranslatedLanguage()}
           />
         </Grid>
       </Grid>

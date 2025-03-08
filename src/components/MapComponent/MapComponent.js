@@ -8,7 +8,6 @@ import {
   Polygon,
   Circle,
   MarkerClusterer,
-  useJsApiLoader,
   LoadScript,
 } from '@react-google-maps/api';
 import Geocode from 'react-geocode';
@@ -24,7 +23,7 @@ import {
 import { MARKER_DATA, getIcon } from '@utils/constants';
 import './MapComponentStyles.css';
 
-const libraries = ['places', 'geometry', 'drawing'];
+const libraries = ['places'];
 
 export const MapComponent = (props) => {
   const {
@@ -41,6 +40,8 @@ export const MapComponent = (props) => {
     containerStyle,
     setSelectedCluster,
     selectedCluster,
+    mapCountry,
+    mapLanguage,
   } = props;
 
   const [center, setCenter] = useState({ lat: 47.606209, lng: -122.332069 });
@@ -48,12 +49,11 @@ export const MapComponent = (props) => {
   const [showInfoIndex, setShowInfoIndex] = useState({});
   const [polygon, setPolygon] = useState({});
 
-  const theme = useTheme();
+  const country = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+    ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
+    : 'United States';
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: window.env.MAP_API_KEY,
-    libraries,
-  });
+  const theme = useTheme();
 
   useEffect(() => {
     if (screenshotMapCenter) {
@@ -87,7 +87,7 @@ export const MapComponent = (props) => {
         setMapZoom(18);
       } else if (!_.isEmpty(allMarkers)) {
         const allMarkerItems = [].concat(...allMarkers);
-        const countries = allMarkerItems.map((item) => item && item.country);
+        const countries = allMarkerItems.map((item) => item && item.country).filter((item) => item !== null);
         const uniqueCountries = [...new Set(countries)];
         if (uniqueCountries.length === 1) {
           setMapCenter(uniqueCountries[0]);
@@ -126,7 +126,7 @@ export const MapComponent = (props) => {
 
     if (address) {
       Geocode.setApiKey(window.env.GEO_CODE_API);
-      Geocode.setLanguage('en');
+      Geocode.setLanguage(mapLanguage || 'en');
       Geocode.fromAddress(address).then(
         (response) => {
           const { lat, lng } = response.results[0].geometry.location;
@@ -163,82 +163,85 @@ export const MapComponent = (props) => {
 
   const overlapCounts = groupMarkersByLocation(_.flatten(allMarkers));
 
-  if (!isLoaded) return <div>Loading Map...</div>;
-
   return (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={center}
-      zoom={mapZoom}
+    <LoadScript
+      key={`map-${mapLanguage}-${mapCountry}`}
+      googleMapsApiKey={window.env.MAP_API_KEY}
+      libraries={libraries}
+      language={mapLanguage || 'en'}
+      region={(mapCountry === 'MAR' ? 'MA' : mapCountry) || 'USA'}
     >
-      {!isMarkerShown && allMarkers && !_.isEmpty(allMarkers)
-        && _.map(allMarkers, (shipMarkers, idx) => (
-          <MarkerClusterer
-            key={idx}
-            averageCenter
-            zoomOnClick={false}
-            enableRetinaIcons
-            gridSize={60}
-            title={!_.isEmpty(shipMarkers) ? _.first(shipMarkers).shipment.name : ''}
-            onClick={(e) => {
-              setSelectedCluster(!_.isEmpty(shipMarkers) && _.first(shipMarkers));
-              setCenter({
-                lat: !_.isEmpty(shipMarkers) && _.first(shipMarkers).lat,
-                lng: !_.isEmpty(shipMarkers) && _.first(shipMarkers).lng,
-              });
-              setMapZoom(18);
-            }}
-            styles={[
-              {
-                url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                height: 53,
-                width: 53,
-                anchor: [0, 0],
-                textSize: 0.001,
-              },
-              {
-                url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                height: 56,
-                width: 56,
-                anchor: [0, 0],
-                textSize: 0.001,
-              },
-              {
-                url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                height: 66,
-                width: 66,
-                anchor: [0, 0],
-                textSize: 0.001,
-              },
-              {
-                url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                height: 78,
-                width: 78,
-                anchor: [0, 0],
-                textSize: 0.001,
-              },
-              {
-                url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                height: 90,
-                width: 90,
-                anchor: [0, 0],
-                textSize: 0.001,
-              },
-            ]}
-          >
-            {(clusterer) => _.map(shipMarkers, (marker, inx) => (
-              <Marker
-                visible={false}
-                key={`${marker.lat}-${marker.lng}-${inx}`}
-                position={{ lat: marker.lat, lng: marker.lng }}
-                clusterer={clusterer}
-              />
-            ))}
-          </MarkerClusterer>
-        ))}
-      {isMarkerShown && markers && _.map(
-        markers,
-        (mark, index) => (mark.label ? (
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={mapZoom}
+      >
+        {!isMarkerShown && allMarkers && !_.isEmpty(allMarkers)
+          && _.map(allMarkers, (shipMarkers, idx) => (
+            <MarkerClusterer
+              key={idx}
+              averageCenter
+              zoomOnClick={false}
+              enableRetinaIcons
+              gridSize={60}
+              title={!_.isEmpty(shipMarkers) ? _.first(shipMarkers).shipment.name : ''}
+              onClick={(e) => {
+                setSelectedCluster(!_.isEmpty(shipMarkers) && _.first(shipMarkers));
+                setCenter({
+                  lat: !_.isEmpty(shipMarkers) && _.first(shipMarkers).lat,
+                  lng: !_.isEmpty(shipMarkers) && _.first(shipMarkers).lng,
+                });
+                setMapZoom(18);
+              }}
+              styles={[
+                {
+                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+                  height: 53,
+                  width: 53,
+                  anchor: [0, 0],
+                  textSize: 0.001,
+                },
+                {
+                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+                  height: 56,
+                  width: 56,
+                  anchor: [0, 0],
+                  textSize: 0.001,
+                },
+                {
+                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+                  height: 66,
+                  width: 66,
+                  anchor: [0, 0],
+                  textSize: 0.001,
+                },
+                {
+                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+                  height: 78,
+                  width: 78,
+                  anchor: [0, 0],
+                  textSize: 0.001,
+                },
+                {
+                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
+                  height: 90,
+                  width: 90,
+                  anchor: [0, 0],
+                  textSize: 0.001,
+                },
+              ]}
+            >
+              {(clusterer) => _.map(shipMarkers, (marker, inx) => (
+                <Marker
+                  visible={false}
+                  key={`${marker.lat}-${marker.lng}-${inx}`}
+                  position={{ lat: marker.lat, lng: marker.lng }}
+                  clusterer={clusterer}
+                />
+              ))}
+            </MarkerClusterer>
+          ))}
+        {isMarkerShown && markers && _.map(markers, (mark, index) => (mark.label ? (
           <Marker
             key={index}
             position={{ lat: mark.lat, lng: mark.lng }}
@@ -261,14 +264,22 @@ export const MapComponent = (props) => {
                     <Grid
                       container
                       spacing={1}
-                      className="mapComponentInfoWindow"
+                      style={{
+                        maxWidth: '310px',
+                        color: theme.palette.background.dark,
+                        fontSize: '10px',
+                        alignItems: 'center',
+                      }}
                     >
                       {_.map(MARKER_DATA(unitOfMeasure), (item, idx) => (
                         <Grid
                           item
                           xs={6}
                           key={`${item.id}-${idx}`}
-                          className="mapComponentItem"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
                         >
                           {_.find(mark.allAlerts, { id: item.id })
                             ? getIcon(_.find(mark.allAlerts, { id: item.id }))
@@ -287,17 +298,26 @@ export const MapComponent = (props) => {
                           ) : null}
                         </Grid>
                       ))}
-                      <Grid item xs={12} className="mapComponentInfoWindowBatterySection">
-                        <Grid container spacing={1} className="mapComponentInfoWindowBox">
-                          <Grid item className="mapComponentItem">
+                      <Grid
+                        item
+                        xs={12}
+                        style={{
+                          borderTopWidth: '1px',
+                          borderTopStyle: 'solid',
+                          borderTopColor: theme.palette.background.light,
+                          marginTop: '12px',
+                        }}
+                      >
+                        <Grid container spacing={1} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Grid item style={{ display: 'flex', alignItems: 'center' }}>
                             <CalendarIcon />
                             <div style={{ marginLeft: theme.spacing(0.5) }}>{mark.date}</div>
                           </Grid>
-                          <Grid item className="mapComponentItem">
+                          <Grid item style={{ display: 'flex', alignItems: 'center' }}>
                             <ClockIcon />
                             <div style={{ marginLeft: theme.spacing(0.5) }}>{mark.time}</div>
                           </Grid>
-                          <Grid item className="mapComponentItem">
+                          <Grid item style={{ display: 'flex', alignItems: 'center' }}>
                             {mark.battery && _.gte(_.toNumber(mark.battery), 90) && (
                               <BatteryFullIcon htmlColor={theme.palette.success.main} />
                             )}
@@ -340,97 +360,97 @@ export const MapComponent = (props) => {
               onMarkerDrag(e, mark.onMarkerDrag);
             }}
           />
-        )),
-      )}
-      {isMarkerShown && markers && !_.isEmpty(markers) && showPath && (
-        <Polyline
-          path={_.map(markers, (marker) => ({
-            lat: marker.lat,
-            lng: marker.lng,
-          }))}
-          geodesic
-          options={{
-            strokeColor: theme.palette.background.dark,
-            strokeOpacity: 0.75,
-            strokeWeight: 1,
-          }}
-        />
-      )}
-      {isMarkerShown && markers && !_.isEmpty(polygon) && _.map(
-        markers,
-        (mark, index) => (mark.radius ? (
-          <Marker
-            key={
-              mark.lat && mark.lng
-                ? `marker${index}:${mark.lat},${mark.lng}`
-                : `marker${index}`
-            }
-            position={
-              mark.lat && mark.lng
-                ? { lat: mark.lat, lng: mark.lng }
-                : center
-            }
-          >
-            <Circle
-              defaultCenter={{
-                lat: mark.lat,
-                lng: mark.lng,
-              }}
-              radius={mark.radius * 1000}
-              options={{
-                strokeColor: theme.palette.error.main,
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: theme.palette.error.main,
-                fillOpacity: 0.35,
-              }}
-            />
-            <InfoWindow>
-              <div style={{ color: theme.palette.background.dark }}>
-                {`Geofence of ${mark.radius} ${_.toLower(
-                  _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
-                    ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
-                    : '',
-                )}`}
-              </div>
-            </InfoWindow>
-          </Marker>
-        ) : (
-          <Marker
-            key={
-              mark.lat && mark.lng
-                ? `marker${index}:${mark.lat},${mark.lng}`
-                : `marker${index}`
-            }
-            position={
-              mark.lat && mark.lng
-                ? { lat: mark.lat, lng: mark.lng }
-                : center
-            }
-          >
-            <InfoWindow>
-              <div style={{ color: theme.palette.background.dark }}>
-                Configure radius for geofence
-              </div>
-            </InfoWindow>
-          </Marker>
-        )),
-      )}
-      {!_.isEmpty(polygon) && (
-        <Polygon
-          path={polygon}
-          editable={false}
-          options={{
-            strokeColor: theme.palette.background.dark,
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: theme.palette.background.dark,
-            fillOpacity: 0.35,
-            polygonKey: 1,
-          }}
-        />
-      )}
-    </GoogleMap>
+        )))}
+        {isMarkerShown && markers && !_.isEmpty(markers) && showPath && (
+          <Polyline
+            path={_.map(markers, (marker) => ({
+              lat: marker.lat,
+              lng: marker.lng,
+            }))}
+            geodesic
+            options={{
+              strokeColor: theme.palette.background.dark,
+              strokeOpacity: 0.75,
+              strokeWeight: 1,
+            }}
+          />
+        )}
+        {isMarkerShown && markers && !_.isEmpty(polygon) && _.map(
+          markers,
+          (mark, index) => (mark.radius ? (
+            <Marker
+              key={
+                mark.lat && mark.lng
+                  ? `marker${index}:${mark.lat},${mark.lng}`
+                  : `marker${index}`
+              }
+              position={
+                mark.lat && mark.lng
+                  ? { lat: mark.lat, lng: mark.lng }
+                  : center
+              }
+            >
+              <Circle
+                defaultCenter={{
+                  lat: mark.lat,
+                  lng: mark.lng,
+                }}
+                radius={mark.radius * 1000}
+                options={{
+                  strokeColor: theme.palette.error.main,
+                  strokeOpacity: 0.8,
+                  strokeWeight: 2,
+                  fillColor: theme.palette.error.main,
+                  fillOpacity: 0.35,
+                }}
+              />
+              <InfoWindow>
+                <div style={{ color: theme.palette.background.dark }}>
+                  {`Geofence of ${mark.radius} ${_.toLower(
+                    _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
+                      ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
+                      : '',
+                  )}`}
+                </div>
+              </InfoWindow>
+            </Marker>
+          ) : (
+            <Marker
+              key={
+                mark.lat && mark.lng
+                  ? `marker${index}:${mark.lat},${mark.lng}`
+                  : `marker${index}`
+              }
+              position={
+                mark.lat && mark.lng
+                  ? { lat: mark.lat, lng: mark.lng }
+                  : center
+              }
+            >
+              <InfoWindow>
+                <div style={{ color: theme.palette.background.dark }}>
+                  Configure radius for geofence
+                </div>
+              </InfoWindow>
+            </Marker>
+          )),
+        )}
+        {!_.isEmpty(polygon) && (
+          <Polygon
+            path={polygon}
+            editable={false}
+            options={{
+              strokeColor: theme.palette.background.dark,
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+              fillColor: theme.palette.background.dark,
+              fillOpacity: 0.35,
+              polygonKey: 1,
+            }}
+          />
+        )}
+      </GoogleMap>
+    </LoadScript>
   );
 };
 

@@ -67,8 +67,9 @@ import {
   TIVE_GATEWAY_TIMES,
   UOM_TEMPERATURE_CHOICES,
   INCOMPLETED_SHIPMENT_STATUS,
+  LANGUAGES,
 } from '@utils/mock';
-import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin, getTranslatedLanguage } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
 import { useQuery } from 'react-query';
 import { getShipmentTemplatesQuery } from '@react-query/queries/shipments/getShipmentTemplatesQuery';
@@ -76,6 +77,7 @@ import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQ
 import { getCustodianTypeQuery } from '@react-query/queries/custodians/getCustodianTypeQuery';
 import { getContactQuery } from '@react-query/queries/custodians/getContactQuery';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
+import { getCountriesQuery } from '@react-query/queries/shipments/getCountriesQuery';
 import { getItemQuery } from '@react-query/queries/items/getItemQuery';
 import { getItemTypeQuery } from '@react-query/queries/items/getItemTypeQuery';
 import { getGatewayQuery } from '@react-query/queries/sensorGateways/getGatewayQuery';
@@ -296,6 +298,12 @@ const CreateShipment = ({ history, location }) => {
     ['unit', organizationUuid],
     () => getUnitQuery(organizationUuid, displayAlert),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
+  );
+
+  const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
+    ['countries'],
+    () => getCountriesQuery(displayAlert),
+    { refetchOnWindowFocus: false },
   );
 
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
@@ -531,7 +539,7 @@ const CreateShipment = ({ history, location }) => {
 
   const getLatLong = (address, position) => {
     Geocode.setApiKey(window.env.GEO_CODE_API);
-    Geocode.setLanguage('en');
+    Geocode.setLanguage(getTranslatedLanguage() || 'en');
     Geocode.fromAddress(address).then(
       (response) => {
         const { lat, lng } = response.results[0].geometry.location;
@@ -963,43 +971,33 @@ const CreateShipment = ({ history, location }) => {
     }
   };
 
+  const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
+    : 'United States';
+  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
+    && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
+
+  const isLoaded = isLoadingShipmentTemplates
+    || isLoadingCustodians
+    || isLoadingCustodianTypes
+    || isLoadingContact
+    || isLoadingUnits
+    || isLoadingCountries
+    || isLoadingItems
+    || isLoadingItemTypes
+    || isLoadingGateways
+    || isLoadingGatewayTypes
+    || isLoadingCustodies
+    || isAddingShipmentTemplate
+    || isEditingShipmentTemplate
+    || isDeletingShipmentTemplate
+    || isAddingShipment
+    || isEditingShipment
+    || isDeletingCustody;
+
   return (
     <Box mt={5} mb={5} className="createShipmentRoot">
-      {(isLoadingShipmentTemplates
-        || isLoadingCustodians
-        || isLoadingCustodianTypes
-        || isLoadingContact
-        || isLoadingUnits
-        || isLoadingItems
-        || isLoadingItemTypes
-        || isLoadingGateways
-        || isLoadingGatewayTypes
-        || isLoadingCustodies
-        || isAddingShipmentTemplate
-        || isEditingShipmentTemplate
-        || isDeletingShipmentTemplate
-        || isAddingShipment
-        || isEditingShipment
-        || isDeletingCustody)
-        && (
-          <Loader open={isLoadingShipmentTemplates
-            || isLoadingCustodians
-            || isLoadingCustodianTypes
-            || isLoadingContact
-            || isLoadingUnits
-            || isLoadingItems
-            || isLoadingItemTypes
-            || isLoadingGateways
-            || isLoadingGatewayTypes
-            || isLoadingCustodies
-            || isAddingShipmentTemplate
-            || isEditingShipmentTemplate
-            || isDeletingShipmentTemplate
-            || isAddingShipment
-            || isEditingShipment
-            || isDeletingCustody}
-          />
-        )}
+      {isLoaded && <Loader open={isLoaded} />}
       <Grid container spacing={2} alignItems="center" justifyContent="center">
         <Grid item xs={8}>
           <Typography variant="h5">
@@ -1192,6 +1190,8 @@ const CreateShipment = ({ history, location }) => {
                         },
                       ]}
                       unitOfMeasure={unitData}
+                      mapCountry={organizationCountry}
+                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>
@@ -1263,6 +1263,8 @@ const CreateShipment = ({ history, location }) => {
                         },
                       ]}
                       unitOfMeasure={unitData}
+                      mapCountry={organizationCountry}
+                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>

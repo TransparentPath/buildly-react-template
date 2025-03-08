@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 
@@ -14,7 +15,7 @@ export const useEditUnitMutation = (organization, displayAlert) => {
       return response.data;
     },
     {
-      onSuccess: async () => {
+      onSuccess: async (data) => {
         await queryClient.invalidateQueries({
           queryKey: ['unit', organization],
         });

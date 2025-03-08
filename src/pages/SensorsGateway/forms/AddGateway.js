@@ -24,6 +24,8 @@ import { useEditGatewayMutation } from '@react-query/mutations/sensorGateways/ed
 import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import '../GatewayStyles.css';
+import { LANGUAGES } from '@utils/mock';
+import { getTranslatedLanguage } from '@utils/utilMethods';
 
 const AddGateway = ({
   history,
@@ -38,7 +40,7 @@ const AddGateway = ({
 
   const redirectTo = location.state && location.state.from;
   const {
-    gatewayTypesData, unitData, custodianData, contactInfo,
+    gatewayTypesData, unitData, custodianData, contactInfo, countriesData,
   } = location.state || {};
 
   const editPage = location.state && location.state.type === 'edit';
@@ -77,7 +79,14 @@ const AddGateway = ({
   const buttonText = editPage ? 'Save' : 'Add Tracker';
   const formTitle = editPage ? 'Edit Tracker' : 'Add Tracker';
 
-  const organization = getUser().organization.organization_uuid;
+  const user = getUser();
+  const organization = user.organization.organization_uuid;
+
+  const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
+    : 'United States';
+  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
+    && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
   useEffect(() => {
     if (!_.isEmpty(custodianData) && contactInfo) {
@@ -438,6 +447,8 @@ const AddGateway = ({
                           draggable: true,
                         },
                       ]}
+                      mapCountry={organizationCountry}
+                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>

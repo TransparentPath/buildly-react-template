@@ -64,6 +64,7 @@ export const LANGUAGES = [
   { value: 'fr', label: 'French' },
   { value: 'ja', label: 'Japanese' },
   { value: 'it', label: 'Italian' },
+  { value: 'ar', label: 'Arabic' },
 ];
 
 export const GATEWAY_ACTIONS = [

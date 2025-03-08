@@ -161,6 +161,7 @@ const Gateway = ({ history, redirectTo }) => {
       unitData,
       custodianData,
       contactInfo,
+      countriesData,
     });
   };
 
@@ -244,8 +245,6 @@ const Gateway = ({ history, redirectTo }) => {
       <AddShipper
         open={showAddShipper}
         setOpen={setShowAddShipper}
-        unitData={unitData}
-        countriesData={countriesData}
         orgData={orgData}
         custodianTypesData={custodianTypesData}
       />

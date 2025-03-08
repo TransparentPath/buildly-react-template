@@ -32,6 +32,11 @@ export const useUpdateUserMutation = (
   {
     onSuccess: (data) => {
       if (history) {
+        if (data.user_language) {
+          // eslint-disable-next-line no-alert
+          alert('Detected language change. So need to reload the website. It might take a little while for this.');
+          window.location.reload();
+        }
         const route = window.location.pathname;
         history.push('/');
         history.push(route);

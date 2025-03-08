@@ -34,6 +34,7 @@ import { getShipmentsQuery } from '@react-query/queries/shipments/getShipmentsQu
 import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQuery';
 import { getItemQuery } from '@react-query/queries/items/getItemQuery';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
+import { getCountriesQuery } from '@react-query/queries/shipments/getCountriesQuery';
 import { getAllGatewayQuery } from '@react-query/queries/sensorGateways/getAllGatewayQuery';
 import { getCustodyQuery } from '@react-query/queries/custodians/getCustodyQuery';
 import { getSensorReportQuery } from '@react-query/queries/sensorGateways/getSensorReportQuery';
@@ -41,7 +42,7 @@ import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSens
 import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
-import { TIVE_GATEWAY_TIMES } from '@utils/mock';
+import { TIVE_GATEWAY_TIMES, LANGUAGES } from '@utils/mock';
 import { calculateLatLngBounds } from '@utils/utilMethods';
 
 const Shipment = ({ history }) => {
@@ -67,13 +68,13 @@ const Shipment = ({ history }) => {
   const [selectedCluster, setSelectedCluster] = useState({});
   const [zoom, setZoom] = useState(4);
 
-  const { data: shipmentData, isLoading: isLoadingShipments, isFetching: isFetchingShipments } = useQuery(
+  const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, organization],
     () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
-  isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments && !isFetchingShipments;
+  isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
@@ -93,7 +94,13 @@ const Shipment = ({ history }) => {
     { refetchOnWindowFocus: false },
   );
 
-  const { data: allGatewayData, isLoading: isLoadingAllGateways, isFetching: isFetchingAllGateways } = useQuery(
+  const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
+    ['countries'],
+    () => getCountriesQuery(displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
     ['allGateways'],
     () => getAllGatewayQuery(displayAlert),
     { refetchOnWindowFocus: false },
@@ -108,7 +115,7 @@ const Shipment = ({ history }) => {
     },
   );
 
-  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts, isFetching: isFetchingSensorAlerts } = useQuery(
+  const { data: sensorAlertData, isLoading: isLoadingSensorAlerts } = useQuery(
     ['sensorAlerts', shipmentData, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert),
     {
@@ -117,7 +124,7 @@ const Shipment = ({ history }) => {
     },
   );
 
-  const { data: reportData1, isLoading: isLoadingReports1, isFetching: isFetchingReports1 } = useQuery(
+  const { data: reportData1, isLoading: isLoadingReports1 } = useQuery(
     ['sensorReports', shipmentData, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), 10, displayAlert),
     {
@@ -126,10 +133,15 @@ const Shipment = ({ history }) => {
     },
   );
 
+  const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
+    : 'United States';
+  const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
+    && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
+
   const {
     data: reportData2,
     isLoading: isLoadingReports2,
-    isFetching: isFetchingReports2,
     refetch: refetchReports2,
   } = useQuery(
     ['sensorReports', shipmentData, shipmentFilter],
@@ -142,21 +154,17 @@ const Shipment = ({ history }) => {
 
   const sensorReportData = selectedShipment ? reportData2 : reportData1;
   const isLoadingSensorReports = selectedShipment ? isLoadingReports2 : isLoadingReports1;
-  const isFetchingSensorReports = selectedShipment ? isFetchingReports2 : isFetchingReports1;
 
   const isLoaded = isLoadingShipments
     || isLoadingCustodians
     || isLoadingItems
     || isLoadingUnits
+    || isLoadingCountries
     || isLoadingAllGateways
     || isLoadingCustodies
     || isLoadingSensorAlerts
     || isLoadingSensorReports
-    || isLoading
-    || isFetchingShipments
-    || isFetchingAllGateways
-    || isFetchingSensorAlerts
-    || isFetchingSensorReports;
+    || isLoading;
 
   useEffect(() => {
     const formattedRows = getShipmentFormattedRow(
@@ -698,6 +706,20 @@ const Shipment = ({ history }) => {
     )
   );
 
+  const getTranslatedLanguage = () => {
+    const userLanguageAbbv = _.find(LANGUAGES, (item) => _.isEqual(item.label, userLanguage))?.value;
+    let returnValue = userLanguageAbbv;
+    if (!returnValue) {
+      const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
+      if (match) {
+        const value = decodeURIComponent(match[2]);
+        const parts = value.split('/');
+        returnValue = parts[_.size(parts) - 1];
+      }
+    }
+    return returnValue;
+  };
+
   return (
     <Box mt={5} mb={5}>
       {isLoaded && <Loader open={isLoaded} />}
@@ -754,6 +776,8 @@ const Shipment = ({ history }) => {
             unitOfMeasure={unitData}
             setSelectedCluster={setSelectedCluster}
             selectedCluster={selectedCluster}
+            mapCountry={organizationCountry}
+            mapLanguage={getTranslatedLanguage()}
           />
         </Grid>
         <Grid item xs={12} className="shipmentDataTableHeader">
