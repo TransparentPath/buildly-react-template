@@ -55,6 +55,7 @@ const DataTableWrapper = ({
   uploadDataHeading,
   onRowSelectionChange,
   customIconButtonRight,
+  pagination,
 }) => {
   const user = getUser();
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
@@ -115,7 +116,7 @@ const DataTableWrapper = ({
     filter: !noOptionsIcon,
     filterType: 'multiselect',
     responsive: 'standard',
-    pagination: true,
+    pagination: !pagination,
     jumpToPage: true,
     tableBodyHeight: tableHeight || '',
     selectableRows: selectable && selectable.rows

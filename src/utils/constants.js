@@ -2193,149 +2193,139 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
 ]);
 
 export const getShipmentFormattedRow = (
-  shipmentData,
+  selectedShipment,
   custodianData,
   custodyData,
   itemData,
-  gatewayData,
+  syncTrackerData,
   allAlerts,
   maxColor,
   minColor,
   sensorReports,
 ) => {
-  let shipmentList = [];
+  if (_.isEmpty(selectedShipment)) return {};
+
+  const formattedShipment = { ...selectedShipment };
   let custodyRows = [];
 
   if (!_.isEmpty(custodyData) && !_.isEmpty(custodianData)) {
     custodyRows = getFormattedCustodyRows(custodyData, custodianData);
   }
 
-  _.forEach(shipmentData, (shipment) => {
-    const editedShipment = { ...shipment };
-    let firstCustody = null;
-    let lastCustody = null;
-    let origin = null;
-    let destination = null;
-    let carriers = [];
+  let firstCustody = null;
+  let lastCustody = null;
+  let origin = null;
+  let destination = null;
+  let carriers = [];
 
-    if (!_.isEmpty(custodyRows)) {
-      // From list of custodians attached to the shipment find the first custody for the shipment
-      // First custody can be
-      // 1. A custody whose first_custody is set to True
-      // 2. The custody attached very first to the shipment
-      const custodies = _.orderBy(_.filter(custodyRows, { shipment_id: editedShipment.shipment_uuid }), 'create_date', 'asc');
+  if (!_.isEmpty(custodyRows)) {
+    const custodies = _.orderBy(_.filter(custodyRows, { shipment_id: formattedShipment.shipment_uuid }), 'create_date', 'asc');
 
-      [firstCustody] = _.filter(custodies, { first_custody: true });
-      [lastCustody] = _.filter(custodies, { last_custody: true });
+    [firstCustody] = _.filter(custodies, { first_custody: true });
+    [lastCustody] = _.filter(custodies, { last_custody: true });
 
-      origin = firstCustody ? firstCustody.custodian_name : 'N/A';
-      destination = lastCustody ? lastCustody.custodian_name : 'N/A';
-      carriers = _.map(_.orderBy(_.filter(custodies, { first_custody: false, last_custody: false }), 'load_id', 'asc'), 'custodian_name');
+    origin = firstCustody ? firstCustody.custodian_name : 'N/A';
+    destination = lastCustody ? lastCustody.custodian_name : 'N/A';
+    carriers = _.map(_.orderBy(_.filter(custodies, { first_custody: false, last_custody: false }), 'load_id', 'asc'), 'custodian_name');
+  }
+
+  formattedShipment.origin = origin;
+  formattedShipment.destination = destination;
+  formattedShipment.carriers = carriers;
+
+  switch (_.lowerCase(formattedShipment.status)) {
+    case 'planned':
+    case 'en route':
+    case 'arrived':
+      formattedShipment.type = 'Active';
+      break;
+    case 'completed':
+      formattedShipment.type = 'Completed';
+      break;
+    case 'cancelled':
+      formattedShipment.type = 'Cancelled';
+      break;
+    case 'damaged':
+      formattedShipment.type = 'Damaged';
+      break;
+    case 'battery depleted':
+      formattedShipment.type = 'Battery Depleted';
+      break;
+    default:
+      break;
+  }
+
+  if (!_.isEmpty(itemData)) {
+    const items = _.filter(itemData, (item) => _.includes(formattedShipment.items, item.url));
+    formattedShipment.itemNames = _.toString(_.join(_.map(items, 'name'), ', '));
+  }
+
+  if (!_.isEmpty(syncTrackerData)) {
+    const gateway = syncTrackerData[0];
+    if (gateway && _.includes(formattedShipment.gateway_imei, _.toString(gateway.imei_number))) {
+      formattedShipment.tracker = gateway.name || 'N/A';
+      formattedShipment.battery_levels = _.toString(_.toInteger(gateway.last_known_battery_level)) || 'N/A';
+    } else {
+      formattedShipment.tracker = 'N/A';
+      formattedShipment.battery_levels = 'N/A';
     }
-    editedShipment.origin = origin;
-    editedShipment.destination = destination;
-    editedShipment.carriers = carriers;
+  } else {
+    formattedShipment.tracker = 'N/A';
+    formattedShipment.battery_levels = 'N/A';
+  }
 
-    switch (_.lowerCase(shipment.status)) {
-      case 'planned':
-      case 'en route':
-      case 'arrived':
-        editedShipment.type = 'Active';
-        break;
+  if (formattedShipment.had_alert) {
+    const filteredAlerts = _.filter(allAlerts, (alert) => (
+      _.isEqual(alert.shipment_id, formattedShipment.partner_shipment_id)
+      && !alert.recovered_alert_id
+    ));
+    let processedAlerts = [];
 
-      case 'completed':
-        editedShipment.type = 'Completed';
-        break;
-
-      case 'cancelled':
-        editedShipment.type = 'Cancelled';
-        break;
-
-      case 'damaged':
-        editedShipment.type = 'Damaged';
-        break;
-
-      case 'battery depleted':
-        editedShipment.type = 'Battery Depleted';
-        break;
-
-      default:
-        break;
-    }
-
-    if (!_.isEmpty(itemData)) {
-      const items = _.filter(itemData, (item) => _.includes(editedShipment.items, item.url));
-      editedShipment.itemNames = _.toString(_.join(_.map(items, 'name'), ', '));
-    }
-
-    if (!_.isEmpty(gatewayData)) {
-      const gateways = _.filter(gatewayData, (gateway) => (
-        _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
-      ));
-      editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ', '))) || 'N/A';
-      editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, (g) => _.toString(_.toInteger(g.last_known_battery_level))), ', '))) || 'N/A';
-    }
-
-    if (editedShipment.had_alert) {
-      const filteredAlerts = _.filter(allAlerts, (alert) => (
-        _.isEqual(alert.shipment_id, editedShipment.partner_shipment_id)
-        && !alert.recovered_alert_id
-      ));
-      let processedAlerts = [];
-
-      _.forEach(filteredAlerts, (alert) => {
-        let color = '';
-        let title = '';
-        if (_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) {
-          color = maxColor;
-          title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
-        }
-        if (_.includes(alert.alert_type, 'min')) {
-          color = minColor;
-          title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
-        }
-
-        const alertObj = { id: alert.parameter_type, color, title };
-        const objFound = !!(_.find(processedAlerts, alertObj));
-        if (!objFound) {
-          processedAlerts = [...processedAlerts, alertObj];
-        }
-      });
-      editedShipment.alerts = processedAlerts;
-    }
-
-    if (!_.isEmpty(sensorReports)) {
-      const reports = _.take(
-        _.orderBy(
-          _.filter(sensorReports, { shipment_id: editedShipment.partner_shipment_id }),
-          [
-            (obj) => moment(obj.activation_date),
-          ],
-          ['desc'],
-        ),
-        10,
-      );
-      editedShipment.allMarkers = _.map(reports, (report) => ({
-        lat: report.report_entry.report_latitude || '*',
-        lng: report.report_entry.report_longitude || '*',
-        country: extractCountry(report.report_entry.report_location || ''),
-        shipment: editedShipment,
-      }));
-
-      if (reports[0] && reports[0].report_entry.report_battery) {
-        editedShipment.battery_levels = reports[0].report_entry.report_battery;
+    _.forEach(filteredAlerts, (alert) => {
+      let color = '';
+      let title = '';
+      if (_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) {
+        color = maxColor;
+        title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
       }
+      if (_.includes(alert.alert_type, 'min')) {
+        color = minColor;
+        title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
+      }
+
+      const alertObj = { id: alert.parameter_type, color, title };
+      const objFound = !!(_.find(processedAlerts, alertObj));
+      if (!objFound) {
+        processedAlerts = [...processedAlerts, alertObj];
+      }
+    });
+    formattedShipment.alerts = processedAlerts;
+  }
+
+  if (!_.isEmpty(sensorReports)) {
+    const reports = _.take(
+      _.orderBy(
+        _.filter(sensorReports, { shipment_id: formattedShipment.partner_shipment_id }),
+        [
+          (obj) => moment(obj.activation_date),
+        ],
+        ['desc'],
+      ),
+      10,
+    );
+    formattedShipment.allMarkers = _.map(reports, (report) => ({
+      lat: report.report_entry.report_latitude || '*',
+      lng: report.report_entry.report_longitude || '*',
+      country: extractCountry(report.report_entry.report_location || ''),
+      shipment: formattedShipment,
+    }));
+
+    if (reports[0] && reports[0].report_entry.report_battery) {
+      formattedShipment.battery_levels = reports[0].report_entry.report_battery;
     }
+  }
 
-    shipmentList = [...shipmentList, editedShipment];
-  });
-
-  return _.orderBy(
-    shipmentList,
-    (shipment) => moment(shipment.estimated_time_of_departure)
-      && moment(shipment.create_date),
-    ['desc'],
-  );
+  return formattedShipment;
 };
 
 export const getTemplateFormattedRow = (templates, custodianData, itemData) => {
