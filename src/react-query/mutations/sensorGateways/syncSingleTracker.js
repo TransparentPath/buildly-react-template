@@ -17,8 +17,9 @@ export const useSyncSingleTrackerMutation = (displayAlert) => {
       return updatedData.data;
     },
     {
-      onError: () => {
-        displayAlert('error', 'Tracker not found!');
+      onError: (error) => {
+        const errorMessage = error?.response?.status === 404 ? 'Tracker not found!' : "Couldn't synced shipment tracker!";
+        displayAlert('error', errorMessage);
       },
     },
   );
