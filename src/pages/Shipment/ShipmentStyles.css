@@ -1,11 +1,20 @@
-.shipmentContainer {
-  display: flex;
-  justify-content: space-between;
+.shipmentMaxColor {
+  color: var(--color-palette-error-main);
 }
 
-.shipmentHeading {
-  font-weight: bold;
-  margin-bottom: 0.5em;
+.shipmentMinColor {
+  color: var(--color-palette-info-main);
+}
+
+.shipmentGridTimeCenter {
+  align-content: center;
+  text-align: center;
+  margin-right: 15px;
+}
+
+.shipmentTitle {
+  padding: 16px;
+  background-color: var(--color-palette-primary-light);
 }
 
 .shipmentCreateButton {
@@ -18,30 +27,58 @@
   background-color: var(--color-palette-primary-main);
 }
 
-.shipmentSwitchViewSection {
+.shipmentGoBackButton {
+  margin-bottom: 24px;
+  margin-left: 16px;
   background-color: var(--color-palette-primary-main);
+  color: var(--color-palette-background-default);
+}
+
+.shipmentGoBackButton:hover {
+  background-color: var(--color-palette-primary-main);
+}
+
+.shipmentTab {
+  color: var(--color-palette-background-default);
+}
+
+.shipmentDataTableHeader {
+  background-color: var(--color-palette-primary-dark);
   color: var(--color-palette-background-default);
   width: 100%;
   display: flex;
-  min-height: 40px;
-  align-items: center;
+  height: 70px;
+  padding-left: 15px;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
-.shipmentSwitchViewSection2 {
-  background-color: var(--color-palette-primary-light);
-  width: 100%;
-  display: flex;
-  min-height: 40px;
-  align-items: center;
+.shipmentDataTableHeader .Mui-selected {
+  background-color: var(--color-palette-primary-dark) !important;
+  border-color: var(--color-palette-primary-main) !important;
+  border-width: 0 0 2px 0 !important;
+  border-style: solid !important;
+  border-radius: 0 !important;
 }
 
-.shipmentSelectInput {
-  margin: 16px 8px 8px;
-  width: 100%;
+.shipmentDataTableHeaderItem {
+  border: 0;
+  height: 70px;
+  padding-right: 12px;
+}
+
+.shipmentDataTableHeaderItem:hover {
+  border: 0;
+  background-color: var(--color-palette-primary-dark);
+}
+
+.shipmentDataTableHeaderItem:focus {
+  border: 0;
+  background-color: var(--color-palette-primary-dark);
 }
 
 .shipmentDataTable {
-  margin-top: -44px;
+  margin-top: -64px;
 }
 
 .shipmentDataTable .MuiGrid-root .MuiPaper-root {
@@ -56,23 +93,10 @@
   display: none;
 }
 
-.shipmentTooltip .MuiTooltip-tooltip {
-  background-color: var(--color-palette-background-default);
-  color: var(--color-palette-background-dark);
-  max-width: 320px;
-  border: 1px solid var(--color-palette-background-light);
-}
-
 .shipmentName {
   text-decoration: underline;
   text-decoration-color: var(--color-palette-background-light);
   cursor: pointer;
-}
-
-.shipmentGridTimeCenter {
-  align-content: center;
-  text-align: center;
-  margin-right: 15px;
 }
 
 .shipmentAttachedFiles {
@@ -85,12 +109,29 @@
   font-size: 12px;
 }
 
-.shipmentMaxColor {
-  color: var(--color-palette-error-main);
+.shipmentTooltip .MuiTooltip-tooltip {
+  background-color: var(--color-palette-background-default);
+  color: var(--color-palette-background-dark);
+  max-width: 320px;
+  border: 1px solid var(--color-palette-background-light);
 }
 
-.shipmentMinColor {
-  color: var(--color-palette-info-main);
+@media screen and (max-width: 600px) {
+  .shipmentTabs .MuiTabs-scroller {
+    display: flex;
+    width: 100vw;
+    overflow-x: auto !important;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+@media screen and (min-width: 600px) {
+  .shipmentTabs {
+    position: absolute;
+    top: 24%;
+    left: 0;
+  }
 }
 
 /* Create shipment page styles */

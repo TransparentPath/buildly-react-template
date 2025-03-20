@@ -1,9 +1,9 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
-  Autocomplete,
   Box,
   Button,
   Chip,
@@ -21,29 +21,29 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { Assignment as NoteIcon } from '@mui/icons-material';
+import CustomizedSteppers from '@components/CustomizedStepper/CustomizedStepper';
+import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import Loader from '@components/Loader/Loader';
 import MapComponent from '@components/MapComponent/MapComponent';
-import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
-import CustomizedSteppers from '@components/CustomizedStepper/CustomizedStepper';
 import { getUser } from '@context/User.context';
 import { routes } from '@routes/routesConstants';
+import { getIcon, getShipmentFormattedRow, shipmentColumns } from '@utils/constants';
 import { useQuery } from 'react-query';
 import { getShipmentsQuery } from '@react-query/queries/shipments/getShipmentsQuery';
-import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
 import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQuery';
 import { getItemQuery } from '@react-query/queries/items/getItemQuery';
+import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
+import { getCountriesQuery } from '@react-query/queries/shipments/getCountriesQuery';
 import { getAllGatewayQuery } from '@react-query/queries/sensorGateways/getAllGatewayQuery';
 import { getCustodyQuery } from '@react-query/queries/custodians/getCustodyQuery';
-import { getCountriesQuery } from '@react-query/queries/shipments/getCountriesQuery';
-import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSensorAlertQuery';
 import { getSensorReportQuery } from '@react-query/queries/sensorGateways/getSensorReportQuery';
-import { useSyncSingleTrackerMutation } from '@react-query/mutations/sensorGateways/syncSingleTracker';
+import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSensorAlertQuery';
 import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
-import { LANGUAGES, TIVE_GATEWAY_TIMES } from '@utils/mock';
-import { getIcon, getShipmentFormattedRow, shipmentColumns } from '@utils/constants';
-import { Assignment as NoteIcon } from '@mui/icons-material';
+import { TIVE_GATEWAY_TIMES, LANGUAGES } from '@utils/mock';
+import { calculateLatLngBounds } from '@utils/utilMethods';
 
 const Shipment = ({ history }) => {
   const muiTheme = useTheme();
@@ -51,17 +51,22 @@ const Shipment = ({ history }) => {
   const organization = user.organization.organization_uuid;
   const userLanguage = user.user_language;
 
-  const inputRef = useRef(null);
-
   const { displayAlert } = useAlert();
   const { data } = useStore();
 
+  let isShipmentDataAvailable = false;
+
   const [shipmentFilter, setShipmentFilter] = useState('Active');
+  const [rows, setRows] = useState([]);
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [markers, setMarkers] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState({});
+  const [allMarkers, setAllMarkers] = useState([]);
+  const [expandedRows, setExpandedRows] = useState([]);
   const [steps, setSteps] = useState([]);
-  const [tableRow, setTableRow] = useState([]);
+  const [isLoading, setLoading] = useState(false);
+  const [selectedCluster, setSelectedCluster] = useState({});
+  const [zoom, setZoom] = useState(4);
 
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, organization],
@@ -69,58 +74,64 @@ const Shipment = ({ history }) => {
     { refetchOnWindowFocus: false },
   );
 
-  const { data: unitData, isLoading: isLoadingUnits } = useQuery(
-    ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
-    { enabled: !_.isEmpty(selectedShipment), refetchOnWindowFocus: false },
-  );
+  isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
     () => getCustodianQuery(organization, displayAlert),
-    { enabled: !_.isEmpty(selectedShipment), refetchOnWindowFocus: false },
+    { refetchOnWindowFocus: false },
   );
 
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ['items', organization],
     () => getItemQuery(organization, displayAlert),
-    { enabled: !_.isEmpty(selectedShipment), refetchOnWindowFocus: false },
+    { refetchOnWindowFocus: false },
   );
 
-  const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
-    ['custodies', shipmentData, shipmentFilter, selectedShipment],
-    () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
-    {
-      enabled: !_.isEmpty(selectedShipment) && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null)))),
-      refetchOnWindowFocus: false,
-    },
+  const { data: unitData, isLoading: isLoadingUnits } = useQuery(
+    ['unit', organization],
+    () => getUnitQuery(organization, displayAlert),
+    { refetchOnWindowFocus: false },
   );
 
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
     () => getCountriesQuery(displayAlert),
-    { enabled: !_.isEmpty(selectedShipment), refetchOnWindowFocus: false },
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
+    ['allGateways'],
+    () => getAllGatewayQuery(displayAlert),
+    { refetchOnWindowFocus: false },
+  );
+
+  const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
+    ['custodies', shipmentData, shipmentFilter],
+    () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
+    {
+      enabled: isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null)))),
+      refetchOnWindowFocus: false,
+    },
   );
 
   const { data: sensorAlertData, isLoading: isLoadingSensorAlerts } = useQuery(
-    ['sensorAlerts', shipmentData, shipmentFilter, selectedShipment],
+    ['sensorAlerts', shipmentData, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert),
     {
-      enabled: !_.isEmpty(selectedShipment) && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
+      enabled: isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
       refetchOnWindowFocus: false,
     },
   );
 
-  const { data: sensorReportData, isLoading: isLoadingSensorReports } = useQuery(
-    ['sensorReports', shipmentData, shipmentFilter, selectedShipment],
-    () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), null, displayAlert),
+  const { data: reportData1, isLoading: isLoadingReports1 } = useQuery(
+    ['sensorReports', shipmentData, shipmentFilter],
+    () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), 10, displayAlert),
     {
-      enabled: !_.isEmpty(selectedShipment) && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
+      enabled: _.isEmpty(selectedShipment) && _.isEmpty(expandedRows) && isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
       refetchOnWindowFocus: false,
     },
   );
-
-  const { mutate: syncSingleTrackerMutation, isLoading: isSyncingSingleTracker, data: syncTrackerData } = useSyncSingleTrackerMutation(displayAlert);
 
   const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
@@ -128,16 +139,52 @@ const Shipment = ({ history }) => {
   const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
     && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
+  const {
+    data: reportData2,
+    isLoading: isLoadingReports2,
+    refetch: refetchReports2,
+  } = useQuery(
+    ['sensorReports', shipmentData, shipmentFilter],
+    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
+    {
+      enabled: !_.isEmpty(selectedShipment) && !_.isEmpty(expandedRows) && isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const sensorReportData = selectedShipment ? reportData2 : reportData1;
+  const isLoadingSensorReports = selectedShipment ? isLoadingReports2 : isLoadingReports1;
+
   const isLoaded = isLoadingShipments
-    || isLoadingUnits
     || isLoadingCustodians
     || isLoadingItems
-    || isSyncingSingleTracker
-    || isLoadingCustodies
+    || isLoadingUnits
     || isLoadingCountries
+    || isLoadingAllGateways
+    || isLoadingCustodies
     || isLoadingSensorAlerts
     || isLoadingSensorReports
-    || isSyncingSingleTracker;
+    || isLoading;
+
+  useEffect(() => {
+    const formattedRows = getShipmentFormattedRow(
+      shipmentData,
+      custodianData,
+      custodyData,
+      itemData,
+      allGatewayData,
+      sensorAlertData,
+      muiTheme.palette.error.main,
+      muiTheme.palette.info.main,
+      sensorReportData,
+    );
+    const filteredRows = _.filter(formattedRows, { type: shipmentFilter });
+    if (_.isEmpty(selectedCluster)) {
+      setRows(filteredRows);
+    }
+    setAllMarkers(_.map(filteredRows, 'allMarkers'));
+  }, [shipmentFilter, shipmentData, custodianData, custodyData,
+    itemData, allGatewayData, sensorAlertData, sensorReportData]);
 
   useEffect(() => {
     if (!_.isEmpty(shipmentData) && !_.isEqual(isLoaded, true)) {
@@ -155,45 +202,56 @@ const Shipment = ({ history }) => {
   }, [shipmentData, isLoaded]);
 
   useEffect(() => {
-    const formattedRow = getShipmentFormattedRow(
-      selectedShipment,
-      custodianData,
-      custodyData,
-      itemData,
-      syncTrackerData,
-      sensorAlertData,
-      muiTheme.palette.error.main,
-      muiTheme.palette.info.main,
-      sensorReportData,
-    );
-    setTableRow([formattedRow]);
-  }, [shipmentFilter, shipmentData, custodianData, custodyData,
-    itemData, syncTrackerData, sensorAlertData, sensorReportData]);
+    if (!_.isEmpty(markers) || !_.isEmpty(selectedCluster)) {
+      setZoom(12);
+    } else {
+      setZoom(4);
+    }
+  }, [markers, selectedCluster]);
 
   useEffect(() => {
     if (selectedShipment) {
-      processMarkers(selectedShipment);
+      processMarkers(selectedShipment, true);
     }
   }, [sensorAlertData, sensorReportData, data]);
 
-  const processMarkers = (shipment) => {
-    const formattedRow = getShipmentFormattedRow(
-      shipment,
-      custodianData,
-      custodyData,
-      itemData,
-      syncTrackerData,
-      sensorAlertData,
-      muiTheme.palette.error.main,
-      muiTheme.palette.info.main,
-      sensorReportData,
-    );
+  useEffect(() => {
+    if (!_.isEmpty(selectedShipment)) {
+      setLoading(true);
+      refetchReports2();
+    }
+    if (expandedRows) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    }
+  }, [selectedShipment, expandedRows]);
+
+  useEffect(() => {
+    if (!_.isEmpty(selectedCluster) && !_.isEmpty(rows)) {
+      const { lat, lng } = selectedCluster;
+      const { radius } = user.organization;
+      const values = calculateLatLngBounds(lat, lng, radius);
+      const filteredRows = rows.filter((obj) => !_.isEmpty(obj.allMarkers));
+      const clusterFilteredRows = filteredRows.filter((obj) => {
+        const firstMarker = _.first(obj.allMarkers);
+        const isLatInRange = firstMarker.lat >= values.minLat && firstMarker.lat <= values.maxLat;
+        const isLngInRange = firstMarker.lng >= values.minLng && firstMarker.lng <= values.maxLng;
+        return isLatInRange && isLngInRange;
+      });
+      setRows(clusterFilteredRows);
+    }
+  }, [selectedCluster]);
+
+  const processMarkers = (shipment, setExpanded = false) => {
     const dateFormat = !_.isEmpty(unitData) && _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
     const timeFormat = !_.isEmpty(unitData) && _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
     const tempMeasure = !_.isEmpty(unitData) && _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure;
     let markersToSet = [];
-    const filteredReports = _.filter(sensorReportData, { shipment_id: formattedRow.partner_shipment_id });
-    const filteredAlerts = _.filter(sensorAlertData, { shipment_id: formattedRow.partner_shipment_id });
+    const filteredReports = _.filter(sensorReportData, {
+      shipment_id: shipment.partner_shipment_id,
+    });
+    const filteredAlerts = _.filter(sensorAlertData, { shipment_id: shipment.partner_shipment_id });
     let newSteps = [];
     let arrivedSteps = [];
     let activeSteps = [];
@@ -201,33 +259,33 @@ const Shipment = ({ history }) => {
     newSteps = [
       {
         id: 1,
-        title: formattedRow.origin,
+        title: shipment.origin,
         titleColor: 'inherit',
         label: 'Shipment created',
-        content: moment(formattedRow.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
+        content: moment(shipment.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
         active: true,
         error: false,
         info: false,
-        completed: formattedRow.last_fujitsu_verification_datetime && _.lte(
-          moment(formattedRow.create_date).unix(),
-          moment(formattedRow.last_fujitsu_verification_datetime).unix(),
+        completed: shipment.last_fujitsu_verification_datetime && _.lte(
+          moment(shipment.create_date).unix(),
+          moment(shipment.last_fujitsu_verification_datetime).unix(),
         ),
       },
       {
         id: 2,
-        title: formattedRow.origin,
+        title: shipment.origin,
         titleColor: 'inherit',
         label: 'Shipment started',
-        content: _.isEmpty(formattedRow.actual_time_of_departure)
-          ? moment(formattedRow.estimated_time_of_departure).tz(data).format(`${dateFormat} ${timeFormat}`)
-          : moment(formattedRow.actual_time_of_departure).tz(data).format(`${dateFormat} ${timeFormat}`),
-        caption: _.isEmpty(formattedRow.actual_time_of_departure) ? '(Estimated Time)' : '(Actual Time)',
-        active: !!formattedRow.actual_time_of_departure,
+        content: _.isEmpty(shipment.actual_time_of_departure)
+          ? moment(shipment.estimated_time_of_departure).tz(data).format(`${dateFormat} ${timeFormat}`)
+          : moment(shipment.actual_time_of_departure).tz(data).format(`${dateFormat} ${timeFormat}`),
+        caption: _.isEmpty(shipment.actual_time_of_departure) ? '(Estimated Time)' : '(Actual Time)',
+        active: !!shipment.actual_time_of_departure,
         error: false,
         info: false,
-        completed: formattedRow.last_fujitsu_verification_datetime && _.lte(
-          moment(formattedRow.actual_time_of_departure || formattedRow.estimated_time_of_departure).unix(),
-          moment(formattedRow.last_fujitsu_verification_datetime).unix(),
+        completed: shipment.last_fujitsu_verification_datetime && _.lte(
+          moment(shipment.actual_time_of_departure || shipment.estimated_time_of_departure).unix(),
+          moment(shipment.last_fujitsu_verification_datetime).unix(),
         ),
       },
     ];
@@ -237,18 +295,18 @@ const Shipment = ({ history }) => {
       const arrivedAlerts = _.filter(alerts, (alert) => {
         const createDate = moment(alert.create_date).unix();
         return (
-          createDate >= (moment(formattedRow.actual_time_of_departure).unix() || moment(formattedRow.estimated_time_of_departure).unix())
-          && createDate <= (moment(formattedRow.actual_time_of_arrival).unix() || moment(formattedRow.estimated_time_of_arrival).unix())
+          createDate >= (moment(shipment.actual_time_of_departure).unix() || moment(shipment.estimated_time_of_departure).unix())
+          && createDate <= (moment(shipment.actual_time_of_arrival).unix() || moment(shipment.estimated_time_of_arrival).unix())
         );
       });
       const activeAlerts = _.filter(alerts, (alert) => {
         const createDate = moment(alert.create_date).unix();
         return !(
-          createDate >= (moment(formattedRow.actual_time_of_departure).unix() || moment(formattedRow.estimated_time_of_departure).unix())
-          && createDate <= (moment(formattedRow.actual_time_of_arrival).unix() || moment(formattedRow.estimated_time_of_arrival).unix())
+          createDate >= (moment(shipment.actual_time_of_departure).unix() || moment(shipment.estimated_time_of_departure).unix())
+          && createDate <= (moment(shipment.actual_time_of_arrival).unix() || moment(shipment.estimated_time_of_arrival).unix())
         );
       });
-      if (_.isEmpty(formattedRow.actual_time_of_arrival)) {
+      if (_.isEmpty(shipment.actual_time_of_arrival)) {
         arrivedSteps = _.map(alerts, (a) => {
           const error = _.includes(_.toLower(a.alert_type), 'max') || _.includes(_.toLower(a.alert_type), 'shock') || _.includes(_.toLower(a.alert_type), 'light');
           const info = _.includes(_.toLower(a.alert_type), 'min');
@@ -267,9 +325,9 @@ const Shipment = ({ history }) => {
             label: 'Exception',
             content: moment(a.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
             active: false,
-            completed: formattedRow.last_fujitsu_verification_datetime && _.lte(
+            completed: shipment.last_fujitsu_verification_datetime && _.lte(
               moment(a.create_date).unix(),
-              moment(formattedRow.last_fujitsu_verification_datetime).unix(),
+              moment(shipment.last_fujitsu_verification_datetime).unix(),
             ),
             error,
             info,
@@ -294,9 +352,9 @@ const Shipment = ({ history }) => {
             label: 'Exception',
             content: moment(a.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
             active: false,
-            completed: formattedRow.last_fujitsu_verification_datetime && _.lte(
+            completed: shipment.last_fujitsu_verification_datetime && _.lte(
               moment(a.create_date).unix(),
-              moment(formattedRow.last_fujitsu_verification_datetime).unix(),
+              moment(shipment.last_fujitsu_verification_datetime).unix(),
             ),
             error,
             info,
@@ -320,9 +378,9 @@ const Shipment = ({ history }) => {
             label: 'Exception',
             content: moment(a.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
             active: false,
-            completed: formattedRow.last_fujitsu_verification_datetime && _.lte(
+            completed: shipment.last_fujitsu_verification_datetime && _.lte(
               moment(a.create_date).unix(),
-              moment(formattedRow.last_fujitsu_verification_datetime).unix(),
+              moment(shipment.last_fujitsu_verification_datetime).unix(),
             ),
             error,
             info,
@@ -334,19 +392,19 @@ const Shipment = ({ history }) => {
 
     newSteps = [...newSteps, {
       id: _.maxBy(newSteps, 'id') ? (_.maxBy(newSteps, 'id').id + 1) : 3,
-      title: formattedRow.destination,
+      title: shipment.destination,
       titleColor: 'inherit',
       label: 'Shipment arrived',
-      content: _.isEmpty(formattedRow.actual_time_of_arrival)
-        ? moment(formattedRow.estimated_time_of_arrival).tz(data).format(`${dateFormat} ${timeFormat}`)
-        : moment(formattedRow.actual_time_of_arrival).tz(data).format(`${dateFormat} ${timeFormat}`),
-      caption: _.isEmpty(formattedRow.actual_time_of_arrival) ? '(Estimated Time)' : '(Actual Time)',
-      active: !!formattedRow.actual_time_of_arrival,
+      content: _.isEmpty(shipment.actual_time_of_arrival)
+        ? moment(shipment.estimated_time_of_arrival).tz(data).format(`${dateFormat} ${timeFormat}`)
+        : moment(shipment.actual_time_of_arrival).tz(data).format(`${dateFormat} ${timeFormat}`),
+      caption: _.isEmpty(shipment.actual_time_of_arrival) ? '(Estimated Time)' : '(Actual Time)',
+      active: !!shipment.actual_time_of_arrival,
       error: false,
       info: false,
-      completed: formattedRow.last_fujitsu_verification_datetime && _.lte(
-        moment(formattedRow.actual_time_of_arrival || formattedRow.estimated_time_of_arrival).unix(),
-        moment(formattedRow.last_fujitsu_verification_datetime).unix(),
+      completed: shipment.last_fujitsu_verification_datetime && _.lte(
+        moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).unix(),
+        moment(shipment.last_fujitsu_verification_datetime).unix(),
       ),
     }];
 
@@ -354,21 +412,21 @@ const Shipment = ({ history }) => {
 
     newSteps = [...newSteps, {
       id: _.maxBy(newSteps, 'id') ? (_.maxBy(newSteps, 'id').id + 2) : 4,
-      title: formattedRow.destination,
+      title: shipment.destination,
       titleColor: 'inherit',
       label: 'Shipment completed',
-      content: _.isEqual(formattedRow.status, 'Completed')
-        ? moment(formattedRow.actual_time_of_completion || formattedRow.edit_date).tz(data).format(`${dateFormat} ${timeFormat}`)
-        : moment(formattedRow.actual_time_of_arrival || formattedRow.estimated_time_of_arrival).add(24, 'h').tz(data).format(`${dateFormat} ${timeFormat}`),
-      caption: !_.isEqual(formattedRow.status, 'Completed') ? '(Estimated Time)' : '(Actual Time)',
-      active: _.isEqual(formattedRow.status, 'Completed'),
+      content: _.isEqual(shipment.status, 'Completed')
+        ? moment(shipment.actual_time_of_completion || shipment.edit_date).tz(data).format(`${dateFormat} ${timeFormat}`)
+        : moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).add(24, 'h').tz(data).format(`${dateFormat} ${timeFormat}`),
+      caption: !_.isEqual(shipment.status, 'Completed') ? '(Estimated Time)' : '(Actual Time)',
+      active: _.isEqual(shipment.status, 'Completed'),
       error: false,
       info: false,
-      completed: formattedRow.last_fujitsu_verification_datetime && _.lte(
-        _.isEqual(formattedRow.status, 'Completed')
-          ? moment(formattedRow.actual_time_of_completion || formattedRow.edit_date).unix()
-          : moment(formattedRow.actual_time_of_arrival || formattedRow.estimated_time_of_arrival).add(24, 'h').unix(),
-        moment(formattedRow.last_fujitsu_verification_datetime).unix(),
+      completed: shipment.last_fujitsu_verification_datetime && _.lte(
+        _.isEqual(shipment.status, 'Completed')
+          ? moment(shipment.actual_time_of_completion || shipment.edit_date).unix()
+          : moment(shipment.actual_time_of_arrival || shipment.estimated_time_of_arrival).add(24, 'h').unix(),
+        moment(shipment.last_fujitsu_verification_datetime).unix(),
       ),
     }];
 
@@ -527,39 +585,25 @@ const Shipment = ({ history }) => {
       });
     }
 
-    setSteps(_.orderBy(newSteps, 'id'));
+    if (setExpanded) {
+      const rowIndex = _.findIndex(rows, (item) => item.id === shipment.id, 0);
+      setExpandedRows([rowIndex]);
+      setSteps(_.orderBy(newSteps, 'id'));
+    }
+    setSelectedShipment(shipment);
     setMarkers(_.orderBy(markersToSet, [(obj) => moment(`${obj.date} ${obj.time}`)], ['desc']));
     setSelectedMarker(markers[0]);
   };
 
-  const getTranslatedLanguage = () => {
-    const userLanguageAbbv = _.find(LANGUAGES, (item) => _.isEqual(item.label, userLanguage))?.value;
-    let returnValue = userLanguageAbbv;
-    if (!returnValue) {
-      const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
-      if (match) {
-        const value = decodeURIComponent(match[2]);
-        const parts = value.split('/');
-        returnValue = parts[_.size(parts) - 1];
-      }
-    }
-    return returnValue;
-  };
-
-  const filterTabClicked = async (filter) => {
+  const filterTabClicked = async (event, filter) => {
+    isShipmentDataAvailable = false;
     setShipmentFilter(filter);
     setSelectedShipment(null);
-    setTableRow([]);
-  };
-
-  const handleShipmentChange = (event, newValue) => {
-    setSelectedShipment(newValue);
-    if (inputRef.current) {
-      inputRef.current.blur();
-    }
-    if (newValue) {
-      syncSingleTrackerMutation({ gateway_uuid: newValue.gateway_ids[0] });
-    }
+    setMarkers([]);
+    setSelectedMarker({});
+    setExpandedRows([]);
+    setSteps([]);
+    setSelectedCluster({});
   };
 
   const renderSensorData = (marker) => {
@@ -661,87 +705,129 @@ const Shipment = ({ history }) => {
     )
   );
 
+  const getTranslatedLanguage = () => {
+    const userLanguageAbbv = _.find(LANGUAGES, (item) => _.isEqual(item.label, userLanguage))?.value;
+    let returnValue = userLanguageAbbv;
+    if (!returnValue) {
+      const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
+      if (match) {
+        const value = decodeURIComponent(match[2]);
+        const parts = value.split('/');
+        returnValue = parts[_.size(parts) - 1];
+      }
+    }
+    return returnValue;
+  };
+
   return (
     <Box mt={5} mb={5}>
       {isLoaded && <Loader open={isLoaded} />}
-      <Button
-        type="button"
-        onClick={(e) => history.push(routes.CREATE_SHIPMENT)}
-        className="shipmentCreateButton"
-      >
+      <Button type="button" onClick={(e) => history.push(routes.CREATE_SHIPMENT)} className="shipmentCreateButton">
         + Create Shipment
       </Button>
-      <Box className="shipmentContainer">
-        <Typography className="shipmentHeading" variant="h4">
-          Shipment
-        </Typography>
-      </Box>
-      <Grid container spacing={2}>
+      {!_.isEmpty(selectedCluster) && (
+        <Button
+          type="button"
+          className="shipmentGoBackButton"
+          onClick={() => {
+            const formattedRows = getShipmentFormattedRow(
+              shipmentData,
+              custodianData,
+              custodyData,
+              itemData,
+              allGatewayData,
+              sensorAlertData,
+              muiTheme.palette.error.main,
+              muiTheme.palette.info.main,
+              sensorReportData,
+            );
+            const filteredRows = _.filter(formattedRows, { type: shipmentFilter });
+            setSelectedCluster({});
+            setRows(filteredRows);
+            setExpandedRows([]);
+            setSelectedShipment(null);
+            setSelectedMarker({});
+            setAllMarkers(_.map(filteredRows, 'allMarkers'));
+            setMarkers([]);
+            setSteps([]);
+          }}
+        >
+          Go back to Global View
+        </Button>
+      )}
+      <Grid container>
         <Grid item xs={12}>
-          <div className="shipmentSwitchViewSection">
-            <ToggleButtonGroup
-              color="secondary"
-              value={shipmentFilter}
-              exclusive
-              fullWidth
-            >
-              {['Active', 'Completed', 'Battery Depleted', 'Damaged'].map((status) => (
-                <ToggleButton
-                  key={status}
-                  value={status}
-                  selected={shipmentFilter === status}
-                  onClick={() => filterTabClicked(status)}
-                >
-                  {status}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          </div>
-          <div className="shipmentSwitchViewSection2">
-            <Autocomplete
-              id="shipment-name"
-              className="shipmentSelectInput"
-              options={shipmentData || []}
-              getOptionLabel={(option) => option && option.name}
-              value={selectedShipment}
-              onChange={handleShipmentChange}
-              isOptionEqualToValue={(option, value) => option.id === value?.id}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  inputRef={inputRef}
-                  className="notranslate"
-                  variant="outlined"
-                  label={<span className="translate">Shipment Name</span>}
-                  placeholder="Select..."
-                />
-              )}
-            />
+          <div className={selectedShipment ? 'shipmentTitle notranslate' : 'shipmentTitle'}>
+            <Typography variant="h6">
+              {selectedShipment ? selectedShipment.name : 'All shipments'}
+            </Typography>
           </div>
         </Grid>
-      </Grid>
-      {!_.isEmpty(selectedShipment) && (
-        <Grid item xs={12} mt={2}>
+        <Grid item xs={12}>
           <MapComponent
+            allMarkers={allMarkers}
             isMarkerShown={!_.isEmpty(markers)}
             showPath
             markers={markers}
-            zoom={12}
+            zoom={zoom}
             setSelectedMarker={setSelectedMarker}
             containerStyle={{ height: '600px' }}
             unitOfMeasure={unitData}
+            setSelectedCluster={setSelectedCluster}
+            selectedCluster={selectedCluster}
             mapCountry={organizationCountry}
             mapLanguage={getTranslatedLanguage()}
           />
         </Grid>
-      )}
-      {!_.isEmpty(selectedShipment) && (
+        <Grid item xs={12} className="shipmentDataTableHeader">
+          <ToggleButtonGroup
+            color="secondary"
+            value={shipmentFilter}
+          >
+            <ToggleButton
+              value="Active"
+              size="medium"
+              selected={shipmentFilter === 'Active'}
+              className="shipmentDataTableHeaderItem"
+              onClick={(event, value) => filterTabClicked(event, value)}
+            >
+              Active
+            </ToggleButton>
+            <ToggleButton
+              value="Completed"
+              size="medium"
+              selected={shipmentFilter === 'Completed'}
+              className="shipmentDataTableHeaderItem"
+              onClick={(event, value) => filterTabClicked(event, value)}
+            >
+              Completed
+            </ToggleButton>
+            <ToggleButton
+              value="Battery Depleted"
+              size="medium"
+              selected={shipmentFilter === 'Battery Depleted'}
+              className="shipmentDataTableHeaderItem"
+              onClick={(event, value) => filterTabClicked(event, value)}
+            >
+              Battery Depleted
+            </ToggleButton>
+            <ToggleButton
+              value="Damaged"
+              size="medium"
+              selected={shipmentFilter === 'Damaged'}
+              className="shipmentDataTableHeaderItem"
+              onClick={(event, value) => filterTabClicked(event, value)}
+            >
+              Damaged
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
         <Grid item xs={12} className="shipmentDataTable">
           <DataTableWrapper
             hideAddButton
-            pagination
-            rows={tableRow}
+            loading={isLoading}
             filename="ShipmentData"
+            rows={rows}
             columns={[
               {
                 name: '',
@@ -750,13 +836,13 @@ const Shipment = ({ history }) => {
                   sortThirdClickReset: false,
                   filter: false,
                   customBodyRenderLite: (dataIndex) => (
-                    tableRow[dataIndex] && tableRow[dataIndex].note
+                    rows[dataIndex] && rows[dataIndex].note
                       ? (
                         <Tooltip
                           TransitionComponent={Fade}
                           TransitionProps={{ timeout: 600 }}
                           placement="bottom-start"
-                          title={<Typography>{tableRow[dataIndex].note}</Typography>}
+                          title={<Typography>{rows[dataIndex].note}</Typography>}
                           className="shipmentTooltip"
                         >
                           <NoteIcon />
@@ -777,11 +863,11 @@ const Shipment = ({ history }) => {
                       className="shipmentName notranslate"
                       onClick={(e) => {
                         history.push(routes.CREATE_SHIPMENT, {
-                          ship: _.omit(tableRow[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
+                          ship: _.omit(rows[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
                         });
                       }}
                     >
-                      {tableRow[dataIndex].name}
+                      {rows[dataIndex].name}
                     </Typography>
                   ),
                 },
@@ -808,7 +894,8 @@ const Shipment = ({ history }) => {
                     },
                   }),
                   customBodyRenderLite: (dataIndex) => {
-                    const ship = tableRow[dataIndex];
+                    const ship = rows[dataIndex];
+                    console.log(ship);
                     const tTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.transmission_time });
                     const mTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.measurement_time });
 
@@ -816,7 +903,11 @@ const Shipment = ({ history }) => {
                       <Grid container>
                         <Grid item className="shipmentGridTimeCenter">
                           <Typography variant="body1">
-                            {ship.battery_levels}
+                            {!_.isEmpty(markers[0])
+                              && markers[0].battery !== null
+                              && markers[0].battery !== undefined
+                              ? markers[0].battery
+                              : ship.battery_levels}
                           </Typography>
                         </Grid>
                         <Grid item flex={1}>
@@ -835,15 +926,32 @@ const Shipment = ({ history }) => {
             ]}
             extraOptions={{
               expandableRows: true,
-              rowsExpanded: [0],
+              expandableRowsHeader: false,
+              expandableRowsOnClick: true,
               download: false,
               filter: false,
               print: false,
               search: false,
               viewColumns: false,
+              setRowProps: (row, dataIndex, rowIndex) => ({
+                style: { color: _.isEqual(row[2], 'Planned') ? muiTheme.palette.background.light : 'inherit' },
+              }),
+              rowsExpanded: expandedRows,
+              onRowExpansionChange: (curExpanded, allExpanded, rowsExpanded) => {
+                if (_.isEmpty(allExpanded)) {
+                  setAllMarkers(_.map(rows, 'allMarkers'));
+                  setSelectedShipment(null);
+                  setMarkers([]);
+                  setSelectedMarker({});
+                  setExpandedRows([]);
+                  setSteps([]);
+                } else {
+                  processMarkers(rows[_.last(allExpanded).dataIndex], true);
+                }
+              },
               renderExpandableRow: (rowData, rowMeta) => {
                 const colSpan = rowData.length + 1;
-                const ship = tableRow[rowMeta.dataIndex];
+                const ship = rows[rowMeta.dataIndex];
 
                 return (
                   <>
@@ -986,7 +1094,7 @@ const Shipment = ({ history }) => {
             }}
           />
         </Grid>
-      )}
+      </Grid>
     </Box>
   );
 };
