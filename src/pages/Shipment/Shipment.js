@@ -895,7 +895,6 @@ const Shipment = ({ history }) => {
                   }),
                   customBodyRenderLite: (dataIndex) => {
                     const ship = rows[dataIndex];
-                    console.log(ship);
                     const tTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.transmission_time });
                     const mTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.measurement_time });
 
