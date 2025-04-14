@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const getApiResponseQuery = async (url, header, displayAlert) => {
   try {
@@ -13,7 +14,7 @@ export const getApiResponseQuery = async (url, header, displayAlert) => {
     );
     return response;
   } catch (error) {
-    displayAlert('error', "Couldn't get api response due to some error!");
+    getErrorMessage(error, 'load API response data', displayAlert);
     return [];
   }
 };

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import _ from 'lodash';
 import getLocations from '@utils/getLocations';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useAddShipmentMutation = (organization, history, redirectTo, displayAlert) => {
   const queryClient = useQueryClient();
@@ -153,8 +154,8 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating shipment');
+      onError: (error) => {
+        getErrorMessage(error, 'create shipment', displayAlert);
       },
     },
   );

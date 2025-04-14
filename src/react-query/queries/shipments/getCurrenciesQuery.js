@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 import _ from 'lodash';
 
 export const getCurrenciesQuery = async (displayAlert) => {
@@ -15,7 +16,7 @@ export const getCurrenciesQuery = async (displayAlert) => {
     }
     return [];
   } catch (error) {
-    displayAlert('error', "Couldn't load currencies due to some error!");
+    getErrorMessage(error, 'load currencies data', displayAlert);
     return [];
   }
 };

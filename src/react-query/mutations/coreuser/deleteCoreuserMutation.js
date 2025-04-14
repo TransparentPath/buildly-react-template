@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useDeleteCoreuserMutation = (displayAlert) => {
   const queryClient = useQueryClient();
@@ -19,8 +20,8 @@ export const useDeleteCoreuserMutation = (displayAlert) => {
         });
         displayAlert('success', 'User successfully deleted!');
       },
-      onError: () => {
-        displayAlert('error', "Couldn't delete user!");
+      onError: (error) => {
+        getErrorMessage(error, 'delete user', displayAlert);
       },
     },
   );

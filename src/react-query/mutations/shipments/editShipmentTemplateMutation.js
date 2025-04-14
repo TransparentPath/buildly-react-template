@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useEditShipmentTemplateMutation = (
   organization,
@@ -23,8 +24,8 @@ export const useEditShipmentTemplateMutation = (
         });
         displayAlert('success', `Successfully edited template ${res.name}`);
       },
-      onError: () => {
-        displayAlert('error', 'Error in updating shipment template!');
+      onError: (error) => {
+        getErrorMessage(error, 'edit shipment template', displayAlert);
       },
     },
   );

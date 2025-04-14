@@ -1,6 +1,7 @@
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { oauthService } from '@modules/oauth/oauth.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useLoginMutation = (
   history,
@@ -30,8 +31,8 @@ export const useLoginMutation = (
     },
   },
   {
-    onError: () => {
-      displayAlert('error', 'Sign in failed');
+    onError: (error) => {
+      getErrorMessage(error, 'sign in', displayAlert);
     },
   },
 );

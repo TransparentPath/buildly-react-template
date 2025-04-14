@@ -1,6 +1,7 @@
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import _ from 'lodash';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useAddApiSetupMutation = (displayAlert) => useMutation(
   async (data) => {
@@ -27,8 +28,8 @@ export const useAddApiSetupMutation = (displayAlert) => useMutation(
     onSuccess: async (res) => {
       displayAlert('success', res.status);
     },
-    onError: () => {
-      displayAlert('error', "Couldn't setup API due to some error!");
+    onError: (error) => {
+      getErrorMessage(error, 'setup API', displayAlert);
     },
   },
 );

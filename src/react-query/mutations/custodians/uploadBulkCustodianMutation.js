@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useUploadBulkCustodianMutation = (organization, displayAlert) => {
   const queryClient = useQueryClient();
@@ -25,8 +26,8 @@ export const useUploadBulkCustodianMutation = (organization, displayAlert) => {
         });
         displayAlert('success', data.message);
       },
-      onError: (data) => {
-        displayAlert('error', data.message);
+      onError: (error) => {
+        getErrorMessage(error, 'upload bulk custodian', displayAlert);
       },
     },
   );

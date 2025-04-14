@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useEditTrackerOrderMutation = (org_uuid, displayAlert) => {
   const queryClient = useQueryClient();
@@ -20,8 +21,8 @@ export const useEditTrackerOrderMutation = (org_uuid, displayAlert) => {
         });
         displayAlert('success', 'Tracker Order sucessfully edited!');
       },
-      onError: () => {
-        displayAlert('error', 'Error in editing tracker order');
+      onError: (error) => {
+        getErrorMessage(error, 'edit tracker order', displayAlert);
       },
     },
   );

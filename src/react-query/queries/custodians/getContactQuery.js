@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const getContactQuery = async (organization, displayAlert) => {
   try {
@@ -8,7 +9,7 @@ export const getContactQuery = async (organization, displayAlert) => {
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load contact info due to some error!");
+    getErrorMessage(error, 'load contacts data', displayAlert);
     return [];
   }
 };

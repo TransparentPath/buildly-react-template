@@ -1,5 +1,6 @@
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useFetchNewGatewayMutation = (displayAlert) => useMutation(
   async (newGatewayData) => {
@@ -18,8 +19,8 @@ export const useFetchNewGatewayMutation = (displayAlert) => useMutation(
         displayAlert('info', 'No new trackers available to fetch');
       }
     },
-    onError: () => {
-      displayAlert('error', 'Error in fetching trackers');
+    onError: (error) => {
+      getErrorMessage(error, 'fetch trackers', displayAlert);
     },
   },
 );

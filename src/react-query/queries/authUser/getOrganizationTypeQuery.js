@@ -1,6 +1,7 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
-export const getOrganizationTypeQuery = async () => {
+export const getOrganizationTypeQuery = async (displayAlert) => {
   try {
     const response = await httpService.makeRequest(
       'get',
@@ -8,6 +9,7 @@ export const getOrganizationTypeQuery = async () => {
     );
     return response.data;
   } catch (error) {
+    getErrorMessage(error, 'load organization types data', displayAlert);
     return [];
   }
 };

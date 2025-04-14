@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 import _ from 'lodash';
 
 export const getSensorReportQuery = async (shipmentIds, count, displayAlert) => {
@@ -17,7 +18,7 @@ export const getSensorReportQuery = async (shipmentIds, count, displayAlert) => 
     }
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load sensor reports due to some error!");
+    getErrorMessage(error, 'load sensor reports data', displayAlert);
     return [];
   }
 };

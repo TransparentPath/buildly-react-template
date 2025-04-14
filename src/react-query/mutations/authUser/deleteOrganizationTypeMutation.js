@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useDeleteOrganizationTypeMutation = (displayAlert) => {
   const queryClient = useQueryClient();
@@ -18,8 +19,8 @@ export const useDeleteOrganizationTypeMutation = (displayAlert) => {
         });
         displayAlert('success', 'Organization type deleted successfully!');
       },
-      onError: () => {
-        displayAlert('error', 'Error in deleting organization type!');
+      onError: (error) => {
+        getErrorMessage(error, 'delete organization type', displayAlert);
       },
     },
   );

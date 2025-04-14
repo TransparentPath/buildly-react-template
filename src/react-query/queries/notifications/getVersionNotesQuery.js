@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const getVersionNotesQuery = async (versionNumber, displayAlert) => {
   try {
@@ -8,7 +9,7 @@ export const getVersionNotesQuery = async (versionNumber, displayAlert) => {
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load version notes due to some error!");
+    getErrorMessage(error, 'load version notes data', displayAlert);
     return [];
   }
 };

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useAddOrganizationTypeMutation = (history, redirectTo, displayAlert) => {
   const queryClient = useQueryClient();
@@ -23,8 +24,8 @@ export const useAddOrganizationTypeMutation = (history, redirectTo, displayAlert
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating organization type');
+      onError: (error) => {
+        getErrorMessage(error, 'create organization type', displayAlert);
       },
     },
   );

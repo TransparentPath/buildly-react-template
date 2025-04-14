@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const getProductTypeQuery = async (organization, displayAlert) => {
   try {
@@ -8,7 +9,7 @@ export const getProductTypeQuery = async (organization, displayAlert) => {
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load product types due to some error!");
+    getErrorMessage(error, 'load product types data', displayAlert);
     return [];
   }
 };

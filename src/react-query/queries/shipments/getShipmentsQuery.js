@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 import _ from 'lodash';
 
 export const getShipmentsQuery = async (organization, status, displayAlert, shipmentId = null) => {
@@ -41,7 +42,7 @@ export const getShipmentsQuery = async (organization, status, displayAlert, ship
     }
     return [];
   } catch (error) {
-    displayAlert('error', "Couldn't load shipments due to some error!");
+    getErrorMessage(error, 'load shipments data', displayAlert);
     return [];
   }
 };

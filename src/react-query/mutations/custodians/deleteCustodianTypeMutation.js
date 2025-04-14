@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useDeleteCustodianTypeMutation = (displayAlert) => {
   const queryClient = useQueryClient();
@@ -18,8 +19,8 @@ export const useDeleteCustodianTypeMutation = (displayAlert) => {
         });
         displayAlert('success', 'Custodian type deleted successfully!');
       },
-      onError: () => {
-        displayAlert('error', 'Error in deleting custodian type!');
+      onError: (error) => {
+        getErrorMessage(error, 'delete custodian type', displayAlert);
       },
     },
   );

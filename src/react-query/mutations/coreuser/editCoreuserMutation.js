@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useEditCoreuserMutation = (displayAlert) => {
   const queryClient = useQueryClient();
@@ -20,8 +21,8 @@ export const useEditCoreuserMutation = (displayAlert) => {
         });
         displayAlert('success', 'User successfully edited!');
       },
-      onError: () => {
-        displayAlert('error', "Couldn't edit user!");
+      onError: (error) => {
+        getErrorMessage(error, 'edit user', displayAlert);
       },
     },
   );

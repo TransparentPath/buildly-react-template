@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useDeleteShipmentTemplateMutation = (organization, displayAlert) => {
   const queryClient = useQueryClient();
@@ -18,8 +19,8 @@ export const useDeleteShipmentTemplateMutation = (organization, displayAlert) =>
         });
         displayAlert('success', 'Successfully deleted template');
       },
-      onError: () => {
-        displayAlert('error', 'Error in deleting shipment template!');
+      onError: (error) => {
+        getErrorMessage(error, 'delete shipment template', displayAlert);
       },
     },
   );

@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 import _ from 'lodash';
 
 export const getSensorProcessedDataQuery = async (selectedShipment, displayAlert) => {
@@ -9,7 +10,7 @@ export const getSensorProcessedDataQuery = async (selectedShipment, displayAlert
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load sensor processed data due to some error!");
+    getErrorMessage(error, 'load sensor processed data', displayAlert);
     return [];
   }
 };

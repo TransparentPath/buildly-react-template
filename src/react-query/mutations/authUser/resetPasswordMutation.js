@@ -1,6 +1,7 @@
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { routes } from '@routes/routesConstants';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useResetPasswordMutation = (
   displayAlert,
@@ -35,8 +36,8 @@ export const useResetPasswordMutation = (
         });
       }
     },
-    onError: () => {
-      displayAlert('error', 'Email could not be sent');
+    onError: (error) => {
+      getErrorMessage(error, 'send the email', displayAlert);
     },
   },
 );

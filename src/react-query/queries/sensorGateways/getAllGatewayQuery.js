@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 import _ from 'lodash';
 
 export const getAllGatewayQuery = async (displayAlert) => {
@@ -13,7 +14,7 @@ export const getAllGatewayQuery = async (displayAlert) => {
     );
     return data;
   } catch (error) {
-    displayAlert('error', "Couldn't load all trackers due to some error!");
+    getErrorMessage(error, 'load all trackers data', displayAlert);
     return [];
   }
 };

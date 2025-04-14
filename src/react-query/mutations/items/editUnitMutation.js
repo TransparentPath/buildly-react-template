@@ -1,6 +1,7 @@
 /* eslint-disable no-alert */
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useEditUnitMutation = (organization, displayAlert) => {
   const queryClient = useQueryClient();
@@ -21,8 +22,8 @@ export const useEditUnitMutation = (organization, displayAlert) => {
         });
         displayAlert('success', 'Unit of measure successfully edited!');
       },
-      onError: () => {
-        displayAlert('error', "Couldn't edit unit of measure!");
+      onError: (error) => {
+        getErrorMessage(error, 'edit unit of measure', displayAlert);
       },
     },
   );

@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 import _ from 'lodash';
 
 export const getCustodyQuery = async (shipmentIds, displayAlert) => {
@@ -9,7 +10,7 @@ export const getCustodyQuery = async (shipmentIds, displayAlert) => {
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load custodies due to some error!");
+    getErrorMessage(error, 'load custodies data', displayAlert);
     return [];
   }
 };

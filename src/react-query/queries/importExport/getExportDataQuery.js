@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const getExportDataQuery = async (exportTable, exportType, displayAlert) => {
   let endPoint;
@@ -20,7 +21,7 @@ export const getExportDataQuery = async (exportTable, exportType, displayAlert) 
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', 'Error in exporting data');
+    getErrorMessage(error, 'export data', displayAlert);
     return [];
   }
 };

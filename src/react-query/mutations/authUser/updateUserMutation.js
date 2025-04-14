@@ -1,6 +1,7 @@
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { oauthService } from '@modules/oauth/oauth.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useUpdateUserMutation = (
   history,
@@ -46,8 +47,8 @@ export const useUpdateUserMutation = (
     },
   },
   {
-    onError: () => {
-      displayAlert('error', 'Unable to update user details');
+    onError: (error) => {
+      getErrorMessage(error, 'update user details', displayAlert);
     },
   },
 );

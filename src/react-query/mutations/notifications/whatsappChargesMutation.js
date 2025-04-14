@@ -1,6 +1,7 @@
 import { useMutation } from 'react-query';
 import _ from 'lodash';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useWhatsappChargesMutation = (displayAlert) => useMutation(
   async (whatsappChargesData) => {
@@ -12,8 +13,8 @@ export const useWhatsappChargesMutation = (displayAlert) => useMutation(
     return response.data;
   },
   {
-    onError: () => {
-      displayAlert('error', 'Error in fetching WhatsApp charges');
+    onError: (error) => {
+      getErrorMessage(error, 'fetch Whatsapp charges', displayAlert);
     },
   },
 );

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import _ from 'lodash';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useReportPDFDownloadMutation = (
   shipmentFilter,
@@ -27,8 +28,8 @@ export const useReportPDFDownloadMutation = (
           queryKey: ['shipments', shipmentFilter, locShipmentID, organization],
         });
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating report');
+      onError: (error) => {
+        getErrorMessage(error, 'create report', displayAlert);
       },
     },
   );

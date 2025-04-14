@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 import _ from 'lodash';
 
 export const getGatewayQuery = async (organization, displayAlert) => {
@@ -13,7 +14,7 @@ export const getGatewayQuery = async (organization, displayAlert) => {
     );
     return data;
   } catch (error) {
-    displayAlert('error', "Couldn't load trackers due to some error!");
+    getErrorMessage(error, 'load trackers data', displayAlert);
     return [];
   }
 };

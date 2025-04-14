@@ -110,3 +110,16 @@ export const getTranslatedLanguage = () => {
   const parts = !_.isEmpty(value) && value.split('/');
   return !_.isEmpty(parts) && parts[_.size(parts) - 1];
 };
+
+export const getErrorMessage = (error, message, displayAlert) => {
+  let errorMessage = `Unable to ${message}`;
+  let errorCode = 'Unknown';
+  if (error.response) {
+    const { status, data } = error.response;
+    errorCode = status || 'Unknown';
+    if (data?.message) {
+      errorMessage = data.message;
+    }
+  }
+  displayAlert('error', `${errorMessage} due to error code ${errorCode}`);
+};

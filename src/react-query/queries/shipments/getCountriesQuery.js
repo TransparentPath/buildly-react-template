@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 import _ from 'lodash';
 
 export const getCountriesQuery = async (displayAlert) => {
@@ -39,7 +40,7 @@ export const getCountriesQuery = async (displayAlert) => {
     }
     return [];
   } catch (error) {
-    displayAlert('error', "Couldn't load countries and related states due to some error!");
+    getErrorMessage(error, 'load countries and related states data', displayAlert);
     return [];
   }
 };

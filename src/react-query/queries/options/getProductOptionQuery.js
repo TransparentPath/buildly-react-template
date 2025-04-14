@@ -1,6 +1,7 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
-export const getProductOptionQuery = async () => {
+export const getProductOptionQuery = async (displayAlert) => {
   try {
     const response = await httpService.makeOptionsRequest(
       'options',
@@ -10,6 +11,7 @@ export const getProductOptionQuery = async () => {
     const data = response.json();
     return data;
   } catch (error) {
+    getErrorMessage(error, 'load product options data', displayAlert);
     return [];
   }
 };

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useEditOrganizationTypeMutation = (history, redirectTo, displayAlert) => {
   const queryClient = useQueryClient();
@@ -23,8 +24,8 @@ export const useEditOrganizationTypeMutation = (history, redirectTo, displayAler
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', "Couldn't edit organization type!");
+      onError: (error) => {
+        getErrorMessage(error, 'edit organization type', displayAlert);
       },
     },
   );

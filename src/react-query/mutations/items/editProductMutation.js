@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useEditProductMutation = (organization, history, redirectTo, displayAlert) => {
   const queryClient = useQueryClient();
@@ -23,8 +24,8 @@ export const useEditProductMutation = (organization, history, redirectTo, displa
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', "Couldn't edit product!");
+      onError: (error) => {
+        getErrorMessage(error, 'edit product', displayAlert);
       },
     },
   );

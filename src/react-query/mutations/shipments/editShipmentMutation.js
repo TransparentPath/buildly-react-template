@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import _ from 'lodash';
 import getLocations from '@utils/getLocations';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useEditShipmentMutation = (organization, history, redirectTo, displayAlert) => {
   const queryClient = useQueryClient();
@@ -156,6 +157,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
                 gateway_status = updateGateway.gateway_status;
                 shipment_ids = updateGateway.shipment_ids;
                 battery_alert_level = updateGateway.battery_alert_level;
+                break;
               case 'Cancelled':
               case 'Damaged':
               case 'Battery Depleted':
@@ -215,8 +217,8 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating shipment');
+      onError: (error) => {
+        getErrorMessage(error, 'edit shipment', displayAlert);
       },
     },
   );

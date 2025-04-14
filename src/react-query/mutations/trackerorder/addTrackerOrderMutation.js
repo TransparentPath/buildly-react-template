@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useAddTrackerOrderMutation = (history, redirectTo, displayAlert, setCart) => {
   const queryClient = useQueryClient();
@@ -26,8 +27,8 @@ export const useAddTrackerOrderMutation = (history, redirectTo, displayAlert, se
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating tracker order');
+      onError: (error) => {
+        getErrorMessage(error, 'create tracker order', displayAlert);
       },
     },
   );

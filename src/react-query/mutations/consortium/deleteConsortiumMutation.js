@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useDeleteConsortiumMutation = (displayAlert) => {
   const queryClient = useQueryClient();
@@ -18,8 +19,8 @@ export const useDeleteConsortiumMutation = (displayAlert) => {
         });
         displayAlert('success', 'Consortium deleted successfully!');
       },
-      onError: () => {
-        displayAlert('error', 'Error in deleting consortium!');
+      onError: (error) => {
+        getErrorMessage(error, 'delete consortium', displayAlert);
       },
     },
   );

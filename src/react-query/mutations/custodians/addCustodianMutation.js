@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useAddCustodianMutation = (
   organization,
@@ -58,8 +59,8 @@ export const useAddCustodianMutation = (
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating custodian');
+      onError: (error) => {
+        getErrorMessage(error, 'create custodian', displayAlert);
       },
     },
   );

@@ -50,19 +50,19 @@ const AddFromAPI = () => {
 
   const { data: itemOptionData, isLoading: isLoadingItemOptions } = useQuery(
     ['itemOptions'],
-    () => getItemOptionQuery(),
+    () => getItemOptionQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
   const { data: gatewayOptionData, isLoading: isLoadingGatewayOptions } = useQuery(
     ['gatewayOptions'],
-    () => getGatewayOptionQuery(),
+    () => getGatewayOptionQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
   const { data: productOptionData, isLoading: isLoadingProductOptions } = useQuery(
     ['productOptions'],
-    () => getProductOptionQuery(),
+    () => getProductOptionQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 

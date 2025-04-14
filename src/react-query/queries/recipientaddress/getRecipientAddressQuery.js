@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const getRecipientAddressQuery = async (organization_uuid, displayAlert) => {
   try {
@@ -8,7 +9,7 @@ export const getRecipientAddressQuery = async (organization_uuid, displayAlert) 
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load recipient addresses due to some error!");
+    getErrorMessage(error, 'load recipient addresses data', displayAlert);
     return [];
   }
 };

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { oauthService } from '@modules/oauth/oauth.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useUpdateOrganizationMutation = (discardFormData, displayAlert) => {
   const queryClient = useQueryClient();
@@ -31,8 +32,8 @@ export const useUpdateOrganizationMutation = (discardFormData, displayAlert) => 
         displayAlert('success', 'Organization settings successfully updated!');
         discardFormData();
       },
-      onError: () => {
-        displayAlert('error', "Couldn't update organization settings!");
+      onError: (error) => {
+        getErrorMessage(error, 'update organization settings', displayAlert);
       },
     },
   );

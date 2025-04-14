@@ -1,6 +1,7 @@
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import _ from 'lodash';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useAddFromFileMutation = (model, displayAlert) => useMutation(
   async (data) => {
@@ -29,8 +30,8 @@ export const useAddFromFileMutation = (model, displayAlert) => useMutation(
     onSuccess: async (res) => {
       displayAlert('success', res.status);
     },
-    onError: () => {
-      displayAlert('error', `Couldn't import ${_.capitalize(model)} data due to some error!`);
+    onError: (error) => {
+      getErrorMessage(error, `import ${_.capitalize(model)}`, displayAlert);
     },
   },
 );

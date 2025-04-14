@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useDeleteItemTypeMutation = (organization, displayAlert) => {
   const queryClient = useQueryClient();
@@ -18,8 +19,8 @@ export const useDeleteItemTypeMutation = (organization, displayAlert) => {
         });
         displayAlert('success', 'Item type deleted successfully!');
       },
-      onError: () => {
-        displayAlert('error', 'Error in deleting item type!');
+      onError: (error) => {
+        getErrorMessage(error, 'delete item type', displayAlert);
       },
     },
   );

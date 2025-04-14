@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useSyncGatewayMutation = (
   organization,
@@ -23,8 +24,8 @@ export const useSyncGatewayMutation = (
         });
         displayAlert('success', 'Successfully synced trackers');
       },
-      onError: () => {
-        displayAlert('error', 'Error in syncing trackers');
+      onError: (error) => {
+        getErrorMessage(error, 'sync trackers', displayAlert);
       },
     },
   );

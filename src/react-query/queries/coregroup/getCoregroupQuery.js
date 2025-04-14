@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const getCoregroupQuery = async (displayAlert) => {
   try {
@@ -8,7 +9,7 @@ export const getCoregroupQuery = async (displayAlert) => {
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load core groups due to some error!");
+    getErrorMessage(error, 'load core groups data', displayAlert);
     return [];
   }
 };

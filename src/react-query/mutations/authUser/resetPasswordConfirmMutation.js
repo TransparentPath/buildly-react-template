@@ -1,5 +1,6 @@
 import { useMutation } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useResetPasswordConfirmMutation = (
   history,
@@ -19,8 +20,8 @@ export const useResetPasswordConfirmMutation = (
       displayAlert('success', data.detail);
       history.push(redirectTo);
     },
-    onError: () => {
-      displayAlert('error', 'Password reset failed');
+    onError: (error) => {
+      getErrorMessage(error, 'reset the password', displayAlert);
     },
   },
 );

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useAddConsortiumMutation = (history, redirectTo, displayAlert) => {
   const queryClient = useQueryClient();
@@ -23,8 +24,8 @@ export const useAddConsortiumMutation = (history, redirectTo, displayAlert) => {
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating consortium');
+      onError: (error) => {
+        getErrorMessage(error, 'create consortium', displayAlert);
       },
     },
   );

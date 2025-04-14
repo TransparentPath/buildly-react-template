@@ -1,4 +1,5 @@
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const getCustodianTypeQuery = async (displayAlert) => {
   try {
@@ -8,7 +9,7 @@ export const getCustodianTypeQuery = async (displayAlert) => {
     );
     return response.data;
   } catch (error) {
-    displayAlert('error', "Couldn't load custodian types due to some error!");
+    getErrorMessage(error, 'load custodian types data', displayAlert);
     return [];
   }
 };

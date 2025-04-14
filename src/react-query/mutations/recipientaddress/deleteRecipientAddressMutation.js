@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useDeleteRecipientAddressMutation = (displayAlert) => {
   const queryClient = useQueryClient();
@@ -18,8 +19,8 @@ export const useDeleteRecipientAddressMutation = (displayAlert) => {
         });
         displayAlert('success', 'Recipient address deleted successfully!');
       },
-      onError: () => {
-        displayAlert('error', 'Error in deleting recipient address!');
+      onError: (error) => {
+        getErrorMessage(error, 'delete recipient address', displayAlert);
       },
     },
   );

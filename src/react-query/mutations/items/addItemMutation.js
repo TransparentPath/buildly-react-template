@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useAddItemMutation = (
   organization,
@@ -28,8 +29,8 @@ export const useAddItemMutation = (
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating item');
+      onError: (error) => {
+        getErrorMessage(error, 'create item', displayAlert);
       },
     },
   );

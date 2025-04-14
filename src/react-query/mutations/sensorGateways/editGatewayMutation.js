@@ -1,6 +1,7 @@
 /* eslint-disable no-else-return */
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
+import { getErrorMessage } from '@utils/utilMethods';
 
 export const useEditGatewayMutation = (
   organization,
@@ -42,8 +43,8 @@ export const useEditGatewayMutation = (
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', "Couldn't edit tracker(s) due to some error!");
+      onError: (error) => {
+        getErrorMessage(error, 'edit tracker(s)', displayAlert);
       },
     },
   );
