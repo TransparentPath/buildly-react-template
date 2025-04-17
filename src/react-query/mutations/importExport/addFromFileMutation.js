@@ -16,12 +16,10 @@ export const useAddFromFileMutation = (model, displayAlert) => useMutation(
       default:
         break;
     }
-    const response = await httpService.makeRequest(
+    const response = await httpService.makeMultipartRequest(
       'post',
       `${window.env.API_URL}${endPoint}`,
       data,
-      null,
-      'multipart/form-data',
     );
     return response.data;
   },

@@ -5,13 +5,14 @@ export const useUploadBulkCustodianMutation = (organization, displayAlert) => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    async (formData) => {
-      const uploadResponse = await httpService.makeRequest(
+    async (file) => {
+      const formData = new FormData();
+      formData.append('bulk_data_file', file);
+      formData.append('organization_uuid', organization);
+      const uploadResponse = await httpService.makeMultipartRequest(
         'post',
         `${window.env.CUSTODIAN_URL}upload_bulk_custodians/`,
         formData,
-        null,
-        'multipart/form-data',
       );
       return uploadResponse.data;
     },
