@@ -6,12 +6,10 @@ export const useUploadBulkCustodianMutation = (organization, displayAlert) => {
 
   return useMutation(
     async (formData) => {
-      const uploadResponse = await httpService.makeRequest(
+      const uploadResponse = await httpService.makeMultipartRequest(
         'post',
         `${window.env.CUSTODIAN_URL}upload_bulk_custodians/`,
         formData,
-        null,
-        'multipart/form-data',
       );
       return uploadResponse.data;
     },
