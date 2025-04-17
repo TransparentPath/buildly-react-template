@@ -76,8 +76,28 @@ function makeRequestWithoutHeaders(method, url, body) {
   return request(url, options);
 }
 
+function makeMultipartRequest(method, url, formData) {
+  const tokenType = 'Bearer';
+  const token = oauthService.getAccessToken();
+
+  const headers = {
+    Authorization: `${tokenType} ${token}`,
+  };
+
+  const options = {
+    method,
+    data: formData,
+    headers,
+    returnPromise: true,
+    responseType: null,
+  };
+
+  return request(url, options);
+}
+
 export const httpService = {
   makeRequest,
   makeOptionsRequest,
   makeRequestWithoutHeaders,
+  makeMultipartRequest,
 };
