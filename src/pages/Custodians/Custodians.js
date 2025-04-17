@@ -119,7 +119,10 @@ const Custodian = ({ history, redirectTo }) => {
 
   const onUploadData = (file) => {
     event.preventDefault();
-    uploadBulkCustodianMutation(file);
+    const formData = new FormData();
+    formData.append('bulk_data_file', file, file.name);
+    formData.append('organization_uuid', organization);
+    uploadBulkCustodianMutation(formData);
   };
 
   return (
