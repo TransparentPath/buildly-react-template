@@ -248,10 +248,13 @@ const AddShipper = ({
         Geocode.fromLatLng(lat, lng)
           .then((response) => {
             const addressComponents = response.results[0].address_components;
-            let locality = addressComponents.find((component) => component.types.includes('administrative_area_level_3'))?.long_name;
-            if (!locality) {
-              locality = addressComponents.find((component) => component.types.includes('locality'))?.long_name;
-            }
+            const localityTypes = [
+              'administrative_area_level_3',
+              'locality',
+              'administrative_area_level_1',
+              'administrative_area_level_2',
+            ];
+            const locality = localityTypes.reduce((result, type) => result || addressComponents.find((component) => component.types.includes(type))?.long_name, '');
             const zipCode = addressComponents.find((component) => component.types.includes('postal_code'))?.long_name;
             let filteredAddressDesc = addressDesc.slice(0, -2);
             filteredAddressDesc = filteredAddressDesc.filter((item) => item !== locality);
