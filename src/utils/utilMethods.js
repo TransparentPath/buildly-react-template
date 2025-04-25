@@ -1,6 +1,14 @@
 import _ from 'lodash';
 import moment from 'moment-timezone';
 
+/**
+ * Checks whether the given user is a Global Admin.
+ * A Global Admin is someone whose group is marked as `is_global`
+ * and has all permissions set to `true`.
+ *
+ * @param {Object} userData - User data containing core_groups.
+ * @returns {boolean} - True if user is a Global Admin, false otherwise.
+ */
 export const checkForGlobalAdmin = (userData) => {
   let isGlobalAdmin = false;
   if (userData && userData.core_groups) {
@@ -18,6 +26,14 @@ export const checkForGlobalAdmin = (userData) => {
   return isGlobalAdmin;
 };
 
+/**
+ * Checks whether the given user is an Organization-level Admin.
+ * This means `is_org_level` is true, `is_global` is false,
+ * and all permissions are set to true.
+ *
+ * @param {Object} userData - User data containing core_groups.
+ * @returns {boolean} - True if user is an Org Admin, false otherwise.
+ */
 export const checkForAdmin = (userData) => {
   let isAdmin = false;
   if (userData && userData.core_groups) {
@@ -36,6 +52,13 @@ export const checkForAdmin = (userData) => {
   return isAdmin;
 };
 
+/**
+ * Retrieves the options value for a specific field name.
+ *
+ * @param {Object} options - A dictionary of field options.
+ * @param {string} fieldName - The field name whose options are needed.
+ * @returns {any} - The value of the field's options, or null if not found.
+ */
 export const setOptionsData = (options, fieldName) => {
   let result = null;
   const optionKeys = Object.keys(options);
@@ -45,6 +68,13 @@ export const setOptionsData = (options, fieldName) => {
   return result;
 };
 
+/**
+ * Converts distance between kilometers and miles.
+ *
+ * @param {string} currentUom - The current unit of measure (e.g., 'miles' or 'kilometers').
+ * @param {number} radius - The distance value to convert.
+ * @returns {number} - The converted distance.
+ */
 export const uomDistanceUpdate = (currentUom, radius) => {
   let convertedRadius = 0;
   switch (true) {
@@ -64,6 +94,13 @@ export const uomDistanceUpdate = (currentUom, radius) => {
   return convertedRadius;
 };
 
+/**
+ * Extracts the country from an address string.
+ * Assumes country is the last segment in the address after the final comma.
+ *
+ * @param {string} address - A full address string.
+ * @returns {string|null} - The extracted country, or null if not found.
+ */
 export const extractCountry = (address) => {
   const countryRegex = /(?:^|,)\s*([A-Za-z\s]+)$/;
   const matches = address.match(countryRegex);
@@ -73,10 +110,32 @@ export const extractCountry = (address) => {
   return null;
 };
 
+/**
+ * Formats a date according to the given time zone and format.
+ *
+ * @param {string|Date} value - The date to format.
+ * @param {string} timeZone - Target timezone (e.g., 'America/New_York').
+ * @param {string} displayFormat - Moment.js format string.
+ * @returns {string} - Formatted date string.
+ */
 export const formatDate = (value, timeZone, displayFormat) => moment(value).tz(timeZone).format(displayFormat);
 
+/**
+ * Gets the short time zone abbreviation for a date.
+ *
+ * @param {string|Date} value - The date to convert.
+ * @param {string} timeZone - Target time zone.
+ * @returns {string} - Timezone abbreviation (e.g., 'PST', 'EST').
+ */
 export const getTimezone = (value, timeZone) => moment.tz(value, timeZone).format('z');
 
+/**
+ * Calculates the difference between two dates and returns a human-readable string.
+ *
+ * @param {string|Date} initialDate - Start date.
+ * @param {string|Date} finalDate - End date.
+ * @returns {string} - Difference in format like "5 days, 4 hrs., 30 min."
+ */
 export const dateDifference = (initialDate, finalDate) => {
   const date1 = moment(initialDate);
   const date2 = moment(finalDate);
@@ -89,6 +148,14 @@ export const dateDifference = (initialDate, finalDate) => {
   return dateString;
 };
 
+/**
+ * Calculates bounding box lat/lng values around a given point for a radius in miles.
+ *
+ * @param {number} lat - Latitude.
+ * @param {number} lng - Longitude.
+ * @param {number} miles - Radius in miles.
+ * @returns {Object} - An object with min/max lat/lng bounds.
+ */
 export const calculateLatLngBounds = (lat, lng, miles) => {
   const milesToLatDegree = miles / 69;
   const maxLat = lat + milesToLatDegree;
@@ -104,9 +171,34 @@ export const calculateLatLngBounds = (lat, lng, miles) => {
   };
 };
 
+/**
+ * Extracts the currently translated language from the Google Translate cookie.
+ *
+ * @returns {string|null} - Language code (e.g., 'en', 'es') or null if not found.
+ */
 export const getTranslatedLanguage = () => {
   const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
   const value = !_.isEmpty(match) ? decodeURIComponent(match[2]) : null;
   const parts = !_.isEmpty(value) && value.split('/');
   return !_.isEmpty(parts) && parts[_.size(parts) - 1];
+};
+
+/**
+ * Constructs and displays a user-friendly error message from an API error response.
+ *
+ * @param {Object} error - The error object, typically from an Axios catch block.
+ * @param {string} message - Context message to include (e.g., 'fetch data').
+ * @param {function} displayAlert - Callback function to show an alert (e.g., toast).
+ */
+export const getErrorMessage = (error, message, displayAlert) => {
+  let errorMessage = `Unable to ${message}`;
+  let errorCode = 'Unknown';
+  if (error.response) {
+    const { status, data } = error.response;
+    errorCode = status || 'Unknown';
+    if (data?.message) {
+      errorMessage = data.message;
+    }
+  }
+  displayAlert('error', `${errorMessage} due to error code ${errorCode}`);
 };

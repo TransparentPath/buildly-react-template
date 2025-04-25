@@ -1,3 +1,10 @@
+/**
+ * @file AddFromAPI.jsx
+ * @description Component for configuring API integrations to import external data.
+ * Supports mapping external API data to internal data structures for items, products,
+ * and gateways. Includes validation, preview, and external provider detection.
+ */
+
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import {
@@ -23,31 +30,72 @@ import { useAddApiSetupMutation } from '@react-query/mutations/importExport/addA
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
 
+/**
+ * AddFromAPI Component
+ *
+ * Provides an interface for configuring external API integrations with features:
+ * - API endpoint configuration
+ * - Authentication setup (API key in header or query param)
+ * - Data mapping between external and internal schemas
+ * - Support for multiple data types (items, products, gateways)
+ * - External provider detection (e.g., Tive integration)
+ * - Preview of API response data
+ * - Field validation and error handling
+ */
 const AddFromAPI = () => {
+  /**
+   * Current user's organization UUID for API requests
+   * @type {string}
+   */
   const organization = getUser().organization.organization_uuid;
 
+  /**
+   * Alert hook for displaying notifications
+   */
   const { displayAlert } = useAlert();
 
+  /**
+   * State Management
+   * @type {Object} Column definitions and mappings
+   */
   const [tableColumns, setTableColumns] = useState({});
   const [mapColumns, setMapColumns] = useState({});
   const [apiColumns, setAPIColumns] = useState({});
+
+  /**
+   * Form Input States
+   * Using custom useInput hook for form field management
+   */
   const apiURL = useInput('', { required: true });
   const keyParamName = useInput('', { required: true });
   const keyParamPlace = useInput('', { required: true });
   const apiKey = useInput('', { required: true });
   const apiResponseData = useInput('');
   const dataFor = useInput('', { required: true });
+
+  /**
+   * UI State Management
+   */
   const [formError, setFormError] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [finalUrl, setFinalUrl] = useState('');
   const [reqHeader, setReqHeader] = useState('');
+
+  /**
+   * External Provider Configuration
+   * @type {Object} Provider settings including name and supported data types
+   */
   const [provider, setProvider] = useState({
     name: null,
     dataTypes: [],
     apiResponseData: '',
   });
 
+  /**
+   * Data Fetching
+   * Queries for available options and configurations
+   */
   const { data: itemOptionData, isLoading: isLoadingItemOptions } = useQuery(
     ['itemOptions'],
     () => getItemOptionQuery(),
@@ -66,6 +114,10 @@ const AddFromAPI = () => {
     { refetchOnWindowFocus: false },
   );
 
+  /**
+   * API Response Query
+   * Fetches sample data from configured endpoint
+   */
   const { data: apiResponse, isLoading: isLoadingApiResponse } = useQuery(
     ['apiResponse'],
     () => getApiResponseQuery(finalUrl, reqHeader, displayAlert),
@@ -75,6 +127,10 @@ const AddFromAPI = () => {
     },
   );
 
+  /**
+   * Available data types for import
+   * Maps internal data types to their configurations and external providers
+   */
   const dataTypes = [
     {
       name: 'Items',
@@ -96,17 +152,25 @@ const AddFromAPI = () => {
     },
   ];
 
+  /**
+   * Updates dataTypes with latest option data
+   */
   useEffect(() => {
     dataTypes[0].option = itemOptionData;
     dataTypes[1].option = productOptionData;
     dataTypes[2].option = gatewayOptionData;
   }, [itemOptionData, gatewayOptionData, productOptionData]);
 
+  /**
+   * Mutation for saving API configuration
+   */
   const { mutate: addApiSetupMutation, isLoading: isAddingApiSetup } = useAddApiSetupMutation(displayAlert);
 
   /**
-   * Submit The form and add/edit custodian type
-   * @param {Event} event the default submit event
+   * Handles form submission
+   * Creates API configuration with mapped fields
+   *
+   * @param {Event} event Form submission event
    */
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -144,13 +208,15 @@ const AddFromAPI = () => {
   };
 
   /**
-   * Handle input field blur event
-   * @param {Event} e Event
-   * @param {String} validation validation type if any
-   * @param {Object} input input field
+   * Validates form fields and handles API configuration preview
+   *
+   * @param {Event} e Blur event
+   * @param {String} validation Validation type
+   * @param {Object} input Input field reference
+   * @param {string} parentId Parent element ID
    */
-
   const handleBlur = (e, validation, input, parentId = '') => {
+    // Field validation
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
     if (validateObj && validateObj.error) {
@@ -168,6 +234,7 @@ const AddFromAPI = () => {
       });
     }
 
+    // Data type selection handling
     if (parentId === 'dataFor') {
       const table = _.find(dataTypes, { value: input.value });
       const cols = table.option.actions.POST;
@@ -192,6 +259,7 @@ const AddFromAPI = () => {
       setMapColumns(mapCols);
     }
 
+    // API configuration preview
     if (
       apiURL.value
       && keyParamName.value
@@ -201,6 +269,8 @@ const AddFromAPI = () => {
       const url = _.endsWith(apiURL.value, '/')
         ? apiURL.value
         : `${apiURL.value}/`;
+
+      // External provider detection
       if (_.includes(url, 'tive.co')) {
         const providerDataType = _.filter(
           dataTypes,
@@ -218,6 +288,8 @@ const AddFromAPI = () => {
           apiResponseData: '',
         });
       }
+
+      // Preview modal content
       const queryUrl = (
         <>
           <Typography variant="body1">
@@ -251,6 +323,8 @@ const AddFromAPI = () => {
           </Typography>
         </>
       );
+
+      // Set final URL and headers
       const final = keyParamPlace.value === 'queryParam'
         ? {
           url: `${url}?${keyParamName.value}=${apiKey.value}`,
@@ -274,6 +348,7 @@ const AddFromAPI = () => {
       }
     }
 
+    // API response data handling
     if (e.target.id === 'apiResponseData' && input.value) {
       const cols = apiResponse[input.value][0];
 
@@ -283,6 +358,10 @@ const AddFromAPI = () => {
     }
   };
 
+  /**
+   * Validates form state for submission
+   * @returns {boolean} True if form should be disabled
+   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     let check = (
@@ -310,10 +389,20 @@ const AddFromAPI = () => {
     return errorExists;
   };
 
+  /**
+   * Handles confirmation modal closure
+   */
   const handleConfirmModal = () => {
     setOpenModal(false);
   };
 
+  /**
+   * Handles column mapping changes
+   * Validates for duplicate mappings
+   *
+   * @param {Event} e Change event
+   * @param {string} key Column key
+   */
   const handleMapColumn = (e, key) => {
     const present = _.find(mapColumns, { value: e.target.value });
 
@@ -346,6 +435,7 @@ const AddFromAPI = () => {
 
   return (
     <div>
+      {/* Loading indicator */}
       {(isLoadingItemOptions
         || isLoadingProductOptions
         || isLoadingGatewayOptions
@@ -365,6 +455,7 @@ const AddFromAPI = () => {
         onSubmit={handleSubmit}
       >
         <Grid container spacing={isDesktop2() ? 2 : 0}>
+          {/* API Configuration Section */}
           <Grid item xs={12}>
             <TextField
               variant="outlined"
@@ -447,6 +538,8 @@ const AddFromAPI = () => {
               {...apiKey.bind}
             />
           </Grid>
+
+          {/* External Provider Section */}
           {provider.name
             && (
               <Grid item xs={12}>
@@ -487,6 +580,8 @@ const AddFromAPI = () => {
                 </Grid>
               </Grid>
             )}
+
+          {/* API Response Preview Section */}
           {apiResponse
             && (
               <Grid item xs={12}>
@@ -548,6 +643,8 @@ const AddFromAPI = () => {
                 </TextField>
               </Grid>
             )}
+
+          {/* Column Mapping Section */}
           {!_.isEmpty(tableColumns)
             && !_.isEmpty(mapColumns)
             && !_.isEmpty(apiColumns)
@@ -611,6 +708,8 @@ const AddFromAPI = () => {
                 </Grid>
               </Grid>
             )}
+
+          {/* Form Actions */}
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={7} sm={6} md={4}>
               <Button
@@ -627,6 +726,8 @@ const AddFromAPI = () => {
           </Grid>
         </Grid>
       </form>
+
+      {/* Confirmation Modal */}
       <ConfirmModal
         open={openModal}
         setOpen={setOpenModal}

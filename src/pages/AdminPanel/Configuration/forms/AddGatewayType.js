@@ -4,58 +4,73 @@ import {
   Grid,
   Button,
   TextField,
-  Typography,
 } from '@mui/material';
-import Loader from '@components/Loader/Loader';
-import FormModal from '@components/Modal/FormModal';
-import { useInput } from '@hooks/useInput';
-import { validators } from '@utils/validators';
-import { isDesktop } from '@utils/mediaQuery';
-import { useAddGatewayTypeMutation } from '@react-query/mutations/sensorGateways/addGatewayTypeMutation';
-import { useEditGatewayTypeMutation } from '@react-query/mutations/sensorGateways/editGatewayTypeMutation';
-import useAlert from '@hooks/useAlert';
-import '../../AdminPanelStyles.css';
+import Loader from '@components/Loader/Loader'; // Component to show loading state
+import FormModal from '@components/Modal/FormModal'; // Modal wrapper component for the form
+import { useInput } from '@hooks/useInput'; // Custom hook to manage form input state and change tracking
+import { validators } from '@utils/validators'; // Custom validation utility
+import { isDesktop } from '@utils/mediaQuery'; // Utility to detect desktop for responsive layout
+import { useAddGatewayTypeMutation } from '@react-query/mutations/sensorGateways/addGatewayTypeMutation'; // Mutation hook to add a new gateway type
+import { useEditGatewayTypeMutation } from '@react-query/mutations/sensorGateways/editGatewayTypeMutation'; // Mutation hook to edit existing gateway type
+import useAlert from '@hooks/useAlert'; // Custom hook to display alerts
+import '../../AdminPanelStyles.css'; // Styling
 
 const AddGatewayType = ({ history, location }) => {
+  // State to manage form modal visibility
   const [openFormModal, setFormModal] = useState(true);
+  // State to manage confirmation modal visibility when unsaved data exists
   const [openConfirmModal, setConfirmModal] = useState(false);
 
-  const { displayAlert } = useAlert();
+  const { displayAlert } = useAlert(); // Hook for alerting success or error messages
 
+  // Determine if the page is in "edit" mode
   const editPage = location.state && location.state.type === 'edit';
+  // Retrieve existing data if editing
   const editData = (editPage && location.state.data) || {};
 
+  // Initialize input state with existing name (for edit) or empty string (for add)
   const name = useInput((editData && editData.name) || '', {
     required: true,
   });
-  const [formError, setFormError] = useState({});
 
+  const [formError, setFormError] = useState({}); // State to track form input validation errors
+
+  // UI texts depending on whether it's add or edit mode
   const buttonText = editPage ? 'Save' : 'Add Tracker Type';
   const formTitle = editPage ? 'Edit Tracker Type' : 'Add Tracker Type';
 
+  /**
+   * Closes the form modal with confirmation if there are unsaved changes
+   */
   const closeFormModal = () => {
     if (name.hasChanged()) {
-      setConfirmModal(true);
+      setConfirmModal(true); // Show confirmation if changes detected
     } else {
-      setFormModal(false);
+      setFormModal(false); // Close form directly
       if (location && location.state) {
-        history.push(location.state.from);
+        history.push(location.state.from); // Navigate back to previous page
       }
     }
   };
 
+  /**
+   * Discards changes and closes both confirmation and form modals
+   */
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
     if (location && location.state) {
-      history.push(location.state.from);
+      history.push(location.state.from); // Navigate back
     }
   };
 
+  // React Query mutations for add and edit
   const { mutate: addGatewayTypeMutation, isLoading: isAddingGatewayType } = useAddGatewayTypeMutation(history, location.state.from, displayAlert);
-
   const { mutate: editGatewayTypeMutation, isLoading: isEditingGatewayType } = useEditGatewayTypeMutation(history, location.state.from, displayAlert);
 
+  /**
+   * Handles form submission for both add and edit modes
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
     const currentDateTime = new Date();
@@ -64,6 +79,7 @@ const AddGatewayType = ({ history, location }) => {
       name: name.value,
       edit_date: currentDateTime,
     };
+    // Choose mutation based on mode
     if (editPage) {
       editGatewayTypeMutation(data);
     } else {
@@ -75,9 +91,13 @@ const AddGatewayType = ({ history, location }) => {
     }
   };
 
+  /**
+   * Validates input field on blur event
+   */
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
+    // Update formError state depending on validation result
     if (validateObj && validateObj.error) {
       setFormError({
         ...prevState,
@@ -94,11 +114,13 @@ const AddGatewayType = ({ history, location }) => {
     }
   };
 
+  /**
+   * Determines whether the submit button should be disabled
+   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
-    if (!name.value) {
-      return true;
-    }
+    if (!name.value) return true; // Required field check
+    // Check for any validation errors
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
@@ -136,15 +158,11 @@ const AddGatewayType = ({ history, location }) => {
                   fullWidth
                   required
                   id="name"
-                  label={(
-                    <span className="translate">Tracker Type</span>
-                  )}
+                  label={<span className="translate">Tracker Type</span>}
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
-                  helperText={
-                    formError.name ? formError.name.message : ''
-                  }
+                  helperText={formError.name ? formError.name.message : ''}
                   onBlur={(e) => handleBlur(e, 'required', name)}
                   {...name.bind}
                 />

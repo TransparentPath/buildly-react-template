@@ -1,4 +1,5 @@
 import React from 'react';
+// Import MUI components used for layout, styling, and interactivity
 import {
   Button,
   Grid,
@@ -7,14 +8,23 @@ import {
   ListItem,
   Typography,
 } from '@mui/material';
+
+// Import custom CSS for this component
 import './PrivacyPolicyStyles.css';
+
+// Import route constants for navigation
 import { routes } from '../../routes/routesConstants';
 
+// Functional component for rendering the Privacy Policy
 const PrivacyPolicy = ({ history }) => (
+  // MUI Grid container to organize content in a responsive layout
   <Grid container spacing={2} className="privacyPolicyAgreementContainer">
+    {/* Title Header */}
     <Grid item xs={12} textAlign="center">
       <Typography variant="h5">Privacy Policy</Typography>
     </Grid>
+
+    {/* Introduction to the policy */}
     <Grid item xs={12}>
       <Typography variant="body1" paragraph textAlign="justify">
         The Transparent Path website, application and proprietary software platform that tracks supply
@@ -23,13 +33,10 @@ const PrivacyPolicy = ({ history }) => (
         describes:
       </Typography>
     </Grid>
+
+    {/* List of topics covered in the privacy policy */}
     <Grid item xs={12}>
-      <List
-        sx={{
-          listStyleType: 'disc',
-          listStylePosition: 'inside',
-        }}
-      >
+      <List sx={{ listStyleType: 'disc', listStylePosition: 'inside' }}>
         <ListItem sx={{ display: 'list-item' }}>Why we collect personal information;</ListItem>
         <ListItem sx={{ display: 'list-item' }}>What personal information we collect and when it is collected;</ListItem>
         <ListItem sx={{ display: 'list-item' }}>How your information is used and protected;</ListItem>
@@ -37,11 +44,16 @@ const PrivacyPolicy = ({ history }) => (
         <ListItem sx={{ display: 'list-item' }}>Your choices regarding your personal information.</ListItem>
       </List>
     </Grid>
+
+    {/* Encouragement to read the privacy and user agreement */}
     <Grid item xs={12}>
       <Typography variant="body1" paragraph textAlign="justify">
         We encourage you to read this Privacy Policy and our
         {' '}
-        <Button onClick={() => history.push(routes.ABOUT_PLATFORM)} className="privacyPolicyButton">
+        <Button
+          onClick={() => history.push(routes.ABOUT_PLATFORM)}
+          className="privacyPolicyButton"
+        >
           End User Agreement
         </Button>
         {' '}
@@ -51,6 +63,8 @@ const PrivacyPolicy = ({ history }) => (
         updates to our Privacy Policy.
       </Typography>
     </Grid>
+
+    {/* Third party and external data handling disclaimer */}
     <Grid item xs={12}>
       <Typography variant="body1" paragraph textAlign="justify">
         This policy does not apply to other service providers, advertising systems, networks or websites
@@ -58,6 +72,8 @@ const PrivacyPolicy = ({ history }) => (
         Transparent Path does not own, employ, manage or control.
       </Typography>
     </Grid>
+
+    {/* Contact info for privacy concerns */}
     <Grid item xs={12}>
       <Typography variant="body1" paragraph textAlign="justify">
         If you have any questions about this Privacy Policy, please feel free to contact us through our
@@ -65,9 +81,13 @@ const PrivacyPolicy = ({ history }) => (
         98109.
       </Typography>
     </Grid>
+
+    {/* Section header */}
     <Grid item xs={12}>
       <Typography className="privacyPolicyHeading">Information We Collect</Typography>
     </Grid>
+
+    {/* Explanation of why data is collected */}
     <Grid item xs={12}>
       <Typography variant="body1" paragraph textAlign="justify">
         The information we learn from users helps us not only provide the Service but also to
@@ -75,6 +95,8 @@ const PrivacyPolicy = ({ history }) => (
         of information we gather:
       </Typography>
     </Grid>
+
+    {/* List of data types collected, split into subtypes */}
     <Grid item xs={12}>
       <List
         sx={{
@@ -84,6 +106,7 @@ const PrivacyPolicy = ({ history }) => (
           marginLeft: 5,
         }}
       >
+        {/* User-provided info */}
         <ListItem sx={{ display: 'list-item' }}>Information You Give Us</ListItem>
         <Grid item xs={12} ml={-5}>
           <Typography variant="body1" paragraph textAlign="justify">
@@ -98,13 +121,18 @@ const PrivacyPolicy = ({ history }) => (
             some or all of our features.
           </Typography>
         </Grid>
+
+        {/* Automatically collected info */}
         <ListItem sx={{ display: 'list-item' }}>Automatic Information Collected</ListItem>
         <Grid item xs={12} ml={-5}>
+          {/* Technical info about devices */}
           <Typography variant="body1" paragraph textAlign="justify">
             To perform the Service, we also collect information through cookies and other automated
             means. Information of this sort includes:
           </Typography>
         </Grid>
+
+        {/* Usage tracking */}
         <Grid item xs={12} ml={-5}>
           <Typography variant="body1" paragraph textAlign="justify">
             <span style={{ fontStyle: 'italic' }}>Technical information about your browser and mobile device:</span>
@@ -113,6 +141,8 @@ const PrivacyPolicy = ({ history }) => (
             aggregate to help us optimize the Service for common browsers and devices.
           </Typography>
         </Grid>
+
+        {/* Device identifiers and cookies */}
         <Grid item xs={12} ml={-5}>
           <Typography variant="body1" paragraph textAlign="justify">
             <span style={{ fontStyle: 'italic' }}>Usage information, such as the features and emails from Transparent Path that you interact with:</span>
@@ -125,6 +155,8 @@ const PrivacyPolicy = ({ history }) => (
             with third parties.
           </Typography>
         </Grid>
+
+        {/* Crash/error tracking */}
         <Grid item xs={12} ml={-5}>
           <Typography variant="body1" paragraph textAlign="justify">
             <span style={{ fontStyle: 'italic' }}>IP address and log file information, cookies, tokens and device identifiers:</span>
@@ -154,9 +186,13 @@ const PrivacyPolicy = ({ history }) => (
         </Grid>
       </List>
     </Grid>
+
+    {/* Usage of collected data */}
     <Grid item xs={12}>
       <Typography className="privacyPolicyHeading">How We Use and Share the Information We Collect</Typography>
     </Grid>
+
+    {/* Subsection: Use */}
     <Grid item xs={12}>
       <Typography className="privacyPolicyHeading">Use</Typography>
     </Grid>
@@ -166,6 +202,8 @@ const PrivacyPolicy = ({ history }) => (
         Service to you, including by identifying you on our platform and communicating with you.
       </Typography>
     </Grid>
+
+    {/* Subsection: Share */}
     <Grid item xs={12}>
       <Typography className="privacyPolicyHeading">Share</Typography>
     </Grid>
@@ -176,6 +214,8 @@ const PrivacyPolicy = ({ history }) => (
         authorize to access it.
       </Typography>
     </Grid>
+
+    {/* Additional sharing details with legal and corporate scenarios */}
     <Grid item xs={12}>
       <Typography variant="body1" paragraph textAlign="justify">
         We will not share your personal information or data except to perform the Services as
@@ -214,6 +254,8 @@ const PrivacyPolicy = ({ history }) => (
         dissolution, or similar event.
       </Typography>
     </Grid>
+
+    {/* Data security practices */}
     <Grid item xs={12}>
       <Typography className="privacyPolicyHeading">How We Store and Protect the Information We Collect</Typography>
     </Grid>
@@ -243,6 +285,8 @@ const PrivacyPolicy = ({ history }) => (
         your information.
       </Typography>
     </Grid>
+
+    {/* User rights and preferences section */}
     <Grid item xs={12}>
       <Typography className="privacyPolicyHeading">Your Choices Regarding the Information We Collect</Typography>
     </Grid>
@@ -251,13 +295,10 @@ const PrivacyPolicy = ({ history }) => (
         You may choose to:
       </Typography>
     </Grid>
+
+    {/* How users can contact to make these choices */}
     <Grid item xs={12}>
-      <List
-        sx={{
-          listStyleType: 'disc',
-          listStylePosition: 'inside',
-        }}
-      >
+      <List sx={{ listStyleType: 'disc', listStylePosition: 'inside' }}>
         <ListItem sx={{ display: 'list-item' }}>Update and correct your personal information;</ListItem>
         <ListItem sx={{ display: 'list-item' }}>Object to the processing of your personal information;</ListItem>
         <ListItem sx={{ display: 'list-item' }}>Request to have your personal information or usage data deleted or restricted from our Service;</ListItem>
@@ -296,6 +337,8 @@ const PrivacyPolicy = ({ history }) => (
         </ListItem>
       </List>
     </Grid>
+
+    {/* Retention policy */}
     <Grid item xs={12}>
       <Typography className="privacyPolicyHeading">Data Retention</Typography>
     </Grid>
@@ -314,6 +357,8 @@ const PrivacyPolicy = ({ history }) => (
         database upon request.
       </Typography>
     </Grid>
+
+    {/* Third-party and external site policy disclaimer */}
     <Grid item xs={12}>
       <Typography className="privacyPolicyHeading">Third Party Services and Links to Other Websites</Typography>
     </Grid>

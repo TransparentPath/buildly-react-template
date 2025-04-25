@@ -1,5 +1,8 @@
+// Importing React and hooks
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // For navigation link
+
+// MUI components
 import {
   Button,
   CssBaseline,
@@ -10,41 +13,57 @@ import {
   Typography,
   Container,
 } from '@mui/material';
+
+// Static assets and custom components
 import logo from '@assets/tp-logo.png';
 import Copyright from '@components/Copyright/Copyright';
 import Loader from '@components/Loader/Loader';
-import useAlert from '@hooks/useAlert';
-import { useInput } from '@hooks/useInput';
-import { routes } from '@routes/routesConstants';
-import { validators } from '@utils/validators';
-import { useResetPasswordMutation } from '@react-query/mutations/authUser/resetPasswordMutation';
-import './ResetPasswordStyles.css';
 
+// Custom hooks and utilities
+import useAlert from '@hooks/useAlert'; // For showing global alert messages
+import { useInput } from '@hooks/useInput'; // For input state and validation
+import { routes } from '@routes/routesConstants'; // App route paths
+import { validators } from '@utils/validators'; // Input validators
+import { useResetPasswordMutation } from '@react-query/mutations/authUser/resetPasswordMutation'; // React Query mutation for reset
+
+import './ResetPasswordStyles.css'; // Component-specific styles
+
+// EmailForm handles the reset password flow by capturing user email
 const EmailForm = ({ history }) => {
+  // Input field management using custom useInput hook
   const email = useInput('', { required: true });
+
+  // Error state for input validations
   const [error, setError] = useState({});
 
+  // Custom alert system hook
   const { displayAlert } = useAlert();
 
+  // Reset password mutation hook from React Query
   const { mutate: resetPasswordMutation, isLoading: isResetPassword } = useResetPasswordMutation(displayAlert, setError, history);
 
+  // Called when user submits the form
   const handleSubmit = (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent page reload
     const loginFormValue = {
-      email: email.value.toLowerCase(),
+      email: email.value.toLowerCase(), // Lowercase email before submission
     };
-    resetPasswordMutation(loginFormValue);
+    resetPasswordMutation(loginFormValue); // Trigger password reset
   };
 
+  // Input field blur handler to validate data using validators
   const handleBlur = (e, validation, input) => {
-    const validateObj = validators(validation, input);
-    const prevState = { ...error };
+    const validateObj = validators(validation, input); // Run validation
+    const prevState = { ...error }; // Clone current error state
+
     if (validateObj && validateObj.error) {
+      // If error found, set error state for this field
       setError({
         ...prevState,
         [e.target.id]: validateObj,
       });
     } else {
+      // Clear error for this field
       setError({
         ...prevState,
         [e.target.id]: {
@@ -55,30 +74,45 @@ const EmailForm = ({ history }) => {
     }
   };
 
+  // Disable submit button based on input value and validation state
   const submitDisabled = () => {
     const errorKeys = Object.keys(error);
-    if (!email.value) {
-      return true;
-    }
+
+    if (!email.value) return true; // Email must be filled
+
     let errorExists = false;
+
     errorKeys.forEach((key) => {
       if (error[key].error) {
-        errorExists = true;
+        errorExists = true; // If any error exists, disable submit
       }
     });
+
     return errorExists;
   };
 
   return (
     <Container component="main" maxWidth="xs" className="resetPasswordContainer">
+      {/* Loader shown when mutation is in progress */}
       {isResetPassword && <Loader open={isResetPassword} />}
+
+      {/* Normalize browser styles */}
       <CssBaseline />
+
       <Card variant="outlined">
         <CardContent>
           <div className="resetPasswordPaper">
+            {/* Logo image */}
             <img src={logo} className="resetPasswordLogo" alt="Company logo" />
-            <Typography component="h1" variant="h5" gutterBottom>Enter your registered Email</Typography>
+
+            {/* Title */}
+            <Typography component="h1" variant="h5" gutterBottom>
+              Enter your registered Email
+            </Typography>
+
+            {/* Reset password form */}
             <form className="resetPasswordForm" noValidate onSubmit={handleSubmit}>
+              {/* Email input field */}
               <TextField
                 className="resetPasswordTextField notranslate"
                 variant="outlined"
@@ -91,9 +125,11 @@ const EmailForm = ({ history }) => {
                 autoComplete="email"
                 error={error.email && error.email.error}
                 helperText={error && error.email ? error.email.message : ''}
-                onBlur={(e) => handleBlur(e, 'email', email)}
-                {...email.bind}
+                onBlur={(e) => handleBlur(e, 'email', email)} // Trigger validation on blur
+                {...email.bind} // Bind custom hook input handlers
               />
+
+              {/* Submit button */}
               <Button
                 type="submit"
                 fullWidth
@@ -104,6 +140,8 @@ const EmailForm = ({ history }) => {
               >
                 Submit
               </Button>
+
+              {/* Link to return to login page */}
               <Grid container>
                 <Grid item xs>
                   <Link
@@ -119,9 +157,12 @@ const EmailForm = ({ history }) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Footer */}
       <Copyright />
     </Container>
   );
 };
 
+// Export component for external use
 export default EmailForm;

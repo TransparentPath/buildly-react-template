@@ -3,6 +3,8 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-else-return */
+
+// Importing necessary libraries and components
 import React, { useState, useEffect, useRef } from 'react';
 import { useTimezoneSelect, allTimezones } from 'react-timezone-select';
 import { useLocation } from 'react-router-dom';
@@ -25,6 +27,8 @@ import {
   Button,
 } from '@mui/material';
 import { InfoOutlined as InfoIcon } from '@mui/icons-material';
+
+// Importing custom components and utilities
 import GraphComponent from '@components/GraphComponent/GraphComponent';
 import Loader from '@components/Loader/Loader';
 import MapComponent from '@components/MapComponent/MapComponent';
@@ -54,33 +58,41 @@ import {
 import { isDesktop2 } from '@utils/mediaQuery';
 import { getTimezone, getTranslatedLanguage } from '@utils/utilMethods';
 import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
+
+// Importing child components
 import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
 import ReportingDetailTable from './components/ReportingDetailTable';
 import AlertsReport from './components/AlertsReport';
 import SensorReport from './components/SensorReport';
 import GenerateReport from './components/GenerateReport';
 import ReportGraph from './components/ReportGraph';
+
+// Importing styles
 import './ReportingStyles.css';
 import { LANGUAGES } from '@utils/mock';
 
 const Reporting = () => {
-  const location = useLocation();
-  const theme = useTheme();
-  const user = getUser();
-  const organization = user.organization.organization_uuid;
-  const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
+  // React hooks for managing state and references
+  const location = useLocation(); // Accessing the current URL location
+  const theme = useTheme(); // Accessing the Material-UI theme
+  const user = getUser(); // Fetching the current user details
+  const organization = user.organization.organization_uuid; // Extracting organization ID from user details
+  const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones }); // Fetching timezone options
 
-  const [locShipmentID, setLocShipmentID] = useState('');
-  const [shipmentFilter, setShipmentFilter] = useState('Active');
-  const [selectedGraph, setSelectedGraph] = useState('temperature');
-  const [selectedShipment, setSelectedShipment] = useState(null);
-  const [shipmentOverview, setShipmentOverview] = useState([]);
-  const [reports, setReports] = useState([]);
-  const [allGraphs, setAllGraphs] = useState([]);
-  const [markers, setMarkers] = useState([]);
-  const [selectedMarker, setSelectedMarker] = useState({});
-  const [isLoading, setLoading] = useState(false);
-  const [showGenerateReport, setShowGenerateReport] = useState(false);
+  // State variables for managing component data
+  const [locShipmentID, setLocShipmentID] = useState(''); // Shipment ID from URL
+  const [shipmentFilter, setShipmentFilter] = useState('Active'); // Filter for shipment status
+  const [selectedGraph, setSelectedGraph] = useState('temperature'); // Selected graph type
+  const [selectedShipment, setSelectedShipment] = useState(null); // Currently selected shipment
+  const [shipmentOverview, setShipmentOverview] = useState([]); // Overview of shipments
+  const [reports, setReports] = useState([]); // Sensor reports data
+  const [allGraphs, setAllGraphs] = useState([]); // Graph data for all parameters
+  const [markers, setMarkers] = useState([]); // Map markers
+  const [selectedMarker, setSelectedMarker] = useState({}); // Selected map marker
+  const [isLoading, setLoading] = useState(false); // Loading state
+  const [showGenerateReport, setShowGenerateReport] = useState(false); // State for showing the report generation modal
+
+  // References for various components
   const reportingDetailTableRef = useRef();
   const mapRef = useRef();
   const tempGraphRef = useRef();
@@ -90,11 +102,13 @@ const Reporting = () => {
   const batteryGraphRef = useRef();
   const alertsTableRef = useRef();
 
-  const { displayAlert } = useAlert();
-  const { data: timeZone } = useTimezoneStore();
+  // Custom hooks and queries
+  const { displayAlert } = useAlert(); // Custom hook for displaying alerts
+  const { data: timeZone } = useTimezoneStore(); // Fetching the current timezone from the store
 
-  let isShipmentDataAvailable = false;
+  let isShipmentDataAvailable = false; // Flag to check if shipment data is available
 
+  // Query to fetch shipment data based on filters
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, locShipmentID, organization],
     () => getShipmentsQuery(organization, (shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), displayAlert, locShipmentID),
@@ -103,48 +117,56 @@ const Reporting = () => {
 
   isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
+  // Query to fetch unit data
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
     () => getUnitQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query to fetch country data
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
     () => getCountriesQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query to fetch item data
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ['items', organization],
     () => getItemQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query to fetch item type data
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
     ['itemTypes', organization],
     () => getItemTypeQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query to fetch custodian data
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
     () => getCustodianQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query to fetch contact information
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
     ['contact', organization],
     () => getContactQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query to fetch all gateway data
   const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
     ['allGateways'],
     () => getAllGatewayQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query to fetch custody data
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies', shipmentData, shipmentFilter],
     () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
@@ -154,6 +176,7 @@ const Reporting = () => {
     },
   );
 
+  // Query to fetch sensor alert data
   const { data: sensorAlertData, isLoading: isLoadingSensorAlerts, isFetching: isFetchingSensorAlerts } = useQuery(
     ['sensorAlerts', selectedShipment, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
@@ -163,6 +186,7 @@ const Reporting = () => {
     },
   );
 
+  // Query to fetch sensor report data
   const { data: sensorReportData, isLoading: isLoadingSensorReports, isFetching: isFetchingSensorReports } = useQuery(
     ['sensorReports', selectedShipment, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
@@ -172,6 +196,7 @@ const Reporting = () => {
     },
   );
 
+  // Query to fetch processed sensor data
   const { data: sensorProcessedData, isLoading: isLoadingSensorProcessedData } = useQuery(
     ['processedSensorData', selectedShipment, shipmentFilter],
     () => getSensorProcessedDataQuery(selectedShipment, displayAlert),
@@ -181,8 +206,10 @@ const Reporting = () => {
     },
   );
 
+  // Mutation for downloading PDF reports
   const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading } = useReportPDFDownloadMutation((shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), locShipmentID, organization, displayAlert);
 
+  // Extracting date and time formats from unit data
   const dateFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
     : '';
@@ -195,6 +222,7 @@ const Reporting = () => {
   const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
     && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
+  // Effect to extract shipment ID from URL
   useEffect(() => {
     if (location.search) {
       setLocShipmentID(_.split(_.split(location.search, '?shipment=')[1], '&status=')[0]);
@@ -203,6 +231,7 @@ const Reporting = () => {
     }
   }, [location.search]);
 
+  // Effect to process shipment data and update state
   useEffect(() => {
     if (shipmentData && custodianData && custodyData && contactInfo) {
       const overview = getShipmentOverview(
@@ -227,6 +256,7 @@ const Reporting = () => {
     }
   }, [shipmentData, custodianData, custodyData, contactInfo, allGatewayData, locShipmentID]);
 
+  // Effect to process sensor report data and update state
   useEffect(() => {
     const alerts = _.filter(
       sensorAlertData,
@@ -254,6 +284,7 @@ const Reporting = () => {
     }
   }, [sensorReportData, sensorAlertData, selectedShipment, timeZone]);
 
+  // Function to get formatted shipment value
   const getShipmentValue = (value) => {
     let returnValue = '';
     if (!_.isEqual(selectedShipment[value], null)) {
@@ -275,6 +306,7 @@ const Reporting = () => {
     return returnValue;
   };
 
+  // Function to handle shipment selection
   const handleShipmentSelection = (shipment) => {
     history.replaceState(null, '', location.pathname);
     location.search = '';
@@ -282,6 +314,7 @@ const Reporting = () => {
     setSelectedShipment(shipment);
   };
 
+  // Function to handle filter selection
   const makeFilterSelection = (value) => {
     history.replaceState(null, '', location.pathname);
     location.search = '';
@@ -294,17 +327,28 @@ const Reporting = () => {
     setMarkers([]);
   };
 
+  // Function to download CSV report
   const downloadCSV = () => {
+    // Define the columns to be included in the CSV, filtering out those marked as not displayable
     const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false);
+
+    // Sort the reports data in descending order based on the timestamp
     const data = _.orderBy(
       reports,
       (item) => moment(item.timestamp),
       ['desc'],
     );
+
+    // Create a deep copy of the sorted data to avoid mutating the original data
     const rows = _.cloneDeep(data);
+
+    // Helper function to escape CSV values by wrapping them in double quotes
     const escapeCSV = (text) => `"${text}"`;
+
+    // Generate the CSV header row by mapping over the columns
     const csvHeader = columns.map((col) => {
       if (col.label === 'Date Time') {
+        // Format the Date Time column header with timezone and date/time format
         const timeArray = _.split(timeFormat, ' ');
         const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour';
         const filteredTimeZone = _.find(tzOptions, (option) => option.value === timeZone);
@@ -312,21 +356,28 @@ const Reporting = () => {
         return escapeCSV(formattedLabel);
       }
       if (col.name === 'temperature') {
+        // Format the temperature column header with the appropriate unit
         return escapeCSV(`TEMP ${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`);
       }
       if (col.name === 'battery') {
+        // Format the battery column header
         return escapeCSV('BATTERY (%)');
       }
-      return escapeCSV(col.label);
+      return escapeCSV(col.label); // Default case for other columns
     }).join(',');
 
+    // Find the index of the Date Time column
     const dateTimeColumnIndex = columns.findIndex((col) => col.label === 'Date Time');
+
+    // Format the departure and arrival times for filtering rows within the time range
     const departureTime = moment(selectedShipment.actual_time_of_departure).tz(timeZone).format(`${dateFormat} ${timeFormat}`);
     const arrivalTime = moment(selectedShipment.actual_time_of_arrival).isValid()
       ? moment(selectedShipment.actual_time_of_arrival).tz(timeZone).format(`${dateFormat} ${timeFormat}`)
       : null;
     const formattedDepartureTime = moment(departureTime).unix();
     const formattedArrivalTime = arrivalTime ? moment(arrivalTime).unix() : null;
+
+    // Filter rows to include only those within the departure and arrival time range
     const rowsWithinTimeRange = rows.filter((row) => {
       const dateTimeValue = moment(row[columns[dateTimeColumnIndex].name]).unix();
       if (formattedArrivalTime) {
@@ -335,6 +386,8 @@ const Reporting = () => {
         return dateTimeValue >= formattedDepartureTime;
       }
     });
+
+    // Add "Arrived" and "En route" alerts to the first and last rows within the time range
     if (_.size(rowsWithinTimeRange) > 0) {
       const firstRowIndex = rows.findIndex((row) => row === rowsWithinTimeRange[0]);
       const lastRowIndex = rows.findIndex((row) => row === rowsWithinTimeRange[_.size(rowsWithinTimeRange) - 1]);
@@ -344,8 +397,10 @@ const Reporting = () => {
       rows[lastRowIndex].allAlerts.push({ title: 'En route', color: '#000' });
     }
 
+    // Generate the CSV body by mapping over the rows and columns
     const csvBody = rows.map((row) => columns.map((col, colIndex) => {
       let cell = row[col.name];
+      // Handle missing or invalid location data
       if (!row.location || row.location === 'Error retrieving address') {
         row.location = 'N/A';
       }
@@ -353,27 +408,44 @@ const Reporting = () => {
         row.lat = 'N/A';
         row.lng = 'N/A';
       }
+      // Replace null or undefined values with an empty string
       if (_.isEqual(cell, null) || _.isEqual(cell, undefined)) {
         cell = '';
       }
+      // Handle array values (e.g., alerts) by joining their titles
       if (Array.isArray(cell) && cell[0] && cell[0].title) {
         const titles = cell.map((item) => item.title).join(', ');
         return escapeCSV(titles);
       }
-      return escapeCSV(cell);
+      return escapeCSV(cell); // Escape and return the cell value
     }).join(',')).join('\n');
 
+    // Combine the header and body to form the complete CSV data
     const csvData = `${csvHeader}\n${csvBody}`;
+
+    // Create a Blob object for the CSV data and trigger a download
     const blob = new Blob([`\ufeff${csvData}`], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `${selectedShipment.name}.csv`;
+    link.download = `${selectedShipment.name}.csv`; // Set the file name based on the shipment name
     document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    link.click(); // Simulate a click to start the download
+    document.body.removeChild(link); // Clean up by removing the link element
   };
 
+  /**
+ * Function to generate rich text values for thresholds based on timestamps.
+ * This function processes maximum and minimum threshold data for a given label and unit,
+ * and returns a formatted array of rich text objects for display.
+ *
+ * @param {string} label - The label for the threshold (e.g., "Temperature").
+ * @param {Array} max_data - Array of objects containing maximum threshold data with timestamps.
+ * @param {Array} min_data - Array of objects containing minimum threshold data with timestamps.
+ * @param {string} unit - The unit of measurement for the thresholds (e.g., "°C").
+ * @returns {Array} richTextResult - Array of rich text objects for thresholds.
+ */
   const setThresholdsValues = (label, max_data, min_data, unit) => {
+    // Extract unique timestamps from both max_data and min_data, and sort them in descending order.
     const timestamps = Array.from(
       new Set([
         ...(Array.isArray(max_data) ? max_data.map((x) => x.set_at) : []),
@@ -381,32 +453,44 @@ const Reporting = () => {
       ]),
     ).sort((a, b) => new Date(b) - new Date(a));
 
+    // Variables to store the previous maximum and minimum values for continuity.
     let previousMax = null;
     let previousMin = null;
 
+    // Array to store the formatted rich text result.
     const richTextResult = [];
 
+    // Iterate over each timestamp to process the threshold values.
     timestamps.forEach((timestamp, index) => {
+      // Find the maximum threshold value for the current timestamp.
       const maxItem = (Array.isArray(max_data) ? max_data : []).find((item) => item.set_at === timestamp);
 
+      // Find the minimum threshold value for the current timestamp, if available.
       const minItem = !_.isEmpty(min_data) && min_data.find((item) => item.set_at === timestamp);
 
+      // Use the current maximum value if available, otherwise use the previous maximum value.
       const currentMax = maxItem ? maxItem.value : previousMax;
+
+      // Use the current minimum value if available, otherwise use the previous minimum value.
       const currentMin = !_.isEmpty(min_data) ? (minItem ? minItem.value : previousMin) : null;
 
+      // Update the previous maximum and minimum values for the next iteration.
       if (currentMax !== null) previousMax = currentMax;
       if (currentMin !== null) previousMin = currentMin;
 
+      // Add the label to the rich text result, with different formatting for the first and subsequent entries.
       richTextResult.push({
         text: index !== 0 ? `\n${label}: ` : `${label}: `,
         font: index !== 0 ? { color: { argb: 'FFFFFF' } } : { color: { argb: '000000' } },
       });
 
+      // Add the current maximum value to the rich text result, formatted in the error color.
       richTextResult.push({
         text: `${currentMax}${unit} `,
         font: { color: { argb: theme.palette.error.main.replace('#', '') } },
       });
 
+      // If minimum data is available, add the current minimum value to the rich text result, formatted in the info color.
       if (!_.isEmpty(min_data)) {
         richTextResult.push({
           text: `${currentMin}${unit}`,
@@ -414,13 +498,31 @@ const Reporting = () => {
         });
       }
     });
+
+    // Return the formatted rich text result.
     return richTextResult;
   };
 
+  /**
+   * Downloads sensor report data as an Excel file
+   *
+   * This function creates a detailed Excel report containing sensor data with formatting
+   * for excursions, transit periods, and other important information. The report includes:
+   * - Shipment and tracker information
+   * - Custodian details
+   * - Sensor data with color-coded excursion indicators
+   * - Transit period highlighting
+   *
+   * @async
+   * @function downloadExcel
+   * @returns {Promise<void>} - No return value, triggers download of Excel file
+   */
   const downloadExcel = async () => {
+    // Create a new workbook and add a worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sensor Report Data');
 
+    // Define border style for consistent cell formatting
     const borderStyle = {
       top: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
       left: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
@@ -428,15 +530,28 @@ const Reporting = () => {
       right: { style: 'thin', color: { argb: theme.palette.background.black2.replace('#', '') } },
     };
 
+    // Filter columns to only include those marked for display
     const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false);
+
+    // Sort report data by timestamp in descending order (newest first)
     const data = _.orderBy(
       reports,
       (item) => moment(item.timestamp),
       ['desc'],
     );
+
+    // Deep clone the data to avoid modifying the original
     const rows = _.cloneDeep(data);
+
+    // Filter item data to include only items in the selected shipment
     const selectedItems = !_.isEmpty(itemData) && itemData.filter((obj) => selectedShipment.items.includes(obj.url));
 
+    /**
+     * Create an array of custodian information including:
+     * - Custodian name
+     * - Custodian type (Shipper, Logistics Provider, Warehouse, or Receiver)
+     * - Custodian address (formatted from contact info)
+     */
     const custodiansArray = selectedShipment.custody_info.map((info) => {
       const custodianContact = selectedShipment.contact_info.find((contact) => info.custodian_data.contact_data.includes(contact.url)) || {};
       return {
@@ -445,12 +560,15 @@ const Reporting = () => {
         custodian_address: `${custodianContact.address1}, ${custodianContact.city}, ${custodianContact.state}, ${custodianContact.country}, ${custodianContact.postal_code}`,
       };
     });
+
+    // Sort custodians by type: Shipper first, Receiver last, others in between
     const sortedCustodiansArray = _.sortBy(custodiansArray, (custodian) => {
       if (custodian.custodian_type === 'Shipper') return 0;
       if (custodian.custodian_type === 'Receiver') return 2;
       return 1;
     });
 
+    // Initialize counters for different types of excursions
     let maxTempExcursionsCount = 0;
     let maxHumExcursionsCount = 0;
     let maxShockExcursionsCount = 0;
@@ -460,6 +578,7 @@ const Reporting = () => {
     let minShockExcursionsCount = 0;
     let minLightExcursionsCount = 0;
 
+    // Add description header row with column labels
     const descriptionRow = worksheet.addRow([
       'Color Key',
       'Tracker ID',
@@ -474,6 +593,7 @@ const Reporting = () => {
       'Shipment Status',
     ]);
 
+    // Apply bold font to all cells in the description row
     descriptionRow.eachCell((cell) => {
       cell.font = {
         color: { argb: theme.palette.background.black2.replace('#', '') },
@@ -481,6 +601,7 @@ const Reporting = () => {
       };
     });
 
+    // Add first description row with shipment information and color key explanation
     const descriptionRow1 = worksheet.addRow([
       '',
       selectedShipment.tracker,
@@ -495,6 +616,7 @@ const Reporting = () => {
       selectedShipment.status,
     ]);
 
+    // Add color key explanation with rich text formatting for different colors
     descriptionRow1.getCell(1).value = {
       richText: [
         { text: 'Red', font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
@@ -504,7 +626,10 @@ const Reporting = () => {
       ],
     };
 
+    // Add temperature threshold values using helper function
     descriptionRow1.getCell(9).value = { richText: setThresholdsValues('Temperature', selectedShipment.max_excursion_temp, selectedShipment.min_excursion_temp, tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))) };
+
+    // Apply styling to all cells in the first description row
     descriptionRow1.eachCell((cell) => {
       cell.alignment = { wrapText: true, vertical: 'top' };
       cell.fill = {
@@ -514,6 +639,7 @@ const Reporting = () => {
       };
     });
 
+    // Add second description row with additional custodian and measurement interval info
     const descriptionRow2 = worksheet.addRow([
       '',
       '',
@@ -525,6 +651,7 @@ const Reporting = () => {
       `Measurement: ${selectedShipment.measurement_time} min.`,
     ]);
 
+    // Add green color key explanation for recovery indicators
     descriptionRow2.getCell(1).value = {
       richText: [
         { text: 'Green', font: { color: { argb: theme.palette.success.main.replace('#', '') } } },
@@ -532,7 +659,10 @@ const Reporting = () => {
       ],
     };
 
+    // Add humidity threshold values
     descriptionRow2.getCell(9).value = { richText: setThresholdsValues('Humidity', selectedShipment.max_excursion_humidity, selectedShipment.min_excursion_humidity, '%') };
+
+    // Apply styling to all cells in the second description row
     descriptionRow2.eachCell((cell) => {
       cell.alignment = { wrapText: true, vertical: 'top' };
       cell.fill = {
@@ -542,6 +672,7 @@ const Reporting = () => {
       };
     });
 
+    // Add third description row with grey color key for transit and additional custodian if available
     const descriptionRow3 = worksheet.addRow([
       'Grey indicates Transit',
       '',
@@ -552,6 +683,7 @@ const Reporting = () => {
       _.size(sortedCustodiansArray) > 2 ? sortedCustodiansArray[2].custodian_address : '',
     ]);
 
+    // Apply grey fill color to transit indicator cell
     descriptionRow3.eachCell((cell, colNumber) => {
       if (colNumber === 1) {
         cell.fill = {
@@ -561,8 +693,11 @@ const Reporting = () => {
         };
       }
     });
+
+    // Add shock threshold values
     descriptionRow3.getCell(9).value = { richText: setThresholdsValues('Shock', selectedShipment.shock_threshold, null, 'G') };
 
+    // Apply styling to all cells in the third description row
     descriptionRow3.eachCell((cell) => {
       cell.alignment = { wrapText: true, vertical: 'top' };
       cell.fill = {
@@ -572,14 +707,18 @@ const Reporting = () => {
       };
     });
 
+    // Add fourth description row with additional custodian if available
     const descriptionRow4 = worksheet.addRow([]);
 
+    // Add custodian information if there are more than 3 custodians
     descriptionRow4.getCell(5).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_type : '';
     descriptionRow4.getCell(6).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_name : '';
     descriptionRow4.getCell(7).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_address : '';
 
+    // Add light threshold values
     descriptionRow4.getCell(9).value = { richText: setThresholdsValues('Light', selectedShipment.light_threshold, null, 'LUX') };
 
+    // Apply styling to all cells in the fourth description row
     descriptionRow4.eachCell((cell) => {
       cell.alignment = { wrapText: true, vertical: 'top' };
       cell.fill = {
@@ -589,6 +728,7 @@ const Reporting = () => {
       };
     });
 
+    // Add rows for any additional custodians beyond the first 4
     sortedCustodiansArray.forEach((custodian, index) => {
       if (index > 3) {
         const descriptionRows = worksheet.addRow([]);
@@ -598,8 +738,15 @@ const Reporting = () => {
       }
     });
 
+    // Add empty row as separator between description and data
     worksheet.addRow([]);
 
+    /**
+     * Create header row with properly formatted column labels:
+     * - Date Time column includes timezone and format information
+     * - Battery column is shown as percentage
+     * - Other columns use their standard labels
+     */
     const headerRow = worksheet.addRow(columns.map((col) => {
       if (col.label === 'Date Time') {
         const timeArray = _.split(timeFormat, ' ');
@@ -614,6 +761,7 @@ const Reporting = () => {
       return col.label;
     }));
 
+    // Apply styling to the header row cells
     headerRow.eachCell((cell, colNumber) => {
       cell.fill = {
         type: 'pattern',
@@ -624,41 +772,65 @@ const Reporting = () => {
         color: { argb: theme.palette.background.black2.replace('#', '') },
         bold: true,
       };
+      // Center align specific columns (6, 7, 8, 9, 10)
       if ([6, 7, 8, 9, 10].includes(colNumber)) {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       }
     });
 
+    // Determine the column index for the date/time column
     const dateTimeColIndex = columns.findIndex((col) => col.label === 'Date Time') + 1;
+
+    // Format departure and arrival times for the shipment in the selected timezone
     const departureTime = moment(selectedShipment.actual_time_of_departure).tz(timeZone).format(`${dateFormat} ${timeFormat}`);
     const arrivalTime = moment(selectedShipment.actual_time_of_arrival).isValid()
       ? moment(selectedShipment.actual_time_of_arrival).tz(timeZone).format(`${dateFormat} ${timeFormat}`)
       : null;
+
+    // Convert formatted times to Unix timestamps for comparison
     const formattedDepartureTime = moment(departureTime).unix();
     const formattedArrivalTime = arrivalTime ? moment(arrivalTime).unix() : null;
+
+    // Track rows that should be highlighted as transit (grey background)
     const greyRows = [];
 
+    /**
+     * Process each data row:
+     * 1. Format cell values
+     * 2. Apply styling based on alerts and excursions
+     * 3. Track different types of excursions
+     * 4. Highlight transit periods
+     */
     rows.forEach((row, rowIndex) => {
+      // Map column data to create a row in the Excel sheet
       const dataRow = columns.map((col) => {
         let cellValue = row[col.name];
+        // Format location data
         if (col.name === 'location') {
           if (!cellValue || cellValue === 'Error retrieving address') {
             cellValue = 'N/A';
           }
         }
+        // Handle N/A locations by also setting lat/lng to N/A
         if (row.location === 'N/A') {
           row.lat = 'N/A';
           row.lng = 'N/A';
         }
+        // Convert alert arrays to comma-separated strings
         if (col.name === 'allAlerts' && Array.isArray(cellValue)) {
           cellValue = cellValue.map((item) => item.title).join(', ');
         }
         return cellValue;
       });
 
+      // Add the data row to the worksheet
       const rowRef = worksheet.addRow(dataRow);
+
+      // Apply cell-specific formatting for each cell in the row
       rowRef.eachCell((cell, colNumber) => {
         const columnName = columns[colNumber - 1].name;
+
+        // Format alerts with appropriate colors using rich text
         if (columnName === 'allAlerts' && Array.isArray(row.allAlerts)) {
           const alerts = row.allAlerts;
           const richText = [];
@@ -666,22 +838,33 @@ const Reporting = () => {
             richText.push({ text: alert.title, font: { color: { argb: _.includes(alert.color, 'green') ? theme.palette.success.main.replace('#', '') : alert.color.replace('#', '') } } });
             richText.push({ text: ', ' });
           });
-          richText.pop();
+          richText.pop(); // Remove the last comma
           cell.value = { richText };
         }
+
+        // Center align numeric values
         if (typeof cell.value === 'number') {
           cell.alignment = { vertical: 'middle', horizontal: 'center' };
         }
+
+        // Left align latitude and longitude values
         if (columnName === 'lat' || columnName === 'lng') {
           cell.alignment = { horizontal: 'left' };
         }
       });
 
+      /**
+       * Process alerts for coloring cells and counting excursions:
+       * - Highlight temperature, humidity, shock and light excursions with appropriate colors
+       * - Track count of each type of excursion for summary
+       */
       if (Array.isArray(row.allAlerts)) {
         row.allAlerts.forEach((alert) => {
           const alertTitle = alert.title.toLowerCase();
           let colName;
           let fillColor;
+
+          // Determine type of excursion and update corresponding counter
           if (alertTitle.includes('maximum temperature excursion')) {
             colName = 'temperature';
             fillColor = theme.palette.error.light.replace('#', '');
@@ -715,9 +898,12 @@ const Reporting = () => {
             fillColor = theme.palette.info.light.replace('#', '');
             minLightExcursionsCount++;
           }
+
+          // Apply fill color to the appropriate cell if an excursion is detected
           if (colName) {
             const colIndex = columns.findIndex((col) => col.name === colName);
             if (colIndex !== -1) {
+              // Calculate correct row index based on number of custodians
               const cell = worksheet.getCell(_.size(sortedCustodiansArray) <= 4 ? rowIndex + 8 : rowIndex + 8 + _.size(sortedCustodiansArray) - 4, colIndex + 1);
               if (cell.value) {
                 cell.fill = {
@@ -731,6 +917,7 @@ const Reporting = () => {
         });
       }
 
+      // Update temperature excursion count in the summary area
       descriptionRow1.getCell(10).value = {
         richText: [
           { text: 'Temperature:' },
@@ -745,6 +932,7 @@ const Reporting = () => {
         ],
       };
 
+      // Update humidity excursion count in the summary area
       descriptionRow2.getCell(10).value = {
         richText: [
           { text: 'Humidity:' },
@@ -759,6 +947,7 @@ const Reporting = () => {
         ],
       };
 
+      // Update shock excursion count in the summary area
       descriptionRow3.getCell(10).value = {
         richText: [
           { text: 'Shock:' },
@@ -773,6 +962,7 @@ const Reporting = () => {
         ],
       };
 
+      // Update light excursion count in the summary area
       descriptionRow4.getCell(10).value = {
         richText: [
           { text: 'Light:' },
@@ -787,8 +977,12 @@ const Reporting = () => {
         ],
       };
 
+      // Check if the row's timestamp is within the transit period (between departure and arrival)
       const dateValue = moment(row[columns[dateTimeColIndex - 1].name]).unix();
+
+      // Apply grey background to rows within the transit period
       if (formattedArrivalTime) {
+        // If arrival time exists, highlight rows between departure and arrival
         if (dateValue >= formattedDepartureTime && dateValue <= formattedArrivalTime) {
           rowRef.eachCell((cell, colNumber) => {
             if (!cell.fill) {
@@ -802,6 +996,7 @@ const Reporting = () => {
           greyRows.push(rowRef.number);
         }
       } else {
+        // If no arrival time, highlight rows after departure
         if (dateValue >= formattedDepartureTime) {
           rowRef.eachCell((cell, colNumber) => {
             if (!cell.fill) {
@@ -817,6 +1012,10 @@ const Reporting = () => {
       }
     });
 
+    /**
+     * Add 'Arrived' and 'En route' labels to the first and last transit rows
+     * to visually mark the beginning and end of transit period
+     */
     if (_.size(greyRows) > 0) {
       const firstGreyRow = worksheet.getRow(greyRows[0]);
       const lastGreyRow = worksheet.getRow(greyRows[greyRows.length - 1]);
@@ -824,6 +1023,7 @@ const Reporting = () => {
       let firstGreyRowRichText = firstGreyRow.getCell(1).value.richText;
       let lastGreyRowRichText = lastGreyRow.getCell(1).value.richText;
 
+      // Add 'Arrived' text to the first row of transit period if arrival time exists
       if (formattedArrivalTime) {
         if (_.size(firstGreyRowRichText) > 0) {
           firstGreyRowRichText = [
@@ -840,6 +1040,7 @@ const Reporting = () => {
         }
       }
 
+      // Add 'En route' text to the last row of transit period
       if (_.size(lastGreyRowRichText) > 0) {
         lastGreyRowRichText = [
           ...lastGreyRowRichText,
@@ -854,13 +1055,16 @@ const Reporting = () => {
         ];
       }
 
+      // Apply the updated rich text to the first and last grey rows
       firstGreyRow.getCell(1).value = { richText: firstGreyRowRichText };
       lastGreyRow.getCell(1).value = { richText: lastGreyRowRichText };
     }
 
+    // Calculate total number of rows in the sheet, accounting for variable number of custodians
     const totalRows = _.size(sortedCustodiansArray) <= 4 ? rows.length + 7 : rows.length + 7 + _.size(sortedCustodiansArray) - 4;
     const totalCols = columns.length + 1;
 
+    // Apply border style to all cells in the worksheet
     for (let rowIndex = 1; rowIndex <= totalRows; rowIndex++) {
       for (let colIndex = 1; colIndex <= totalCols; colIndex++) {
         const cell = worksheet.getCell(rowIndex, colIndex);
@@ -870,6 +1074,11 @@ const Reporting = () => {
       }
     }
 
+    /**
+     * Adjust column widths based on content:
+     * - Column 9 has a fixed width of 25
+     * - All other columns are sized based on their content plus 2 characters of padding
+     */
     worksheet.columns.forEach((column, index) => {
       if (index + 1 === 9) {
         column.width = 25;
@@ -887,6 +1096,13 @@ const Reporting = () => {
       }
     });
 
+    /**
+     * Generate and download the Excel file:
+     * 1. Convert workbook to buffer
+     * 2. Create blob from buffer
+     * 3. Create download link with shipment name as filename
+     * 4. Trigger download and cleanup
+     */
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const link = document.createElement('a');
@@ -913,12 +1129,19 @@ const Reporting = () => {
     || isLoadingSensorProcessedData;
 
   return (
+    // Main container with vertical margins
     <Box mt={5} mb={5}>
+
+      {/* Loader spinner shown when data is loading */}
       {isLoaded && <Loader open={isLoaded} />}
+
+      {/* Header section with title and conditional report button */}
       <Box className="reportingDashboardContainer">
         <Typography className="reportingDashboardHeading" variant="h4">
           Reporting
         </Typography>
+
+        {/* Show "Insights Report" button only if shipment filter is not empty and not 'Active' */}
         {!_.isEmpty(shipmentFilter) && !_.isEqual(shipmentFilter, 'Active') && (
           <Button
             type="button"
@@ -929,14 +1152,18 @@ const Reporting = () => {
             disabled={isReportPDFDownloading || _.isEmpty(selectedShipment)}
           >
             Insights Report
+            {/* Tooltip explaining report is in beta */}
             <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
               <InfoIcon fontSize="small" className="reportingDashboardButtonIcon" />
             </Tooltip>
           </Button>
         )}
       </Box>
+
+      {/* Grid layout for shipment details, filter toggles and map */}
       <Grid container spacing={2}>
         <Grid item xs={12}>
+          {/* Toggle buttons to filter shipments by status */}
           <div className="reportingSwitchViewSection">
             <ToggleButtonGroup
               color="secondary"
@@ -944,40 +1171,22 @@ const Reporting = () => {
               exclusive
               fullWidth
             >
-              <ToggleButton
-                selected={shipmentFilter === 'Active'}
-                size="medium"
-                value="Active"
-                onClick={(event, value) => makeFilterSelection(value)}
-              >
-                Active
-              </ToggleButton>
-              <ToggleButton
-                value="Completed"
-                size="medium"
-                selected={shipmentFilter === 'Completed'}
-                onClick={(event, value) => makeFilterSelection(value)}
-              >
-                Completed
-              </ToggleButton>
-              <ToggleButton
-                value="Battery Depleted"
-                size="medium"
-                selected={shipmentFilter === 'Battery Depleted'}
-                onClick={(event, value) => makeFilterSelection(value)}
-              >
-                Battery Depleted
-              </ToggleButton>
-              <ToggleButton
-                value="Damaged"
-                size="medium"
-                selected={shipmentFilter === 'Damaged'}
-                onClick={(event, value) => makeFilterSelection(value)}
-              >
-                Damaged
-              </ToggleButton>
+              {/* Filters for different shipment statuses */}
+              {['Active', 'Completed', 'Battery Depleted', 'Damaged'].map((status) => (
+                <ToggleButton
+                  key={status}
+                  value={status}
+                  size="medium"
+                  selected={shipmentFilter === status}
+                  onClick={(event, value) => makeFilterSelection(value)}
+                >
+                  {status}
+                </ToggleButton>
+              ))}
             </ToggleButtonGroup>
           </div>
+
+          {/* Dropdown to select a shipment based on selected filter */}
           <div className="reportingSwitchViewSection2">
             <TextField
               variant="outlined"
@@ -991,31 +1200,27 @@ const Reporting = () => {
               value={selectedShipment ? selectedShipment.id : ''}
               sx={{ marginRight: isDesktop2() ? 0 : 1 }}
               SelectProps={{
-                MenuProps: {
-                  sx: { maxHeight: '350px' },
-                },
+                MenuProps: { sx: { maxHeight: '350px' } },
               }}
               onChange={(e) => {
                 const selected = _.find(shipmentOverview, { id: e.target.value });
                 handleShipmentSelection(selected);
               }}
             >
+              {/* Default option */}
               <MenuItem value="">Select</MenuItem>
+
+              {/* Filtered shipments for dropdown */}
               {shipmentOverview && !_.isEmpty(shipmentOverview)
-                && _.map(
-                  _.filter(shipmentOverview, { type: shipmentFilter }),
-                  (shipment, index) => (
-                    <MenuItem
-                      key={index}
-                      value={shipment.id}
-                      className="notranslate"
-                    >
-                      {shipment.name}
-                    </MenuItem>
-                  ),
-                )}
+                && _.map(_.filter(shipmentOverview, { type: shipmentFilter }), (shipment, index) => (
+                  <MenuItem key={index} value={shipment.id} className="notranslate">
+                    {shipment.name}
+                  </MenuItem>
+                ))}
             </TextField>
           </div>
+
+          {/* Render appropriate details table based on filter */}
           {!_.isEmpty(shipmentFilter) && _.isEqual(shipmentFilter, 'Active')
             ? (
               <ReportingActiveShipmentDetails
@@ -1023,8 +1228,7 @@ const Reporting = () => {
                 theme={theme}
                 getShipmentValue={getShipmentValue}
               />
-            )
-            : (
+            ) : (
               <ReportingDetailTable
                 ref={reportingDetailTableRef}
                 selectedShipment={selectedShipment}
@@ -1040,6 +1244,8 @@ const Reporting = () => {
               />
             )}
         </Grid>
+
+        {/* Map view section showing shipment path and markers */}
         <Grid ref={mapRef} item xs={12}>
           <div className="reportingSwitchViewSection">
             <Typography className="reportingSectionTitleHeading" variant="h5">
@@ -1051,6 +1257,8 @@ const Reporting = () => {
               ) : 'Map View'}
             </Typography>
           </div>
+
+          {/* Map component with markers, paths, and configurations */}
           <MapComponent
             isMarkerShown={!_.isEmpty(markers)}
             showPath
@@ -1066,6 +1274,8 @@ const Reporting = () => {
           />
         </Grid>
       </Grid>
+
+      {/* Graph View with vertical layout */}
       <Grid container className="reportingContainer" sx={{ marginTop: _.isEmpty(selectedShipment) ? 4 : -1 }}>
         <div className="reportingSwitchViewSection">
           <Typography className="reportingSectionTitleHeading" variant="h5">
@@ -1077,15 +1287,13 @@ const Reporting = () => {
             ) : 'Graph View'}
           </Typography>
         </div>
+
+        {/* Vertical icon list to select graph types */}
         <Grid item xs={2} sm={1}>
-          <List
-            component="nav"
-            aria-label="main graph-type"
-            className="reportingGraphIconBar"
-          >
+          <List component="nav" aria-label="main graph-type" className="reportingGraphIconBar">
             {_.map(REPORT_TYPES(unitData), (item, index) => (
               <ListItem
-                key={`iconItem${index}${item.id} `}
+                key={`iconItem${index}${item.id}`}
                 button
                 selected={selectedGraph === item.id}
                 onClick={() => setSelectedGraph(item.id)}
@@ -1096,6 +1304,8 @@ const Reporting = () => {
             ))}
           </List>
         </Grid>
+
+        {/* Main graph display area */}
         <Grid item xs={10} sm={11}>
           {selectedShipment && selectedGraph && allGraphs && !_.isEmpty(allGraphs) && allGraphs[selectedGraph]
             ? (
@@ -1103,17 +1313,15 @@ const Reporting = () => {
                 data={allGraphs[selectedGraph]}
                 selectedGraph={selectedGraph}
               />
-            )
-            : (
-              <Typography
-                variant="h6"
-                align="center"
-              >
+            ) : (
+              <Typography variant="h6" align="center">
                 Select a shipment to view reporting data
               </Typography>
             )}
         </Grid>
       </Grid>
+
+      {/* Additional report sections for sensor data and alerts */}
       <SensorReport
         sensorReport={reports}
         shipmentName={selectedShipment && selectedShipment.name}
@@ -1124,58 +1332,25 @@ const Reporting = () => {
         downloadCSV={downloadCSV}
         downloadExcel={downloadExcel}
       />
+
       <AlertsReport
         ref={alertsTableRef}
         sensorReport={reports}
-        alerts={_.filter(
-          sensorAlertData,
-          { shipment_id: selectedShipment && selectedShipment.partner_shipment_id },
-        )}
+        alerts={_.filter(sensorAlertData, { shipment_id: selectedShipment && selectedShipment.partner_shipment_id })}
         shipmentName={selectedShipment && selectedShipment.name}
         timezone={timeZone}
         unitOfMeasure={unitData}
         shouldScroll={!!locShipmentID}
       />
-      <ReportGraph
-        ref={tempGraphRef}
-        selectedShipment={selectedShipment}
-        unitOfMeasure={unitData}
-        theme={theme}
-        graphType="temperature"
-        data={allGraphs}
-      />
-      <ReportGraph
-        ref={humGraphRef}
-        selectedShipment={selectedShipment}
-        unitOfMeasure={unitData}
-        theme={theme}
-        graphType="humidity"
-        data={allGraphs}
-      />
-      <ReportGraph
-        ref={shockGraphRef}
-        selectedShipment={selectedShipment}
-        unitOfMeasure={unitData}
-        theme={theme}
-        graphType="shock"
-        data={allGraphs}
-      />
-      <ReportGraph
-        ref={lightGraphRef}
-        selectedShipment={selectedShipment}
-        unitOfMeasure={unitData}
-        theme={theme}
-        graphType="light"
-        data={allGraphs}
-      />
-      <ReportGraph
-        ref={batteryGraphRef}
-        selectedShipment={selectedShipment}
-        unitOfMeasure={unitData}
-        theme={theme}
-        graphType="battery"
-        data={allGraphs}
-      />
+
+      {/* Graph snapshots for each sensor type (used in report generation) */}
+      <ReportGraph ref={tempGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="temperature" data={allGraphs} />
+      <ReportGraph ref={humGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="humidity" data={allGraphs} />
+      <ReportGraph ref={shockGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="shock" data={allGraphs} />
+      <ReportGraph ref={lightGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="light" data={allGraphs} />
+      <ReportGraph ref={batteryGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="battery" data={allGraphs} />
+
+      {/* Generate Report modal component with all visual sections' refs passed in */}
       <GenerateReport
         open={showGenerateReport}
         setOpen={setShowGenerateReport}

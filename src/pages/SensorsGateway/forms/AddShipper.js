@@ -26,46 +26,58 @@ import 'react-phone-input-2/lib/style.css';
 import usePlacesService from 'react-google-autocomplete/lib/usePlacesAutocompleteService';
 import Geocode from 'react-geocode';
 
+/**
+ * AddShipper Component
+ * This component renders a form to add a new shipper with details like company name, contact info, and address.
+ * It uses various hooks, utilities, and APIs to handle form state, validation, and submission.
+ */
 const AddShipper = ({
-  open,
-  setOpen,
-  orgData,
-  custodianTypesData,
+  open, // Boolean to control the visibility of the modal
+  setOpen, // Function to toggle the modal visibility
+  orgData, // Array of organization data
+  custodianTypesData, // Array of custodian types data
 }) => {
-  const { displayAlert } = useAlert();
-  const { data } = useStore();
-  const organization = getUser().organization.organization_uuid;
+  const { displayAlert } = useAlert(); // Hook to display alerts
+  const { data } = useStore(); // Zustand store for timezone data
+  const organization = getUser().organization.organization_uuid; // Fetch the current user's organization UUID
 
-  const [openConfirmModal, setConfirmModal] = useState(false);
+  const [openConfirmModal, setConfirmModal] = useState(false); // State to control confirmation modal visibility
 
+  // Configure Geocode API
   Geocode.setApiKey(window.env.GEO_CODE_API);
   Geocode.setLanguage('en');
 
+  // Configure Google Places Autocomplete Service
   const {
-    placePredictions,
-    getPlacePredictions,
-    isPlacePredictionsLoading,
+    placePredictions, // List of address predictions
+    getPlacePredictions, // Function to fetch address predictions
+    isPlacePredictionsLoading, // Loading state for predictions
   } = usePlacesService({
     apiKey: window.env.MAP_API_KEY,
   });
 
-  const company = useInput('', { required: true });
-  const abbrevation = useInput('');
-  const glnNumber = useInput('');
-  const firstName = useInput('', { required: true });
-  const lastName = useInput('', { required: true });
-  const email = useInput('');
-  const country = useInput('', { required: true });
-  const state = useInput('', { required: true });
-  const [address1, setAddress1] = useState('');
-  const address_2 = useInput('');
-  const city = useInput('', { required: true });
-  const zip = useInput('', { required: true });
+  // Form state hooks
+  const company = useInput('', { required: true }); // Company name input
+  const abbrevation = useInput(''); // Abbreviation input
+  const glnNumber = useInput(''); // GLN number input
+  const firstName = useInput('', { required: true }); // First name input
+  const lastName = useInput('', { required: true }); // Last name input
+  const email = useInput(''); // Email input
+  const country = useInput('', { required: true }); // Country input
+  const state = useInput('', { required: true }); // State input
+  const [address1, setAddress1] = useState(''); // Address line 1 state
+  const address_2 = useInput(''); // Address line 2 input
+  const city = useInput('', { required: true }); // City input
+  const zip = useInput('', { required: true }); // ZIP code input
 
-  const [number, setNumber] = useState('');
-  const [numberFocus, setNumberFocus] = useState(false);
-  const [formError, setFormError] = useState({});
+  const [number, setNumber] = useState(''); // Phone number state
+  const [numberFocus, setNumberFocus] = useState(false); // State to track phone input focus
+  const [formError, setFormError] = useState({}); // State to track form validation errors
 
+  /**
+   * Close the form modal.
+   * If form data has changed, show a confirmation modal; otherwise, close the modal directly.
+   */
   const closeFormModal = () => {
     const dataHasChanged = (
       company.hasChanged()
@@ -86,11 +98,19 @@ const AddShipper = ({
     }
   };
 
+  /**
+   * Discard form data and close the modal.
+   */
   const discardFormData = () => {
     setConfirmModal(false);
     setOpen(false);
   };
 
+  /**
+   * Generate an acronym from a string.
+   * @param {string} str - The input string.
+   * @returns {string} - The generated acronym.
+   */
   const acronym = (str) => {
     let abbr = '';
     const words = _.without(_.split(str, /\s+/), '');
@@ -103,8 +123,14 @@ const AddShipper = ({
     return _.toUpper(abbr);
   };
 
+  // Mutation hook to add a new custodian
   const { mutate: addCustodianMutation, isLoading: isAddingShipper } = useAddCustodianMutation(organization, null, null, displayAlert);
 
+  /**
+   * Handle form submission.
+   * Validates and submits the form data to add a new shipper.
+   * @param {Event} event - The form submission event.
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
     const contactFormValue = {
@@ -152,6 +178,14 @@ const AddShipper = ({
     addCustodianMutation([custodianFormValue, contactFormValue]);
   };
 
+  /**
+   * Handle input blur event for validation.
+   * Updates the form error state based on validation results.
+   * @param {Event} e - The blur event.
+   * @param {string} validation - The validation type.
+   * @param {object} input - The input state object.
+   * @param {string} parentId - The parent ID for nested inputs.
+   */
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
@@ -171,6 +205,11 @@ const AddShipper = ({
     }
   };
 
+  /**
+   * Check if the submit button should be disabled.
+   * Returns true if required fields are empty or there are validation errors.
+   * @returns {boolean} - Whether the submit button should be disabled.
+   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (
@@ -196,6 +235,11 @@ const AddShipper = ({
     return errorExists;
   };
 
+  /**
+   * Handle address selection from Google Places predictions.
+   * Updates the address fields based on the selected address.
+   * @param {object} address - The selected address object.
+   */
   const handleSelectAddress = (address) => {
     const addressDesc = address.description.split(', ');
     Geocode.fromAddress(address.description)

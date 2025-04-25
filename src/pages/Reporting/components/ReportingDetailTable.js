@@ -1,3 +1,24 @@
+/**
+ * ReportingDetailTable Component
+ *
+ * A comprehensive table component that displays detailed information about shipment tracking,
+ * including temperature, humidity, shock, and light measurements during transit and storage.
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.selectedShipment - Currently selected shipment data
+ * @param {Array} props.allGatewayData - Array of all gateway tracking devices
+ * @param {string} props.timeZone - Current timezone for date/time display
+ * @param {Array} props.sensorAlertData - Array of sensor alerts during shipment
+ * @param {Object} props.theme - Theme object for styling
+ * @param {Array} props.unitOfMeasure - Array of measurement units configuration
+ * @param {Array} props.sensorReportData - Array of sensor measurement reports
+ * @param {Array} props.itemData - Array of shipped items data
+ * @param {Array} props.itemTypesData - Array of available item types
+ * @param {Object} props.sensorProcessedData - Processed sensor data with calculated metrics
+ * @param {React.Ref} ref - Forwarded ref for DOM access
+ */
+
 /* eslint-disable no-nested-ternary */
 import React, { useState, useEffect, forwardRef } from 'react';
 import _ from 'lodash';
@@ -22,7 +43,11 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     itemTypesData,
     sensorProcessedData,
   } = props;
+
+  // Get user language preference for localization
   const userLanguage = getUser().user_language;
+
+  // Extract measurement units from configuration
   const tempDisplayUnit = tempUnit(_.find(unitOfMeasure, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')));
   const tempMeasure = !_.isEmpty(unitOfMeasure) && _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure;
   const dateFormat = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
@@ -32,7 +57,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
     : '';
 
-  // shipment thresholds
+  // Extract threshold values for various measurements
   const maxTempThreshold = selectedShipment && _.orderBy(selectedShipment.max_excursion_temp, ['set_at'], ['desc'])[0].value;
   const minTempThreshold = selectedShipment && _.orderBy(selectedShipment.min_excursion_temp, ['set_at'], ['desc'])[0].value;
   const maxHumThreshold = selectedShipment && _.orderBy(selectedShipment.max_excursion_humidity, ['set_at'], ['desc'])[0].value;
@@ -40,6 +65,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
   const maxShockThreshold = selectedShipment && _.orderBy(selectedShipment.shock_threshold, ['set_at'], ['desc'])[0].value;
   const maxLightThreshold = selectedShipment && _.orderBy(selectedShipment.light_threshold, ['set_at'], ['desc'])[0].value;
 
+  // State management for various tracking metrics
   const [trackerActivationDate, setTrackerActivationDate] = useState();
   const [updatedTransitAlerts, setUpdatedTransitAlerts] = useState([]);
   const [updatedStorageAlerts, setUpdatedStorageAlerts] = useState([]);
@@ -61,6 +87,10 @@ const ReportingDetailTable = forwardRef((props, ref) => {
   const [items, setItems] = useState();
   const isMobileDevice = isMobile();
 
+  /**
+   * Effect to initialize shipment tracking data when a shipment is selected
+   * Sets up basic shipment information including custodians and locations
+   */
   useEffect(() => {
     if (!_.isEmpty(selectedShipment)) {
       const selectedTracker = _.find(allGatewayData, (item) => item.name === selectedShipment.tracker);
@@ -84,8 +114,13 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     }
   }, [selectedShipment]);
 
+  /**
+   * Effect to process sensor alerts and categorize them into transit and storage alerts
+   * Handles alert processing and classification based on timing and type
+   */
   useEffect(() => {
     if (!_.isEmpty(sensorAlertData) && !_.isEmpty(selectedShipment)) {
+      // Filter alerts into transit and storage periods
       const transitAlerts = _.filter(sensorAlertData, (alert) => {
         const createDate = moment(alert.create_date).unix();
         return (
@@ -100,10 +135,16 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           && createDate <= (moment(selectedShipment.actual_time_of_arrival).unix())
         );
       });
+
+      // Process alerts removing recovered ones
       const transitWithoutRecoveredAlerts = !_.isEmpty(transitAlerts) && _.filter(transitAlerts, (alert) => _.isEqual(alert.recovered_alert_id, null));
       const storageWithoutRecoveredAlerts = !_.isEmpty(storageAlerts) && _.filter(storageAlerts, (alert) => _.isEqual(alert.recovered_alert_id, null));
+
+      // Initialize processed alert arrays
       let processedTransitAlerts = [];
       let processedStorageAlerts = [];
+
+      // Process transit alerts
       _.forEach(transitWithoutRecoveredAlerts, (alert) => {
         let color = '';
         let title = '';
@@ -124,6 +165,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           processedTransitAlerts = [...processedTransitAlerts, alertObj];
         }
       });
+
+      // Process storage alerts
       _.forEach(storageWithoutRecoveredAlerts, (alert) => {
         let color = '';
         let title = '';
@@ -146,13 +189,19 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           processedStorageAlerts = [...processedStorageAlerts, alertObj];
         }
       });
+
       setUpdatedTransitAlerts(processedTransitAlerts);
       setUpdatedStorageAlerts(processedStorageAlerts);
     }
   }, [sensorAlertData, selectedShipment]);
 
+  /**
+   * Effect to process sensor report data and calculate various metrics
+   * Handles temperature, humidity, shock, and light measurements
+   */
   useEffect(() => {
     if (!_.isEmpty(sensorReportData) && !_.isEmpty(selectedShipment)) {
+      // Filter reports into transit and storage periods
       const transitReports = _.filter(sensorReportData, (report) => {
         const activationDate = moment(report.activation_date).unix();
         return (
@@ -168,6 +217,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
         );
       });
 
+      // Initialize measurement variables
       let transitReportMaxTempEntry = null;
       let transitReportMinTempEntry = null;
       let storageReportMaxTempEntry = null;
@@ -179,7 +229,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
       let reportMaxShockEntry = null;
       let reportMaxLightEntry = null;
 
-      // Transit reports
+      // Process transit reports
       if (!_.isEmpty(transitReports)) {
         const transitHumEntries = _.map(transitReports, (tr) => tr.report_entry && tr.report_entry.report_humidity);
         const transitTempEntries = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
@@ -192,7 +242,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
         transitReportMinHumEntry = _.min(transitHumEntries);
       }
 
-      // Storage reports
+      // Process storage reports
       if (!_.isEmpty(storageReports)) {
         const storageHumEntries = _.map(storageReports, (tr) => tr.report_entry && tr.report_entry.report_humidity);
         const storageTempEntries = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
@@ -205,7 +255,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
         storageReportMinHumEntry = _.min(storageHumEntries);
       }
 
-      // Reports
+      // Process overall reports for shock and light
       if (!_.isEmpty(sensorReportData)) {
         const reportShockEntries = _.map(sensorReportData, (tr) => tr.report_entry && tr.report_entry.report_shock);
         const reportLightEntries = _.map(sensorReportData, (tr) => tr.report_entry && tr.report_entry.report_light);
@@ -220,6 +270,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
         }
       }
 
+      // Update state with processed data
       setMaxTransitTempEntry(transitReportMaxTempEntry);
       setMinTransitTempEntry(transitReportMinTempEntry);
       setMaxStorageTempEntry(storageReportMaxTempEntry);
@@ -233,6 +284,9 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     }
   }, [sensorReportData, selectedShipment]);
 
+  /**
+   * Effect to process item data when shipment or items change
+   */
   useEffect(() => {
     if (selectedShipment && !_.isEmpty(itemData)) {
       const selectedItems = itemData.filter((obj) => selectedShipment.items.includes(obj.url));
@@ -240,6 +294,11 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     }
   }, [selectedShipment, itemData]);
 
+  /**
+   * Formats temperature values for display, including threshold differences
+   * @param {number} temperature - Temperature value to format
+   * @returns {string} Formatted temperature string
+   */
   const displayTempValues = (temperature) => {
     let returnValue = `${temperature} ${tempDisplayUnit}`;
     if (_.gt(temperature, maxTempThreshold) || _.lt(temperature, minTempThreshold)) {
@@ -252,6 +311,12 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     return returnValue;
   };
 
+  /**
+   * Determines the appropriate CSS class based on measurement values and thresholds
+   * @param {number} value - Measurement value
+   * @param {string} limitType - Type of measurement (temp, hum, shock, light)
+   * @returns {string} CSS class name
+   */
   const displayTextColor = (value, limitType) => {
     let returnClass = 'reportingGreenText';
 
@@ -292,6 +357,13 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     return returnClass;
   };
 
+  /**
+   * Converts seconds to a formatted time string with days, hours, and minutes
+   * @param {string} title - Title for the time display
+   * @param {number} value - Time in seconds
+   * @param {string} spanClass - CSS class for styling
+   * @returns {JSX.Element} Formatted time display component
+   */
   const convertSecondsToFormattedTime = (title, value, spanClass) => {
     let seconds = value;
     const days = Math.floor(seconds / (24 * 3600));
@@ -318,6 +390,14 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     );
   };
 
+  /**
+   * Creates a formatted text display component
+   * @param {string} title - Display title
+   * @param {string} value - Display value
+   * @param {string} spanClass - CSS class for styling
+   * @param {string} translateClass - Translation class
+   * @returns {JSX.Element} Formatted text display component
+   */
   const displayItemText = (title, value, spanClass, translateClass) => (
     <Typography fontWeight={700}>
       {`${title}: `}
@@ -327,15 +407,23 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     </Typography>
   );
 
+  /**
+   * Formats threshold data array for display
+   * @param {Array} array - Array of threshold values
+   * @param {string} unit - Unit of measurement
+   * @returns {string} Formatted threshold string
+   */
   const displayThresholdData = (array, unit) => {
     const sortedArray = _.orderBy(array, ['set_at'], ['asc']);
     return sortedArray.map((item) => `${item.value} ${unit}`).join(', ');
   };
 
+  // Component render
   return (
     <div ref={ref}>
       {!_.isEmpty(selectedShipment) && (
         <Grid container className="reportingDetailTableContainer">
+          {/* Table header with shipment name and tracker info */}
           <Grid container className="reportingDetailTableHeader">
             <Grid item xs={6} sm={4} md={3} id="itemText">
               {displayItemText('Shipment Name', selectedShipment.name, null, 'notranslate')}
@@ -354,6 +442,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText('Activated', trackerActivationDate)}
             </Grid>
           </Grid>
+
+          {/* Shipment status and excursions */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
               {displayItemText('Shipment Status', selectedShipment.status, null, _.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate')}
@@ -392,6 +482,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               </span>
             </Grid>
           </Grid>
+
+          {/* Origin custodian information */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} sm={4} md={3} id="itemText">
               {displayItemText('Shipment Origin Custodian', originCustodianName, null, 'notranslate')}
@@ -401,6 +493,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {!_.isEmpty(originCustodianLocation) ? displayItemText('Shipment Origin Location', `${originCustodianLocation.address1}, ${originCustodianLocation.city}, ${originCustodianLocation.state}, ${originCustodianLocation.country}, ${originCustodianLocation.postal_code}`) : 'Shipment Origin Location'}
             </Grid>
           </Grid>
+
+          {/* Destination custodian information */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} sm={4} md={3} id="itemText">
               {displayItemText('Shipment Destination Custodian', destinationCustodianName, null, 'notranslate')}
@@ -410,6 +504,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {!_.isEmpty(destinationCustodianLocation) ? displayItemText('Shipment Destination/Last Location', `${destinationCustodianLocation.address1}, ${destinationCustodianLocation.city}, ${destinationCustodianLocation.state}, ${destinationCustodianLocation.country}, ${destinationCustodianLocation.postal_code}`) : 'Shipment Destination/Last Location'}
             </Grid>
           </Grid>
+
+          {/* Timestamps */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
               {displayItemText('Departure Timestamp', `${formatDate((selectedShipment.actual_time_of_departure || selectedShipment.estimated_time_of_departure), timeZone, `${dateFormat} ${timeFormat} z`)} ${selectedShipment.actual_time_of_departure ? '(Actual)' : '(Estimated)'}`)}
@@ -424,6 +520,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText('Shipment Total Timestamp', dateDifference(selectedShipment.create_date, selectedShipment.actual_time_of_completion || selectedShipment.edit_date))}
             </Grid>
           </Grid>
+
+          {/* Temperature thresholds and transit times */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
               {displayItemText('Maximum Temperature Threshold', `${displayThresholdData(selectedShipment.max_excursion_temp, tempDisplayUnit)}`)}
@@ -438,6 +536,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText('Minimum Temperature Threshold', `${displayThresholdData(selectedShipment.min_excursion_temp, tempDisplayUnit)}`)}
             </Grid>
           </Grid>
+
+          {/* Temperature measurements */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
               {displayItemText('Transit Max. Temp.', displayTempValues(maxTransitTempEntry), displayTextColor(maxTransitTempEntry, 'temp'))}
@@ -452,6 +552,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText('Post-Transit/Storage Min. Temp.', displayTempValues(minStorageTempEntry), displayTextColor(minStorageTempEntry, 'temp'))}
             </Grid>
           </Grid>
+
+          {/* Temperature range times */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
               {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Transit Time within Temp. Range', sensorProcessedData.transit_within_temperature, 'reportingGreenText') : 'Transit Time within Temp. Range: NA'}
@@ -466,6 +568,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Post-Transit/Storage Time outside Temp. Range', sensorProcessedData.post_outside_temperature, 'reportingRedText') : 'Post-Transit/Storage Time outside Temp. Range: NA'}
             </Grid>
           </Grid>
+
+          {/* Humidity thresholds */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} sm={4} md={3} id="itemText">
               {displayItemText('Maximum Humidity Threshold', `${displayThresholdData(selectedShipment.max_excursion_humidity, '%')}`)}
@@ -475,6 +579,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText('Minumum Humidity Threshold', `${displayThresholdData(selectedShipment.min_excursion_humidity, '%')}`)}
             </Grid>
           </Grid>
+
+          {/* Humidity measurements */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
               {displayItemText('Transit Max.Hum.', `${maxTransitHumEntry}%`, displayTextColor(maxTransitHumEntry, 'hum'))}
@@ -489,6 +595,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText('Post-Transit/Storage Min. Hum.', `${minStorageHumEntry}%`, displayTextColor(minStorageHumEntry, 'hum'))}
             </Grid>
           </Grid>
+
+          {/* Humidity range times */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
               {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Transit Time within Hum. Range', sensorProcessedData.transit_within_humidity, 'reportingGreenText') : 'Transit Time within Hum. Range: NA'}
@@ -503,6 +611,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Post-Transit/Storage Time outside Hum. Range', sensorProcessedData.post_outside_humidity, 'reportingRedText') : 'Post-Transit/Storage Time outside Hum. Range: NA'}
             </Grid>
           </Grid>
+
+          {/* Shock and light measurements */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
               {displayItemText('Transit/Storage Shock Threshold', `${displayThresholdData(selectedShipment.shock_threshold, 'G')}`)}
@@ -517,6 +627,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText('Transit/Storage Max. Light', `${maxLightEntry} LUX`, displayTextColor(maxLightEntry, 'light'))}
             </Grid>
           </Grid>
+
+          {/* Intermediate custodians */}
           {!_.isEmpty(intermediateCustodians) && (
             <Grid container className="reportingDetailTableBody">
               {_.map(intermediateCustodians, (item, index) => {
@@ -552,6 +664,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               )}
             </Grid>
           )}
+
+          {/* Items information */}
           {!_.isEmpty(items) && !_.isEmpty(itemTypesData) && (
             _.map(items, (item, index) => (
               <Grid key={`${item}-${index}`} container className="reportingDetailTableBody">

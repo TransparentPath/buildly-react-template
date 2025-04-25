@@ -17,12 +17,28 @@ import {
 import { extractCountry } from './utilMethods';
 import { TIVE_GATEWAY_TIMES } from '@utils/mock';
 
+/**
+ * Formats a date/time value according to the given timezone and formats.
+ *
+ * @param {string} value - The date/time value to format.
+ * @param {string} timezone - The timezone in which to format the time.
+ * @param {string} dateFormat - The desired date format (e.g., 'YYYY-MM-DD').
+ * @param {string} timeFormat - The desired time format (e.g., 'HH:mm:ss').
+ * @returns {string} - The formatted date/time string or original value if invalid.
+ */
 const showValue = (value, timezone, dateFormat, timeFormat) => (
   value && value !== '-'
     ? moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`)
     : value
 );
 
+/**
+ * Custom Tilt icon component rendered as an inline SVG.
+ * Indicates device tilt or motion sensor events.
+ *
+ * @param {string} color - The color to apply to the SVG icon.
+ * @returns {JSX.Element} - Rendered Tilt icon.
+ */
 export const TiltIcon = (color) => (
   <SvgIcon
     style={{ color }}
@@ -37,6 +53,13 @@ export const TiltIcon = (color) => (
   </SvgIcon>
 );
 
+/**
+ * Custom Pressure icon rendered as inline SVG.
+ * Represents pressure data or environmental sensor readings.
+ *
+ * @param {string} color - The color to apply to the icon.
+ * @returns {JSX.Element} - Rendered Pressure icon.
+ */
 export const PressureIcon = (color) => (
   <SvgIcon
     style={{ color }}
@@ -54,6 +77,12 @@ export const PressureIcon = (color) => (
   </SvgIcon>
 );
 
+/**
+ * Custom "Flight Safe" icon component indicating safe for air travel.
+ * Typically shown when tracking devices are within safety limits for aviation.
+ *
+ * @returns {JSX.Element} - Rendered green airplane icon.
+ */
 export const FlightSafeIcon = () => (
   <SvgIcon
     xmlns="http://www.w3.org/2000/svg"
@@ -74,6 +103,12 @@ export const FlightSafeIcon = () => (
   </SvgIcon>
 );
 
+/**
+ * Custom "Flight Unsafe" icon component indicating unsafe for air travel.
+ * Displayed when a device violates airline safety conditions.
+ *
+ * @returns {JSX.Element} - Rendered warning airplane icon.
+ */
 export const FlightUnsafeIcon = () => (
   <SvgIcon
     xmlns="http://www.w3.org/2000/svg"
@@ -97,14 +132,22 @@ export const FlightUnsafeIcon = () => (
   </SvgIcon>
 );
 
+/**
+ * Returns column configuration for a generic entity with name, creation date, and last edited date.
+ *
+ * @param {string} timezone - The user's timezone for formatting dates.
+ * @param {string} dateFormat - Preferred display format for date.
+ * @param {string} timeFormat - Preferred display format for time.
+ * @returns {Array<Object>} Array of column definitions for use in a data table.
+ */
 export const getColumns = (timezone, dateFormat, timeFormat) => ([
   {
     name: 'name',
     label: 'Name',
     options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
+      sort: true, // Enable sorting
+      sortThirdClickReset: true, // Third click on column header removes sort
+      filter: true, // Enable column filtering
     },
   },
   {
@@ -114,7 +157,7 @@ export const getColumns = (timezone, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat), // Format date using user settings
     },
   },
   {
@@ -124,11 +167,19 @@ export const getColumns = (timezone, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat),
+      customBodyRender: (value) => showValue(value, timezone, dateFormat, timeFormat), // Format date using user settings
     },
   },
 ]);
 
+/**
+ * Returns column configuration for tracker type entities with non-translatable name.
+ *
+ * @param {string} timezone - The user's timezone for formatting dates.
+ * @param {string} dateFormat - Preferred display format for date.
+ * @param {string} timeFormat - Preferred display format for time.
+ * @returns {Array<Object>} Array of column definitions for tracker type table.
+ */
 export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
   {
     name: 'name',
@@ -138,7 +189,7 @@ export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
       sortThirdClickReset: true,
       filter: true,
       setCellProps: () => ({
-        className: 'notranslate',
+        className: 'notranslate', // Prevents automatic translation for this column
       }),
     },
   },
@@ -164,6 +215,15 @@ export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
   },
 ]);
 
+/**
+ * Returns column configuration for product-related data.
+ *
+ * @param {string} timezone - The user's timezone for formatting dates.
+ * @param {string} uomw - Unit of Measure to display.
+ * @param {string} dateFormat - Preferred display format for date.
+ * @param {string} timeFormat - Preferred display format for time.
+ * @returns {Array<Object>} Array of column definitions for product table.
+ */
 export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   {
     name: 'name',
@@ -190,7 +250,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => _.round(_.toNumber(value), 2),
+      customBodyRender: (value) => _.round(_.toNumber(value), 2), // Convert to number and round to 2 decimals
     },
   },
   {
@@ -200,7 +260,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => _.round(_.toNumber(value), 2),
+      customBodyRender: (value) => _.round(_.toNumber(value), 2), // Convert to number and round to 2 decimals
     },
   },
   {
@@ -210,7 +270,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: () => uomw,
+      customBodyRender: () => uomw, // Always show passed-in unit of measure value
     },
   },
   {
@@ -235,6 +295,11 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   },
 ]);
 
+/**
+ * Returns column configuration for mapping custodians to organizations.
+ * @param {Array} allOrgs - List of all organizations for lookup.
+ * @returns {Array} Column definitions for the data table.
+ */
 export const getMappingOrg = (allOrgs) => ([
   {
     name: 'name',
@@ -253,8 +318,9 @@ export const getMappingOrg = (allOrgs) => ([
       sortThirdClickReset: true,
       filter: true,
       setCellProps: () => ({
-        className: 'notranslate',
+        className: 'notranslate', // Prevents translation of cell content
       }),
+      // Custom render: displays the mapped org's name based on UUID
       customBodyRender: (value) => {
         let returnValue = '-';
         if (value) {
@@ -269,6 +335,9 @@ export const getMappingOrg = (allOrgs) => ([
   },
 ]);
 
+/**
+ * Returns columns for displaying consortium information with formatted dates.
+ */
 export const getConsortiumColumns = (timezone, dateFormat, timeFormat) => ([
   {
     name: 'name',
@@ -286,6 +355,7 @@ export const getConsortiumColumns = (timezone, dateFormat, timeFormat) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Format the date using timezone and format strings
       customBodyRender: (value) => (
         value && value !== '-'
           ? moment(value).tz(timezone).format(`${dateFormat} ${timeFormat}`)
@@ -309,6 +379,9 @@ export const getConsortiumColumns = (timezone, dateFormat, timeFormat) => ([
   },
 ]);
 
+/**
+ * Column definitions for the custodians data table.
+ */
 export const custodianColumns = [
   {
     name: 'name',
@@ -350,6 +423,7 @@ export const custodianColumns = [
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Applies custom styling for long content
       setCellProps: () => ({
         style: { maxWidth: '300px', wordWrap: 'break-word' },
         className: 'notranslate',
@@ -363,11 +437,14 @@ export const custodianColumns = [
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: (value) => value || '-',
+      customBodyRender: (value) => value || '-', // Shows "-" if no value is present
     },
   },
 ];
 
+/**
+ * Retrieves a matching contact info object from a list based on custodian's contact data.
+ */
 export const getUniqueContactInfo = (rowItem, contactInfo) => {
   let obj = '';
   _.forEach(contactInfo, (info) => {
@@ -378,11 +455,15 @@ export const getUniqueContactInfo = (rowItem, contactInfo) => {
   return obj;
 };
 
+/**
+ * Formats custodian rows by merging location and type data from reference lists.
+ */
 export const getCustodianFormattedRow = (data, contactInfo, type = []) => {
   if (data && data.length && contactInfo && contactInfo.length) {
     let customizedRow = [];
     _.forEach(data, (rowItem) => {
       const contactInfoItem = getUniqueContactInfo(rowItem, contactInfo);
+      // Construct full location string from parts
       const location = `${contactInfoItem.address1
         && `${contactInfoItem.address1},`} ${contactInfoItem.address2
         && `${contactInfoItem.address2},`} ${contactInfoItem.city
@@ -391,6 +472,7 @@ export const getCustodianFormattedRow = (data, contactInfo, type = []) => {
         && `${contactInfoItem.country},`} ${contactInfoItem.postal_code
         && `${contactInfoItem.postal_code}`}`;
       let editedData = { ...rowItem, location };
+      // Map type name from URL
       const custType = _.find(type, { url: rowItem.custodian_type });
       if (custType) {
         editedData = { ...editedData, type: custType.name };
@@ -407,81 +489,9 @@ export const getCustodianFormattedRow = (data, contactInfo, type = []) => {
   return data;
 };
 
-export const recallColumns = [
-  {
-    name: 'name',
-    label: 'Shipment Name',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-    },
-  },
-  {
-    name: 'itemNo',
-    label: 'Affected Items',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-    },
-  },
-  {
-    name: 'custodian_name',
-    label: 'Current Custodians',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-    },
-  },
-];
-
-export const delayColumns = [
-  {
-    name: 'name',
-    label: 'Shipment Name',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-    },
-  },
-  {
-    name: 'delay',
-    label: 'Delay(hrs)',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-    },
-  },
-  {
-    name: 'itemNo',
-    label: 'Items',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-    },
-  },
-  {
-    name: 'risk',
-    label: 'Revenue Risk',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      customBodyRender: (value) => (
-        value && value !== '-'
-          ? `$${value}`
-          : value
-      ),
-    },
-  },
-  {
-    name: 'custodian',
-    label: 'Current Custodians',
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-    },
-  },
-];
-
+/**
+ * Formats custody data rows by adding load ID and resolving custodian names.
+ */
 export const getFormattedCustodyRows = (custodyData, custodianData) => {
   let customizedRows = [];
   let counter = 2;
@@ -489,6 +499,7 @@ export const getFormattedCustodyRows = (custodyData, custodianData) => {
     const custodyLength = custodyData.length;
     _.forEach(custodyData, (custody) => {
       const editedCustody = { ...custody };
+      // Assign load_id if not already present
       if (!custody.load_id) {
         if (custody.first_custody) {
           editedCustody.load_id = 1;
@@ -500,6 +511,7 @@ export const getFormattedCustodyRows = (custodyData, custodianData) => {
         }
       }
 
+      // Find and append custodian name/data
       _.forEach(custodianData, (custodian) => {
         if (_.isEqual(custody.custodian[0], custodian.url)) {
           editedCustody.custodian_name = custodian.name;
@@ -518,6 +530,9 @@ export const getFormattedCustodyRows = (custodyData, custodianData) => {
   );
 };
 
+/**
+ * Returns column definitions for displaying item data, with optional currency unit.
+ */
 export const itemColumns = (currUnit) => ([
   {
     name: 'name',
@@ -559,6 +574,7 @@ export const itemColumns = (currUnit) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Append currency unit to value
       customBodyRender: (value) => (
         value && value !== '-'
           ? `${value} ${currUnit}`
@@ -591,12 +607,23 @@ export const itemColumns = (currUnit) => ([
   },
 ]);
 
+/**
+ * Formats a list of shipment items by enriching them with additional display data
+ * like item type name and unit of measure (if weight-based).
+ *
+ * @param {Array} data - Raw item data.
+ * @param {Array} itemTypeList - List of item types with metadata (name, URL).
+ * @param {Array} unitOfMeasure - Units of measure data.
+ * @returns {Array} Formatted and sorted item data.
+ */
 export const getItemFormattedRow = (data, itemTypeList, unitOfMeasure) => {
   if (data && itemTypeList) {
     let formattedData = [];
+    // Find the unit of measure for weight, if available.
     const uomw = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'weight'))) || '';
     const uom = uomw ? uomw.unit_of_measure : '';
 
+    // For each item, enhance it with readable type name and unit.
     _.forEach(data, (element) => {
       let editedData = element;
       _.forEach(itemTypeList, (type) => {
@@ -611,6 +638,7 @@ export const getItemFormattedRow = (data, itemTypeList, unitOfMeasure) => {
       formattedData = [...formattedData, editedData];
     });
 
+    // Sort the formatted data by creation date in ascending order.
     return _.orderBy(
       formattedData,
       (dataRow) => moment(dataRow.create_date),
@@ -620,52 +648,28 @@ export const getItemFormattedRow = (data, itemTypeList, unitOfMeasure) => {
   return data;
 };
 
+/**
+ * Table column definitions for the shipment overview table.
+ */
 export const SHIPMENT_OVERVIEW_COLUMNS = [
-  {
-    name: 'name',
-    label: 'Shipment Name',
-    className: 'notranslate',
-  },
-  {
-    name: 'status',
-    label: 'Shipment Status',
-  },
-  {
-    name: 'estimated_time_of_departure',
-    label: 'Estimated Pickup Time',
-  },
-  {
-    name: 'actual_time_of_departure',
-    label: 'Actual Pickup Time',
-  },
-  {
-    name: 'estimated_time_of_arrival',
-    label: 'Estimated Arrival Time',
-  },
-  {
-    name: 'actual_time_of_arrival',
-    label: 'Actual Arrival Time',
-  },
-  {
-    name: 'had_alert',
-    label: 'Had Alerts(s)',
-  },
-  {
-    name: 'tracker',
-    label: 'Tracker',
-    className: 'notranslate',
-  },
-  {
-    name: 'custodian_name',
-    label: 'Custodian Name',
-    className: 'notranslate',
-  },
-  {
-    name: 'custody_info',
-    label: 'Custody Details (Current)',
-  },
+  { name: 'name', label: 'Shipment Name', className: 'notranslate' },
+  { name: 'status', label: 'Shipment Status' },
+  { name: 'estimated_time_of_departure', label: 'Estimated Pickup Time' },
+  { name: 'actual_time_of_departure', label: 'Actual Pickup Time' },
+  { name: 'estimated_time_of_arrival', label: 'Estimated Arrival Time' },
+  { name: 'actual_time_of_arrival', label: 'Actual Arrival Time' },
+  { name: 'had_alert', label: 'Had Alerts(s)' },
+  { name: 'tracker', label: 'Tracker', className: 'notranslate' },
+  { name: 'custodian_name', label: 'Custodian Name', className: 'notranslate' },
+  { name: 'custody_info', label: 'Custody Details (Current)' },
 ];
 
+/**
+ * Returns a corresponding icon wrapped in a tooltip for the given sensor item.
+ *
+ * @param {Object} item - Sensor data (id, color, title).
+ * @returns {JSX.Element|null} Sensor icon component.
+ */
 export const getIcon = (item) => {
   const { id, color, title } = item;
   switch (id) {
@@ -731,6 +735,12 @@ export const getIcon = (item) => {
   }
 };
 
+/**
+ * Returns a sensor icon and its count in parentheses.
+ *
+ * @param {Object} item - Sensor data (id, color, title, count).
+ * @returns {JSX.Element|null} Sensor icon with count.
+ */
 export const getIconWithCount = (item) => {
   const {
     id, color, title, count,
@@ -822,6 +832,16 @@ export const getIconWithCount = (item) => {
   }
 };
 
+/**
+ * Enriches raw shipment data with related custodian, contact, and tracker info.
+ *
+ * @param {Array} shipmentData - List of shipments.
+ * @param {Array} custodianData - List of custodians.
+ * @param {Array} custodyData - List of custody records.
+ * @param {Array} contactData - List of contacts related to custodians.
+ * @param {Array} gatewayData - Gateway tracker metadata.
+ * @returns {Array} Enriched and sorted shipment list.
+ */
 export const getShipmentOverview = (
   shipmentData,
   custodianData,
@@ -831,6 +851,7 @@ export const getShipmentOverview = (
 ) => {
   let shipmentList = [];
   let custodyRows = [];
+  // Prepare custody row data if custody and custodian info exists.
   if (
     custodyData
     && custodianData
@@ -846,13 +867,16 @@ export const getShipmentOverview = (
     let custodianName = '';
     let contactInfo = [];
 
+    // Match custody info with this shipment.
     if (custodyRows.length > 0) {
       _.forEach(custodyRows, (custody) => {
         const editedCustody = { ...custody };
         if (_.isEqual(custody.shipment_id, shipment.shipment_uuid) && custody.custodian_data) {
+          // Aggregate custodian names.
           custodianName = custodianName
             ? `${custodianName}, ${custody.custodian_data.name}`
             : custody.custodian_data.name;
+          // Get contact info for the custodian.
           _.forEach(contactData, (contact) => {
             const editedContact = { ...contact };
             if (_.isEqual(custody.custodian_data.contact_data[0], contact.url)) {
@@ -872,6 +896,7 @@ export const getShipmentOverview = (
               contactInfo = [...contactInfo, editedContact];
             }
           });
+          // Mark custody type for display.
           if (custody.has_current_custody) {
             editedCustody.custody_type = 'Current';
           } else if (custody.first_custody) {
@@ -885,10 +910,12 @@ export const getShipmentOverview = (
         }
       });
     }
+    // Attach the enriched fields.
     editedShipment.custodian_name = custodianName;
     editedShipment.custody_info = custodyInfo;
     editedShipment.contact_info = contactInfo;
 
+    // Determine shipment type based on status.
     switch (_.lowerCase(shipment.status)) {
       case 'planned':
       case 'en route':
@@ -916,6 +943,7 @@ export const getShipmentOverview = (
         break;
     }
 
+    // Match the shipment to tracker devices by IMEI.
     if (!_.isEmpty(gatewayData)) {
       const gateways = _.filter(gatewayData, (gateway) => (
         _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
@@ -926,6 +954,7 @@ export const getShipmentOverview = (
     shipmentList = [...shipmentList, editedShipment];
   });
 
+  // Sort shipments by pickup time and creation date (descending).
   return _.orderBy(
     shipmentList,
     (shipment) => moment(shipment.estimated_time_of_departure)
@@ -934,9 +963,28 @@ export const getShipmentOverview = (
   );
 };
 
+/**
+ * Processes sensor reports and alerts to generate map markers and time-series graph data.
+ * It applies business logic for evaluating alerts, thresholds, and visual states (like color coding).
+ *
+ * @param {Array} sensorReports - List of raw sensor report data.
+ * @param {Array} alerts - List of alerts associated with sensor reports.
+ * @param {String} timezone - Timezone used to format dates.
+ * @param {Array} unitOfMeasure - Measurement units for temperature, date, time, etc.
+ * @param {String} maxColor - Color used for max excursions.
+ * @param {String} minColor - Color used for min excursions.
+ * @param {Object} selectedShipment - Shipment object including thresholds and suppression settings.
+ *
+ * @returns {{
+*   sensorReportInfo: Array,     // Full processed reports for display.
+*   markersToSet: Array,         // Map marker objects with sensor data.
+*   graphs: Object               // Chart data for each sensor type.
+* }}
+*/
 export const processReportsAndMarkers = (
   sensorReports, alerts, timezone, unitOfMeasure, maxColor, minColor, selectedShipment,
 ) => {
+  // Initialize containers for results and graph data per sensor type
   let sensorReportInfo = [];
   let temperatureData = [];
   let lightData = [];
@@ -947,9 +995,11 @@ export const processReportsAndMarkers = (
   let pressureData = [];
   let probeData = [];
   let markersToSet = [];
+  // Extract unit formats
   const dateFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'date'))).unit_of_measure;
   const timeFormat = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'time'))).unit_of_measure;
   const tempMeasure = _.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))).unit_of_measure;
+  // Sort thresholds over time (to determine which were active during report time)
   const minExcursionTempArray = _.orderBy(selectedShipment.min_excursion_temp, 'set_at');
   const maxExcursionTempArray = _.orderBy(selectedShipment.max_excursion_temp, 'set_at');
   const minExcursionHumArray = _.orderBy(selectedShipment.min_excursion_humidity, 'set_at');
@@ -957,17 +1007,20 @@ export const processReportsAndMarkers = (
   const maxShockArray = _.orderBy(selectedShipment.shock_threshold, 'set_at');
   const maxLightArray = _.orderBy(selectedShipment.light_threshold, 'set_at');
 
+  // Process each report
   if (!_.isEmpty(sensorReports)) {
     _.forEach(sensorReports, (report) => {
       try {
         const { report_entry } = report;
         let marker = {};
-        let color = 'green';
+        let color = 'green'; // Default color (no alert)
         let allAlerts = [];
+        // Convert timestamp using timezone and selected formats
         const date = moment(report.activation_date).tz(timezone).format(dateFormat);
         const time = moment(report.activation_date).tz(timezone).format(timeFormat);
         const dateTime = moment(report.activation_date).tz(timezone).format(`${dateFormat} ${timeFormat}`);
 
+        // Choose temperature value based on unit
         const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
           ? report_entry.report_temp_fah
           : report_entry.report_temp_cel
@@ -979,7 +1032,7 @@ export const processReportsAndMarkers = (
             ? _.round(report_entry.report_probe_cel, 2)
             : report_entry.report_probe_cel;
 
-        // setup date for graph for boundaries
+        // Set final thresholds based on when the report was generated
         let finalMinTempValue = minExcursionTempArray[0].value;
         let finalMaxTempValue = maxExcursionTempArray[0].value;
         let finalMinHumValue = minExcursionHumArray[0].value;
@@ -987,6 +1040,7 @@ export const processReportsAndMarkers = (
         let finalShockValue = maxShockArray[0].value;
         let finalLightValue = maxLightArray[0].value;
 
+        // Evaluate if different threshold values were in effect at the report time
         if (_.size(minExcursionTempArray) > 1) {
           _.forEach(minExcursionTempArray, (data, index) => {
             if (index >= 1) {
@@ -1131,15 +1185,18 @@ export const processReportsAndMarkers = (
           });
         }
 
+        // Get all alerts up to the current report
         const preAlerts = _.orderBy(
           _.filter(alerts, (alert) => _.lte(_.toNumber(alert.report_id), report.id)),
           'create_date',
         );
+        // Track recovered alerts and their types
         const recoveryAlerts = _.filter(preAlerts, (pa) => !!pa.recovered_alert_id);
         const recoveredIDs = _.uniq(_.map(recoveryAlerts, 'recovered_alert_id'));
         const recoveredTypeDateTime = _.map(recoveryAlerts, (ra) => (
           { parameter_type: ra.parameter_type, create_date: ra.create_date }
         ));
+        // Filter active alerts (non-recovered)
         const alertsTillNow = _.filter(preAlerts, (alert) => {
           const found = _.find(recoveredTypeDateTime, (radt) => (
             _.isEqual(radt.parameter_type, alert.parameter_type)
@@ -1150,6 +1207,7 @@ export const processReportsAndMarkers = (
             && !_.includes(recoveredIDs, _.toString(alert.id));
         });
 
+        // Only keep latest alerts per parameter
         let uniqueAlerts = [];
         if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'temperature' })) {
           uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'temperature' })];
@@ -1165,6 +1223,7 @@ export const processReportsAndMarkers = (
         }
         uniqueAlerts = _.orderBy(uniqueAlerts, 'create_date');
 
+        // Check if the current report is a recovery
         const exactAlertID = _.filter(preAlerts, { report_id: _.toString(report.id) });
         _.forEach(exactAlertID, (alert) => {
           if (alert.recovered_alert_id) {
@@ -1173,6 +1232,7 @@ export const processReportsAndMarkers = (
           }
         });
 
+        // Build alerts for this report and apply appropriate color
         _.forEach(uniqueAlerts, (alert) => {
           if (alert) {
             let alertColor = '';
@@ -1207,7 +1267,7 @@ export const processReportsAndMarkers = (
           }
         });
 
-        // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
+        // Prepare the marker object if GPS data is valid
         if (report_entry.report_location !== null
           && report_entry.report_latitude !== null
           && report_entry.report_longitude !== null) {
@@ -1243,6 +1303,7 @@ export const processReportsAndMarkers = (
             markersToSet = [...markersToSet, marker];
           }
         } else {
+          // Fallback marker if GPS is missing
           marker = {
             lat: '*',
             lng: '*',
@@ -1265,6 +1326,7 @@ export const processReportsAndMarkers = (
         }
 
         sensorReportInfo = [...sensorReportInfo, marker];
+        // Add data to chart only if the timestamp doesn't exist
         const graphPoint = _.find(temperatureData, {
           x: dateTime,
         });
@@ -1335,7 +1397,7 @@ export const processReportsAndMarkers = (
         }
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.log(e);
+        console.log(e); // Catch malformed report data
       }
     });
   }
@@ -1360,19 +1422,24 @@ export const processReportsAndMarkers = (
   };
 };
 
+// Function to return the unit for temperature based on the provided unit of measure
 export const tempUnit = (uomt) => {
   let unit = '';
+  // Check if the unit of measure type exists
   if (uomt) {
+    // If the unit of measure is Fahrenheit, set the unit to '°F'
     if (_.isEqual(_.toLower(uomt.unit_of_measure), 'fahrenheit')) {
       unit = '°F';
+      // If the unit of measure is Celsius, set the unit to '°C'
     } else if (_.isEqual(_.toLower(uomt.unit_of_measure), 'celsius')) {
       unit = '°C';
     }
   }
 
-  return unit;
+  return unit; // Return the corresponding unit of measure
 };
 
+// Defines available report types with respective units of measure
 export const REPORT_TYPES = (unitOfMeasure) => ([
   { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
   { id: 'humidity', unit: '%' },
@@ -1381,6 +1448,7 @@ export const REPORT_TYPES = (unitOfMeasure) => ([
   { id: 'battery', unit: '%' },
 ]);
 
+// Defines marker data types with their corresponding units
 export const MARKER_DATA = (unitOfMeasure) => ([
   { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
   { id: 'shock', unit: 'G' },
@@ -1388,22 +1456,25 @@ export const MARKER_DATA = (unitOfMeasure) => ([
   { id: 'light', unit: 'LUX' },
 ]);
 
+// Generates the sensor report columns with custom cell rendering logic for different data types
 export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
+  // Helper function to determine cell styles based on the presence of null or undefined values
   const getCellStyle = (tableMeta) => ({
     fontWeight: (
       _.some(
         _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
-        ? '700' : '400'),
+        ? '700' : '400'), // Set font weight to bold if the value is null or undefined
     fontStyle: (
       _.some(
         _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
-        ? 'italic' : 'normal'),
+        ? 'italic' : 'normal'), // Set font style to italic if the value is null or undefined
   });
 
+  // Return the columns configuration for sensor data in the report
   return ([
     {
       name: 'allAlerts',
@@ -1413,6 +1484,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         sortThirdClickReset: true,
         filter: true,
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
+        // Custom render function for the alerts column to display sensor icons
         customBodyRender: (value) => (
           !_.isEmpty(value)
             ? (
@@ -1436,6 +1508,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         sortThirdClickReset: true,
         filter: true,
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
+        // Custom render function for the timestamp column
         customBodyRender: (value, tableMeta) => (
           <div style={getCellStyle(tableMeta)}>
             {value}
@@ -1454,6 +1527,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
           style: { maxWidth: '300px', wordWrap: 'break-word' },
           className: 'reportingSensorLeftHeader',
         }),
+        // Custom render function for the location column
         customBodyRender: (value) => (
           <div>
             {!_.isEqual(value, null) && !_.isEqual(value, undefined) && !_.isEqual(value, 'Error retrieving address')
@@ -1462,6 +1536,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         ),
       },
     },
+    // Latitude column with custom rendering based on location
     {
       name: 'lat',
       label: 'Latitude',
@@ -1485,6 +1560,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         },
       },
     },
+    // Longitude column with custom rendering based on location
     {
       name: 'lng',
       label: 'Longitude',
@@ -1597,6 +1673,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         },
       },
     },
+    // Tilt and Pressure columns are hidden by default
     {
       name: 'tilt',
       label: 'TILT (deg)',
@@ -1636,6 +1713,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
   ]);
 };
 
+// Function to generate columns for alerts report with custom body render for values
 export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeFormat) => ([
   {
     name: 'alertObj',
@@ -1747,6 +1825,8 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
 ]);
 
+// Column definitions for rendering gateway data in a table.
+// Accepts timezone, dateFormat, and MUI theme to customize rendering of date/time and styles.
 export const gatewayColumns = (timezone, dateFormat, theme) => ([
   {
     name: 'is_active',
@@ -1755,6 +1835,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Custom renderer to visually display power status (ON/OFF) with colored indicators.
       customBodyRender: (value) => {
         const containerStyle = {
           display: 'flex',
@@ -1776,6 +1857,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
         const textStyle = {
           fontSize: '12px',
         };
+        // Return styled power indicator with label and circle
         return (
           <span style={containerStyle}>
             {value ? (
@@ -1802,7 +1884,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sortThirdClickReset: true,
       filter: true,
       setCellProps: () => ({
-        className: 'notranslate',
+        className: 'notranslate', // Prevents Google Translate from modifying the cell
       }),
     },
   },
@@ -1835,7 +1917,9 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Custom renderer to display color-coded status with labels
       customBodyRender: (value) => {
+        // Returns style config based on status value
         const getStatusStyles = (status) => {
           switch (status) {
             case 'available':
@@ -1885,6 +1969,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Converts array of shipment names to comma-separated string
       customBodyRender: (value) => (
         value && value !== '-' ? _.join(value, ', ') : value
       ),
@@ -1901,6 +1986,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Converts array of custodian names to comma-separated string
       customBodyRender: (value) => (
         value && value !== '-' ? _.join(value, ', ') : value
       ),
@@ -1916,6 +2002,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Formats date using moment-timezone and given format
       customBodyRender: (value) => (
         value && value !== '-'
           ? moment(value).tz(timezone).format(`${dateFormat}`)
@@ -1934,6 +2021,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       sortThirdClickReset: true,
       filter: true,
       setCellProps: () => ({ style: { width: '50px' } }),
+      // Renders a clickable icon to download the certificate PDF
       customBodyRender: (value) => {
         const onPress = () => {
           const link = document.createElement('a');
@@ -1960,6 +2048,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
   },
 ]);
 
+// Returns minimal column definition for new gateways view
 export const newGatewayColumns = () => ([
   {
     name: 'name',
@@ -1975,6 +2064,7 @@ export const newGatewayColumns = () => ([
   },
 ]);
 
+// Formats gateway row data by enriching it with readable values for type, shipment, and custodian
 export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, custodianData) => {
   if (
     data
@@ -1983,7 +2073,9 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
     let formattedData = [];
     _.forEach(data, (element) => {
       if (!element) return;
+      // Clone and initialize the current row
       let edited = { ...element, shipment: [], custodian: [] };
+      // Replace gateway_type URL with a readable name
       _.forEach(gatewayTypeList, (type) => {
         if (_.isEqual(type.url, element.gateway_type)) {
           edited = {
@@ -1992,6 +2084,7 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
           };
         }
       });
+      // Match shipment IDs to shipment names
       if (shipmentData && shipmentData.length) {
         _.forEach(shipmentData, (shipment) => {
           if (shipment.partner_shipment_id !== null && !_.isEmpty(element.shipment_ids)
@@ -2007,6 +2100,7 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
           }
         });
       }
+      // Match custodian UUID to custodian name
       if (custodianData && custodianData.length) {
         _.forEach(custodianData, (custodian) => {
           if (element.custodian_uuid
@@ -2022,15 +2116,18 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
           }
         });
       }
+      // Set dash if no shipment/custodian match found
       if (_.isEqual(edited.shipment.length, 0)) {
         edited.shipment = '-';
       }
       if (_.isEqual(edited.custodian.length, 0)) {
         edited.custodian = '-';
       }
+      // Add the formatted row to output
       formattedData = [...formattedData, edited];
     });
 
+    // Sort by creation date ascending
     return _.orderBy(
       formattedData,
       (rowData) => moment(rowData.create_date),
@@ -2040,6 +2137,7 @@ export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, cust
   return data;
 };
 
+// Predefined gateway status values used for filtering and rendering
 export const GATEWAY_STATUS = [
   { value: 'available', name: 'Available' },
   { value: 'unavailable', name: 'Unavailable' },
@@ -2047,6 +2145,7 @@ export const GATEWAY_STATUS = [
   { value: 'in-transit', name: 'In-transit' },
 ];
 
+// Define the shipment columns for display in a data table
 export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
   {
     name: 'status',
@@ -2055,6 +2154,7 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Dynamically apply class for translation behavior based on language
       setCellProps: () => ({
         className: _.lowerCase(language) === 'english' ? 'notranslate' : 'translate',
       }),
@@ -2067,9 +2167,10 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Render departure date in formatted style and apply red color if delayed
       customBodyRender: (value, tableMeta) => {
-        const delayed = tableMeta.rowData[tableMeta.columnIndex + 7];
-        const status = tableMeta.rowData[tableMeta.columnIndex - 1];
+        const delayed = tableMeta.rowData[tableMeta.columnIndex + 7]; // 'delayed' column
+        const status = tableMeta.rowData[tableMeta.columnIndex - 1]; // 'status' column
         return (
           value && value !== '-' ? (
             <span style={{ color: delayed && status === 'Planned' ? muiTheme.palette.error.main : 'inherit' }}>
@@ -2102,6 +2203,7 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Format arrival date based on timezone
       customBodyRender: (value) => (
         value && value !== '-'
           ? moment(value).tz(timezone)
@@ -2132,6 +2234,7 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Show icons for different alerts
       customBodyRender: (value) => (
         !_.isEmpty(value)
           ? (
@@ -2164,6 +2267,7 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
       setCellProps: () => ({
         className: 'notranslate',
       }),
+      // Show item names with line breaks and max width
       customBodyRender: (value) => (
         <Typography sx={{ whiteSpace: 'break-spaces', maxWidth: '400px' }}>
           {value}
@@ -2186,12 +2290,14 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
   {
     name: 'delayed',
     label: 'Delayed',
+    // Hidden column used for delay logic
     options: {
       display: false,
     },
   },
 ]);
 
+// Format and enrich shipment row data with custodian info, alerts, trackers, and more
 export const getShipmentFormattedRow = (
   shipmentData,
   custodianData,
@@ -2207,6 +2313,7 @@ export const getShipmentFormattedRow = (
 
   let custodyRows = [];
 
+  // Format custody rows with custodian names and related shipment links
   if (!_.isEmpty(custodyData) && !_.isEmpty(custodianData)) {
     custodyRows = getFormattedCustodyRows(custodyData, custodianData);
   }
@@ -2229,6 +2336,7 @@ export const getShipmentFormattedRow = (
       [firstCustody] = _.filter(custodies, { first_custody: true });
       [lastCustody] = _.filter(custodies, { last_custody: true });
 
+      // Assign origin and destination based on custody data
       origin = firstCustody ? firstCustody.custodian_name : 'N/A';
       destination = lastCustody ? lastCustody.custodian_name : 'N/A';
       carriers = _.map(_.orderBy(_.filter(custodies, { first_custody: false, last_custody: false }), 'load_id', 'asc'), 'custodian_name');
@@ -2237,6 +2345,7 @@ export const getShipmentFormattedRow = (
     editedShipment.destination = destination;
     editedShipment.carriers = carriers;
 
+    // Assign type based on shipment status
     switch (_.lowerCase(shipment.status)) {
       case 'planned':
       case 'en route':
@@ -2264,11 +2373,13 @@ export const getShipmentFormattedRow = (
         break;
     }
 
+    // Resolve item names from itemData
     if (!_.isEmpty(itemData)) {
       const items = _.filter(itemData, (item) => _.includes(editedShipment.items, item.url));
       editedShipment.itemNames = _.toString(_.join(_.map(items, 'name'), ', '));
     }
 
+    // Match gateway info and battery level
     if (!_.isEmpty(gatewayData)) {
       const gateways = _.filter(gatewayData, (gateway) => (
         _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
@@ -2277,6 +2388,7 @@ export const getShipmentFormattedRow = (
       editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, (g) => _.toString(_.toInteger(g.last_known_battery_level))), ', '))) || 'N/A';
     }
 
+    // Format alerts if shipment had any
     if (editedShipment.had_alert) {
       const filteredAlerts = _.filter(allAlerts, (alert) => (
         _.isEqual(alert.shipment_id, editedShipment.partner_shipment_id)
@@ -2287,6 +2399,7 @@ export const getShipmentFormattedRow = (
       _.forEach(filteredAlerts, (alert) => {
         let color = '';
         let title = '';
+        // Determine alert type and styling
         if (_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) {
           color = maxColor;
           title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
@@ -2297,6 +2410,7 @@ export const getShipmentFormattedRow = (
         }
 
         const alertObj = { id: alert.parameter_type, color, title };
+        // Avoid duplicates
         const objFound = !!(_.find(processedAlerts, alertObj));
         if (!objFound) {
           processedAlerts = [...processedAlerts, alertObj];
@@ -2305,6 +2419,7 @@ export const getShipmentFormattedRow = (
       editedShipment.alerts = processedAlerts;
     }
 
+    // Attach recent sensor report markers and battery levels
     if (!_.isEmpty(sensorReports)) {
       const reports = _.take(
         _.orderBy(
@@ -2323,6 +2438,7 @@ export const getShipmentFormattedRow = (
         shipment: editedShipment,
       }));
 
+      // Use most recent report for battery info
       if (reports[0] && reports[0].report_entry.report_battery) {
         editedShipment.battery_levels = reports[0].report_entry.report_battery;
       }
@@ -2330,6 +2446,7 @@ export const getShipmentFormattedRow = (
     shipmentList = [...shipmentList, editedShipment];
   });
 
+  // Order shipments by departure date and creation date, descending
   return _.orderBy(
     shipmentList,
     (shipment) => moment(shipment.estimated_time_of_departure)
@@ -2338,31 +2455,40 @@ export const getShipmentFormattedRow = (
   );
 };
 
+// Formats and enriches template rows for display in a table
 export const getTemplateFormattedRow = (templates, custodianData, itemData) => {
   let templateList = [];
 
+  // Iterate through each template to enrich it with additional details
   _.forEach(templates, (template) => {
     let editedTemplate = template;
+    // Match origin and destination custodians from custodian data
     const originCustodian = _.find(custodianData, { url: template.origin_custodian });
     const destinationCustodian = _.find(custodianData, { url: template.destination_custodian });
+    // Map each item URL in the template to full item object
     const templateItems = _.map(template.items, (item) => _.find(itemData, { url: item }));
 
+    // Add readable custodian names to the template
     if (originCustodian) {
       editedTemplate = { ...editedTemplate, origin_name: originCustodian.name };
     }
     if (destinationCustodian) {
       editedTemplate = { ...editedTemplate, destination_name: destinationCustodian.name };
     }
+    // Join item names into a single comma-separated string
     if (!_.isEmpty(templateItems)) {
       editedTemplate = { ...editedTemplate, item_name: _.toString(_.join(_.map(templateItems, 'name'), ', ')) };
     }
 
+    // Append the enriched template to the list
     templateList = [...templateList, editedTemplate];
   });
 
+  // Return the list ordered by creation date (most recent first)
   return _.orderBy(templateList, (tmp) => moment(tmp.create_date), ['desc']);
 };
 
+// Returns column definitions for the template data table
 export const templateColumns = (timezone, dateFormat) => ([
   {
     name: 'create_date',
@@ -2416,17 +2542,19 @@ export const templateColumns = (timezone, dateFormat) => ([
   },
 ]);
 
+// Formats user data to include derived fields like full name and organization display name
 export const getUserFormattedRows = (userData) => {
   const formattedData = _.map(userData, (ud) => ({
     ...ud,
     full_name: `${ud.first_name} ${ud.last_name}`,
-    last_activity: 'Today',
+    last_activity: 'Today', // Static placeholder for now
     org_display_name: ud.organization.name,
   }));
 
-  return _.orderBy(formattedData, 'id', 'desc');
+  return _.orderBy(formattedData, 'id', 'desc'); // Sorted by newest user first
 };
 
+// Returns column definitions for the user table
 export const userColumns = () => ([
   {
     name: 'full_name',
@@ -2487,12 +2615,14 @@ export const userColumns = () => ([
   },
 ]);
 
+// Enriches group data with display name including organization name
 export const getGroupsFormattedRow = (groups, orgs) => {
   const formattedData = _.map(groups, (g) => {
     const organizationName = _.find(orgs, { organization_uuid: g.organization })
       ? _.find(orgs, { organization_uuid: g.organization }).name
       : '';
 
+    // For default group (id = 1), just use name; else append org name
     const displayPermissionName = _.isEqual(g.id, 1)
       ? g.name
       : (
@@ -2512,6 +2642,7 @@ export const getGroupsFormattedRow = (groups, orgs) => {
   return _.orderBy(formattedData, 'display_permission_name', 'asc');
 };
 
+// Returns column definitions for alert notifications
 export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat) => ([
   {
     name: 'alertObj',
@@ -2540,6 +2671,7 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat) =
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      // Handles mixed unit values like "72 F/22.2 C"
       customBodyRender: (value) => {
         let formattedValue = '';
         if (value && _.includes(value, ' F/') && _.includes(value, ' C')) {
@@ -2580,6 +2712,7 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat) =
   },
 ]);
 
+// Formats recipient address data into a readable address string
 export const getFormattedRecipientAddresses = (recipientAddresses) => {
   const ra = _.map(recipientAddresses, (address) => ({
     ...address,
@@ -2594,6 +2727,7 @@ export const getFormattedRecipientAddresses = (recipientAddresses) => {
   return ra;
 };
 
+// Returns column definitions for recipient address table
 export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => ([
   {
     name: 'name',
@@ -2641,6 +2775,7 @@ export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => 
   },
 ]);
 
+// Returns column definitions for tracker order table
 export const getTrackerOrderColumns = (timezone, dateFormat, timeFormat) => ([
   {
     name: 'order_date',

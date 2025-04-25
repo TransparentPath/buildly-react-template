@@ -94,21 +94,47 @@ import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
 import { isMobile } from '@utils/mediaQuery';
 
+/**
+ * CreateShipment Component
+ *
+ * A comprehensive form component for creating and editing shipments with the following features:
+ * - Shipment template management
+ * - Origin and destination custodian selection
+ * - Item selection and management
+ * - Environmental threshold settings (temperature, humidity, shock, light)
+ * - Order information tracking
+ * - File attachments
+ * - Notes
+ * - Tracker configuration
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.history - React Router history object
+ * @param {Object} props.location - React Router location object
+ */
 const CreateShipment = ({ history, location }) => {
+  // Theme and media query setup
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
+
+  // Get current user info and relevant organizational data
   const user = getUser();
   const organization = user && user.organization;
   const organizationUuid = organization && organization.organization_uuid;
   const userLanguage = user.user_language;
+
+  // Determine if the user has admin or global admin access
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
 
+  // Custom alert and store hooks
   const { displayAlert } = useAlert();
   const { data } = useStore();
 
+  // Load initial shipment data if updating an existing shipment
   const editData = (location.state && location.state.ship) || {};
   const formTitle = location.state && location.state.ship ? 'Update Shipment' : 'Create Shipment';
 
+  // Template-related states
   const [template, setTemplate] = useState('');
   const [templateName, setTemplateName] = useState('');
   const [templateRows, setTemplateRows] = useState([]);
@@ -117,9 +143,11 @@ const CreateShipment = ({ history, location }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showTemplateDT, setShowTemplateDT] = useState(false);
 
+  // Modal exit confirmation states
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [triggerExit, setTriggerExit] = useState({ onOk: false, path: '' });
 
+  // Custodian and address details
   const [originList, setOriginList] = useState([]);
   const [destinationList, setDestinationList] = useState([]);
   const [carrierList, setCarrierList] = useState([]);
@@ -127,52 +155,44 @@ const CreateShipment = ({ history, location }) => {
   const [originAbb, setOriginAbb] = useState('');
   const [startingAddress, setStartingAddress] = useState('');
   const [startingLocation, setStartingLocation] = useState('');
-
   const [destinationCustodian, setDestinationCustodian] = useState('');
   const [destinationAbb, setDestinationAbb] = useState('');
   const [endingAddress, setEndingAddress] = useState('');
   const [endingLocation, setEndingLocation] = useState('');
 
+  // Shipment datetime states (planned and actual)
   const [departureDateTime, setDepartureDateTime] = useState(
-    (!_.isEmpty(editData) && editData.estimated_time_of_departure)
-    || moment(),
+    (!_.isEmpty(editData) && editData.estimated_time_of_departure) || moment(),
   );
   const [arrivalDateTime, setArrivalDateTime] = useState(
-    (!_.isEmpty(editData) && editData.estimated_time_of_arrival)
-    || moment().add(1, 'day'),
+    (!_.isEmpty(editData) && editData.estimated_time_of_arrival) || moment().add(1, 'day'),
   );
   const [actualDepartureDateTime, setActualDepartureDateTime] = useState(
-    (!_.isEmpty(editData) && editData.actual_time_of_departure)
-    || null,
+    (!_.isEmpty(editData) && editData.actual_time_of_departure) || null,
   );
   const [actualArrivalDateTime, setActualArrivalDateTime] = useState(
-    (!_.isEmpty(editData) && editData.actual_time_of_arrival)
-    || null,
+    (!_.isEmpty(editData) && editData.actual_time_of_arrival) || null,
   );
+
+  // Shipment status
   const status = useInput((!_.isEmpty(editData) && editData.status) || 'Planned');
+
+  // Prevent edits on admin-status shipments
   const cannotEdit = !_.isEmpty(editData) && _.includes(_.map(ADMIN_SHIPMENT_STATUS, 'value'), editData.status);
 
+  // Shipment items and table rows
   const [items, setItems] = useState((!_.isEmpty(editData) && editData.items) || []);
   const [itemRows, setItemRows] = useState([]);
 
-  const minExcursionTempData = !_.isEmpty(editData)
-    ? _.orderBy(editData.min_excursion_temp, 'set_at', 'desc')[0].value
-    : undefined;
-  const maxExcursionTempData = !_.isEmpty(editData)
-    ? _.orderBy(editData.max_excursion_temp, 'set_at', 'desc')[0].value
-    : undefined;
-  const minExcursionHumData = !_.isEmpty(editData)
-    ? _.orderBy(editData.min_excursion_humidity, 'set_at', 'desc')[0].value
-    : undefined;
-  const maxExcursionHumData = !_.isEmpty(editData)
-    ? _.orderBy(editData.max_excursion_humidity, 'set_at', 'desc')[0].value
-    : undefined;
-  const shockThresholdData = !_.isEmpty(editData)
-    ? _.orderBy(editData.shock_threshold, 'set_at', 'desc')[0].value
-    : undefined;
-  const lightThresholdData = !_.isEmpty(editData)
-    ? _.orderBy(editData.light_threshold, 'set_at', 'desc')[0].value
-    : undefined;
+  // Excursion thresholds from edit data or organization defaults
+  const minExcursionTempData = !_.isEmpty(editData) ? _.orderBy(editData.min_excursion_temp, 'set_at', 'desc')[0].value : undefined;
+  const maxExcursionTempData = !_.isEmpty(editData) ? _.orderBy(editData.max_excursion_temp, 'set_at', 'desc')[0].value : undefined;
+  const minExcursionHumData = !_.isEmpty(editData) ? _.orderBy(editData.min_excursion_humidity, 'set_at', 'desc')[0].value : undefined;
+  const maxExcursionHumData = !_.isEmpty(editData) ? _.orderBy(editData.max_excursion_humidity, 'set_at', 'desc')[0].value : undefined;
+  const shockThresholdData = !_.isEmpty(editData) ? _.orderBy(editData.shock_threshold, 'set_at', 'desc')[0].value : undefined;
+  const lightThresholdData = !_.isEmpty(editData) ? _.orderBy(editData.light_threshold, 'set_at', 'desc')[0].value : undefined;
+
+  // Threshold inputs with fallback to org defaults or hardcoded values
   const min_excursion_temp = useInput(
     minExcursionTempData !== undefined && minExcursionTempData !== null
       ? minExcursionTempData
@@ -215,7 +235,7 @@ const CreateShipment = ({ history, location }) => {
         ? organization.default_light
         : 5,
   );
-
+  // Alert suppression settings
   const supressTempAlerts = useInput(
     (!_.isEmpty(editData) && !_.includes(editData.alerts_to_suppress, 'temperature'))
     || (_.isEmpty(editData) && template && !_.includes(template.alerts_to_suppress, 'temperature'))
@@ -237,18 +257,18 @@ const CreateShipment = ({ history, location }) => {
     || (_.isEmpty(editData) && organization && !_.includes(organization.alerts_to_suppress, 'light')),
   );
 
+  // Shipment metadata
   const shipmentName = useInput((!_.isEmpty(editData) && editData.order_number) || '');
   const purchaseOrderNumber = useInput((!_.isEmpty(editData) && editData.purchase_order_number) || '');
   const billOfLading = useInput((!_.isEmpty(editData) && editData.bill_of_lading) || '');
   const [files, setFiles] = useState([]);
-  const [attachedFiles, setAttachedFiles] = useState(
-    (!_.isEmpty(editData) && editData.uploaded_pdf) || [],
-  );
+  const [attachedFiles, setAttachedFiles] = useState((!_.isEmpty(editData) && editData.uploaded_pdf) || []);
   const [showNote, setShowNote] = useState(!_.isEmpty(editData) && !!editData.note);
   const [showAddCustodian, setShowAddCustodian] = useState(false);
   const note = useInput((!_.isEmpty(editData) && editData.note) || '');
   const [additionalCustodians, setAdditionalCustodians] = useState([]);
 
+  // Gateway and transmission settings
   const gatewayType = useInput((!_.isEmpty(editData) && editData.platform_name) || 'Tive');
   const [availableGateways, setAvailableGateways] = useState([]);
   const gateway = useInput('');
@@ -263,118 +283,156 @@ const CreateShipment = ({ history, location }) => {
     || 20,
   );
 
+  // Form state tracking
   const [formError, setFormError] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   let formEdited = false;
 
+  // Icons for checkbox selection
   const uncheckedIcon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
+  // Fetches all shipment templates associated with the organization.
+  // Used when selecting a predefined shipment structure.
   const { data: shipmentTemplateData, isLoading: isLoadingShipmentTemplates } = useQuery(
     ['shipmentTemplates', organizationUuid],
     () => getShipmentTemplatesQuery(organizationUuid, displayAlert),
-    { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
+    {
+      enabled: !_.isEmpty(organizationUuid), // Only run query if organization UUID is available
+      refetchOnWindowFocus: false, // Prevent re-fetching when the window regains focus
+    },
   );
 
+  // Fetches all custodians (e.g., Shippers, Receivers, Carriers) tied to the organization.
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organizationUuid],
     () => getCustodianQuery(organizationUuid, displayAlert),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
+  // Fetches the list of custodian types (Shipper, Receiver, Warehouse, etc.)
+  // Needed for labeling and filtering custodian roles in forms.
   const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
     ['custodianTypes'],
     () => getCustodianTypeQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetches contact information for custodians within the organization.
+  // This includes names, phone numbers, and addresses.
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
     ['contact', organizationUuid],
     () => getContactQuery(organizationUuid, displayAlert),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
+  // Fetches measurement units for the organization (e.g., °C, kg, m³).
+  // Used for displaying correct unit info in item details and shipment thresholds.
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organizationUuid],
     () => getUnitQuery(organizationUuid, displayAlert),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
+  // Fetches a list of countries.
+  // Useful for setting up shipment origins and destinations.
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
     () => getCountriesQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetches the list of available shipment items within the organization.
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ['items', organizationUuid],
     () => getItemQuery(organizationUuid, displayAlert),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
+  // Fetches the different item types (e.g., Vaccine, Medical Equipment).
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
     ['itemTypes', organizationUuid],
     () => getItemTypeQuery(organizationUuid, displayAlert),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
+  // Fetches the list of available gateways (trackers) associated with the organization.
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
     ['gateways', organizationUuid],
     () => getGatewayQuery(organizationUuid, displayAlert),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
+  // Fetches the types of gateways (e.g., BLE, Cellular, Satellite).
+  // Helps determine the platform name and supported features.
   const { data: gatewayTypesData, isLoading: isLoadingGatewayTypes } = useQuery(
     ['gatewayTypes'],
     () => getGatewayTypeQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetches the custody log (handover records) for an existing shipment.
+  // Requires `editData.shipment_uuid` to be available.
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies'],
     () => getCustodyQuery(encodeURIComponent(editData.shipment_uuid), displayAlert),
     { enabled: !_.isEmpty(editData), refetchOnWindowFocus: false },
   );
 
+  // Deletes a specific custody handover record for a shipment.
   const { mutate: deleteCustodyMutation, isLoading: isDeletingCustody } = useDeleteCustodyMutation(displayAlert);
 
+  // Adds a new shipment template to the system.
   const { mutate: addShipmentTemplateMutation, isLoading: isAddingShipmentTemplate } = useAddShipmentTemplateMutation(organizationUuid, displayAlert);
 
+  // Updates an existing shipment template.
   const { mutate: editShipmentTemplateMutation, isLoading: isEditingShipmentTemplate } = useEditShipmentTemplateMutation(organizationUuid, displayAlert);
 
+  // Deletes a shipment template by ID.
   const { mutate: deleteShipmentTemplateMutation, isLoading: isDeletingShipmentTemplate } = useDeleteShipmentTemplateMutation(organizationUuid, displayAlert);
 
+  // Adds a new shipment record.
+  // Redirects to shipment list screen on success.
   const { mutate: addShipmentMutation, isLoading: isAddingShipment } = useAddShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert);
 
+  // Edits an existing shipment's details.
+  // Redirects to shipment list screen on success.
   const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert);
 
+  // useEffect to populate form fields when editing an existing shipment
   useEffect(() => {
     if (!_.isEmpty(editData)) {
+      // Match origin and destination by name from lists
       const origin = _.find(originList, { name: editData.origin });
       const destination = _.find(destinationList, { name: editData.destination });
+
+      // Resolve carrier names to objects from carrierList, fallback to name if not found
       const carriers = _.map(editData.carriers, (carrier) => (
         _.find(carrierList, { name: carrier }) || carrier
       ));
 
-      // Set origin and destination custodians
+      // Set form state with origin custodian details
       if (origin) {
         setOriginCustodian(origin.url);
         setOriginAbb(getAbbreviation(origin.abbrevation));
         setStartingAddress(origin.location);
-        getLatLong(origin.location, 'start');
+        getLatLong(origin.location, 'start'); // Fetch coordinates
       }
 
+      // Set form state with destination custodian details
       if (destination) {
         setDestinationCustodian(destination.url);
         setDestinationAbb(getAbbreviation(destination.abbrevation));
         setEndingAddress(destination.location);
-        getLatLong(destination.location, 'end');
+        getLatLong(destination.location, 'end'); // Fetch coordinates
       }
 
+      // Set additional custodians
       if (carriers) {
         setAdditionalCustodians(carriers);
       }
 
+      // Set gateway selection and available list for editing
       if (!_.isEmpty(editData.gateway_imei)) {
         const gateways = _.filter(gatewayData, {
           imei_number: _.toNumber(editData.gateway_imei[0]),
@@ -387,6 +445,7 @@ const CreateShipment = ({ history, location }) => {
     }
   }, [editData, originList, destinationList, carrierList, gatewayTypesData, gatewayData]);
 
+  // useEffect to format custodians based on type and populate dropdowns
   useEffect(() => {
     if (!_.isEmpty(custodianData) && !_.isEmpty(contactInfo)) {
       const custodianList = getCustodianFormattedRow(custodianData, contactInfo, custodianTypesData);
@@ -396,6 +455,7 @@ const CreateShipment = ({ history, location }) => {
     }
   }, [custodianData, contactInfo, custodianTypesData]);
 
+  // useEffect to prepare item rows for table based on selected items
   useEffect(() => {
     if (!_.isEmpty(itemData)) {
       let selectedRows = [];
@@ -410,6 +470,7 @@ const CreateShipment = ({ history, location }) => {
     }
   }, [itemData, itemTypesData, unitData, items]);
 
+  // useEffect to set gateway options based on custodian and type
   useEffect(() => {
     const custodian = _.find(custodianData, { url: originCustodian });
     const gt = _.find(gatewayTypesData, { name: gatewayType.value });
@@ -428,6 +489,7 @@ const CreateShipment = ({ history, location }) => {
     }
   }, [gatewayData, gatewayType.value, originCustodian]);
 
+  // useEffect to handle template changes when user selects a template or enters a save-as name
   useEffect(() => {
     if (saveAsName) {
       handleTemplateChange(_.find(shipmentTemplateData, { name: saveAsName }) || '');
@@ -436,14 +498,17 @@ const CreateShipment = ({ history, location }) => {
     }
   }, [shipmentTemplateData]);
 
+  // useEffect to build the table of templates with additional data
   useEffect(() => {
     setTemplateRows(getTemplateFormattedRow(shipmentTemplateData, custodianData, itemData));
   }, [shipmentTemplateData, custodianData, itemData]);
 
+  // Flag to determine if the form was modified and unsaved
   formEdited = (
     !!(_.isEmpty(editData) && (
       originCustodian || destinationCustodian || !_.isEmpty(items) || shipmentName.value
     )) || !!(!_.isEmpty(editData) && (
+      // Compare all relevant form fields to original data
       !_.isEqual(
         moment(editData.estimated_time_of_departure).toISOString(),
         moment(departureDateTime).toISOString(),
@@ -485,11 +550,13 @@ const CreateShipment = ({ history, location }) => {
     ))
   );
 
+  // Navigates to a specified route
   const handleGoToIntendedPage = useCallback(
     (loc) => history.push(loc),
     [history],
   );
 
+  // Intercept browser navigation to show a confirmation dialog if form is edited
   useEffect(() => {
     if (triggerExit.onOk) {
       handleGoToIntendedPage(triggerExit.path);
@@ -513,9 +580,9 @@ const CreateShipment = ({ history, location }) => {
     return () => {
       unblock();
     };
-  }, [handleGoToIntendedPage, history, triggerExit.onOk, triggerExit.path,
-    formEdited, formSubmitted]);
+  }, [handleGoToIntendedPage, history, triggerExit.onOk, triggerExit.path, formEdited, formSubmitted]);
 
+  // Handles blur validation on form inputs
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
@@ -535,8 +602,10 @@ const CreateShipment = ({ history, location }) => {
     }
   };
 
+  // Extracts an abbreviation (e.g., "New York, NY" => "NY")
   const getAbbreviation = (name) => name.replace(/[^A-Z0-9]/g, '');
 
+  // Converts address to lat/long using Google Geocode API
   const getLatLong = (address, position) => {
     Geocode.setApiKey(window.env.GEO_CODE_API);
     Geocode.setLanguage(getTranslatedLanguage() || 'en');
@@ -561,6 +630,7 @@ const CreateShipment = ({ history, location }) => {
     );
   };
 
+  // Handles changes in custodian or item selection inputs
   const onInputChange = (value, type, custody) => {
     switch (type) {
       case 'custodian':
@@ -581,7 +651,6 @@ const CreateShipment = ({ history, location }) => {
           }
         }
         break;
-
       case 'item':
         if (_.size(value) > _.size(items)) {
           setItems([...items, _.last(value).url]);
@@ -589,12 +658,12 @@ const CreateShipment = ({ history, location }) => {
           setItems(value);
         }
         break;
-
       default:
         break;
     }
   };
 
+  // Determine if "Save As Template" button should be disabled
   const saveTemplateDisabled = () => (
     (!!template
       && originCustodian === template.origin_custodian
@@ -614,6 +683,7 @@ const CreateShipment = ({ history, location }) => {
     ) || (!template && (!originCustodian || !destinationCustodian || _.isEmpty(items)))
   );
 
+  // When a user selects a template from dropdown
   const handleTemplateChange = (value) => {
     if (!_.isEqual(value, 'all')) {
       setTemplate(value);
@@ -639,14 +709,20 @@ const CreateShipment = ({ history, location }) => {
       }
     } else {
       setSaveAsName('');
-      setShowTemplateDT(true);
+      setShowTemplateDT(true); // open "save as new template" dialog
     }
   };
 
+  /**
+ * saveAsTemplate - Creates a new shipment template or prompts to replace an existing one with the same name.
+ */
   const saveAsTemplate = () => {
+    // Attempt to find an existing template with the entered name
     const tmplt = _.find(shipmentTemplateData, { name: saveAsName }) || {};
+
+    // Prepare the template data with current form values
     const templateFormValue = {
-      ...tmplt,
+      ...tmplt, // Pre-fill with existing template data if any
       name: saveAsName,
       origin_custodian: originCustodian,
       destination_custodian: destinationCustodian,
@@ -666,19 +742,27 @@ const CreateShipment = ({ history, location }) => {
       ], ''),
       organization_uuid: organizationUuid,
     };
+
+    // If no existing template, save as new
     if (_.isEmpty(tmplt)) {
       addShipmentTemplateMutation(templateFormValue);
-      setShowTemplateDT(false);
+      setShowTemplateDT(false); // Close template drawer/modal
     } else {
-      setConfirmReplace(true);
+      setConfirmReplace(true); // Ask user to confirm replacement
     }
   };
 
+  /**
+   * saveTemplateName - Saves a new or existing template with a new name.
+   */
   const saveTemplateName = () => {
     const exists = _.find(shipmentTemplateData, { name: templateName });
+
+    // If template exists, prompt for replacement
     if (exists) {
       setConfirmReplace(true);
     } else {
+      // Save edited template with the new name
       const tmp = { ...template, name: templateName };
       editShipmentTemplateMutation(tmp);
       setTemplateName('');
@@ -686,10 +770,16 @@ const CreateShipment = ({ history, location }) => {
     }
   };
 
+  /**
+   * replaceTemplate - Replaces an existing template with updated values.
+   */
   const replaceTemplate = () => {
+    // Try to find the template either by `templateName` or `saveAsName`
     const tmplt = (templateName && _.find(shipmentTemplateData, { name: templateName }))
       || (saveAsName && _.find(shipmentTemplateData, { name: saveAsName }))
       || {};
+
+    // Build the new template with updated form data
     const newTemplate = {
       ...tmplt,
       name: templateName || saveAsName,
@@ -712,23 +802,31 @@ const CreateShipment = ({ history, location }) => {
       organization_uuid: organizationUuid,
     };
 
+    // If replacing a renamed template, delete the old one first
     if (template && (
       !_.isEqual(template.name, templateName) && !_.isEqual(template.name, saveAsName)
     )) {
       deleteShipmentTemplateMutation(template.id);
     }
+
+    // Save the new template
     editShipmentTemplateMutation(newTemplate);
-    setConfirmReplace(false);
+    setConfirmReplace(false); // Close confirmation dialog
     setTemplateName('');
     setTemplate(newTemplate);
+
+    // If this was a "Save As", also close the template drawer
     if (saveAsName) {
       setSaveAsName('');
       setShowTemplateDT(false);
     }
   };
 
+  /**
+   * fileChange - Handles PDF file uploads, restricting to 2MB and PDF only.
+   */
   const fileChange = (event) => {
-    const maxAllowedSize = 2 * 1024 * 1024;
+    const maxAllowedSize = 2 * 1024 * 1024; // 2MB size limit
     let error = false;
 
     _.forEach(event.target.files, (attachedFile) => {
@@ -743,7 +841,7 @@ const CreateShipment = ({ history, location }) => {
           case (attachedFile.size > maxAllowedSize):
             error = error || true;
             // eslint-disable-next-line no-alert
-            alert('File size is more that 2MB. Please upload another file.');
+            alert('File size is more than 2MB. Please upload another file.');
             break;
 
           default:
@@ -751,11 +849,17 @@ const CreateShipment = ({ history, location }) => {
         }
       }
     });
+
+    // If no error, append files to current state
     if (!error) {
       setFiles([...files, ...event.target.files]);
     }
   };
 
+  /**
+   * submitDisabled - Determines if the form submit should be disabled.
+   * Returns true if required data is missing or nothing has changed in edit mode.
+   */
   const submitDisabled = () => (
     (_.isEmpty(editData) && (
       !originCustodian
@@ -802,21 +906,33 @@ const CreateShipment = ({ history, location }) => {
   );
 
   const handleSubmit = (event, draft) => {
+    // Prevent the default form submission behavior
     event.preventDefault();
+
+    // Construct the shipment name using abbreviation and locations
     const shipName = `${organization.abbrevation}-${shipmentName.value}-${originAbb}-${destinationAbb}`;
+
+    // Retrieve the unit of measure for distance from unitData
     const UOMDISTANCE = _.find(unitData, (unit) => (
       _.toLower(unit.unit_of_measure_for) === 'distance'
     ));
     const uom_distance = UOMDISTANCE ? UOMDISTANCE.unit_of_measure : '';
+
+    // Get first and last custody records if in edit mode
     const startCustody = (
       !_.isEmpty(editData) && _.find(custodyData, (custody) => custody.first_custody)
     ) || {};
     const endCustody = (
       !_.isEmpty(editData) && _.find(custodyData, (custody) => custody.last_custody)
     ) || {};
+
+    // Gateway object selected for the shipment
     const updateGateway = gateway.value;
+
+    // Timestamp used for excursion values
     const setAt = moment().valueOf();
 
+    // Compose the main shipment object from form values and additional data
     const shipmentFormValue = {
       ...editData,
       name: shipName,
@@ -828,24 +944,12 @@ const CreateShipment = ({ history, location }) => {
       items,
       organization_uuid: organizationUuid,
       platform_name: gatewayType.value,
-      max_excursion_temp: [
-        { value: parseInt(max_excursion_temp.value, 10), set_at: setAt },
-      ],
-      min_excursion_temp: [
-        { value: parseInt(min_excursion_temp.value, 10), set_at: setAt },
-      ],
-      max_excursion_humidity: [
-        { value: parseInt(max_excursion_humidity.value, 10), set_at: setAt },
-      ],
-      min_excursion_humidity: [
-        { value: parseInt(min_excursion_humidity.value, 10), set_at: setAt },
-      ],
-      shock_threshold: [
-        { value: parseInt(shock_threshold.value, 10), set_at: setAt },
-      ],
-      light_threshold: [
-        { value: parseInt(light_threshold.value, 10), set_at: setAt },
-      ],
+      max_excursion_temp: [{ value: parseInt(max_excursion_temp.value, 10), set_at: setAt }],
+      min_excursion_temp: [{ value: parseInt(min_excursion_temp.value, 10), set_at: setAt }],
+      max_excursion_humidity: [{ value: parseInt(max_excursion_humidity.value, 10), set_at: setAt }],
+      min_excursion_humidity: [{ value: parseInt(min_excursion_humidity.value, 10), set_at: setAt }],
+      shock_threshold: [{ value: parseInt(shock_threshold.value, 10), set_at: setAt }],
+      light_threshold: [{ value: parseInt(light_threshold.value, 10), set_at: setAt }],
       alerts_to_suppress: _.without([
         !supressTempAlerts.value ? 'temperature' : '',
         !supressHumidityAlerts.value ? 'humidity' : '',
@@ -858,6 +962,8 @@ const CreateShipment = ({ history, location }) => {
       start_location: startingLocation,
       end_location: endingLocation,
     };
+
+    // Construct custody data for origin custodian (start of shipment)
     const startCustodyForm = {
       ...startCustody,
       custodian: [originCustodian],
@@ -870,6 +976,8 @@ const CreateShipment = ({ history, location }) => {
       load_id: '1',
       unit_of_measure: uom_distance,
     };
+
+    // Construct custody data for destination custodian (end of shipment)
     const endCustodyForm = {
       ...endCustody,
       custodian: [destinationCustodian],
@@ -882,10 +990,10 @@ const CreateShipment = ({ history, location }) => {
       load_id: `${_.size(additionalCustodians) + 2}`,
       unit_of_measure: uom_distance,
     };
+
+    // Construct intermediate custodian data (carriers)
     const carriers = _.map(additionalCustodians, (addCust, index) => ({
-      ...((
-        !_.isEmpty(editData) && _.find(_.filter(custodyData, { first_custody: false, last_custody: false }), { load_id: `${index + 2}` })
-      ) || {}),
+      ...((!_.isEmpty(editData) && _.find(_.filter(custodyData, { first_custody: false, last_custody: false }), { load_id: `${index + 2}` })) || {}),
       custodian: [addCust.url],
       location: addCust.location,
       has_current_custody: false,
@@ -897,6 +1005,7 @@ const CreateShipment = ({ history, location }) => {
       unit_of_measure: uom_distance,
     }));
 
+    // Delete any removed carriers if editing existing shipment
     if (_.size(editData.carriers) > _.size(additionalCustodians)) {
       const carrierCustodies = _.without(_.map(carriers, 'custody_uuid'), ['', null, undefined]);
       const removeCustodies = _.filter(custodyData, (cust) => (
@@ -906,6 +1015,7 @@ const CreateShipment = ({ history, location }) => {
       _.forEach(removeCustodies, (cust) => deleteCustodyMutation(cust.id));
     }
 
+    // Compose the final payload for saving shipment
     let savePayload = {
       shipment: shipmentFormValue,
       start_custody: startCustodyForm,
@@ -916,6 +1026,7 @@ const CreateShipment = ({ history, location }) => {
       isWarehouse: !!(_.find(destinationList, { url: destinationCustodian }) && (_.toLower(_.find(destinationList, { url: destinationCustodian }).type) === 'warehouse')),
     };
 
+    // Include gateway update info only when shipment is not a draft and meets conditions
     if (!draft && (
       (_.isEqual('available', updateGateway.gateway_status) && (!updateGateway.shipment_ids || _.isEqual([], updateGateway.shipment_ids)))
       || status.hasChanged()
@@ -924,6 +1035,7 @@ const CreateShipment = ({ history, location }) => {
       savePayload = { ...savePayload, updateGateway };
     }
 
+    // Handle attached PDF file changes
     if (!_.isEqual(editData.uploaded_pdf, attachedFiles)) {
       let pdfs = [];
       let links = [];
@@ -950,11 +1062,14 @@ const CreateShipment = ({ history, location }) => {
       };
     }
 
+    // Set form as submitted to disable resubmission
     setFormSubmitted(true);
 
+    // Call appropriate mutation based on whether it's a new shipment or an edit
     if (_.isEmpty(editData)) {
       addShipmentMutation(savePayload);
     } else {
+      // Append historical thresholds if they have changed in edit mode
       savePayload = {
         ...savePayload,
         shipment: {

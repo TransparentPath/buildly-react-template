@@ -1,18 +1,19 @@
 /* eslint-disable no-console */
 import React, { useState, useEffect } from 'react';
 import {
-  GoogleMap,
-  Marker,
-  InfoWindow,
-  Polyline,
-  Polygon,
-  Circle,
-  MarkerClusterer,
-  LoadScript,
+  GoogleMap, // Main map component from the library to render Google Maps
+  Marker, // To place individual markers on the map
+  InfoWindow, // For showing detailed popups when a marker is clicked
+  Polyline, // Used to draw lines connecting multiple coordinates (e.g., a route)
+  Polygon, // Used for drawing closed shapes (e.g., geofences or regions)
+  Circle, // To draw a circular region around a point (e.g., circular geofences)
+  MarkerClusterer, // Groups close-by markers into a single "cluster" icon
+  LoadScript, // Wrapper component that loads the Google Maps JS API
 } from '@react-google-maps/api';
-import Geocode from 'react-geocode';
+import Geocode from 'react-geocode'; // Used to convert human-readable addresses (like "New York") into coordinates (lat/lng)
 import _ from 'lodash';
 import { Grid, useTheme } from '@mui/material';
+// MUI icons for adding visual indicators to the InfoWindows
 import {
   AccessTime as ClockIcon,
   BatteryFull as BatteryFullIcon,
@@ -21,40 +22,46 @@ import {
   CalendarToday as CalendarIcon,
 } from '@mui/icons-material';
 import { MARKER_DATA, getIcon } from '@utils/constants';
-import './MapComponentStyles.css';
+import './MapComponentStyles.css'; // Custom CSS file
 
+// Required for the Google Maps API to support features like autocomplete
 const libraries = ['places'];
 
 export const MapComponent = (props) => {
+  // Destructuring props
   const {
-    isMarkerShown,
-    showPath,
-    screenshotMapCenter,
-    noInitialInfo,
-    markers,
-    zoom,
-    setSelectedMarker,
-    unitOfMeasure,
-    allMarkers,
-    geofence,
-    containerStyle,
-    setSelectedCluster,
-    selectedCluster,
-    mapCountry,
-    mapLanguage,
+    isMarkerShown, // Whether to show individual markers
+    showPath, // Whether to draw a path between markers
+    screenshotMapCenter, // Whether to auto-center the map for screenshots
+    noInitialInfo, // If true, suppress initial info window
+    markers, // List of individual markers to show
+    zoom, // Initial zoom level
+    setSelectedMarker, // Function to update selected marker state externally
+    unitOfMeasure, // Unit settings (used for distance, country, etc.)
+    allMarkers, // All grouped markers (used in clustering)
+    geofence, // Geofence polygon coordinates
+    containerStyle, // Map container style
+    setSelectedCluster, // Function to update selected cluster externally
+    selectedCluster, // Currently selected marker cluster
+    mapCountry, // Country code for the map region
+    mapLanguage, // Language for Google Maps localization
   } = props;
 
-  const [center, setCenter] = useState({ lat: 47.606209, lng: -122.332069 });
-  const [mapZoom, setMapZoom] = useState(zoom);
-  const [showInfoIndex, setShowInfoIndex] = useState({});
-  const [polygon, setPolygon] = useState({});
+  const [center, setCenter] = useState({ lat: 47.606209, lng: -122.332069 }); // Default center (Seattle)
+  const [mapZoom, setMapZoom] = useState(zoom); // Dynamic zoom level
+  const [showInfoIndex, setShowInfoIndex] = useState({}); // Which marker's InfoWindow is visible
+  const [polygon, setPolygon] = useState({}); // Polygon coordinates for geofence
 
+  // Extract country unit from unitOfMeasure
   const country = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
 
   const theme = useTheme();
 
+  /**
+   * useEffect to re-center the map if screenshot mode is active.
+   */
   useEffect(() => {
     if (screenshotMapCenter) {
       const meanCenter = { lat: _.mean(_.map(markers, 'lat')), lng: _.mean(_.map(markers, 'lng')) };
@@ -64,6 +71,9 @@ export const MapComponent = (props) => {
     }
   }, [unitOfMeasure]);
 
+  /**
+   * Handles map centering and marker selection logic when markers or clusters change.
+   */
   useEffect(() => {
     if (!_.isEmpty(markers) && markers[0] && markers[0].lat && markers[0].lng) {
       setCenter({
@@ -103,6 +113,9 @@ export const MapComponent = (props) => {
     }
   }, [markers, allMarkers]);
 
+  /**
+   * Parses geofence polygon data and stores in `polygon` state.
+   */
   useEffect(() => {
     if (geofence && !_.isEmpty(geofence.coordinates)) {
       const coordinates = geofence.coordinates[0];
@@ -117,6 +130,9 @@ export const MapComponent = (props) => {
     }
   }, [geofence]);
 
+  /**
+   * Converts address or unit to latitude and longitude using Geocode API.
+   */
   const setMapCenter = (mapCenter) => {
     let address = mapCenter;
     if (_.isEmpty(address)) {
@@ -139,6 +155,9 @@ export const MapComponent = (props) => {
     }
   };
 
+  /**
+   * Called when a draggable marker is moved.
+   */
   const onMarkerDrag = (e, onMarkerDragAction) => {
     if (onMarkerDragAction) {
       onMarkerDragAction(`${e.latLng.lat()},${e.latLng.lng()}`);
@@ -146,6 +165,9 @@ export const MapComponent = (props) => {
     }
   };
 
+  /**
+   * Updates selected marker and opens its InfoWindow.
+   */
   const onMarkerSelect = (marker) => {
     setShowInfoIndex(marker);
     if (setSelectedMarker) {
@@ -153,6 +175,9 @@ export const MapComponent = (props) => {
     }
   };
 
+  /**
+   * Groups markers by location and counts how many overlap.
+   */
   const groupMarkersByLocation = (Markers) => {
     const grouped = !_.isEmpty(Markers) && _.groupBy(Markers, (marker) => !_.isEmpty(marker) && `${marker.lat},${marker.lng}`);
     return _.mapValues(grouped, (group) => {
@@ -176,6 +201,7 @@ export const MapComponent = (props) => {
         center={center}
         zoom={mapZoom}
       >
+        {/* Render Clustered Markers when `isMarkerShown` is false */}
         {!isMarkerShown && allMarkers && !_.isEmpty(allMarkers)
           && _.map(allMarkers, (shipMarkers, idx) => (
             <MarkerClusterer
@@ -241,6 +267,7 @@ export const MapComponent = (props) => {
               ))}
             </MarkerClusterer>
           ))}
+        {/* Render Individual Markers */}
         {isMarkerShown && markers && _.map(markers, (mark, index) => (mark.label ? (
           <Marker
             key={index}
@@ -257,8 +284,10 @@ export const MapComponent = (props) => {
             }}
             onClick={() => onMarkerSelect(mark)}
           >
+            {/* InfoWindow when selected */}
             {_.isEqual(showInfoIndex, mark) && (
               <InfoWindow onCloseClick={() => onMarkerSelect(null)}>
+                {/* Detailed info layout for 'Clustered' markers or label */}
                 {_.isEqual(mark.label, 'Clustered')
                   ? (
                     <Grid
@@ -361,6 +390,7 @@ export const MapComponent = (props) => {
             }}
           />
         )))}
+        {/* Polyline connecting all markers, if showPath is enabled */}
         {isMarkerShown && markers && !_.isEmpty(markers) && showPath && (
           <Polyline
             path={_.map(markers, (marker) => ({
@@ -375,6 +405,7 @@ export const MapComponent = (props) => {
             }}
           />
         )}
+        {/* Radius-based geofencing rendering using Circle */}
         {isMarkerShown && markers && !_.isEmpty(polygon) && _.map(
           markers,
           (mark, index) => (mark.radius ? (
@@ -435,6 +466,7 @@ export const MapComponent = (props) => {
             </Marker>
           )),
         )}
+        {/* Polygon-based geofence */}
         {!_.isEmpty(polygon) && (
           <Polygon
             path={polygon}

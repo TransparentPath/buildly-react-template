@@ -1,3 +1,4 @@
+// Import necessary dependencies
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { Grid, Button, TextField } from '@mui/material';
@@ -12,24 +13,40 @@ import { useEditProductTypeMutation } from '@react-query/mutations/items/editPro
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
 
+// Main component for adding or editing a product type
 const AddProductType = ({ history, location }) => {
+  // Get the organization UUID from the logged-in user context
   const organization = getUser().organization.organization_uuid;
+
+  // State to control form modal visibility
   const [openFormModal, setFormModal] = useState(true);
+
+  // State to control confirmation modal visibility when closing form with unsaved changes
   const [openConfirmModal, setConfirmModal] = useState(false);
 
+  // Destructure alert hook
   const { displayAlert } = useAlert();
 
+  // Determine if the form is in edit mode and load existing data if so
   const editPage = location.state && location.state.type === 'edit';
   const editData = (editPage && location.state.data) || {};
 
+  // Input field hook for product type name, with prefill if editing
   const name = useInput((editData && editData.name) || '', {
     required: true,
   });
+
+  // State to track form validation errors
   const [formError, setFormError] = useState({});
 
+  // Dynamic button and modal title text based on mode
   const buttonText = editPage ? 'Save' : 'Add Product Type';
   const formTitle = editPage ? 'Edit Product Type' : 'Add Product Type';
 
+  /**
+   * Function to close the form modal.
+   * Prompts confirmation modal if form data has changed.
+   */
   const closeFormModal = () => {
     if (name.hasChanged()) {
       setConfirmModal(true);
@@ -41,6 +58,9 @@ const AddProductType = ({ history, location }) => {
     }
   };
 
+  /**
+   * Discard any unsaved data and close modal.
+   */
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
@@ -49,23 +69,27 @@ const AddProductType = ({ history, location }) => {
     }
   };
 
+  // Custom mutation hook to handle product type creation
   const { mutate: addProductTypeMutation, isLoading: isAddingProductType } = useAddProductTypeMutation(organization, history, location.state.from, displayAlert);
 
+  // Custom mutation hook to handle product type editing
   const { mutate: editProductTypeMutation, isLoading: isEditingProductType } = useEditProductTypeMutation(organization, history, location.state.from, displayAlert);
 
   /**
-   * Submit The form and add/edit custodian type
-   * @param {Event} event the default submit event
+   * Handle form submission to create or edit a product type
    */
   const handleSubmit = (event) => {
     event.preventDefault();
     const currentDateTime = new Date();
+
     let data = {
       ...editData,
       name: name.value,
       organization_uuid: organization,
       edit_date: currentDateTime,
     };
+
+    // If editing, call edit mutation; else, add creation date and call add mutation
     if (editPage) {
       editProductTypeMutation(data);
     } else {
@@ -78,15 +102,12 @@ const AddProductType = ({ history, location }) => {
   };
 
   /**
-   * Handle input field blur event
-   * @param {Event} e Event
-   * @param {String} validation validation type if any
-   * @param {Object} input input field
+   * Handle blur event on input fields to trigger validation
    */
-
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
+
     if (validateObj && validateObj.error) {
       setFormError({
         ...prevState,
@@ -103,22 +124,29 @@ const AddProductType = ({ history, location }) => {
     }
   };
 
+  /**
+   * Determines whether the submit button should be disabled
+   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
-    if (!name.value) {
-      return true;
-    }
+
+    // If the name is empty, disable
+    if (!name.value) return true;
+
+    // Check for any existing validation errors
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
         errorExists = true;
       }
     });
+
     return errorExists;
   };
 
   return (
     <div>
+      {/* Render form modal if open */}
       {openFormModal && (
         <FormModal
           open={openFormModal}
@@ -128,9 +156,12 @@ const AddProductType = ({ history, location }) => {
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
+          {/* Show loader during mutation calls */}
           {(isAddingProductType || isEditingProductType) && (
             <Loader open={isAddingProductType || isEditingProductType} />
           )}
+
+          {/* Form contents */}
           <form
             className="adminPanelFormContainer"
             noValidate
@@ -148,13 +179,13 @@ const AddProductType = ({ history, location }) => {
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
-                  helperText={
-                    formError.name ? formError.name.message : ''
-                  }
+                  helperText={formError.name ? formError.name.message : ''}
                   onBlur={(e) => handleBlur(e, 'required', name)}
                   {...name.bind}
                 />
               </Grid>
+
+              {/* Submit and Cancel Buttons */}
               <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={6} sm={5.15} md={4}>
                   <Button
@@ -189,4 +220,5 @@ const AddProductType = ({ history, location }) => {
   );
 };
 
+// Export component for use
 export default AddProductType;
