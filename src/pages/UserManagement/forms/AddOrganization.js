@@ -43,86 +43,101 @@ import { getCurrenciesQuery } from '@react-query/queries/shipments/getCurrencies
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
 import { useInviteMutation } from '@react-query/mutations/authUser/inviteMutation';
 
+/**
+ * AddOrganization Component
+ * This component provides a form to create or update an organization.
+ * It allows administrators to configure organization details, default settings, and alert preferences.
+ */
 const AddOrganization = ({
-  open,
-  setOpen,
+  open, // Boolean to control the visibility of the modal
+  setOpen, // Function to toggle the modal visibility
 }) => {
-  const { displayAlert } = useAlert();
-  const organization = getUser().organization.organization_uuid;
+  const { displayAlert } = useAlert(); // Hook to display alerts
+  const organization = getUser().organization.organization_uuid; // Fetch the current user's organization UUID
 
-  const [openConfirmModal, setConfirmModal] = useState(false);
-  const [emailData, setEmailData] = useState([]);
-  const [orgData, setOrgData] = useState([]);
-  const [orgAbbData, setOrgAbbData] = useState([]);
-  const [adminEmails, setAdminEmails] = useState([]);
-  const [countryList, setCountryList] = useState([]);
-  const [currencyList, setCurrencyList] = useState([]);
-  const [formError, setFormError] = useState({});
+  // State variables
+  const [openConfirmModal, setConfirmModal] = useState(false); // Controls the confirmation modal visibility
+  const [emailData, setEmailData] = useState([]); // Stores existing user emails
+  const [orgData, setOrgData] = useState([]); // Stores existing organization names
+  const [orgAbbData, setOrgAbbData] = useState([]); // Stores existing organization abbreviations
+  const [adminEmails, setAdminEmails] = useState([]); // Stores administrator emails entered in the form
+  const [countryList, setCountryList] = useState([]); // Stores the list of countries
+  const [currencyList, setCurrencyList] = useState([]); // Stores the list of currencies
+  const [formError, setFormError] = useState({}); // Tracks form validation errors
 
-  const organization_name = useInput('', { required: true });
-  const orgType = useInput('', { required: true });
-  const organization_abbrevation = useInput('', { required: true });
-  const radius = useInput(3);
-  const defaultMaxTemperature = useInput(100);
-  const defaultMinTemperature = useInput(0);
-  const defaultMaxHumidity = useInput(100);
-  const defaultMinHumidity = useInput(0);
-  const defaultShock = useInput(4);
-  const defaultLight = useInput(5);
-  const defaultTransmissionInterval = useInput(20);
-  const defaultMeasurementInterval = useInput(20);
-  const country = useInput('United States');
-  const currency = useInput('USD');
-  const dateFormat = useInput('MMM DD, YYYY');
-  const timeFormat = useInput('hh:mm:ss A');
-  const distance = useInput('Miles');
-  const temp = useInput('Fahrenheit');
-  const weight = useInput('Pounds');
-  const timezone = useInput('America/Los_Angeles');
-  const language = useInput('English');
-  const supressTempAlerts = useInput(true);
-  const supressHumidityAlerts = useInput(true);
-  const supressShockAlerts = useInput(true);
-  const supressLightAlerts = useInput(true);
+  // Input hooks for form fields
+  const organization_name = useInput('', { required: true }); // Organization name input
+  const orgType = useInput('', { required: true }); // Organization type input
+  const organization_abbrevation = useInput('', { required: true }); // Organization abbreviation input
+  const radius = useInput(3); // Radius for geofence input
+  const defaultMaxTemperature = useInput(100); // Default maximum temperature input
+  const defaultMinTemperature = useInput(0); // Default minimum temperature input
+  const defaultMaxHumidity = useInput(100); // Default maximum humidity input
+  const defaultMinHumidity = useInput(0); // Default minimum humidity input
+  const defaultShock = useInput(4); // Default shock threshold input
+  const defaultLight = useInput(5); // Default light threshold input
+  const defaultTransmissionInterval = useInput(20); // Default transmission interval input
+  const defaultMeasurementInterval = useInput(20); // Default measurement interval input
+  const country = useInput('United States'); // Default country input
+  const currency = useInput('USD'); // Default currency input
+  const dateFormat = useInput('MMM DD, YYYY'); // Default date format input
+  const timeFormat = useInput('hh:mm:ss A'); // Default time format input
+  const distance = useInput('Miles'); // Default unit of measure for distance input
+  const temp = useInput('Fahrenheit'); // Default unit of measure for temperature input
+  const weight = useInput('Pounds'); // Default unit of measure for weight input
+  const timezone = useInput('America/Los_Angeles'); // Default timezone input
+  const language = useInput('English'); // Default language input
+  const supressTempAlerts = useInput(true); // Suppress temperature alerts toggle
+  const supressHumidityAlerts = useInput(true); // Suppress humidity alerts toggle
+  const supressShockAlerts = useInput(true); // Suppress shock alerts toggle
+  const supressLightAlerts = useInput(true); // Suppress light alerts toggle
 
+  // Timezone options for the dropdown
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
 
+  // Fetch core user data
   const { data: coreuserData, isLoading: isLoadingCoreuser } = useQuery(
     ['users'],
     () => getCoreuserQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch all organizations
   const { data: organizations, isLoading: isLoadingOrganizations } = useQuery(
     ['organizations'],
     () => getAllOrganizationQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch organization types
   const { data: organizationTypesData, isLoading: isLoadingOrganizationTypes } = useQuery(
     ['organizationTypes'],
     () => getOrganizationTypeQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch countries
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
     () => getCountriesQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch currencies
   const { data: currenciesData, isLoading: isLoadingCurrencies } = useQuery(
     ['currencies'],
     () => getCurrenciesQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch unit data for the organization
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
     () => getUnitQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Effect to update radius based on the selected distance unit
   useEffect(() => {
     if (distance.value === 'Kilometers') {
       radius.setValue(5);
@@ -131,6 +146,7 @@ const AddOrganization = ({
     }
   }, [distance.value]);
 
+  // Effect to populate email data from core user data
   useEffect(() => {
     if (coreuserData) {
       const edata = coreuserData.map((item) => item.email);
@@ -138,6 +154,7 @@ const AddOrganization = ({
     }
   }, [coreuserData]);
 
+  // Effect to populate organization names and abbreviations
   useEffect(() => {
     if (organizations) {
       const odata = organizations.map((item) => item.name);
@@ -147,18 +164,23 @@ const AddOrganization = ({
     }
   }, [organizations]);
 
+  // Effect to populate the country list
   useEffect(() => {
     if (!_.isEmpty(countriesData)) {
       setCountryList(_.sortBy(_.without(_.uniq(_.map(countriesData, 'country')), [''])));
     }
   }, [countriesData]);
 
+  // Effect to populate the currency list
   useEffect(() => {
     if (!_.isEmpty(currenciesData)) {
       setCurrencyList(_.sortBy(_.without(_.uniq(_.map(currenciesData, 'currency')), [''])));
     }
   }, [currenciesData]);
 
+  /**
+   * Discard form data and reset the form.
+   */
   const discardFormData = () => {
     setAdminEmails([]);
     organization_name.clear();
@@ -191,6 +213,10 @@ const AddOrganization = ({
     setOpen(false);
   };
 
+  /**
+   * Close the form modal.
+   * If form data has changed, show a confirmation modal; otherwise, close the modal directly.
+   */
   const closeFormModal = () => {
     const dataHasChanged = !_.isEmpty(adminEmails)
       || organization_name.hasChanged()
@@ -225,6 +251,15 @@ const AddOrganization = ({
     }
   };
 
+  /**
+   * Handle input blur event for validation.
+   * Updates the form error state based on validation results.
+   * @param {Event} e - The blur event.
+   * @param {string} validation - The validation type.
+   * @param {object} input - The input state object.
+   * @param {boolean} extras - Whether extra validation is required.
+   * @param {array} extraData - Additional data for validation.
+   */
   const handleBlur = (e, validation, input, extras, extraData) => {
     let validateObj;
     if (extras) {
@@ -249,11 +284,21 @@ const AddOrganization = ({
     }
   };
 
+  /**
+   * Handle input change for administrator emails.
+   * Splits the input string into an array of emails.
+   * @param {Event} e - The input change event.
+   */
   const handleInputChange = (e) => {
     const emails = e.target.value.split(',').map((email) => email.trim());
     setAdminEmails(emails);
   };
 
+  /**
+   * Check if the submit button should be disabled.
+   * Returns true if required fields are empty or there are validation errors.
+   * @returns {boolean} - Whether the submit button should be disabled.
+   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (_.isEmpty(adminEmails) || !organization_name.value || !organization_abbrevation.value || !orgType.value) {
@@ -268,8 +313,14 @@ const AddOrganization = ({
     return errorExists;
   };
 
+  // Mutation hook to invite users
   const { mutate: inviteMutation, isLoading: isInviting } = useInviteMutation(discardFormData, displayAlert);
 
+  /**
+   * Handle form submission.
+   * Validates and submits the form data to create or update an organization.
+   * @param {Event} event - The form submission event.
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
     const lowercaseAdminEmails = adminEmails.map((email) => email.toLowerCase());
@@ -348,6 +399,7 @@ const AddOrganization = ({
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
       >
+        {/* Show loader if data is being fetched or submitted */}
         {(isLoadingOrganizationTypes
           || isLoadingCoreuser
           || isLoadingOrganizations
@@ -370,6 +422,7 @@ const AddOrganization = ({
           noValidate
           onSubmit={handleSubmit}
         >
+          {/* Form fields for organization details, default settings, and alert preferences */}
           <Grid container spacing={isDesktop() ? 2 : 0}>
             <Grid item xs={12}>
               <TextField

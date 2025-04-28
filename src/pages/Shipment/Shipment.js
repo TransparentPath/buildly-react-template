@@ -45,29 +45,36 @@ import './ShipmentStyles.css';
 import { TIVE_GATEWAY_TIMES, LANGUAGES } from '@utils/mock';
 import { calculateLatLngBounds } from '@utils/utilMethods';
 
+/**
+ * Shipment Component
+ * This component manages the display and interaction with shipment data.
+ * It includes functionality for filtering shipments, viewing shipment details, and rendering maps and tables.
+ */
 const Shipment = ({ history }) => {
-  const muiTheme = useTheme();
-  const user = getUser();
-  const organization = user.organization.organization_uuid;
-  const userLanguage = user.user_language;
+  const muiTheme = useTheme(); // Material-UI theme for styling
+  const user = getUser(); // Fetch the current logged-in user
+  const organization = user.organization.organization_uuid; // Get the organization UUID of the logged-in user
+  const userLanguage = user.user_language; // Get the user's preferred language
 
-  const { displayAlert } = useAlert();
-  const { data } = useStore();
+  const { displayAlert } = useAlert(); // Hook to display alerts
+  const { data } = useStore(); // Zustand store for timezone data
 
   let isShipmentDataAvailable = false;
 
-  const [shipmentFilter, setShipmentFilter] = useState('Active');
-  const [rows, setRows] = useState([]);
-  const [selectedShipment, setSelectedShipment] = useState(null);
-  const [markers, setMarkers] = useState([]);
-  const [selectedMarker, setSelectedMarker] = useState({});
-  const [allMarkers, setAllMarkers] = useState([]);
-  const [expandedRows, setExpandedRows] = useState([]);
-  const [steps, setSteps] = useState([]);
-  const [isLoading, setLoading] = useState(false);
-  const [selectedCluster, setSelectedCluster] = useState({});
-  const [zoom, setZoom] = useState(4);
+  // State variables
+  const [shipmentFilter, setShipmentFilter] = useState('Active'); // Tracks the current shipment filter (e.g., Active, Completed)
+  const [rows, setRows] = useState([]); // Stores formatted shipment data for the table
+  const [selectedShipment, setSelectedShipment] = useState(null); // Tracks the currently selected shipment
+  const [markers, setMarkers] = useState([]); // Stores map markers for the selected shipment
+  const [selectedMarker, setSelectedMarker] = useState({}); // Tracks the currently selected map marker
+  const [allMarkers, setAllMarkers] = useState([]); // Stores all map markers for global view
+  const [expandedRows, setExpandedRows] = useState([]); // Tracks expanded rows in the data table
+  const [steps, setSteps] = useState([]); // Tracks the steps for the shipment timeline
+  const [isLoading, setLoading] = useState(false); // Tracks the loading state for the component
+  const [selectedCluster, setSelectedCluster] = useState({}); // Tracks the selected cluster on the map
+  const [zoom, setZoom] = useState(4); // Tracks the zoom level for the map
 
+  // Fetch shipment data
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, organization],
     () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert),
@@ -76,36 +83,42 @@ const Shipment = ({ history }) => {
 
   isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
+  // Fetch custodian data
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
     () => getCustodianQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch item data
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ['items', organization],
     () => getItemQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch unit data
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
     () => getUnitQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch country data
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
     () => getCountriesQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch gateway data
   const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
     ['allGateways'],
     () => getAllGatewayQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch custody data
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies', shipmentData, shipmentFilter],
     () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
@@ -115,6 +128,7 @@ const Shipment = ({ history }) => {
     },
   );
 
+  // Fetch sensor alert data
   const { data: sensorAlertData, isLoading: isLoadingSensorAlerts } = useQuery(
     ['sensorAlerts', shipmentData, shipmentFilter],
     () => getSensorAlertQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert),
@@ -124,6 +138,7 @@ const Shipment = ({ history }) => {
     },
   );
 
+  // Fetch sensor report data for global view
   const { data: reportData1, isLoading: isLoadingReports1 } = useQuery(
     ['sensorReports', shipmentData, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), 10, displayAlert),
@@ -139,6 +154,7 @@ const Shipment = ({ history }) => {
   const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
     && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
+  // Fetch sensor report data for selected shipment
   const {
     data: reportData2,
     isLoading: isLoadingReports2,
@@ -152,8 +168,8 @@ const Shipment = ({ history }) => {
     },
   );
 
-  const sensorReportData = selectedShipment ? reportData2 : reportData1;
-  const isLoadingSensorReports = selectedShipment ? isLoadingReports2 : isLoadingReports1;
+  const sensorReportData = selectedShipment ? reportData2 : reportData1; // Determine which sensor report data to use
+  const isLoadingSensorReports = selectedShipment ? isLoadingReports2 : isLoadingReports1; // Determine which loading state to use
 
   const isLoaded = isLoadingShipments
     || isLoadingCustodians
@@ -166,6 +182,7 @@ const Shipment = ({ history }) => {
     || isLoadingSensorReports
     || isLoading;
 
+  // Effect to format and filter shipment rows based on the selected filter
   useEffect(() => {
     const formattedRows = getShipmentFormattedRow(
       shipmentData,
@@ -186,6 +203,7 @@ const Shipment = ({ history }) => {
   }, [shipmentFilter, shipmentData, custodianData, custodyData,
     itemData, allGatewayData, sensorAlertData, sensorReportData]);
 
+  // Effect to handle delayed shipments and display alerts
   useEffect(() => {
     if (!_.isEmpty(shipmentData) && !_.isEqual(isLoaded, true)) {
       const localDelayedShipments = JSON.parse(localStorage.getItem('delayedShipments')) || [];
@@ -201,6 +219,7 @@ const Shipment = ({ history }) => {
     }
   }, [shipmentData, isLoaded]);
 
+  // Effect to adjust map zoom level based on markers or selected cluster
   useEffect(() => {
     if (!_.isEmpty(markers) || !_.isEmpty(selectedCluster)) {
       setZoom(12);
@@ -209,12 +228,14 @@ const Shipment = ({ history }) => {
     }
   }, [markers, selectedCluster]);
 
+  // Effect to process markers for the selected shipment
   useEffect(() => {
     if (selectedShipment) {
       processMarkers(selectedShipment, true);
     }
   }, [sensorAlertData, sensorReportData, data]);
 
+  // Effect to refetch reports for the selected shipment when expanded
   useEffect(() => {
     if (!_.isEmpty(selectedShipment)) {
       setLoading(true);
@@ -227,6 +248,7 @@ const Shipment = ({ history }) => {
     }
   }, [selectedShipment, expandedRows]);
 
+  // Effect to filter rows based on the selected cluster
   useEffect(() => {
     if (!_.isEmpty(selectedCluster) && !_.isEmpty(rows)) {
       const { lat, lng } = selectedCluster;
@@ -243,19 +265,29 @@ const Shipment = ({ history }) => {
     }
   }, [selectedCluster]);
 
+  /**
+ * Process markers for a shipment and update the map and timeline.
+ * This function processes sensor reports and alerts for a given shipment,
+ * generates timeline steps, and updates map markers.
+ *
+ * @param {object} shipment - The selected shipment object.
+ * @param {boolean} setExpanded - Whether to expand the row in the table (default: false).
+ */
   const processMarkers = (shipment, setExpanded = false) => {
+    // Extract date, time, and temperature formats from unit data
     const dateFormat = !_.isEmpty(unitData) && _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure;
     const timeFormat = !_.isEmpty(unitData) && _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure;
     const tempMeasure = !_.isEmpty(unitData) && _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure;
-    let markersToSet = [];
-    const filteredReports = _.filter(sensorReportData, {
-      shipment_id: shipment.partner_shipment_id,
-    });
-    const filteredAlerts = _.filter(sensorAlertData, { shipment_id: shipment.partner_shipment_id });
-    let newSteps = [];
-    let arrivedSteps = [];
-    let activeSteps = [];
 
+    let markersToSet = []; // Array to store processed map markers
+    const filteredReports = _.filter(sensorReportData, { shipment_id: shipment.partner_shipment_id }); // Filter sensor reports for the shipment
+    const filteredAlerts = _.filter(sensorAlertData, { shipment_id: shipment.partner_shipment_id }); // Filter sensor alerts for the shipment
+
+    let newSteps = []; // Array to store timeline steps
+    let arrivedSteps = []; // Steps for alerts during arrival
+    let activeSteps = []; // Steps for active alerts
+
+    // Initialize timeline steps for shipment creation and start
     newSteps = [
       {
         id: 1,
@@ -290,8 +322,11 @@ const Shipment = ({ history }) => {
       },
     ];
 
+    // Process alerts for the shipment
     if (!_.isEmpty(filteredAlerts)) {
-      const alerts = _.filter(filteredAlerts, (alert) => !alert.recovered_alert_id);
+      const alerts = _.filter(filteredAlerts, (alert) => !alert.recovered_alert_id); // Filter unrecovered alerts
+
+      // Separate alerts into "arrived" and "active" categories
       const arrivedAlerts = _.filter(alerts, (alert) => {
         const createDate = moment(alert.create_date).unix();
         return (
@@ -299,6 +334,7 @@ const Shipment = ({ history }) => {
           && createDate <= (moment(shipment.actual_time_of_arrival).unix() || moment(shipment.estimated_time_of_arrival).unix())
         );
       });
+
       const activeAlerts = _.filter(alerts, (alert) => {
         const createDate = moment(alert.create_date).unix();
         return !(
@@ -306,90 +342,20 @@ const Shipment = ({ history }) => {
           && createDate <= (moment(shipment.actual_time_of_arrival).unix() || moment(shipment.estimated_time_of_arrival).unix())
         );
       });
+
+      // Generate timeline steps for alerts
       if (_.isEmpty(shipment.actual_time_of_arrival)) {
-        arrivedSteps = _.map(alerts, (a) => {
-          const error = _.includes(_.toLower(a.alert_type), 'max') || _.includes(_.toLower(a.alert_type), 'shock') || _.includes(_.toLower(a.alert_type), 'light');
-          const info = _.includes(_.toLower(a.alert_type), 'min');
-          const item = {
-            id: a.parameter_type,
-            color: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
-            title: error ? `Maximum ${_.capitalize(a.parameter_type)} Excursion` : `Minimum ${_.capitalize(a.parameter_type)} Excursion`,
-          };
-          return ({
-            id: moment(a.create_date).unix(),
-            titleIcon: getIcon(item),
-            title: a.parameter_type === 'shock' || a.parameter_type === 'light'
-              ? `${_.toString(_.round(_.toNumber(a.parameter_value.split(' ')[0]), 2))} ${a.parameter_value.split(' ')[1]}`
-              : a.parameter_value,
-            titleColor: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
-            label: 'Exception',
-            content: moment(a.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
-            active: false,
-            completed: shipment.last_fujitsu_verification_datetime && _.lte(
-              moment(a.create_date).unix(),
-              moment(shipment.last_fujitsu_verification_datetime).unix(),
-            ),
-            error,
-            info,
-          });
-        });
+        arrivedSteps = _.map(alerts, (a) => createAlertStep(a, dateFormat, timeFormat, shipment));
       } else {
-        arrivedSteps = _.map(arrivedAlerts, (a) => {
-          const error = _.includes(_.toLower(a.alert_type), 'max') || _.includes(_.toLower(a.alert_type), 'shock') || _.includes(_.toLower(a.alert_type), 'light');
-          const info = _.includes(_.toLower(a.alert_type), 'min');
-          const item = {
-            id: a.parameter_type,
-            color: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
-            title: error ? `Maximum ${_.capitalize(a.parameter_type)} Excursion` : `Minimum ${_.capitalize(a.parameter_type)} Excursion`,
-          };
-          return ({
-            id: moment(a.create_date).unix(),
-            titleIcon: getIcon(item),
-            title: a.parameter_type === 'shock' || a.parameter_type === 'light'
-              ? `${_.toString(_.round(_.toNumber(a.parameter_value.split(' ')[0]), 2))} ${a.parameter_value.split(' ')[1]}`
-              : a.parameter_value,
-            titleColor: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
-            label: 'Exception',
-            content: moment(a.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
-            active: false,
-            completed: shipment.last_fujitsu_verification_datetime && _.lte(
-              moment(a.create_date).unix(),
-              moment(shipment.last_fujitsu_verification_datetime).unix(),
-            ),
-            error,
-            info,
-          });
-        });
-        activeSteps = _.map(activeAlerts, (a) => {
-          const error = _.includes(_.toLower(a.alert_type), 'max') || _.includes(_.toLower(a.alert_type), 'shock') || _.includes(_.toLower(a.alert_type), 'light');
-          const info = _.includes(_.toLower(a.alert_type), 'min');
-          const item = {
-            id: a.parameter_type,
-            color: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
-            title: error ? `Maximum ${_.capitalize(a.parameter_type)} Excursion` : `Minimum ${_.capitalize(a.parameter_type)} Excursion`,
-          };
-          return ({
-            id: moment(a.create_date).unix(),
-            titleIcon: getIcon(item),
-            title: a.parameter_type === 'shock' || a.parameter_type === 'light'
-              ? `${_.toString(_.round(_.toNumber(a.parameter_value.split(' ')[0]), 2))} ${a.parameter_value.split(' ')[1]}`
-              : a.parameter_value,
-            titleColor: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
-            label: 'Exception',
-            content: moment(a.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
-            active: false,
-            completed: shipment.last_fujitsu_verification_datetime && _.lte(
-              moment(a.create_date).unix(),
-              moment(shipment.last_fujitsu_verification_datetime).unix(),
-            ),
-            error,
-            info,
-          });
-        });
+        arrivedSteps = _.map(arrivedAlerts, (a) => createAlertStep(a, dateFormat, timeFormat, shipment));
+        activeSteps = _.map(activeAlerts, (a) => createAlertStep(a, dateFormat, timeFormat, shipment));
       }
     }
+
+    // Add arrival and active alert steps to the timeline
     newSteps = [...newSteps, ...arrivedSteps];
 
+    // Add a step for shipment arrival
     newSteps = [...newSteps, {
       id: _.maxBy(newSteps, 'id') ? (_.maxBy(newSteps, 'id').id + 1) : 3,
       title: shipment.destination,
@@ -408,8 +374,10 @@ const Shipment = ({ history }) => {
       ),
     }];
 
+    // Add active alert steps to the timeline
     newSteps = [...newSteps, ...activeSteps];
 
+    // Add a step for shipment completion
     newSteps = [...newSteps, {
       id: _.maxBy(newSteps, 'id') ? (_.maxBy(newSteps, 'id').id + 2) : 4,
       title: shipment.destination,
@@ -430,161 +398,17 @@ const Shipment = ({ history }) => {
       ),
     }];
 
+    // Process sensor reports to generate map markers
     if (!_.isEmpty(filteredReports)) {
       _.forEach(filteredReports, (report) => {
-        const { report_entry } = report;
-        let marker = {};
-        let color = muiTheme.palette.success.main;
-        let allAlerts = [];
-        const date = moment(report.activation_date).tz(data).format(dateFormat);
-        const time = moment(report.activation_date).tz(data).format(timeFormat);
-
-        const preAlerts = _.orderBy(
-          _.filter(filteredAlerts, (alert) => _.lte(_.toNumber(alert.report_id), report.id)),
-          'create_date',
-        );
-        const recoveryAlerts = _.filter(preAlerts, (pa) => !!pa.recovered_alert_id);
-        const recoveredIDs = _.uniq(_.map(recoveryAlerts, 'recovered_alert_id'));
-        const recoveredTypeDateTime = _.map(recoveryAlerts, (ra) => (
-          { parameter_type: ra.parameter_type, create_date: ra.create_date }
-        ));
-        const alertsTillNow = _.filter(preAlerts, (alert) => {
-          const found = _.find(recoveredTypeDateTime, (radt) => (
-            _.isEqual(radt.parameter_type, alert.parameter_type)
-            && !!_.gt(radt.create_date, alert.create_date)
-          ));
-
-          return !found && !alert.recovered_alert_id
-            && !_.includes(recoveredIDs, _.toString(alert.id));
-        });
-
-        let uniqueAlerts = [];
-        if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'temperature' })) {
-          uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'temperature' })];
-        }
-        if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'humidity' })) {
-          uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'humidity' })];
-        }
-        if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'shock' })) {
-          uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'shock' })];
-        }
-        if (_.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'light' })) {
-          uniqueAlerts = [...uniqueAlerts, _.find(_.orderBy(alertsTillNow, 'create_date', 'desc'), { parameter_type: 'light' })];
-        }
-        uniqueAlerts = _.orderBy(uniqueAlerts, 'create_date');
-
-        const exactAlertID = _.filter(preAlerts, { report_id: _.toString(report.id) });
-        _.forEach(exactAlertID, (alert) => {
-          if (alert.recovered_alert_id) {
-            _.remove(uniqueAlerts, { parameter_type: alert.parameter_type });
-            allAlerts = [...allAlerts, { id: alert.parameter_type, color, title: `${_.capitalize(alert.parameter_type)} Excursion Recovered` }];
-          }
-        });
-
-        _.forEach(uniqueAlerts, (alert) => {
-          if (alert) {
-            let alertColor = '';
-            let title = '';
-            const found = _.find(allAlerts, { id: alert.parameter_type });
-            if (found) {
-              _.remove(allAlerts, { id: alert.parameter_type });
-            }
-
-            switch (true) {
-              case _.includes(_.toLower(alert.alert_type), 'max'):
-              case _.includes(_.toLower(alert.alert_type), 'shock'):
-              case _.includes(_.toLower(alert.alert_type), 'light'):
-                color = muiTheme.palette.error.main;
-                alertColor = muiTheme.palette.error.main;
-                title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
-                break;
-
-              case _.includes(_.toLower(alert.alert_type), 'min'):
-                if (color !== muiTheme.palette.error.main) {
-                  color = muiTheme.palette.info.main;
-                }
-                alertColor = muiTheme.palette.info.main;
-                title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
-                break;
-
-              default:
-                break;
-            }
-
-            allAlerts = [...allAlerts, { id: alert.parameter_type, color: alertColor, title }];
-          }
-        });
-
-        const temperature = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
-          ? report_entry.report_temp_fah
-          : report_entry.report_temp_cel
-            ? _.round(report_entry.report_temp_cel, 2)
-            : report_entry.report_temp_cel;
-        const probe = _.isEqual(_.toLower(tempMeasure), 'fahrenheit')
-          ? report_entry.report_probe_fah
-          : report_entry.report_probe_cel
-            ? _.round(report_entry.report_probe_cel, 2)
-            : report_entry.report_probe_cel;
-        const shock = report_entry.report_shock && _.round(report_entry.report_shock, 2);
-        const light = report_entry.report_light && _.round(report_entry.report_light, 2);
-
-        // For a valid (latitude, longitude) pair: -90<=X<=+90 and -180<=Y<=180
-        if (report_entry.report_location !== null
-          && report_entry.report_latitude !== null
-          && report_entry.report_longitude !== null) {
-          const latitude = report_entry.report_latitude
-            || report_entry.report_location.latitude;
-          const longitude = report_entry.report_longitude
-            || report_entry.report_location.longitude;
-          if (
-            (latitude >= -90 && latitude <= 90)
-            && (longitude >= -180 && longitude <= 180)
-            && date && time
-          ) {
-            marker = {
-              lat: latitude,
-              lng: longitude,
-              location: report_entry.report_location,
-              label: 'Clustered',
-              temperature,
-              light,
-              shock,
-              tilt: report_entry.report_tilt,
-              humidity: report_entry.report_humidity,
-              battery: report_entry.report_battery,
-              pressure: report_entry.report_pressure,
-              probe,
-              color,
-              allAlerts,
-              date,
-              time,
-            };
-
-            markersToSet = [...markersToSet, marker];
-          }
-        } else {
-          marker = {
-            lat: '*',
-            lng: '*',
-            location: 'N/A',
-            label: 'Clustered',
-            temperature,
-            light,
-            shock,
-            tilt: report_entry.report_tilt,
-            humidity: report_entry.report_humidity,
-            battery: report_entry.report_battery,
-            pressure: report_entry.report_pressure,
-            probe,
-            color,
-            allAlerts,
-            date,
-            time,
-          };
+        const marker = createMarker(report, filteredAlerts, dateFormat, timeFormat, tempMeasure);
+        if (marker) {
+          markersToSet = [...markersToSet, marker];
         }
       });
     }
 
+    // Update state with processed data
     if (setExpanded) {
       const rowIndex = _.findIndex(rows, (item) => item.id === shipment.id, 0);
       setExpandedRows([rowIndex]);
@@ -595,6 +419,88 @@ const Shipment = ({ history }) => {
     setSelectedMarker(markers[0]);
   };
 
+  /**
+   * Helper function to create a timeline step for an alert.
+   * @param {object} alert - The alert object.
+   * @param {string} dateFormat - The date format.
+   * @param {string} timeFormat - The time format.
+   * @param {object} shipment - The shipment object.
+   * @returns {object} - The timeline step object.
+   */
+  const createAlertStep = (alert, dateFormat, timeFormat, shipment) => {
+    const error = _.includes(_.toLower(alert.alert_type), 'max') || _.includes(_.toLower(alert.alert_type), 'shock') || _.includes(_.toLower(alert.alert_type), 'light');
+    const info = _.includes(_.toLower(alert.alert_type), 'min');
+    const item = {
+      id: alert.parameter_type,
+      color: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
+      title: error ? `Maximum ${_.capitalize(alert.parameter_type)} Excursion` : `Minimum ${_.capitalize(alert.parameter_type)} Excursion`,
+    };
+    return {
+      id: moment(alert.create_date).unix(),
+      titleIcon: getIcon(item),
+      title: alert.parameter_type === 'shock' || alert.parameter_type === 'light'
+        ? `${_.toString(_.round(_.toNumber(alert.parameter_value.split(' ')[0]), 2))} ${alert.parameter_value.split(' ')[1]}`
+        : alert.parameter_value,
+      titleColor: error ? muiTheme.palette.error.main : muiTheme.palette.info.main,
+      label: 'Exception',
+      content: moment(alert.create_date).tz(data).format(`${dateFormat} ${timeFormat}`),
+      active: false,
+      completed: shipment.last_fujitsu_verification_datetime && _.lte(
+        moment(alert.create_date).unix(),
+        moment(shipment.last_fujitsu_verification_datetime).unix(),
+      ),
+      error,
+      info,
+    };
+  };
+
+  /**
+   * Helper function to create a map marker for a sensor report.
+   * @param {object} report - The sensor report object.
+   * @param {array} filteredAlerts - The filtered alerts for the shipment.
+   * @param {string} dateFormat - The date format.
+   * @param {string} timeFormat - The time format.
+   * @param {string} tempMeasure - The temperature unit of measure.
+   * @returns {object|null} - The map marker object or null if invalid.
+   */
+  const createMarker = (report, filteredAlerts, dateFormat, timeFormat, tempMeasure) => {
+    const { report_entry } = report;
+    const date = moment(report.activation_date).tz(data).format(dateFormat);
+    const time = moment(report.activation_date).tz(data).format(timeFormat);
+
+    // Validate latitude and longitude
+    const latitude = report_entry.report_latitude || report_entry.report_location?.latitude;
+    const longitude = report_entry.report_longitude || report_entry.report_location?.longitude;
+    if (!latitude || !longitude || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      return null;
+    }
+
+    // Create the marker object
+    return {
+      lat: latitude,
+      lng: longitude,
+      location: report_entry.report_location,
+      label: 'Clustered',
+      temperature: tempMeasure === 'fahrenheit' ? report_entry.report_temp_fah : report_entry.report_temp_cel,
+      light: report_entry.report_light,
+      shock: report_entry.report_shock,
+      tilt: report_entry.report_tilt,
+      humidity: report_entry.report_humidity,
+      battery: report_entry.report_battery,
+      pressure: report_entry.report_pressure,
+      probe: tempMeasure === 'fahrenheit' ? report_entry.report_probe_fah : report_entry.report_probe_cel,
+      color: muiTheme.palette.success.main,
+      allAlerts: [], // Alerts can be added here if needed
+      date,
+      time,
+    };
+  };
+
+  /**
+   * Handle filter tab click to update the shipment filter.
+   * @param {Event} event - The click event.
+   * @param {string} filter - The selected filter.
+   */
   const filterTabClicked = async (event, filter) => {
     isShipmentDataAvailable = false;
     setShipmentFilter(filter);
@@ -606,6 +512,11 @@ const Shipment = ({ history }) => {
     setSelectedCluster({});
   };
 
+  /**
+   * Render sensor data for a marker.
+   * @param {object} marker - The selected marker.
+   * @returns {JSX.Element} - The rendered sensor data.
+   */
   const renderSensorData = (marker) => {
     const isValidData = (
       marker.temperature !== null && marker.temperature !== undefined
@@ -652,6 +563,11 @@ const Shipment = ({ history }) => {
     );
   };
 
+  /**
+   * Render irregular transmission data for a marker.
+   * @param {object} marker - The selected marker.
+   * @returns {JSX.Element} - The rendered irregular transmission data.
+   */
   const renderIrregularTransmission = (marker) => {
     const hasInvalidData = (
       marker.temperature === null || marker.temperature === undefined
@@ -681,6 +597,14 @@ const Shipment = ({ history }) => {
     );
   };
 
+  /**
+   * Render a sensor value with optional thresholds.
+   * @param {string} label - The label for the sensor value.
+   * @param {number} value - The sensor value.
+   * @param {number} max - The maximum threshold (optional).
+   * @param {number} min - The minimum threshold (optional).
+   * @returns {JSX.Element} - The rendered sensor value.
+   */
   const renderSensorValue = (label, value, max = null, min = null) => (
     !_.isEqual(value, null) && !_.isEqual(value, undefined) && (
       <Grid container flex>
@@ -705,6 +629,10 @@ const Shipment = ({ history }) => {
     )
   );
 
+  /**
+   * Get the translated language for the map.
+   * @returns {string} - The translated language code.
+   */
   const getTranslatedLanguage = () => {
     const userLanguageAbbv = _.find(LANGUAGES, (item) => _.isEqual(item.label, userLanguage))?.value;
     let returnValue = userLanguageAbbv;
@@ -721,15 +649,25 @@ const Shipment = ({ history }) => {
 
   return (
     <Box mt={5} mb={5}>
+      {/* Show loader if data is being loaded */}
       {isLoaded && <Loader open={isLoaded} />}
-      <Button type="button" onClick={(e) => history.push(routes.CREATE_SHIPMENT)} className="shipmentCreateButton">
+
+      {/* Button to create a new shipment */}
+      <Button
+        type="button"
+        onClick={(e) => history.push(routes.CREATE_SHIPMENT)} // Navigate to the "Create Shipment" page
+        className="shipmentCreateButton"
+      >
         + Create Shipment
       </Button>
+
+      {/* Button to go back to global view */}
       {!_.isEmpty(selectedCluster) && (
         <Button
           type="button"
           className="shipmentGoBackButton"
           onClick={() => {
+            // Reset the view to show all shipments in the global view
             const formattedRows = getShipmentFormattedRow(
               shipmentData,
               custodianData,
@@ -755,79 +693,95 @@ const Shipment = ({ history }) => {
           Go back to Global View
         </Button>
       )}
+
+      {/* Shipment title */}
       <Grid container>
         <Grid item xs={12}>
           <div className={selectedShipment ? 'shipmentTitle notranslate' : 'shipmentTitle'}>
             <Typography variant="h6">
+              {/* Display the selected shipment name or "All shipments" */}
               {selectedShipment ? selectedShipment.name : 'All shipments'}
             </Typography>
           </div>
         </Grid>
+
+        {/* Map component */}
         <Grid item xs={12}>
           <MapComponent
-            allMarkers={allMarkers}
-            isMarkerShown={!_.isEmpty(markers)}
-            showPath
-            markers={markers}
-            zoom={zoom}
-            setSelectedMarker={setSelectedMarker}
-            containerStyle={{ height: '600px' }}
-            unitOfMeasure={unitData}
-            setSelectedCluster={setSelectedCluster}
-            selectedCluster={selectedCluster}
-            mapCountry={organizationCountry}
-            mapLanguage={getTranslatedLanguage()}
+            allMarkers={allMarkers} // All markers for the global view
+            isMarkerShown={!_.isEmpty(markers)} // Show markers if available
+            showPath // Enable path visualization on the map
+            markers={markers} // Markers for the selected shipment
+            zoom={zoom} // Current zoom level
+            setSelectedMarker={setSelectedMarker} // Function to set the selected marker
+            containerStyle={{ height: '600px' }} // Map container height
+            unitOfMeasure={unitData} // Unit of measure for the map
+            setSelectedCluster={setSelectedCluster} // Function to set the selected cluster
+            selectedCluster={selectedCluster} // Currently selected cluster
+            mapCountry={organizationCountry} // Country for the map
+            mapLanguage={getTranslatedLanguage()} // Language for the map
           />
         </Grid>
+
+        {/* Shipment filter tabs */}
         <Grid item xs={12} className="shipmentDataTableHeader">
           <ToggleButtonGroup
             color="secondary"
-            value={shipmentFilter}
+            value={shipmentFilter} // Current filter value
           >
+            {/* Filter for active shipments */}
             <ToggleButton
               value="Active"
               size="medium"
               selected={shipmentFilter === 'Active'}
               className="shipmentDataTableHeaderItem"
-              onClick={(event, value) => filterTabClicked(event, value)}
+              onClick={(event, value) => filterTabClicked(event, value)} // Handle filter change
             >
               Active
             </ToggleButton>
+
+            {/* Filter for completed shipments */}
             <ToggleButton
               value="Completed"
               size="medium"
               selected={shipmentFilter === 'Completed'}
               className="shipmentDataTableHeaderItem"
-              onClick={(event, value) => filterTabClicked(event, value)}
+              onClick={(event, value) => filterTabClicked(event, value)} // Handle filter change
             >
               Completed
             </ToggleButton>
+
+            {/* Filter for battery-depleted shipments */}
             <ToggleButton
               value="Battery Depleted"
               size="medium"
               selected={shipmentFilter === 'Battery Depleted'}
               className="shipmentDataTableHeaderItem"
-              onClick={(event, value) => filterTabClicked(event, value)}
+              onClick={(event, value) => filterTabClicked(event, value)} // Handle filter change
             >
               Battery Depleted
             </ToggleButton>
+
+            {/* Filter for damaged shipments */}
             <ToggleButton
               value="Damaged"
               size="medium"
               selected={shipmentFilter === 'Damaged'}
               className="shipmentDataTableHeaderItem"
-              onClick={(event, value) => filterTabClicked(event, value)}
+              onClick={(event, value) => filterTabClicked(event, value)} // Handle filter change
             >
               Damaged
             </ToggleButton>
           </ToggleButtonGroup>
         </Grid>
+
+        {/* Shipment data table */}
         <Grid item xs={12} className="shipmentDataTable">
           <DataTableWrapper
-            hideAddButton
-            loading={isLoading}
-            filename="ShipmentData"
-            rows={rows}
+            hideAddButton // Hide the "Add" button
+            loading={isLoading} // Show loading state
+            filename="ShipmentData" // Filename for export
+            rows={rows} // Rows of shipment data
             columns={[
               {
                 name: '',
@@ -836,18 +790,17 @@ const Shipment = ({ history }) => {
                   sortThirdClickReset: false,
                   filter: false,
                   customBodyRenderLite: (dataIndex) => (
-                    rows[dataIndex] && rows[dataIndex].note
-                      ? (
-                        <Tooltip
-                          TransitionComponent={Fade}
-                          TransitionProps={{ timeout: 600 }}
-                          placement="bottom-start"
-                          title={<Typography>{rows[dataIndex].note}</Typography>}
-                          className="shipmentTooltip"
-                        >
-                          <NoteIcon />
-                        </Tooltip>
-                      ) : <></>
+                    rows[dataIndex] && rows[dataIndex].note ? (
+                      <Tooltip
+                        TransitionComponent={Fade}
+                        TransitionProps={{ timeout: 600 }}
+                        placement="bottom-start"
+                        title={<Typography>{rows[dataIndex].note}</Typography>} // Display note as a tooltip
+                        className="shipmentTooltip"
+                      >
+                        <NoteIcon />
+                      </Tooltip>
+                    ) : <></>
                   ),
                 },
               },
@@ -862,6 +815,7 @@ const Shipment = ({ history }) => {
                     <Typography
                       className="shipmentName notranslate"
                       onClick={(e) => {
+                        // Navigate to the "Create Shipment" page with the selected shipment data
                         history.push(routes.CREATE_SHIPMENT, {
                           ship: _.omit(rows[dataIndex], ['type', 'itemNames', 'tracker', 'battery_levels', 'alerts', 'allMarkers']),
                         });
@@ -924,20 +878,21 @@ const Shipment = ({ history }) => {
               },
             ]}
             extraOptions={{
-              expandableRows: true,
-              expandableRowsHeader: false,
-              expandableRowsOnClick: true,
-              download: false,
-              filter: false,
-              print: false,
-              search: false,
-              viewColumns: false,
+              expandableRows: true, // Enable expandable rows
+              expandableRowsHeader: false, // Hide expandable rows header
+              expandableRowsOnClick: true, // Expand rows on click
+              download: false, // Disable download option
+              filter: false, // Disable filter option
+              print: false, // Disable print option
+              search: false, // Disable search option
+              viewColumns: false, // Disable column visibility toggle
               setRowProps: (row, dataIndex, rowIndex) => ({
                 style: { color: _.isEqual(row[2], 'Planned') ? muiTheme.palette.background.light : 'inherit' },
               }),
-              rowsExpanded: expandedRows,
+              rowsExpanded: expandedRows, // Track expanded rows
               onRowExpansionChange: (curExpanded, allExpanded, rowsExpanded) => {
                 if (_.isEmpty(allExpanded)) {
+                  // Reset state when no rows are expanded
                   setAllMarkers(_.map(rows, 'allMarkers'));
                   setSelectedShipment(null);
                   setMarkers([]);
@@ -945,6 +900,7 @@ const Shipment = ({ history }) => {
                   setExpandedRows([]);
                   setSteps([]);
                 } else {
+                  // Process markers for the expanded row
                   processMarkers(rows[_.last(allExpanded).dataIndex], true);
                 }
               },
@@ -956,12 +912,14 @@ const Shipment = ({ history }) => {
                   <>
                     <TableRow>
                       <TableCell colSpan={colSpan}>
+                        {/* Render shipment timeline */}
                         <CustomizedSteppers steps={steps} />
                       </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={colSpan}>
                         <Grid container spacing={2}>
+                          {/* Render shipment details */}
                           <Grid item xs={2}>
                             <Grid container rowGap={1}>
                               <Grid item xs={12}>
@@ -1037,8 +995,10 @@ const Shipment = ({ history }) => {
                                     Recorded at:
                                     <span className="notranslate">{` ${markers[0].date} ${markers[0].time}`}</span>
                                   </Typography>
+                                  {/* Render sensor data */}
                                   {renderSensorData(markers[0])}
                                 </Grid>
+                                {/* Render irregular transmission data */}
                                 {renderIrregularTransmission(markers[0])}
                               </Grid>
                             )}
@@ -1056,7 +1016,7 @@ const Shipment = ({ history }) => {
                                   name="note"
                                   label="Note"
                                   autoComplete="note"
-                                  value={ship.note || ''}
+                                  value={ship.note || ''} // Display shipment note
                                 />
                               </Grid>
                               <Grid item xs={12}>
@@ -1077,7 +1037,7 @@ const Shipment = ({ history }) => {
                                   <Stack direction="row" spacing={1}>
                                     {!_.isEmpty(ship.uploaded_pdf)
                                       && _.map(ship.uploaded_pdf, (file, idx) => (
-                                        <Chip key={`${file}-${idx}`} variant="outlined" label={file} />
+                                        <Chip key={`${file}-${idx}`} variant="outlined" label={file} /> // Display attached files
                                       ))}
                                   </Stack>
                                 </FormControl>

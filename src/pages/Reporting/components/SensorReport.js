@@ -1,6 +1,7 @@
+// React and third-party imports
 import React, { useEffect, useState } from 'react';
-import _, { isArray } from 'lodash';
-import moment from 'moment-timezone';
+import _, { isArray } from 'lodash'; // Lodash utility library for sorting, finding, etc.
+import moment from 'moment-timezone'; // Moment for date/time formatting and sorting
 import {
   Grid,
   IconButton,
@@ -8,47 +9,56 @@ import {
   MenuItem,
   Tooltip,
   Typography,
-} from '@mui/material';
-import { CloudDownload as DownloadIcon } from '@mui/icons-material';
-import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
-import { SENSOR_REPORT_COLUMNS } from '@utils/constants';
-import '../ReportingStyles.css';
+} from '@mui/material'; // MUI UI components
+import { CloudDownload as DownloadIcon } from '@mui/icons-material'; // Icon for download
 
+// Custom components and constants
+import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper'; // Custom table wrapper
+import { SENSOR_REPORT_COLUMNS } from '@utils/constants'; // Sensor column definitions
+import '../ReportingStyles.css'; // Custom styles
+
+// Main SensorReport component to render a sensor data table and handle sorting, highlighting, and exporting
 const SensorReport = ({
-  sensorReport,
-  shipmentName,
-  selectedShipment,
-  selectedMarker,
-  unitOfMeasure,
-  timezone,
-  downloadCSV,
-  downloadExcel,
+  sensorReport, // Array of sensor report data
+  shipmentName, // Name of the current shipment (used in title)
+  selectedShipment, // Full shipment object (used to build column definitions)
+  selectedMarker, // Currently selected map marker (used to highlight row)
+  unitOfMeasure, // Unit of measure (passed to column definitions)
+  timezone, // Timezone info (could be used for formatting)
+  downloadCSV, // Handler for downloading CSV
+  downloadExcel, // Handler for downloading Excel
 }) => {
+  // Local state to manage data rows and selection
   const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null); // For download options menu
 
+  // When sensorReport changes, sort it by timestamp descending and update rows
   useEffect(() => {
     const sortedData = _.orderBy(
       sensorReport,
-      (item) => moment(item.timestamp),
-      ['desc'],
+      (item) => moment(item.timestamp), // Parse timestamp
+      ['desc'], // Descending order
     );
     setRows(sortedData);
   }, [sensorReport]);
 
+  // When a marker is selected, highlight the corresponding row in the table
   useEffect(() => {
     if (selectedMarker) {
       const highlightIndex = _.findIndex(rows, {
-        lat: selectedMarker.lat, lng: selectedMarker.lng,
+        lat: selectedMarker.lat,
+        lng: selectedMarker.lng,
       });
-      setSelected([highlightIndex]);
+      setSelected([highlightIndex]); // Highlight matching row
     } else {
-      setSelected([]);
+      setSelected([]); // Clear highlight when no marker is selected
     }
   }, [selectedMarker]);
 
+  // Custom sort function for columns (mostly timestamp or length-based)
   const customSort = (data, colIndex, order, meta) => {
+    // If sorting by timestamp column
     if (colIndex === 1) {
       return _.orderBy(
         data,
@@ -56,16 +66,19 @@ const SensorReport = ({
         [order],
       );
     }
+    // Default sort for other columns (by string length here)
     return data.sort((a, b) => (a.data[colIndex].length < b.data[colIndex].length
       ? -1
       : 1
     ) * (order === 'desc' ? 1 : -1));
   };
 
+  // Open download options menu
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  // Close download options menu
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
@@ -73,6 +86,7 @@ const SensorReport = ({
   return (
     <Grid className="reportingSensorRoot" container spacing={2}>
       <Grid item xs={12}>
+        {/* Title section */}
         <div className="reportingSensorTooltip">
           <Typography
             className="reportingSensorReportTitle"
@@ -86,23 +100,23 @@ const SensorReport = ({
             ) : 'Sensor Report'}
           </Typography>
         </div>
+
+        {/* Main data table for sensor report */}
         <DataTableWrapper
-          noSpace
-          hideAddButton
-          filename="SensorReportData"
-          rows={rows}
-          columns={SENSOR_REPORT_COLUMNS(
-            unitOfMeasure,
-            selectedShipment,
-          )}
+          noSpace // Custom prop to reduce padding/margin
+          hideAddButton // Hides the default add button
+          filename="SensorReportData" // Export filename
+          rows={rows} // Row data for the table
+          columns={SENSOR_REPORT_COLUMNS(unitOfMeasure, selectedShipment)} // Columns configured with UOM and shipment info
           selectable={{
-            rows: 'multiple',
-            rowsHeader: false,
-            rowsHideCheckboxes: true,
+            rows: 'multiple', // Allow multiple row selection
+            rowsHeader: false, // No selection checkbox in header
+            rowsHideCheckboxes: true, // Hide checkboxes for selection
           }}
-          selected={selected}
-          customSort={customSort}
+          selected={selected} // Highlighted rows (based on selectedMarker)
+          customSort={customSort} // Custom sort logic
           extraOptions={{
+            // Custom toolbar shown above the table
             customToolbar: () => (
               <>
                 <Typography variant="caption" className="reportingSensorTableTitle">
@@ -110,24 +124,28 @@ const SensorReport = ({
                   {' '}
                   indicates alerts outside of selected transmission
                 </Typography>
+
+                {/* Download icon with menu options */}
                 <Tooltip title="Download Options" placement="bottom">
                   <IconButton className="reportingSensorTableExcelDownload" onClick={handleMenuOpen}>
                     <DownloadIcon />
                   </IconButton>
                 </Tooltip>
+
+                {/* Menu with CSV/Excel download options */}
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                   <MenuItem
                     onClick={() => {
-                      downloadCSV();
-                      handleMenuClose();
+                      downloadCSV(); // Trigger CSV download
+                      handleMenuClose(); // Close menu
                     }}
                   >
                     Download CSV
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
-                      downloadExcel();
-                      handleMenuClose();
+                      downloadExcel(); // Trigger Excel download
+                      handleMenuClose(); // Close menu
                     }}
                   >
                     Download Excel
@@ -137,11 +155,12 @@ const SensorReport = ({
             ),
           }}
           className="reportingSensorDataTable"
-          shouldUseAllColumns
+          shouldUseAllColumns // Display all available columns
         />
       </Grid>
     </Grid>
   );
 };
 
+// Export component to be used elsewhere
 export default SensorReport;

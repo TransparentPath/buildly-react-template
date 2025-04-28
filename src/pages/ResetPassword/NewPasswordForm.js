@@ -24,12 +24,19 @@ import { useResetPasswordConfirmMutation } from '@react-query/mutations/authUser
 import './ResetPasswordStyles.css';
 
 const NewPassword = ({ history, location }) => {
+  // State for new password field
   const [password, setPassword] = useState('');
+
+  // Custom hook for confirm password input, includes validation
   const re_password = useInput('', {
     required: true,
     confirm: true,
   });
+
+  // State for form validation errors
   const [formError, setFormError] = useState({});
+
+  // Validation rules for password strength
   const [validations, setValidations] = useState({
     length: false,
     upperCase: false,
@@ -37,31 +44,42 @@ const NewPassword = ({ history, location }) => {
     digit: false,
     special: false,
   });
+
+  // Toggles for showing/hiding password inputs
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Custom alert hook for displaying messages
   const { displayAlert } = useAlert();
 
+  // Custom React Query mutation hook for confirming password reset
   const { mutate: resetPasswordConfirmMutation, isLoading: isResetPasswordConfirm } = useResetPasswordConfirmMutation(history, routes.LOGIN, displayAlert);
 
+  // Handles form submission
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    // Extract UID and token from the URL for backend validation
     if (location.pathname.includes(routes.RESET_PASSWORD_CONFIRM)) {
       const restPath = location.pathname.substring(
         location.pathname.indexOf(routes.RESET_PASSWORD_CONFIRM) + 1,
         location.pathname.lastIndexOf('/'),
       );
       const restPathArr = restPath.split('/');
+
       const registerFormValue = {
         new_password1: password,
         new_password2: re_password.value,
         uid: restPathArr[1],
         token: restPathArr[2],
       };
+
+      // Call mutation with new password data
       resetPasswordConfirmMutation(registerFormValue);
     }
   };
 
+  // Handles input blur validation
   const handleBlur = (e, validation, input) => {
     const validateObj = validators(validation, { ...input, password });
     const prevState = { ...formError };
@@ -81,6 +99,7 @@ const NewPassword = ({ history, location }) => {
     }
   };
 
+  // Determines if the submit button should be disabled
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (!password || !re_password.value) {
@@ -98,6 +117,7 @@ const NewPassword = ({ history, location }) => {
     return errorExists;
   };
 
+  // Validates password strength and updates validation state
   const validatePassword = (value) => {
     const lengthRegex = /^.{10,}$/;
     const uppercaseRegex = /[A-Z]/;
@@ -122,8 +142,11 @@ const NewPassword = ({ history, location }) => {
         <CardContent>
           <div className="resetPasswordPaper">
             <img src={logo} className="resetPasswordLogo" alt="Company logo" />
-            <Typography component="h1" variant="h5"> Reset your Password</Typography>
+            <Typography component="h1" variant="h5">
+              Reset your Password
+            </Typography>
             <form className="resetPasswordForm" noValidate onSubmit={handleSubmit}>
+              {/* New Password Field */}
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -153,40 +176,29 @@ const NewPassword = ({ history, location }) => {
                   ),
                 }}
               />
-              <Typography
-                mt={-3}
-                className={validations.length === true
-                  ? 'resetPasswordValidText'
-                  : 'resetPasswordInvalidText'}
-              >
-                {validations.length === true ? '✓' : '✗'}
+              {/* Password Validation Feedback */}
+              <Typography mt={-3} className={validations.length ? 'resetPasswordValidText' : 'resetPasswordInvalidText'}>
+                {validations.length ? '✓' : '✗'}
                 {' '}
                 10-alphanumeric character length
               </Typography>
-              <Typography className={validations.upperCase === true && validations.lowerCase === true
-                ? 'resetPasswordValidText'
-                : 'resetPasswordInvalidText'}
-              >
-                {validations.upperCase === true && validations.lowerCase === true ? '✓' : '✗'}
+              <Typography className={validations.upperCase && validations.lowerCase ? 'resetPasswordValidText' : 'resetPasswordInvalidText'}>
+                {validations.upperCase && validations.lowerCase ? '✓' : '✗'}
                 {' '}
                 Uppercase and lowercase letters
               </Typography>
-              <Typography className={validations.digit === true
-                ? 'resetPasswordValidText'
-                : 'resetPasswordInvalidText'}
-              >
-                {validations.digit === true ? '✓' : '✗'}
+              <Typography className={validations.digit ? 'resetPasswordValidText' : 'resetPasswordInvalidText'}>
+                {validations.digit ? '✓' : '✗'}
                 {' '}
                 At least 1 digit number
               </Typography>
-              <Typography className={validations.special === true
-                ? 'resetPasswordValidText'
-                : 'resetPasswordInvalidText'}
-              >
-                {validations.special === true ? '✓' : '✗'}
+              <Typography className={validations.special ? 'resetPasswordValidText' : 'resetPasswordInvalidText'}>
+                {validations.special ? '✓' : '✗'}
                 {' '}
                 At least 1 special character (!@#$%^&*, etc.)
               </Typography>
+
+              {/* Confirm Password Field */}
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -215,6 +227,8 @@ const NewPassword = ({ history, location }) => {
                   ),
                 }}
               />
+
+              {/* Submit Button */}
               <Button
                 type="submit"
                 fullWidth
@@ -225,13 +239,11 @@ const NewPassword = ({ history, location }) => {
               >
                 Submit
               </Button>
+
+              {/* Navigation Link */}
               <Grid container>
                 <Grid item>
-                  <Link
-                    to={routes.LOGIN}
-                    variant="body2"
-                    color="primary"
-                  >
+                  <Link to={routes.LOGIN} variant="body2" color="primary">
                     Go back to Sign in
                   </Link>
                 </Grid>

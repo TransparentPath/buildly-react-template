@@ -27,76 +27,68 @@ import '../GatewayStyles.css';
 import { LANGUAGES } from '@utils/mock';
 import { getTranslatedLanguage } from '@utils/utilMethods';
 
+/**
+ * AddGateway Component
+ * This component provides a form to add or edit a gateway (tracker).
+ * It includes fields for gateway details, status, and location.
+ */
 const AddGateway = ({
-  history,
-  location,
-  viewOnly,
+  history, // React Router history object for navigation
+  location, // Location object to access state passed from the previous page
+  viewOnly, // Boolean to determine if the form is in view-only mode
 }) => {
-  const [openFormModal, setFormModal] = useState(true);
-  const [openConfirmModal, setConfirmModal] = useState(false);
+  // State variables
+  const [openFormModal, setFormModal] = useState(true); // Controls the visibility of the form modal
+  const [openConfirmModal, setConfirmModal] = useState(false); // Controls the confirmation modal visibility
+  const [custodianList, setCustodianList] = useState([]); // Stores the list of custodians
+  const [custodian_uuid, setcustodian_uuid] = useState(''); // Tracks the selected custodian UUID
+  const [last_known_location, setLastLocation] = useState(''); // Tracks the last known location of the gateway
+  const [formError, setFormError] = useState({}); // Tracks form validation errors
 
-  const { displayAlert } = useAlert();
-  const { data } = useStore();
+  const { displayAlert } = useAlert(); // Hook to display alerts
+  const { data } = useStore(); // Zustand store for timezone data
 
-  const redirectTo = location.state && location.state.from;
+  const redirectTo = location.state && location.state.from; // Redirect path after form submission
   const {
     gatewayTypesData, unitData, custodianData, contactInfo, countriesData,
-  } = location.state || {};
+  } = location.state || {}; // Data passed from the previous page
 
-  const editPage = location.state && location.state.type === 'edit';
-  const editData = (editPage && location.state.data) || {};
+  const editPage = location.state && location.state.type === 'edit'; // Boolean to check if the form is in edit mode
+  const editData = (editPage && location.state.data) || {}; // Data of the gateway being edited
 
-  const gateway_name = useInput(editData.name || '', {
-    required: true,
-  });
-  const gateway_type = useInput(editData.gateway_type || '', {
-    required: true,
-  });
-  const gateway_status = useInput(editData.gateway_status || '', {
-    required: true,
-  });
-  const [activation_date, handleDateChange] = useState(
-    editData.activation_date || moment(),
-  );
+  // Input hooks for form fields
+  const gateway_name = useInput(editData.name || '', { required: true });
+  const gateway_type = useInput(editData.gateway_type || '', { required: true });
+  const gateway_status = useInput(editData.gateway_status || '', { required: true });
+  const [activation_date, handleDateChange] = useState(editData.activation_date || moment());
   const sim_card_id = useInput(editData.sim_card_id || '');
-  const battery_level = useInput(
-    editData.last_known_battery_level || '',
-  );
+  const battery_level = useInput(editData.last_known_battery_level || '');
   const mac_address = useInput(editData.mac_address || '');
-  const [custodianList, setCustodianList] = useState([]);
-  const [custodian_uuid, setcustodian_uuid] = useState(
-    (editData && editData.custodian_uuid) || '',
-  );
-  const [last_known_location, setLastLocation] = useState(
-    (editData
-      && editData.last_known_location
-      && editData.last_known_location[0])
-    || '',
-  );
 
-  const [formError, setFormError] = useState({});
+  const buttonText = editPage ? 'Save' : 'Add Tracker'; // Button text based on form mode
+  const formTitle = editPage ? 'Edit Tracker' : 'Add Tracker'; // Form title based on form mode
 
-  const buttonText = editPage ? 'Save' : 'Add Tracker';
-  const formTitle = editPage ? 'Edit Tracker' : 'Add Tracker';
+  const user = getUser(); // Fetch the current logged-in user
+  const organization = user.organization.organization_uuid; // Get the organization UUID of the logged-in user
 
-  const user = getUser();
-  const organization = user.organization.organization_uuid;
-
+  // Determine the country of the organization
   const country = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
   const organizationCountry = _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase())
     && _.find(countriesData, (item) => item.country.toLowerCase() === country.toLowerCase()).iso3;
 
+  // Populate the custodian list when custodian data or contact info changes
   useEffect(() => {
     if (!_.isEmpty(custodianData) && contactInfo) {
-      setCustodianList(getCustodianFormattedRow(
-        custodianData,
-        contactInfo,
-      ));
+      setCustodianList(getCustodianFormattedRow(custodianData, contactInfo));
     }
   }, [custodianData, contactInfo]);
 
+  /**
+   * Close the form modal.
+   * If form data has changed, show a confirmation modal; otherwise, close the modal directly.
+   */
   const closeFormModal = () => {
     const dataHasChanged = (
       gateway_name.hasChanged()
@@ -119,6 +111,9 @@ const AddGateway = ({
     }
   };
 
+  /**
+   * Discard form data and reset the form.
+   */
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
@@ -127,10 +122,15 @@ const AddGateway = ({
     }
   };
 
+  // Mutation hooks for adding and editing gateways
   const { mutate: addGatewayMutation, isLoading: isAddingGateway } = useAddGatewayMutation(organization, history, redirectTo, displayAlert);
-
   const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(organization, history, redirectTo, displayAlert);
 
+  /**
+   * Handle form submission.
+   * Validates and submits the form data to add or edit a gateway.
+   * @param {Event} event - The form submission event.
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
     const gatewayFormValues = {
@@ -157,6 +157,14 @@ const AddGateway = ({
     }
   };
 
+  /**
+   * Handle input blur event for validation.
+   * Updates the form error state based on validation results.
+   * @param {Event} e - The blur event.
+   * @param {string} validation - The validation type.
+   * @param {object} input - The input state object.
+   * @param {string} parentId - The parent ID for the input field.
+   */
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
@@ -176,6 +184,11 @@ const AddGateway = ({
     }
   };
 
+  /**
+   * Check if the submit button should be disabled.
+   * Returns true if required fields are empty or there are validation errors.
+   * @returns {boolean} - Whether the submit button should be disabled.
+   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (!gateway_type.value || !gateway_name.value) {
@@ -193,23 +206,24 @@ const AddGateway = ({
     return errorExists;
   };
 
+  /**
+   * Handle input change for the custodian dropdown.
+   * Updates the selected custodian UUID.
+   * @param {Event} e - The input change event.
+   */
   const onInputChange = (e) => {
     const { value } = e.target;
     if (value) {
       setcustodian_uuid(value);
-      if (custodianList.length > 0) {
-        let selectedCustodian = '';
-        _.forEach(custodianList, (list) => {
-          if (list.uuid === value) {
-            selectedCustodian = list;
-          }
-        });
-      }
     } else {
       setcustodian_uuid(value);
     }
   };
 
+  /**
+   * Set the last known location of the gateway.
+   * @param {string} value - The new location value.
+   */
   const setLastKnownLocation = (value) => {
     setLastLocation(value);
   };
@@ -225,10 +239,12 @@ const AddGateway = ({
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
+          {/* Show loader if data is being added or edited */}
           {(isAddingGateway || isEditingGateway) && (
             <Loader open={isAddingGateway || isEditingGateway} />
           )}
           <form className="gatewayFormContainer" noValidate onSubmit={handleSubmit}>
+            {/* Form fields for gateway details */}
             <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid className="gatewayInputWithTooltip" item xs={12}>
                 <TextField
