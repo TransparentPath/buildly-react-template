@@ -52,7 +52,7 @@ import {
   tempUnit,
 } from '@utils/constants';
 import { isDesktop2 } from '@utils/mediaQuery';
-import { getTimezone, getTranslatedLanguage } from '@utils/utilMethods';
+import { getTimezone } from '@utils/utilMethods';
 import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
 import ReportingActiveShipmentDetails from './components/ReportingActiveShipmentDetails';
 import ReportingDetailTable from './components/ReportingDetailTable';
@@ -1062,7 +1062,6 @@ const Reporting = () => {
             containerStyle={{ height: '625px' }}
             unitOfMeasure={unitData}
             mapCountry={organizationCountry}
-            mapLanguage={getTranslatedLanguage()}
           />
         </Grid>
       </Grid>

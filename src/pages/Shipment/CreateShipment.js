@@ -69,7 +69,7 @@ import {
   INCOMPLETED_SHIPMENT_STATUS,
   LANGUAGES,
 } from '@utils/mock';
-import { checkForAdmin, checkForGlobalAdmin, getTranslatedLanguage } from '@utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
 import { useQuery } from 'react-query';
 import { getShipmentTemplatesQuery } from '@react-query/queries/shipments/getShipmentTemplatesQuery';
@@ -539,7 +539,7 @@ const CreateShipment = ({ history, location }) => {
 
   const getLatLong = (address, position) => {
     Geocode.setApiKey(window.env.GEO_CODE_API);
-    Geocode.setLanguage(getTranslatedLanguage() || 'en');
+    Geocode.setLanguage('en');
     Geocode.fromAddress(address).then(
       (response) => {
         const { lat, lng } = response.results[0].geometry.location;
@@ -1191,7 +1191,6 @@ const CreateShipment = ({ history, location }) => {
                       ]}
                       unitOfMeasure={unitData}
                       mapCountry={organizationCountry}
-                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>
@@ -1264,7 +1263,6 @@ const CreateShipment = ({ history, location }) => {
                       ]}
                       unitOfMeasure={unitData}
                       mapCountry={organizationCountry}
-                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>

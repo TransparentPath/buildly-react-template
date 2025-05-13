@@ -8,7 +8,7 @@ import {
   Polygon,
   Circle,
   MarkerClusterer,
-  LoadScript,
+  LoadScriptNext,
 } from '@react-google-maps/api';
 import Geocode from 'react-geocode';
 import _ from 'lodash';
@@ -22,6 +22,8 @@ import {
 } from '@mui/icons-material';
 import { MARKER_DATA, getIcon } from '@utils/constants';
 import './MapComponentStyles.css';
+import { getUser } from '@context/User.context';
+import { LANGUAGES } from '@utils/mock';
 
 const libraries = ['places'];
 
@@ -41,19 +43,27 @@ export const MapComponent = (props) => {
     setSelectedCluster,
     selectedCluster,
     mapCountry,
-    mapLanguage,
   } = props;
 
   const [center, setCenter] = useState({ lat: 47.606209, lng: -122.332069 });
   const [mapZoom, setMapZoom] = useState(zoom);
   const [showInfoIndex, setShowInfoIndex] = useState({});
   const [polygon, setPolygon] = useState({});
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   const country = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
 
   const theme = useTheme();
+
+  const user = getUser();
+
+  useEffect(() => {
+    if (user && user.user_language) {
+      setSelectedLanguage(_.find(LANGUAGES, { label: user.user_language }).value);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (screenshotMapCenter) {
@@ -126,7 +136,7 @@ export const MapComponent = (props) => {
 
     if (address) {
       Geocode.setApiKey(window.env.GEO_CODE_API);
-      Geocode.setLanguage(mapLanguage || 'en');
+      Geocode.setLanguage('en');
       Geocode.fromAddress(address).then(
         (response) => {
           const { lat, lng } = response.results[0].geometry.location;
@@ -164,11 +174,11 @@ export const MapComponent = (props) => {
   const overlapCounts = groupMarkersByLocation(_.flatten(allMarkers));
 
   return (
-    <LoadScript
-      key={`map-${mapLanguage}-${mapCountry}`}
+    <LoadScriptNext
+      key={`map-${mapCountry}`}
       googleMapsApiKey={window.env.MAP_API_KEY}
       libraries={libraries}
-      language={mapLanguage || 'en'}
+      language={selectedLanguage}
       region={(mapCountry === 'MAR' ? 'MA' : mapCountry) || 'USA'}
     >
       <GoogleMap
@@ -450,7 +460,7 @@ export const MapComponent = (props) => {
           />
         )}
       </GoogleMap>
-    </LoadScript>
+    </LoadScriptNext>
   );
 };
 

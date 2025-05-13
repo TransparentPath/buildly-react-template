@@ -705,20 +705,6 @@ const Shipment = ({ history }) => {
     )
   );
 
-  const getTranslatedLanguage = () => {
-    const userLanguageAbbv = _.find(LANGUAGES, (item) => _.isEqual(item.label, userLanguage))?.value;
-    let returnValue = userLanguageAbbv;
-    if (!returnValue) {
-      const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
-      if (match) {
-        const value = decodeURIComponent(match[2]);
-        const parts = value.split('/');
-        returnValue = parts[_.size(parts) - 1];
-      }
-    }
-    return returnValue;
-  };
-
   return (
     <Box mt={5} mb={5}>
       {isLoaded && <Loader open={isLoaded} />}
@@ -776,7 +762,6 @@ const Shipment = ({ history }) => {
             setSelectedCluster={setSelectedCluster}
             selectedCluster={selectedCluster}
             mapCountry={organizationCountry}
-            mapLanguage={getTranslatedLanguage()}
           />
         </Grid>
         <Grid item xs={12} className="shipmentDataTableHeader">

@@ -103,10 +103,3 @@ export const calculateLatLngBounds = (lat, lng, miles) => {
     minLng,
   };
 };
-
-export const getTranslatedLanguage = () => {
-  const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
-  const value = !_.isEmpty(match) ? decodeURIComponent(match[2]) : null;
-  const parts = !_.isEmpty(value) && value.split('/');
-  return !_.isEmpty(parts) && parts[_.size(parts) - 1];
-};

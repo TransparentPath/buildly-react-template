@@ -25,7 +25,6 @@ import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import '../GatewayStyles.css';
 import { LANGUAGES } from '@utils/mock';
-import { getTranslatedLanguage } from '@utils/utilMethods';
 
 const AddGateway = ({
   history,
@@ -448,7 +447,6 @@ const AddGateway = ({
                         },
                       ]}
                       mapCountry={organizationCountry}
-                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>
