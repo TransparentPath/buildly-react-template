@@ -49,7 +49,7 @@ export const MapComponent = (props) => {
   const [mapZoom, setMapZoom] = useState(zoom);
   const [showInfoIndex, setShowInfoIndex] = useState({});
   const [polygon, setPolygon] = useState({});
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  // const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   const country = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
@@ -59,11 +59,11 @@ export const MapComponent = (props) => {
 
   const user = getUser();
 
-  useEffect(() => {
-    if (user && user.user_language) {
-      setSelectedLanguage(_.find(LANGUAGES, { label: user.user_language }).value);
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user && user.user_language) {
+  //     setSelectedLanguage(_.find(LANGUAGES, { label: user.user_language }).value);
+  //   }
+  // }, [user]);
 
   useEffect(() => {
     if (screenshotMapCenter) {
@@ -178,7 +178,7 @@ export const MapComponent = (props) => {
       key={`map-${mapCountry}`}
       googleMapsApiKey={window.env.MAP_API_KEY}
       libraries={libraries}
-      language={selectedLanguage}
+      language={_.find(LANGUAGES, { label: user.user_language })?.value || 'en'}
       region={(mapCountry === 'MAR' ? 'MA' : mapCountry) || 'USA'}
     >
       <GoogleMap
