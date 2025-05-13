@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // `useMutation` hook from React Query for handling mutations (API requests)
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import _ from 'lodash'; // Lodash utility library for working with arrays, objects, and other data types
-import getLocations from '@utils/getLocations'; // Utility function for fetching location details
+import { getLocations } from '@utils/getLocations'; // Utility function for fetching location details
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for extracting and displaying error messages
 
 /**
@@ -46,14 +46,13 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
         // If there are files to upload, iterate through them and upload each file
         if (!_.isEmpty(files)) {
           const responses = await Promise.all(_.map(files, async (file) => {
-            uploadFile = new FormData(); // Creating a new FormData instance to upload the file
-            uploadFile.append('file', file, file.name); // Appending the file to FormData
-            uploadFile.append('shipment_uuid', data.data.shipment_uuid); // Appending the shipment UUID to associate the file with the shipment
-            // Uploading the file to the API
-            const uploadResponse = await httpService.makeRequest(
-              'post', // HTTP method (POST)
-              `${window.env.API_URL}shipment/upload_file/`, // API endpoint for uploading the file
-              uploadFile, // File data to be sent
+            uploadFile = new FormData();
+            uploadFile.append('file', file, file.name);
+            uploadFile.append('shipment_uuid', data.data.shipment_uuid);
+            const uploadResponse = await httpService.makeMultipartRequest(
+              'post',
+              `${window.env.API_URL}shipment/upload_file/`,
+              uploadFile,
             );
             return uploadResponse;
           }));

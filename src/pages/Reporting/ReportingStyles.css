@@ -46,6 +46,8 @@
   display: flex;
   min-height: 40px;
   align-items: center;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .reportingSectionTitleHeading {
@@ -77,11 +79,6 @@
 
 .reportingGraphIconBar svg {
   margin: 0px auto;
-}
-
-.reportingSelectInput {
-  margin-left: 8px;
-  margin-right: 8px;
 }
 
 /* Sensor Report Component Styles */

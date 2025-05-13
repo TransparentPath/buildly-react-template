@@ -44,6 +44,7 @@ import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
 import { TIVE_GATEWAY_TIMES, LANGUAGES } from '@utils/mock';
 import { calculateLatLngBounds } from '@utils/utilMethods';
+import CustomFileViewer from './CustomFileViewer';
 
 /**
  * Shipment Component
@@ -73,6 +74,10 @@ const Shipment = ({ history }) => {
   const [isLoading, setLoading] = useState(false); // Tracks the loading state for the component
   const [selectedCluster, setSelectedCluster] = useState({}); // Tracks the selected cluster on the map
   const [zoom, setZoom] = useState(4); // Tracks the zoom level for the map
+
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const [openFileViewerModal, setFileViewerModal] = useState(false);
 
   // Fetch shipment data
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
@@ -629,22 +634,13 @@ const Shipment = ({ history }) => {
     )
   );
 
-  /**
-   * Get the translated language for the map.
-   * @returns {string} - The translated language code.
-   */
-  const getTranslatedLanguage = () => {
-    const userLanguageAbbv = _.find(LANGUAGES, (item) => _.isEqual(item.label, userLanguage))?.value;
-    let returnValue = userLanguageAbbv;
-    if (!returnValue) {
-      const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
-      if (match) {
-        const value = decodeURIComponent(match[2]);
-        const parts = value.split('/');
-        returnValue = parts[_.size(parts) - 1];
-      }
-    }
-    return returnValue;
+  const handleFileView = (file, link) => {
+    setFileViewerModal(true);
+    setSelectedFile({ file, link });
+  };
+
+  const closeFileView = () => {
+    setFileViewerModal(false);
   };
 
   return (
@@ -719,65 +715,13 @@ const Shipment = ({ history }) => {
             setSelectedCluster={setSelectedCluster} // Function to set the selected cluster
             selectedCluster={selectedCluster} // Currently selected cluster
             mapCountry={organizationCountry} // Country for the map
-            mapLanguage={getTranslatedLanguage()} // Language for the map
           />
-        </Grid>
-
-        {/* Shipment filter tabs */}
-        <Grid item xs={12} className="shipmentDataTableHeader">
-          <ToggleButtonGroup
-            color="secondary"
-            value={shipmentFilter} // Current filter value
-          >
-            {/* Filter for active shipments */}
-            <ToggleButton
-              value="Active"
-              size="medium"
-              selected={shipmentFilter === 'Active'}
-              className="shipmentDataTableHeaderItem"
-              onClick={(event, value) => filterTabClicked(event, value)} // Handle filter change
-            >
-              Active
-            </ToggleButton>
-
-            {/* Filter for completed shipments */}
-            <ToggleButton
-              value="Completed"
-              size="medium"
-              selected={shipmentFilter === 'Completed'}
-              className="shipmentDataTableHeaderItem"
-              onClick={(event, value) => filterTabClicked(event, value)} // Handle filter change
-            >
-              Completed
-            </ToggleButton>
-
-            {/* Filter for battery-depleted shipments */}
-            <ToggleButton
-              value="Battery Depleted"
-              size="medium"
-              selected={shipmentFilter === 'Battery Depleted'}
-              className="shipmentDataTableHeaderItem"
-              onClick={(event, value) => filterTabClicked(event, value)} // Handle filter change
-            >
-              Battery Depleted
-            </ToggleButton>
-
-            {/* Filter for damaged shipments */}
-            <ToggleButton
-              value="Damaged"
-              size="medium"
-              selected={shipmentFilter === 'Damaged'}
-              className="shipmentDataTableHeaderItem"
-              onClick={(event, value) => filterTabClicked(event, value)} // Handle filter change
-            >
-              Damaged
-            </ToggleButton>
-          </ToggleButtonGroup>
         </Grid>
 
         {/* Shipment data table */}
         <Grid item xs={12} className="shipmentDataTable">
           <DataTableWrapper
+            isShipmentTable // Flag to indicate if this is a shipment table
             hideAddButton // Hide the "Add" button
             loading={isLoading} // Show loading state
             filename="ShipmentData" // Filename for export
@@ -884,8 +828,53 @@ const Shipment = ({ history }) => {
               download: false, // Disable download option
               filter: false, // Disable filter option
               print: false, // Disable print option
-              search: false, // Disable search option
+              search: true, // Enable search option
               viewColumns: false, // Disable column visibility toggle
+              customToolbar: () => (
+                <Grid item xs={12} className="shipmentDataTableHeader">
+                  <ToggleButtonGroup
+                    color="secondary"
+                    value={shipmentFilter}
+                  >
+                    <ToggleButton
+                      value="Active"
+                      size="medium"
+                      selected={shipmentFilter === 'Active'}
+                      className="shipmentDataTableHeaderItem"
+                      onClick={(event, value) => filterTabClicked(event, value)}
+                    >
+                      Active
+                    </ToggleButton>
+                    <ToggleButton
+                      value="Completed"
+                      size="medium"
+                      selected={shipmentFilter === 'Completed'}
+                      className="shipmentDataTableHeaderItem"
+                      onClick={(event, value) => filterTabClicked(event, value)}
+                    >
+                      Completed
+                    </ToggleButton>
+                    <ToggleButton
+                      value="Battery Depleted"
+                      size="medium"
+                      selected={shipmentFilter === 'Battery Depleted'}
+                      className="shipmentDataTableHeaderItem"
+                      onClick={(event, value) => filterTabClicked(event, value)}
+                    >
+                      Battery Depleted
+                    </ToggleButton>
+                    <ToggleButton
+                      value="Damaged"
+                      size="medium"
+                      selected={shipmentFilter === 'Damaged'}
+                      className="shipmentDataTableHeaderItem"
+                      onClick={(event, value) => filterTabClicked(event, value)}
+                    >
+                      Damaged
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Grid>
+              ),
               setRowProps: (row, dataIndex, rowIndex) => ({
                 style: { color: _.isEqual(row[2], 'Planned') ? muiTheme.palette.background.light : 'inherit' },
               }),
@@ -1037,7 +1026,12 @@ const Shipment = ({ history }) => {
                                   <Stack direction="row" spacing={1}>
                                     {!_.isEmpty(ship.uploaded_pdf)
                                       && _.map(ship.uploaded_pdf, (file, idx) => (
-                                        <Chip key={`${file}-${idx}`} variant="outlined" label={file} /> // Display attached files
+                                        <Chip
+                                          key={`${file}-${idx}`}
+                                          variant="outlined"
+                                          label={file}
+                                          onClick={() => handleFileView(file, ship.uploaded_pdf_link[idx])}
+                                        /> // Display attached files
                                       ))}
                                   </Stack>
                                 </FormControl>
@@ -1054,6 +1048,11 @@ const Shipment = ({ history }) => {
           />
         </Grid>
       </Grid>
+      <CustomFileViewer
+        open={openFileViewerModal}
+        closeFileView={closeFileView}
+        selectedFile={selectedFile}
+      />
     </Box>
   );
 };

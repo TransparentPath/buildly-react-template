@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-nested-ternary */
@@ -25,6 +26,7 @@ import {
   useTheme,
   Tooltip,
   Button,
+  Autocomplete,
 } from '@mui/material';
 import { InfoOutlined as InfoIcon } from '@mui/icons-material';
 
@@ -56,7 +58,7 @@ import {
   tempUnit,
 } from '@utils/constants';
 import { isDesktop2 } from '@utils/mediaQuery';
-import { getTimezone, getTranslatedLanguage } from '@utils/utilMethods';
+import { getTimezone } from '@utils/utilMethods';
 import { useStore as useTimezoneStore } from '@zustand/timezone/timezoneStore';
 
 // Importing child components
@@ -70,6 +72,7 @@ import ReportGraph from './components/ReportGraph';
 // Importing styles
 import './ReportingStyles.css';
 import { LANGUAGES } from '@utils/mock';
+import { geocodeAddress } from '@utils/getLocations';
 
 const Reporting = () => {
   // React hooks for managing state and references
@@ -601,6 +604,8 @@ const Reporting = () => {
       };
     });
 
+    const formattedCustodianAddress = await geocodeAddress(!_.isEmpty(sortedCustodiansArray[0]) && sortedCustodiansArray[0].custodian_address);
+
     // Add first description row with shipment information and color key explanation
     const descriptionRow1 = worksheet.addRow([
       '',
@@ -609,12 +614,14 @@ const Reporting = () => {
       `${!_.isEmpty(selectedItems) ? selectedItems.map((obj) => obj.name).join(', ') : ''}`,
       sortedCustodiansArray[0].custodian_type,
       sortedCustodiansArray[0].custodian_name,
-      sortedCustodiansArray[0].custodian_address,
+      formattedCustodianAddress,
       `Transmission: ${selectedShipment.transmission_time} min.`,
       '',
       '',
       selectedShipment.status,
     ]);
+
+    worksheet.name = selectedShipment.name;
 
     // Add color key explanation with rich text formatting for different colors
     descriptionRow1.getCell(1).value = {
@@ -639,6 +646,8 @@ const Reporting = () => {
       };
     });
 
+    const formattedCustodian2Address = await geocodeAddress(!_.isEmpty(sortedCustodiansArray[1]) && sortedCustodiansArray[1].custodian_address);
+
     // Add second description row with additional custodian and measurement interval info
     const descriptionRow2 = worksheet.addRow([
       '',
@@ -647,7 +656,7 @@ const Reporting = () => {
       '',
       sortedCustodiansArray[1].custodian_type,
       sortedCustodiansArray[1].custodian_name,
-      sortedCustodiansArray[1].custodian_address,
+      formattedCustodian2Address,
       `Measurement: ${selectedShipment.measurement_time} min.`,
     ]);
 
@@ -672,6 +681,8 @@ const Reporting = () => {
       };
     });
 
+    const formattedCustodian3Address = await geocodeAddress(!_.isEmpty(sortedCustodiansArray[2]) && sortedCustodiansArray[2].custodian_address);
+
     // Add third description row with grey color key for transit and additional custodian if available
     const descriptionRow3 = worksheet.addRow([
       'Grey indicates Transit',
@@ -680,7 +691,7 @@ const Reporting = () => {
       '',
       _.size(sortedCustodiansArray) > 2 ? sortedCustodiansArray[2].custodian_type : '',
       _.size(sortedCustodiansArray) > 2 ? sortedCustodiansArray[2].custodian_name : '',
-      _.size(sortedCustodiansArray) > 2 ? sortedCustodiansArray[2].custodian_address : '',
+      _.size(sortedCustodiansArray) > 2 ? formattedCustodian3Address : '',
     ]);
 
     // Apply grey fill color to transit indicator cell
@@ -710,10 +721,12 @@ const Reporting = () => {
     // Add fourth description row with additional custodian if available
     const descriptionRow4 = worksheet.addRow([]);
 
+    const formattedCustodian4Address = await geocodeAddress(!_.isEmpty(sortedCustodiansArray[3]) && sortedCustodiansArray[3].custodian_address);
+
     // Add custodian information if there are more than 3 custodians
     descriptionRow4.getCell(5).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_type : '';
     descriptionRow4.getCell(6).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_name : '';
-    descriptionRow4.getCell(7).value = _.size(sortedCustodiansArray) > 3 ? sortedCustodiansArray[3].custodian_address : '';
+    descriptionRow4.getCell(7).value = _.size(sortedCustodiansArray) > 3 ? formattedCustodianAddress : '';
 
     // Add light threshold values
     descriptionRow4.getCell(9).value = { richText: setThresholdsValues('Light', selectedShipment.light_threshold, null, 'LUX') };
@@ -729,14 +742,16 @@ const Reporting = () => {
     });
 
     // Add rows for any additional custodians beyond the first 4
-    sortedCustodiansArray.forEach((custodian, index) => {
+    for (let index = 0; index < sortedCustodiansArray.length; index++) {
+      const custodian = sortedCustodiansArray[index];
       if (index > 3) {
         const descriptionRows = worksheet.addRow([]);
+        const formattedNextCustodianAddress = await geocodeAddress(!_.isEmpty(custodian) && custodian.custodian_address);
         descriptionRows.getCell(5).value = custodian.custodian_type;
         descriptionRows.getCell(6).value = custodian.custodian_name;
-        descriptionRows.getCell(7).value = custodian.custodian_address;
+        descriptionRows.getCell(7).value = formattedNextCustodianAddress;
       }
-    });
+    }
 
     // Add empty row as separator between description and data
     worksheet.addRow([]);
@@ -1188,36 +1203,28 @@ const Reporting = () => {
 
           {/* Dropdown to select a shipment based on selected filter */}
           <div className="reportingSwitchViewSection2">
-            <TextField
-              variant="outlined"
-              margin="normal"
-              fullWidth
+            <Autocomplete
               id="shipment-name"
-              select
-              required
-              className="reportingSelectInput notranslate"
-              label={<span className="translate">Shipment Name</span>}
-              value={selectedShipment ? selectedShipment.id : ''}
-              sx={{ marginRight: isDesktop2() ? 0 : 1 }}
-              SelectProps={{
-                MenuProps: { sx: { maxHeight: '350px' } },
+              fullWidth
+              options={_.filter(shipmentOverview, { type: shipmentFilter })}
+              getOptionLabel={(option) => option && option.name}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              value={selectedShipment || null}
+              onChange={(event, newValue) => {
+                handleShipmentSelection(newValue);
               }}
-              onChange={(e) => {
-                const selected = _.find(shipmentOverview, { id: e.target.value });
-                handleShipmentSelection(selected);
-              }}
-            >
-              {/* Default option */}
-              <MenuItem value="">Select</MenuItem>
-
-              {/* Filtered shipments for dropdown */}
-              {shipmentOverview && !_.isEmpty(shipmentOverview)
-                && _.map(_.filter(shipmentOverview, { type: shipmentFilter }), (shipment, index) => (
-                  <MenuItem key={index} value={shipment.id} className="notranslate">
-                    {shipment.name}
-                  </MenuItem>
-                ))}
-            </TextField>
+              filterOptions={(options, { inputValue }) => options.filter((option) => option.name.toLowerCase().includes(inputValue.toLowerCase()))}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  className="notranslate"
+                  variant="outlined"
+                  required
+                  margin="normal"
+                  label={<span className="translate">Shipment Name</span>}
+                />
+              )}
+            />
           </div>
 
           {/* Render appropriate details table based on filter */}
@@ -1270,7 +1277,6 @@ const Reporting = () => {
             containerStyle={{ height: '625px' }}
             unitOfMeasure={unitData}
             mapCountry={organizationCountry}
-            mapLanguage={getTranslatedLanguage()}
           />
         </Grid>
       </Grid>
