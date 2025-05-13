@@ -52,7 +52,7 @@ export const MapComponent = (props) => {
   const [mapZoom, setMapZoom] = useState(zoom); // Dynamic zoom level
   const [showInfoIndex, setShowInfoIndex] = useState({}); // Which marker's InfoWindow is visible
   const [polygon, setPolygon] = useState({}); // Polygon coordinates for geofence
-  const [selectedLanguage, setSelectedLanguage] = useState('en'); // Language setting
+  // const [selectedLanguage, setSelectedLanguage] = useState('en'); // Language setting
   // Extract country unit from unitOfMeasure
   const country = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
@@ -62,11 +62,11 @@ export const MapComponent = (props) => {
 
   const user = getUser(); // Get current logged-in user object
 
-  useEffect(() => {
-    if (user && user.user_language) { // Check if user language is set
-      setSelectedLanguage(_.find(LANGUAGES, { label: user.user_language }).value); // Set the selected language based on user preference
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user && user.user_language) { // Check if user language is set
+  //     setSelectedLanguage(_.find(LANGUAGES, { label: user.user_language }).value); // Set the selected language based on user preference
+  //   }
+  // }, [user]);
 
   /**
    * useEffect to re-center the map if screenshot mode is active.
@@ -202,7 +202,7 @@ export const MapComponent = (props) => {
       key={`map-${mapCountry}`}
       googleMapsApiKey={window.env.MAP_API_KEY}
       libraries={libraries}
-      language={selectedLanguage}
+      language={_.find(LANGUAGES, { label: user.user_language })?.value || 'en'}
       region={(mapCountry === 'MAR' ? 'MA' : mapCountry) || 'USA'}
     >
       <GoogleMap
