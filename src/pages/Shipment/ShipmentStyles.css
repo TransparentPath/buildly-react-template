@@ -61,9 +61,13 @@
   border-radius: 0 !important;
 }
 
+.shipmentDataTableHeader .MuiToggleButtonGroup-root {
+  position: absolute;
+}
+
 .shipmentDataTableHeaderItem {
   border: 0;
-  height: 70px;
+  height: 64px;
   padding-right: 12px;
 }
 
@@ -78,7 +82,7 @@
 }
 
 .shipmentDataTable {
-  margin-top: -64px;
+  margin-top: -40px;
 }
 
 .shipmentDataTable .MuiGrid-root .MuiPaper-root {

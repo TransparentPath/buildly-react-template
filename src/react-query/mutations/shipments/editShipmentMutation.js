@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for managing mutation and cache
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import _ from 'lodash'; // Lodash utility library for data manipulation
-import getLocations from '@utils/getLocations'; // Utility to get locations for carriers
+import { getLocations } from '@utils/getLocations'; // Utility to get locations for carriers
 import { getErrorMessage } from '@utils/utilMethods'; // Utility to handle and display error messages
 
 /**
@@ -41,7 +41,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
           uploadFile = new FormData();
           uploadFile.append('file', file, file.name);
           uploadFile.append('shipment_uuid', shipmentPayload.shipment_uuid);
-          const uploadResponse = await httpService.makeRequest(
+          const uploadResponse = await httpService.makeMultipartRequest(
             'post',
             `${window.env.API_URL}shipment/upload_file/`,
             uploadFile,

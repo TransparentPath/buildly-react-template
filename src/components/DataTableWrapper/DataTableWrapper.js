@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
 import MUIDataTable from 'mui-datatables'; // MUI Data Table library for advanced data table UI
 // MUI Components
@@ -57,6 +58,7 @@ const DataTableWrapper = ({
   uploadDataHeading, // Text label for upload data button
   onRowSelectionChange, // Callback when row selection changes
   customIconButtonRight, // Custom JSX to render extra buttons
+  isShipmentTable, // Flag to indicate if the table is for shipments
 }) => {
   const user = getUser(); // Fetch current user
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user); // Check if user has admin rights
@@ -229,7 +231,7 @@ const DataTableWrapper = ({
           </Typography>
         )}
         {/* Main Table Grid */}
-        <Grid className={`${!customTheme && 'dataTable'}`} container spacing={2}>
+        <Grid className={`${isShipmentTable ? 'shipmentDataTable' : !customTheme ? 'dataTable' : ''}`} container spacing={2}>
           <Grid item xs={12}>
             <MUIDataTable
               data={rows}

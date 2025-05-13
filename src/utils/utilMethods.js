@@ -172,18 +172,6 @@ export const calculateLatLngBounds = (lat, lng, miles) => {
 };
 
 /**
- * Extracts the currently translated language from the Google Translate cookie.
- *
- * @returns {string|null} - Language code (e.g., 'en', 'es') or null if not found.
- */
-export const getTranslatedLanguage = () => {
-  const match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
-  const value = !_.isEmpty(match) ? decodeURIComponent(match[2]) : null;
-  const parts = !_.isEmpty(value) && value.split('/');
-  return !_.isEmpty(parts) && parts[_.size(parts) - 1];
-};
-
-/**
  * Constructs and displays a user-friendly error message from an API error response.
  *
  * @param {Object} error - The error object, typically from an Axios catch block.

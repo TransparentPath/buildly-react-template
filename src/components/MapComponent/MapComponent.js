@@ -8,7 +8,7 @@ import {
   Polygon, // Used for drawing closed shapes (e.g., geofences or regions)
   Circle, // To draw a circular region around a point (e.g., circular geofences)
   MarkerClusterer, // Groups close-by markers into a single "cluster" icon
-  LoadScript, // Wrapper component that loads the Google Maps JS API
+  LoadScriptNext, // Wrapper component that loads the Google Maps JS API
 } from '@react-google-maps/api';
 import Geocode from 'react-geocode'; // Used to convert human-readable addresses (like "New York") into coordinates (lat/lng)
 import _ from 'lodash';
@@ -23,6 +23,8 @@ import {
 } from '@mui/icons-material';
 import { MARKER_DATA, getIcon } from '@utils/constants';
 import './MapComponentStyles.css'; // Custom CSS file
+import { getUser } from '@context/User.context'; // Function to retrieve current user info (likely from context)
+import { LANGUAGES } from '@utils/mock';
 
 // Required for the Google Maps API to support features like autocomplete
 const libraries = ['places'];
@@ -44,20 +46,27 @@ export const MapComponent = (props) => {
     setSelectedCluster, // Function to update selected cluster externally
     selectedCluster, // Currently selected marker cluster
     mapCountry, // Country code for the map region
-    mapLanguage, // Language for Google Maps localization
   } = props;
 
   const [center, setCenter] = useState({ lat: 47.606209, lng: -122.332069 }); // Default center (Seattle)
   const [mapZoom, setMapZoom] = useState(zoom); // Dynamic zoom level
   const [showInfoIndex, setShowInfoIndex] = useState({}); // Which marker's InfoWindow is visible
   const [polygon, setPolygon] = useState({}); // Polygon coordinates for geofence
-
+  const [selectedLanguage, setSelectedLanguage] = useState('en'); // Language setting
   // Extract country unit from unitOfMeasure
   const country = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
     : 'United States';
 
   const theme = useTheme();
+
+  const user = getUser(); // Get current logged-in user object
+
+  useEffect(() => {
+    if (user && user.user_language) { // Check if user language is set
+      setSelectedLanguage(_.find(LANGUAGES, { label: user.user_language }).value); // Set the selected language based on user preference
+    }
+  }, [user]);
 
   /**
    * useEffect to re-center the map if screenshot mode is active.
@@ -142,7 +151,7 @@ export const MapComponent = (props) => {
 
     if (address) {
       Geocode.setApiKey(window.env.GEO_CODE_API);
-      Geocode.setLanguage(mapLanguage || 'en');
+      Geocode.setLanguage('en');
       Geocode.fromAddress(address).then(
         (response) => {
           const { lat, lng } = response.results[0].geometry.location;
@@ -189,11 +198,11 @@ export const MapComponent = (props) => {
   const overlapCounts = groupMarkersByLocation(_.flatten(allMarkers));
 
   return (
-    <LoadScript
-      key={`map-${mapLanguage}-${mapCountry}`}
+    <LoadScriptNext
+      key={`map-${mapCountry}`}
       googleMapsApiKey={window.env.MAP_API_KEY}
       libraries={libraries}
-      language={mapLanguage || 'en'}
+      language={selectedLanguage}
       region={(mapCountry === 'MAR' ? 'MA' : mapCountry) || 'USA'}
     >
       <GoogleMap
@@ -482,7 +491,7 @@ export const MapComponent = (props) => {
           />
         )}
       </GoogleMap>
-    </LoadScript>
+    </LoadScriptNext>
   );
 };
 

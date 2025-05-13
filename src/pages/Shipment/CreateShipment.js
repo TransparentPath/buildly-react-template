@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useCallback, useEffect, useState } from 'react';
@@ -69,7 +70,7 @@ import {
   INCOMPLETED_SHIPMENT_STATUS,
   LANGUAGES,
 } from '@utils/mock';
-import { checkForAdmin, checkForGlobalAdmin, getTranslatedLanguage } from '@utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
 import { useQuery } from 'react-query';
 import { getShipmentTemplatesQuery } from '@react-query/queries/shipments/getShipmentTemplatesQuery';
@@ -93,6 +94,7 @@ import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
 import { isMobile } from '@utils/mediaQuery';
+import CustomFileViewer from './CustomFileViewer';
 
 /**
  * CreateShipment Component
@@ -159,6 +161,10 @@ const CreateShipment = ({ history, location }) => {
   const [destinationAbb, setDestinationAbb] = useState('');
   const [endingAddress, setEndingAddress] = useState('');
   const [endingLocation, setEndingLocation] = useState('');
+
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const [openFileViewerModal, setFileViewerModal] = useState(false);
 
   // Shipment datetime states (planned and actual)
   const [departureDateTime, setDepartureDateTime] = useState(
@@ -608,7 +614,7 @@ const CreateShipment = ({ history, location }) => {
   // Converts address to lat/long using Google Geocode API
   const getLatLong = (address, position) => {
     Geocode.setApiKey(window.env.GEO_CODE_API);
-    Geocode.setLanguage(getTranslatedLanguage() || 'en');
+    Geocode.setLanguage('en');
     Geocode.fromAddress(address).then(
       (response) => {
         const { lat, lng } = response.results[0].geometry.location;
@@ -822,38 +828,48 @@ const CreateShipment = ({ history, location }) => {
     }
   };
 
-  /**
-   * fileChange - Handles PDF file uploads, restricting to 2MB and PDF only.
-   */
+  const allowedTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/jpg',
+    'image/png',
+    'text/csv',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ];
+
   const fileChange = (event) => {
-    const maxAllowedSize = 2 * 1024 * 1024; // 2MB size limit
+    const maxAllowedSize = 5 * 1024 * 1024;
     let error = false;
 
-    _.forEach(event.target.files, (attachedFile) => {
-      if (attachedFile) {
-        switch (true) {
-          case (attachedFile.type !== 'application/pdf'):
-            error = error || true;
-            // eslint-disable-next-line no-alert
-            alert('Only PDF files are allowed for upload.');
-            break;
-
-          case (attachedFile.size > maxAllowedSize):
-            error = error || true;
-            // eslint-disable-next-line no-alert
-            alert('File size is more than 2MB. Please upload another file.');
-            break;
-
-          default:
-            break;
-        }
+    const newFiles = Array.from(event.target.files).filter((file) => {
+      if (!allowedTypes.includes(file.type)) {
+        error = true;
+        alert('File type is not supported.');
+        return false;
       }
+      if (file.size > maxAllowedSize) {
+        error = true;
+        alert('File size is more that 5MB. Please upload another file.');
+        return false;
+      }
+      return true;
     });
 
-    // If no error, append files to current state
     if (!error) {
-      setFiles([...files, ...event.target.files]);
+      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
     }
+  };
+
+  const handleFileView = (file) => {
+    setFileViewerModal(true);
+    setSelectedFile(file);
+  };
+
+  const closeFileView = () => {
+    setFileViewerModal(false);
   };
 
   /**
@@ -1306,7 +1322,6 @@ const CreateShipment = ({ history, location }) => {
                       ]}
                       unitOfMeasure={unitData}
                       mapCountry={organizationCountry}
-                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>
@@ -1379,7 +1394,6 @@ const CreateShipment = ({ history, location }) => {
                       ]}
                       unitOfMeasure={unitData}
                       mapCountry={organizationCountry}
-                      mapLanguage={getTranslatedLanguage()}
                     />
                   </Grid>
                 </Grid>
@@ -1894,17 +1908,17 @@ const CreateShipment = ({ history, location }) => {
                         key={`${file.name}-${idx}`}
                         variant="outlined"
                         label={file.name}
+                        onClick={() => handleFileView(file)}
                         onDelete={(e) => setFiles(_.filter(files, (f, index) => (index !== idx)))}
                       />
                     ))}
-                    {!_.isEmpty(attachedFiles) && _.map(attachedFiles, (pdf, idx) => (
+                    {!_.isEmpty(attachedFiles) && _.map(attachedFiles, (file, idx) => (
                       <Chip
-                        key={`${pdf}-${idx}`}
+                        key={`${file}-${idx}`}
                         variant="outlined"
-                        label={pdf}
-                        onDelete={(e) => setAttachedFiles(_.filter(attachedFiles, (f, index) => (
-                          index !== idx
-                        )))}
+                        label={file.name}
+                        onClick={() => handleFileView(file)}
+                        onDelete={(e) => setAttachedFiles(_.filter(attachedFiles, (f, index) => (index !== idx)))}
                       />
                     ))}
                   </Stack>
@@ -2517,6 +2531,11 @@ const CreateShipment = ({ history, location }) => {
         }}
         title="Your changes are unsaved and will be discarded. Are you sure you want to leave?"
         submitText="Yes"
+      />
+      <CustomFileViewer
+        open={openFileViewerModal}
+        closeFileView={closeFileView}
+        selectedFile={selectedFile}
       />
     </Box>
   );

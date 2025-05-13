@@ -2,7 +2,8 @@
   background: var(--color-palette-background-default) !important;
 }
 
-.dataTable .MuiPaper-root>.MuiToolbar-root div:nth-child(2) {
+.dataTable .MuiPaper-root>.MuiToolbar-root div:nth-child(2),
+.shipmentDataTable .MuiPaper-root>.MuiToolbar-root div:nth-child(2) {
   align-items: center;
   display: flex;
   justify-content: center;
@@ -12,19 +13,26 @@
   padding-right: 15%;
 }
 
+.shipmentDataTable .MuiPaper-root .MuiToolbar-root .tss-1ufdzki-MUIDataTableSearch-main {
+  margin-left: 45%;
+}
+
 .dataTable .MuiPaper-root>.MuiToolbar-root div:nth-child(2) button:nth-child(2) {
   order: 99;
 }
 
-.dataTable .reportingSensorDataTable {
+.dataTable .reportingSensorDataTable,
+.shipmentDataTable .reportingSensorDataTable {
   margin-top: -40px !important;
 }
 
-.dataTable .reportingAlertDataTable {
+.dataTable .reportingAlertDataTable,
+.shipmentDataTable .reportingAlertDataTable {
   margin-top: -40px !important;
 }
 
-.dataTable .reportingSensorDataTable>.MuiToolbar-root {
+.dataTable .reportingSensorDataTable>.MuiToolbar-root,
+.shipmentDataTable .reportingSensorDataTable>.MuiToolbar-root {
   padding-bottom: 30px;
 }
 
@@ -51,19 +59,29 @@
   background-color: none;
 }
 
-.dataTable .MuiPaper-root>.MuiToolbar-root {
+.dataTable .MuiPaper-root>.MuiToolbar-root,
+.shipmentDataTable .MuiPaper-root>.MuiToolbar-root {
   background-color: var(--color-palette-primary-dark);
 }
 
-.dataTable .MuiPaper-root>.MuiToolbar-root .MuiSvgIcon-root {
+.dataTable .MuiPaper-root>.MuiToolbar-root .MuiSvgIcon-root,
+.shipmentDataTable .MuiPaper-root>.MuiToolbar-root .MuiSvgIcon-root {
   fill: var(--color-palette-background-default);
 }
 
-.dataTable tr>th {
+.dataTable .MuiPaper-root .MuiToolbar-root .MuiFormControl-root .MuiInputBase-root,
+.shipmentDataTable .MuiPaper-root .MuiToolbar-root .MuiFormControl-root .MuiInputBase-root {
+  color: var(--color-palette-background-default);
+  font-size: 14;
+}
+
+.dataTable tr>th,
+.shipmentDataTable tr>th {
   background-color: var(--color-palette-primary-light);
 }
 
-.dataTable .MuiTableFooter-root {
+.dataTable .MuiTableFooter-root,
+.shipmentDataTable .MuiTableFooter-root {
   background-color: var(--color-palette-primary-light);
 }
 
@@ -80,12 +98,15 @@
 }
 
 @media screen and (min-width: 600px) {
-  .dataTable .MuiPaper-root>.MuiToolbar-root div:nth-child(2) {
+
+  .dataTable .MuiPaper-root>.MuiToolbar-root div:nth-child(2),
+  .shipmentDataTable .MuiPaper-root>.MuiToolbar-root div:nth-child(2) {
     position: absolute;
     display: contents;
   }
 
-  .dataTable .reportingSensorDataTable>.MuiToolbar-root {
+  .dataTable .reportingSensorDataTable>.MuiToolbar-root,
+  .shipmentDataTable .reportingSensorDataTable>.MuiToolbar-root {
     padding-top: 12px;
   }
 
@@ -98,6 +119,18 @@
   }
 }
 
+@media screen and (min-width: 800px) and (max-width: 1120px) {
+  .shipmentDataTable .MuiPaper-root .MuiToolbar-root .tss-1ufdzki-MUIDataTableSearch-main {
+    margin-left: 60%;
+  }
+}
+
+@media screen and (min-width: 600px) and (max-width: 800px) {
+  .shipmentDataTable .MuiPaper-root .MuiToolbar-root .tss-1ufdzki-MUIDataTableSearch-main {
+    margin-left: 70%;
+  }
+}
+
 @media screen and (max-width: 600px) {
   .dataTableDownloadUploadFlex {
     flex-direction: column;
@@ -106,5 +139,9 @@
 
   #dataTableUploadButton {
     margin-top: 16px;
+  }
+
+  .shipmentDataTable .MuiPaper-root .MuiToolbar-root .tss-1ufdzki-MUIDataTableSearch-main {
+    margin-left: 2%;
   }
 }
