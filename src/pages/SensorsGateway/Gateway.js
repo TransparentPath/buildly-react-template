@@ -40,84 +40,103 @@ import Loader from '@components/Loader/Loader';
 import AddShipper from './forms/AddShipper';
 import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 
+/**
+ * Gateway Component
+ * This component manages the display and interaction with sensor gateways.
+ * It includes functionality for syncing gateways, editing gateways, and managing shippers.
+ */
 const Gateway = ({ history, redirectTo }) => {
-  const user = getUser();
-  const isSuperAdmin = checkForGlobalAdmin(user);
-  const isAdmin = checkForAdmin(user);
-  const organization = user.organization.organization_uuid;
-  const theme = useTheme();
+  const user = getUser(); // Fetch the current logged-in user
+  const isSuperAdmin = checkForGlobalAdmin(user); // Check if the user is a super admin
+  const isAdmin = checkForAdmin(user); // Check if the user is an admin
+  const organization = user.organization.organization_uuid; // Get the organization UUID of the logged-in user
+  const theme = useTheme(); // Material-UI theme for styling
 
-  const { displayAlert } = useAlert();
-  const { data } = useStore();
+  const { displayAlert } = useAlert(); // Hook to display alerts
+  const { data } = useStore(); // Zustand store for timezone data
 
-  const [rows, setRows] = useState([]);
-  const [shippers, setShippers] = useState([]);
-  const [showAddShipper, setShowAddShipper] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [selectedIndices, setSelectedIndices] = useState({});
+  // State variables
+  const [rows, setRows] = useState([]); // Stores formatted gateway data
+  const [shippers, setShippers] = useState([]); // Stores unique shippers
+  const [showAddShipper, setShowAddShipper] = useState(false); // Controls the visibility of the "Add Shipper" modal
+  const [selectedRows, setSelectedRows] = useState([]); // Tracks selected rows in the data table
+  const [selectedIndices, setSelectedIndices] = useState({}); // Tracks selected row indices for each shipper
 
+  // Fetch gateway data
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
     ['gateways', organization],
     () => getGatewayQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch gateway types
   const { data: gatewayTypesData, isLoading: isLoadingGatewayTypes } = useQuery(
     ['gatewayTypes'],
     () => getGatewayTypeQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch custodian types
   const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
     ['custodianTypes'],
     () => getCustodianTypeQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch custodians
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
     () => getCustodianQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch contact information
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
     ['contact', organization],
     () => getContactQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch shipment data
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', organization],
     () => getShipmentsQuery(organization, 'Planned,En route,Arrived', displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch countries
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
     () => getCountriesQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch unit data
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
     () => getUnitQuery(organization, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch organization data
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
     () => getAllOrganizationQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Mutation to sync gateways
   const { mutate: syncGatewayMutation, isLoading: isSyncingGateway } = useSyncGatewayMutation(organization, displayAlert);
 
+  // Mutation to edit gateways
   const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(organization, null, null, displayAlert);
 
+  // Path for editing gateways
   const editPath = redirectTo
     ? `${redirectTo}/gateways`
     : `${routes.TRACKERS}/gateway/edit`;
 
+  // Effect to format and set gateway rows
   useEffect(() => {
     if (!_.isEmpty(gatewayData) && !_.isEmpty(gatewayTypesData)) {
       setRows(
@@ -133,6 +152,7 @@ const Gateway = ({ history, redirectTo }) => {
     }
   }, [gatewayData, gatewayTypesData, shipmentData, custodianData]);
 
+  // Effect to extract unique shippers from rows
   useEffect(() => {
     if (!_.isEmpty(rows)) {
       let uniqueShippers = [...new Set(rows.map((item) => item.custodian).flat())];
@@ -145,6 +165,7 @@ const Gateway = ({ history, redirectTo }) => {
     }
   }, [rows]);
 
+  // Effect to reset selected rows and indices when editing is complete
   useEffect(() => {
     if (!isEditingGateway) {
       setSelectedRows([]);
@@ -152,6 +173,10 @@ const Gateway = ({ history, redirectTo }) => {
     }
   }, [isEditingGateway]);
 
+  /**
+   * Navigate to the edit gateway page with the selected gateway data.
+   * @param {object} item - The selected gateway data.
+   */
   const editGatewayAction = (item) => {
     history.push(`${editPath}/:${item.id}`, {
       type: 'edit',
@@ -165,6 +190,12 @@ const Gateway = ({ history, redirectTo }) => {
     });
   };
 
+  /**
+   * Handle selection of trackers for a specific custodian.
+   * Updates the selected rows and indices for the custodian.
+   * @param {array} allRows - The selected rows.
+   * @param {string} custodianName - The name of the custodian.
+   */
   const handleSelectedTrackers = (allRows, custodianName) => {
     const selectIndices = selectedIndices;
     const selectRows = selectedRows;
@@ -176,6 +207,11 @@ const Gateway = ({ history, redirectTo }) => {
     setSelectedIndices(selectIndices);
   };
 
+  /**
+   * Handle syncing of gateways.
+   * Triggers the sync gateway mutation with the required data.
+   * @param {Event} event - The sync button click event.
+   */
   const handleSyncGateways = (event) => {
     event.preventDefault();
     const gatewaySyncValue = {
@@ -187,6 +223,7 @@ const Gateway = ({ history, redirectTo }) => {
 
   return (
     <div>
+      {/* Show loader if data is being fetched or synced */}
       {(isLoadingGateways
         || isLoadingGatewayTypes
         || isLoadingCustodianTypes
@@ -210,6 +247,8 @@ const Gateway = ({ history, redirectTo }) => {
             || isSyncingGateway}
           />
         )}
+
+      {/* Header section with sync and add shipper buttons */}
       <Grid container spacing={1} mt={4.3} className="gatewayContainer">
         <Grid item xs={12} className="gatewayHeaderContainer">
           <div className="gatewayHeader">
@@ -242,6 +281,7 @@ const Gateway = ({ history, redirectTo }) => {
         </Grid>
       </Grid>
 
+      {/* Add Shipper modal */}
       <AddShipper
         open={showAddShipper}
         setOpen={setShowAddShipper}
@@ -249,11 +289,14 @@ const Gateway = ({ history, redirectTo }) => {
         custodianTypesData={custodianTypesData}
       />
 
+      {/* Main content section */}
       <Grid container mt={3} pb={4}>
+        {/* Display message if no shippers are available */}
         {_.isEmpty(shippers) && (
           <Typography className="gatewayEmptyText">No data to display</Typography>
         )}
 
+        {/* Display shippers and their associated trackers */}
         {!_.isEmpty(shippers) && (
           <Grid item xs={12} sm={8} lg={9}>
             {shippers.map((custodianName, index) => (
@@ -305,6 +348,7 @@ const Gateway = ({ history, redirectTo }) => {
           </Grid>
         )}
 
+        {/* Display inventory summary for each shipper */}
         {!_.isEmpty(shippers) && (
           <Grid item xs={12} sm={3.5} lg={2.7} className="gatewayInventoryContainer">
             {!_.isEmpty(shippers) && shippers.map((custodianName, index) => {

@@ -9,8 +9,19 @@ import {
 } from '@mui/material';
 import './AboutPlatformStyles.css';
 
+/**
+ * AboutPlatform Component
+ *
+ * This component renders information about the platform version, build date,
+ * and displays the end user agreement text. It uses MUI components to maintain
+ * a consistent UI structure.
+ *
+ * This is a static informational component typically found in an "About" or
+ * "Legal" section of the application.
+ */
 const AboutPlatform = () => (
   <Grid container spacing={2}>
+    {/* Displays the platform version from global constant VERSION */}
     <Grid item xs={12}>
       <Typography variant="caption" component="span" className="aboutPlatformVersion">
         Platform Version:
@@ -18,6 +29,7 @@ const AboutPlatform = () => (
         {VERSION}
       </Typography>
     </Grid>
+    {/* Displays the build date from global constant BUILDDATE */}
     <Grid item xs={12}>
       <Typography variant="caption" component="span" className="aboutPlatformVersion">
         Build Date:

@@ -1,6 +1,8 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-console */
+
+// React and third-party imports
 import React, { useState, useRef, useEffect } from 'react';
 import _ from 'lodash';
 import html2canvas from 'html2canvas';
@@ -16,6 +18,8 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+
+// Component and utility imports
 import '../ReportingStyles.css';
 import Loader from '@components/Loader/Loader';
 import FormModal from '@components/Modal/FormModal';
@@ -25,42 +29,43 @@ import { getIcon, REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
 
+// Main component for generating and downloading shipment reports
 const GenerateReport = ({
-  open,
-  setOpen,
-  tableRef,
-  mapRef,
-  tempGraphRef,
-  humGraphRef,
-  shockGraphRef,
-  lightGraphRef,
-  batteryGraphRef,
-  alertsTableRef,
-  downloadCSV,
-  downloadExcel,
-  reportPDFDownloadMutation,
-  selectedShipment,
+  open, // Boolean state to control visibility of the modal
+  setOpen, // Setter function for `open`
+  tableRef, // Ref to the table component
+  mapRef, // Ref to the map component
+  tempGraphRef, // Ref to temperature graph
+  humGraphRef, // Ref to humidity graph
+  shockGraphRef, // Ref to shock graph
+  lightGraphRef, // Ref to light graph
+  batteryGraphRef, // Ref to battery graph
+  alertsTableRef, // Ref to alerts table
+  downloadCSV, // Function to trigger CSV download
+  downloadExcel, // Function to trigger Excel download
+  reportPDFDownloadMutation, // Mutation function to upload base64 images for PDF generation
+  selectedShipment, // Current selected shipment object
 }) => {
-  const user = getUser();
-  const theme = useTheme();
-  const [openConfirmModal, setConfirmModal] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const user = getUser(); // Get current user info
+  const theme = useTheme(); // Access MUI theme object
+  const [openConfirmModal, setConfirmModal] = useState(false); // Confirmation modal state
+  const [isLoading, setLoading] = useState(false); // Loading indicator state
+
+  // Format selection state
   const [selectedFormats, setSelectedFormats] = useState({
     csv: false,
     excel: false,
     pdf: false,
   });
 
+  // Discard form data and close modals
   const discardFormData = () => {
-    setSelectedFormats({
-      csv: false,
-      excel: false,
-      pdf: false,
-    });
+    setSelectedFormats({ csv: false, excel: false, pdf: false });
     setConfirmModal(false);
     setOpen(false);
   };
 
+  // Handle closing of the form modal with or without selected formats
   const closeFormModal = () => {
     if (selectedFormats.csv || selectedFormats.excel || selectedFormats.pdf) {
       setConfirmModal(true);
@@ -70,6 +75,7 @@ const GenerateReport = ({
     setOpen(false);
   };
 
+  // Update selected formats based on user input
   const handleFormatChange = (event) => {
     setSelectedFormats({
       ...selectedFormats,
@@ -77,13 +83,12 @@ const GenerateReport = ({
     });
   };
 
+  // Capture screenshot of a referenced DOM element
   const captureScreenshot = async (ref) => {
     if (ref.current) {
       try {
-        const canvas = await html2canvas(ref.current, {
-          useCORS: true,
-        });
-        return canvas.toDataURL('image/png');
+        const canvas = await html2canvas(ref.current, { useCORS: true });
+        return canvas.toDataURL('image/png'); // Return base64 image data
       } catch (error) {
         console.error('Error capturing screenshot:', error);
       }
@@ -91,10 +96,13 @@ const GenerateReport = ({
     return null;
   };
 
+  // Generate a PDF report by capturing screenshots of visual components
   const generatePdfReport = async (event) => {
     event.preventDefault();
     setLoading(true);
     const base64DataArray = [];
+
+    // Capture images from each ref and push valid screenshots to array
     try {
       const dataUrl1 = await captureScreenshot(tableRef);
       const dataUrl2 = await captureScreenshot(mapRef);
@@ -115,30 +123,30 @@ const GenerateReport = ({
     } catch (error) {
       console.error(error);
     }
+
+    // Build payload and trigger PDF generation
     const apiData = {
       shipment_name: selectedShipment.name,
       shipment_id: selectedShipment.id,
       user_email: user.email,
       images_data: base64DataArray,
     };
-    reportPDFDownloadMutation(apiData);
-    setSelectedFormats({
-      csv: false,
-      excel: false,
-      pdf: false,
-    });
+
+    reportPDFDownloadMutation(apiData); // Send data to server
+
+    // Reset modal and format selection
+    setSelectedFormats({ csv: false, excel: false, pdf: false });
     setLoading(false);
     setOpen(false);
   };
 
+  // Download CSV, Excel, and/or PDF files based on selection
   const downloadFiles = async (event) => {
     event.preventDefault();
-    if (selectedFormats.csv) {
-      await downloadCSV();
-    }
-    if (selectedFormats.excel) {
-      await downloadExcel();
-    }
+    if (selectedFormats.csv) await downloadCSV();
+    if (selectedFormats.excel) await downloadExcel();
+
+    // Download pre-generated PDF if available
     if (selectedFormats.pdf && selectedShipment.report_download_url) {
       const link = document.createElement('a');
       link.href = selectedShipment.report_download_url;
@@ -148,12 +156,9 @@ const GenerateReport = ({
       link.click();
       document.body.removeChild(link);
     }
+
     setOpen(false);
-    setSelectedFormats({
-      csv: false,
-      excel: false,
-      pdf: false,
-    });
+    setSelectedFormats({ csv: false, excel: false, pdf: false });
   };
 
   return (
@@ -167,12 +172,18 @@ const GenerateReport = ({
         handleConfirmModal={discardFormData}
       >
         {isLoading && <Loader open={isLoading} />}
+
         <form className="generateReportFormContainer" noValidate>
+          {/* Header text */}
           <Grid container spacing={isDesktop() ? 2 : 0}>
             <Grid className="itemInputWithTooltip" item xs={12}>
-              <Typography fontSize={18} fontWeight="500">Choose option(s) for which you want to download:</Typography>
+              <Typography fontSize={18} fontWeight="500">
+                Choose option(s) for which you want to download:
+              </Typography>
             </Grid>
           </Grid>
+
+          {/* Checkboxes for selecting file formats */}
           <Grid container spacing={isDesktop() ? 2 : 0}>
             <Grid item xs={12}>
               <FormControl component="fieldset">
@@ -197,6 +208,7 @@ const GenerateReport = ({
                     )}
                     label="Excel File"
                   />
+                  {/* Show PDF option only if report download URL exists */}
                   {!_.isEmpty(selectedShipment) && !_.isEmpty(selectedShipment.report_download_url) && (
                     <FormControlLabel
                       control={(
@@ -213,6 +225,8 @@ const GenerateReport = ({
               </FormControl>
             </Grid>
           </Grid>
+
+          {/* Action buttons: Generate PDF, Download Files, Cancel */}
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} sm={3}>
               <Button

@@ -1,111 +1,111 @@
+// Core React & utility imports
 import React, { useState, useEffect } from 'react';
 import { useTimezoneSelect, allTimezones } from 'react-timezone-select';
 import _ from 'lodash';
+// MUI components for layout and icons
 import {
   AppBar,
   Toolbar,
   IconButton,
   TextField,
-  Menu,
   MenuItem,
   Badge,
-  Typography,
 } from '@mui/material';
 import {
   AccountCircle,
   Menu as MenuIcon,
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
-  ArrowRight as ArrowRightIcon,
 } from '@mui/icons-material';
+// Asset & custom components/hooks/utils/services
 import logo from '@assets/tp-logo.png';
 import Loader from '@components/Loader/Loader';
 import { getUser } from '@context/User.context';
 import useAlert from '@hooks/useAlert';
 import { oauthService } from '@modules/oauth/oauth.service';
 import { routes } from '@routes/routesConstants';
-import {
-  checkForAdmin,
-  checkForGlobalAdmin,
-} from '@utils/utilMethods';
+import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import { useQuery } from 'react-query';
+// React-query: API integrations
 import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
 import { useUpdateUserMutation } from '@react-query/mutations/authUser/updateUserMutation';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
 import { getVersionNotesQuery } from '@react-query/queries/notifications/getVersionNotesQuery';
+// Subcomponents used in TopBar
 import AccountSettings from './components/AccountSettings';
 import AlertNotifications from './components/AlertNotifications';
 import WhatsNewModal from './components/WhatsNew/WhatsNewModal';
 import WhatsNewSlider from './components/WhatsNew/WhatsNewSlider';
 import AdminMenu from './AdminMenu';
 import AccountMenu from './AccountMenu';
+import OrganizationSelector from '@components/OrganizationSelector/OrganizationSelector';
+// Constants & styles
 import './TopBarStyles.css';
 import { LANGUAGES } from '@utils/mock';
-import OrganizationSelector from '@components/OrganizationSelector/OrganizationSelector';
 
+// Main TopBar component
 const TopBar = ({
-  navHidden,
-  setNavHidden,
-  history,
+  navHidden, // Boolean to toggle nav visibility
+  setNavHidden, // Setter for nav visibility
+  history, // React Router history object
 }) => {
   const user = getUser();
-  const isAdmin = checkForAdmin(user);
-  const isSuperAdmin = checkForGlobalAdmin(user);
+  const isAdmin = checkForAdmin(user); // Check if user is admin
+  const isSuperAdmin = checkForGlobalAdmin(user); // Check if user is super admin
   const org_uuid = user.organization.organization_uuid;
 
+  // Local UI state
   const [anchorEl, setAnchorEl] = useState(null);
   const [settingEl, setSettingEl] = useState(null);
   const [submenuAnchorEl, setSubmenuAnchorEl] = useState(null);
-  const [submenuOrg, setSubmenuOrg] = useState(null);
   const [organization, setOrganization] = useState(null);
-  const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
+  const [language, setLanguage] = useState(null);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
   const [showWhatsNewSlider, setShowWhatsNewSlider] = useState(false);
   const [hideAlertBadge, setHideAlertBadge] = useState(true);
   const [showAlertNotifications, setShowAlertNotifications] = useState(false);
-  const [custOrgs, setCustOrgs] = useState(null);
-  const [displayOrgs, setDisplayOrgs] = useState(null);
-  const [language, setLanguage] = useState(null);
   const [mainMenuOpen, setMainMenuOpen] = useState(false);
 
+  // Hook: alert display
   const { displayAlert } = useAlert();
+  // Zustand store: timezone
   const { data, setTimezone } = useStore();
+  // Timezone options from react-timezone-select
+  const { options: tzOptions } = useTimezoneSelect({
+    labelStyle: 'original',
+    timezones: allTimezones,
+  });
 
+  // Initial user settings
   if (user) {
-    if (!organization) {
-      setOrganization(user.organization.name);
-    }
+    if (!organization) setOrganization(user.organization.name);
     if (!language) {
-      if (!_.isEmpty(user.user_language)) {
-        setLanguage(user.user_language);
-      } else {
-        setLanguage('English');
-      }
+      setLanguage(_.isEmpty(user.user_language) ? 'English' : user.user_language);
     }
   }
 
+  // Show "What's New" modal only once (per localStorage)
   useEffect(() => {
-    if (!_.isEmpty(localStorage.getItem('isWhatsNewShown'))) {
-      setShowWhatsNewModal(false);
-    } else {
-      setShowWhatsNewModal(true);
-    }
+    setShowWhatsNewModal(_.isEmpty(localStorage.getItem('isWhatsNewShown')));
   }, []);
 
+  // Query: fetch organizations
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
     () => getAllOrganizationQuery(displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query: fetch unit data based on current organization
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', org_uuid],
     () => getUnitQuery(org_uuid, displayAlert),
     { refetchOnWindowFocus: false },
   );
 
+  // Query: fetch version notes for WhatsNew modal/slider
   const { data: versionNotesData, isLoading: isLoadingVersionNotes } = useQuery(
     ['versionNotes'],
     // eslint-disable-next-line no-undef
@@ -113,12 +113,16 @@ const TopBar = ({
     { refetchOnWindowFocus: false },
   );
 
+  // Mutation: update user preferences (e.g., language/org)
   const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert);
 
+  /**
+   * Sets the Google Translate cookie based on user language preference.
+   * Ensures consistency across reloads and domains.
+   */
   const setGoogleTrans = () => {
     // remove cookies
     document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-
     if (!_.isEqual(document.cookie.search('googtrans'), -1)) {
       // remove cookies
       document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
@@ -143,10 +147,14 @@ const TopBar = ({
     }
   };
 
+  // Run Google Translate cookie logic on language change
   useEffect(() => {
     setGoogleTrans();
   }, [language]);
 
+  /**
+   * Handler: switch active organization for user.
+   */
   const handleOrganizationChange = (e) => {
     const organization_name = e.target ? e.target.value : e;
     if (!_.isEqual(organization, organization_name)) {
@@ -166,6 +174,9 @@ const TopBar = ({
     setSubmenuAnchorEl(null);
   };
 
+  /**
+   * Handler: switch app language and update user preferences.
+   */
   const handleLanguageChange = (e) => {
     const selected_language = e.target.value;
     if (!_.isEqual(language, selected_language)) {
@@ -180,6 +191,7 @@ const TopBar = ({
     }
   };
 
+  // Other click handlers for UI buttons
   const settingMenu = (event) => {
     setSettingEl(event.currentTarget);
   };
@@ -230,8 +242,12 @@ const TopBar = ({
 
   return (
     <AppBar position="fixed" className="topbarAppBar">
-      {(isLoadingOrgs || isUpdateUser || isLoadingUnits || isLoadingVersionNotes) && <Loader open={isLoadingOrgs || isUpdateUser || isLoadingUnits || isLoadingVersionNotes} />}
+      {/* Show loader when fetching critical data */}
+      {(isLoadingOrgs || isUpdateUser || isLoadingUnits || isLoadingVersionNotes) && (
+        <Loader open={isLoadingOrgs || isUpdateUser || isLoadingUnits || isLoadingVersionNotes} />
+      )}
       <Toolbar>
+        {/* Hamburger menu for mobile nav toggle */}
         <IconButton
           edge="start"
           className="topbarMenuButton"
@@ -246,12 +262,15 @@ const TopBar = ({
         >
           <MenuIcon />
         </IconButton>
+        {/* Company logo */}
         <img
           src={logo}
           className="topbarLogo"
           alt="Company text logo"
         />
+        {/* Right side content: language, timezone, org, notifications, user */}
         <div className="topbarMenuRight">
+          {/* Language selector */}
           <TextField
             className="topbarTimezone"
             variant="outlined"
@@ -268,6 +287,7 @@ const TopBar = ({
               </MenuItem>
             ))}
           </TextField>
+          {/* Timezone selector */}
           <TextField
             className="topbarTimezone"
             variant="outlined"
@@ -278,12 +298,13 @@ const TopBar = ({
             value={data}
             onChange={(e) => setTimezone(e.target.value)}
           >
-            {_.map(tzOptions, (tzOption, index) => (
-              <MenuItem key={`${tzOption.value}-${index}`} value={tzOption.value}>
-                {tzOption.label}
+            {_.map(tzOptions, (tz, i) => (
+              <MenuItem key={`${tz.value}-${i}`} value={tz.value}>
+                {tz.label}
               </MenuItem>
             ))}
           </TextField>
+          {/* Organization selector shown only for admins */}
           {(isSuperAdmin || isAdmin || (isAdmin && !_.isEmpty(JSON.parse(localStorage.getItem('adminOrgs'))))) && (
             <OrganizationSelector
               handleOrganizationChange={handleOrganizationChange}
@@ -294,6 +315,7 @@ const TopBar = ({
               setSubmenuAnchorEl={setSubmenuAnchorEl}
             />
           )}
+          {/* Notifications icon */}
           <IconButton
             aria-label="notifications"
             aria-controls="menu-appbar"
@@ -301,28 +323,37 @@ const TopBar = ({
             color="primary"
             onClick={handleNotificationsClick}
           >
-            <Badge color="error" overlap="circular" badgeContent=" " variant="dot" invisible={hideAlertBadge} className="topBarNotifications">
+            <Badge
+              color="error"
+              overlap="circular"
+              badgeContent=" "
+              variant="dot"
+              invisible={hideAlertBadge}
+              className="topBarNotifications"
+            >
               <NotificationsIcon fontSize="large" />
             </Badge>
           </IconButton>
-          {(isAdmin || isSuperAdmin)
-            && (
-              <IconButton
-                aria-label="admin section"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={settingMenu}
-                color="primary"
-              >
-                <SettingsIcon fontSize="large" />
-              </IconButton>
-            )}
+          {/* Admin settings icon */}
+          {(isAdmin || isSuperAdmin) && (
+            <IconButton
+              aria-label="admin section"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={settingMenu}
+              color="primary"
+            >
+              <SettingsIcon fontSize="large" />
+            </IconButton>
+          )}
+          {/* Admin submenu */}
           <AdminMenu
             settingEl={settingEl}
             setSettingEl={setSettingEl}
             handleAdminPanelClick={handleAdminPanelClick}
             handleUserManagementClick={handleUserManagementClick}
           />
+          {/* User avatar & menu */}
           <IconButton
             aria-label="account of current user"
             aria-controls="menu-appbar"
@@ -332,6 +363,7 @@ const TopBar = ({
           >
             <AccountCircle fontSize="large" />
           </IconButton>
+          {/* User dropdown menu */}
           <AccountMenu
             anchorEl={anchorEl}
             setAnchorEl={setAnchorEl}
@@ -345,6 +377,7 @@ const TopBar = ({
           />
         </div>
       </Toolbar>
+      {/* Modals and drawers */}
       <AccountSettings open={showAccountSettings} setOpen={setShowAccountSettings} />
       <WhatsNewModal open={showWhatsNewModal} setOpen={setShowWhatsNewModal} data={versionNotesData} />
       <WhatsNewSlider open={showWhatsNewSlider} setOpen={setShowWhatsNewSlider} data={versionNotesData} />

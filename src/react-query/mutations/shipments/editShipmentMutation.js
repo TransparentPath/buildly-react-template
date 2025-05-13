@@ -1,30 +1,54 @@
-import { useMutation, useQueryClient } from 'react-query';
-import { httpService } from '@modules/http/http.service';
-import _ from 'lodash';
-import getLocations from '@utils/getLocations';
+// Import necessary dependencies
+import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for managing mutation and cache
+import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
+import _ from 'lodash'; // Lodash utility library for data manipulation
+import { getLocations } from '@utils/getLocations'; // Utility to get locations for carriers
+import { getErrorMessage } from '@utils/utilMethods'; // Utility to handle and display error messages
 
+/**
+ * Custom hook for editing an existing shipment.
+ * This hook manages the mutation process to update the shipment details, upload files, delete files,
+ * and update related custody and gateway data.
+ *
+ * @param {string} organization - The organization ID used for cache management and querying the shipments.
+ * @param {Object} history - React Router's history object used for programmatic navigation.
+ * @param {string} redirectTo - The path to navigate to after successful mutation.
+ * @param {Function} displayAlert - A function used to display success or error alerts.
+ * @returns {Object} The mutation object, which includes the mutate function for triggering the mutation.
+ */
 export const useEditShipmentMutation = (organization, history, redirectTo, displayAlert) => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(); // React Query's queryClient for managing cache and refetching data
 
   return useMutation(
+    /**
+     * The mutation function that handles the logic for editing a shipment.
+     * It processes the files to upload, delete, updates custody and gateway info,
+     * and sends PATCH requests to update the shipment data.
+     *
+     * @param {Object} shipmentData - The data to update the shipment, including custody details, files, carriers, and gateway.
+     * @returns {Promise} - The response data from the API after updating the shipment.
+     */
     async (shipmentData) => {
+      // Destructure the shipment data to extract individual parts like custody, files, carriers, etc.
       const {
         start_custody, end_custody, files, carriers, updateGateway, deleteFiles, isWarehouse,
       } = shipmentData;
-      let shipmentPayload = shipmentData.shipment;
+      let shipmentPayload = shipmentData.shipment; // Initialize shipment payload with the provided shipment data
       let uploadFile = null;
+      // If there are files to upload, process and upload them.
       if (!_.isEmpty(files)) {
         const responses = await Promise.all(_.map(files, async (file) => {
           uploadFile = new FormData();
           uploadFile.append('file', file, file.name);
           uploadFile.append('shipment_uuid', shipmentPayload.shipment_uuid);
-          const uploadResponse = await httpService.makeRequest(
+          const uploadResponse = await httpService.makeMultipartRequest(
             'post',
             `${window.env.API_URL}shipment/upload_file/`,
             uploadFile,
           );
           return uploadResponse;
         }));
+        // Update the shipmentPayload with the uploaded file details.
         shipmentPayload = {
           ...shipmentPayload,
           uploaded_pdf: shipmentPayload.uploaded_pdf
@@ -35,16 +59,17 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
             : _.map(_.flatMap(_.map(responses, 'data')), 'aws url'),
         };
       }
+      // If there are files to delete, process and delete them.
       if (!_.isEmpty(deleteFiles)) {
-        const responses = await Promise.all(_.map(deleteFiles, async (file) => (
-          // eslint-disable-next-line no-return-await
+        await Promise.all(_.map(deleteFiles, async (file) => {
           await httpService.makeRequest(
             'post',
             `${window.env.API_URL}shipment/delete_file/`,
             { filename: file, shipment_uuid: shipmentPayload.shipment_uuid },
-          )
-        )));
+          );
+        }));
       }
+      // If there's a gateway to update, add it to the shipment payload.
       if (!_.isEmpty(updateGateway)) {
         shipmentPayload = {
           ...shipmentPayload,
@@ -52,11 +77,13 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
           gateway_imei: [_.toString(updateGateway.imei_number)],
         };
       }
+      // Send a PATCH request to update the shipment data.
       const data = await httpService.makeRequest(
         'patch',
         `${window.env.API_URL}shipment/shipment/${shipmentPayload.id}/`,
         shipmentPayload,
       );
+      // If the shipment update is successful, update custody data for start, carriers, and end.
       if (data && data.data) {
         let startCustody = {
           ...start_custody,
@@ -68,6 +95,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
           start_of_custody_location: end_custody.location,
           end_of_custody_location: end_custody.location,
         };
+        // Get carrier locations and update custody data for each carrier.
         let locations = [];
         if (!_.isEmpty(carriers)) {
           locations = await getLocations(_.map(carriers, 'location'));
@@ -77,6 +105,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
             end_of_custody_location: first_custody,
           };
         }
+        // Update or create start custody.
         if (startCustody.id) {
           await httpService.makeRequest(
             'patch',
@@ -94,6 +123,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
             },
           );
         }
+        // Update or create custody for each carrier.
         if (!_.isEmpty(carriers)) {
           await Promise.all(
             _.map(carriers, async (carrier, index) => {
@@ -105,6 +135,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
                     ? locations[index + 1]
                     : endCustody.start_of_custody_location,
                 };
+                // Update custody if it exists, otherwise create a new custody record.
                 // eslint-disable-next-line no-return-await
                 return await httpService.makeRequest(
                   'patch',
@@ -129,6 +160,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
             }),
           );
         }
+        // Update or create end custody.
         if (endCustody.id) {
           await httpService.makeRequest(
             'patch',
@@ -146,6 +178,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
             },
           );
         }
+        // If there's a gateway to update, configure it accordingly.
         if (updateGateway) {
           setTimeout(async () => {
             let gateway_status = '';
@@ -156,6 +189,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
                 gateway_status = updateGateway.gateway_status;
                 shipment_ids = updateGateway.shipment_ids;
                 battery_alert_level = updateGateway.battery_alert_level;
+                break;
               case 'Cancelled':
               case 'Damaged':
               case 'Battery Depleted':
@@ -199,7 +233,14 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
         }
       }
     },
+    // Mutation configuration: onSuccess and onError callbacks
     {
+      /**
+       * onSuccess callback: This is triggered when the mutation succeeds.
+       * - Invalidates relevant queries to refresh the cache.
+       * - Displays a success alert to the user.
+       * - Optionally redirects the user to a new route.
+       */
       onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: ['shipments', 'Planned,En route,Arrived', organization],
@@ -215,8 +256,12 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
           history.push(redirectTo);
         }
       },
-      onError: () => {
-        displayAlert('error', 'Error in creating shipment');
+      /**
+       * onError callback: This is triggered when the mutation fails.
+       * - Displays the error message to the user.
+       */
+      onError: (error) => {
+        getErrorMessage(error, 'edit shipment', displayAlert);
       },
     },
   );

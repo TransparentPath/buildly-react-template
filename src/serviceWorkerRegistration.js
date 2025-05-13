@@ -1,55 +1,92 @@
+/* eslint-disable no-alert */
+/* eslint-disable no-console */
+
+/**
+ * Displays a UI alert to the user indicating a new version of the application is available.
+ * Automatically reloads the page to activate the latest version of the service worker.
+ *
+ * @param {ServiceWorkerRegistration} registration - The current service worker registration.
+ */
 const showRefreshUI = (registration) => {
-  //   registration.waiting.postMessage('force-activate');
+  // Show an alert notifying the user about the new version
   alert('New version available for the application. It will automatically reload the page to move to the latest version of the application.');
+
+  // Force the page to reload and fetch the updated service worker
   window.location.reload(true);
 };
 
+/**
+ * Handles a new service worker update lifecycle.
+ * Executes a callback when a new service worker is installed and waiting to activate.
+ *
+ * @param {ServiceWorkerRegistration} registration - The current service worker registration.
+ * @param {Function} callback - The function to call when the new SW is ready.
+ */
 const onNewServiceWorker = (registration, callback) => {
+  // If there's already a waiting service worker, immediately trigger the callback
   if (registration.waiting) {
-    // SW is waiting to activate. Can occur if multiple clients open and
-    // one of the clients is refreshed.
+    // This can happen if another tab has already installed the new SW
     return callback();
   }
 
+  /**
+   * Listens for changes in the installing service worker's state.
+   * When the state becomes 'installed', it means the new SW is ready to activate.
+   */
   const listenInstalledStateChange = () => {
     registration.installing.addEventListener('statechange', (event) => {
       if (event.target.state === 'installed') {
-        // A new service worker is available, inform the user
+        // Trigger the callback to inform the user or take action
         callback();
       }
     });
   };
 
+  // If the SW is currently installing, attach state change listener
   if (registration.installing) {
     return listenInstalledStateChange();
   }
 
-  // We are currently controlled so a new SW may be found.
-  // Add a listener in case a new SW is found.
+  // If not installing yet, listen for updatefound event
   registration.addEventListener('updatefound', listenInstalledStateChange);
+
   return null;
 };
 
+/**
+ * Registers the service worker when the page loads.
+ * Adds a hook to detect and notify when a new service worker is installed and ready to activate.
+ */
 const registerServiceWorker = () => {
+  // Check if the browser supports service workers
   if ('serviceWorker' in navigator) {
+    // Wait for the window to finish loading
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js').then((registration) => {
-        console.log('SW registered: ', registration);
-        if (!navigator.serviceWorker.controller) {
-          // The window client isn't currently controlled, so it's a new service
-          // worker that will activate immediately
-          return;
-        }
+      // Register the service worker script
+      navigator.serviceWorker.register('/service-worker.js')
+        .then((registration) => {
+          console.log('SW registered: ', registration);
 
-        onNewServiceWorker(registration, () => {
-          showRefreshUI(registration);
-          window.localStorage.removeItem('isWhatsNewShown');
+          // If there's no current SW controlling the page, don't prompt
+          if (!navigator.serviceWorker.controller) {
+            return;
+          }
+
+          // Check for a new SW and notify when it's available
+          onNewServiceWorker(registration, () => {
+            showRefreshUI(registration);
+
+            // Optional: clear a flag related to "What's New" modal (if used in app)
+            window.localStorage.removeItem('isWhatsNewShown');
+          });
+        })
+        .catch((registrationError) => {
+          // Log any errors that occurred during registration
+          console.log('SW registration failed: ', registrationError);
         });
-      }).catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
-      });
     });
   }
 };
 
+// Export the registration function for use in the app's entry point
 export default registerServiceWorker;
