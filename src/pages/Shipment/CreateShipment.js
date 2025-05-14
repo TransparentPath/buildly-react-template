@@ -863,9 +863,13 @@ const CreateShipment = ({ history, location }) => {
     }
   };
 
-  const handleFileView = (file) => {
+  const handleFileView = (file, link = null) => {
     setFileViewerModal(true);
-    setSelectedFile(file);
+    if (_.isEmpty(link)) {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile({ file, link });
+    }
   };
 
   const closeFileView = () => {
@@ -1916,8 +1920,8 @@ const CreateShipment = ({ history, location }) => {
                       <Chip
                         key={`${file}-${idx}`}
                         variant="outlined"
-                        label={file.name}
-                        onClick={() => handleFileView(file)}
+                        label={file}
+                        onClick={() => handleFileView(file, editData.uploaded_pdf_link[idx])}
                         onDelete={(e) => setAttachedFiles(_.filter(attachedFiles, (f, index) => (index !== idx)))}
                       />
                     ))}

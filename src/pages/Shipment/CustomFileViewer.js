@@ -1,86 +1,57 @@
-/* eslint-disable no-console */
 /* eslint-disable no-else-return */
 /* eslint-disable consistent-return */
+/* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 import FormModal from '@components/Modal/FormModal';
-import FileViewer from 'react-file-viewer';
 import { Typography } from '@mui/material';
+import { DocViewer, DocViewerRenderers } from '@cyntler/react-doc-viewer';
 
 const CustomFileViewer = ({ open, closeFileView, selectedFile }) => {
-  const [fileURL, setFileURL] = useState(null);
+  const [docs, setDocs] = useState([]);
 
   useEffect(() => {
+    if (!selectedFile) return;
+
+    let url;
+    const fileName = selectedFile.name || selectedFile.file || 'Document';
+
     if (selectedFile instanceof File) {
-      const url = URL.createObjectURL(selectedFile);
-      setFileURL(url);
-      return () => URL.revokeObjectURL(url); // Cleanup
+      url = URL.createObjectURL(selectedFile);
+      setDocs([{ uri: url, fileType: selectedFile.type, name: fileName }]);
+
+      return () => {
+        URL.revokeObjectURL(url);
+      };
     } else if (selectedFile?.link) {
-      setFileURL(selectedFile.link);
+      setDocs([{ uri: selectedFile.link, name: fileName }]);
     }
   }, [selectedFile]);
 
-  if (!selectedFile || !fileURL) return null;
-
-  const fileName = selectedFile.name || selectedFile.file || 'File Viewer';
-  const extension = fileName.split('.').pop()?.toLowerCase();
-
-  const renderViewer = () => {
-    if (['pdf'].includes(extension)) {
-      return (
-        <iframe
-          src={fileURL}
-          title="PDF Viewer"
-          width="100%"
-          height="100%"
-          style={{ border: 'none' }}
-        />
-      );
-    }
-
-    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension)) {
-      return (
-        <img
-          src={fileURL}
-          alt={fileName}
-          style={{ maxWidth: '100%', maxHeight: '100%' }}
-        />
-      );
-    }
-
-    if (['csv', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension)) {
-      return (
-        <FileViewer
-          fileType={extension}
-          filePath={fileURL}
-          onError={(e) => {
-            console.error('FileViewer error:', e);
-          }}
-        />
-      );
-    }
-
-    return (
-      <div>
-        <p>Preview not available for this file type.</p>
-        <a href={fileURL} download={fileName} target="_blank" rel="noopener noreferrer">
-          Download
-          {' '}
-          {fileName}
-        </a>
-      </div>
-    );
-  };
+  if (!selectedFile || docs.length === 0) return null;
 
   return (
     <FormModal
       open={open}
       handleClose={closeFileView}
-      title={fileName}
+      title={selectedFile.name || selectedFile.file || 'File Viewer'}
       openConfirmModal={false}
       maxWidth="lg"
       fullWidth
     >
-      <div style={{ height: '70vh', overflow: 'auto' }}>{renderViewer()}</div>
+      <div style={{ height: '70vh', overflow: 'auto' }}>
+        <DocViewer
+          documents={docs}
+          pluginRenderers={DocViewerRenderers}
+          style={{ height: '100%' }}
+          config={{
+            header: {
+              disableHeader: true,
+              disableFileName: false,
+              retainURLParams: false,
+            },
+          }}
+        />
+      </div>
     </FormModal>
   );
 };
