@@ -25,6 +25,7 @@ import { MARKER_DATA, getIcon } from '@utils/constants';
 import './MapComponentStyles.css'; // Custom CSS file
 import { getUser } from '@context/User.context'; // Function to retrieve current user info (likely from context)
 import { LANGUAGES } from '@utils/mock';
+import mapRedMarker from '../../assets/map-red-marker.png';
 
 // Required for the Google Maps API to support features like autocomplete
 const libraries = ['places'];
@@ -230,37 +231,37 @@ export const MapComponent = (props) => {
               }}
               styles={[
                 {
-                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                  height: 53,
-                  width: 53,
+                  url: mapRedMarker,
+                  height: 18,
+                  width: 18,
                   anchor: [0, 0],
                   textSize: 0.001,
                 },
                 {
-                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                  height: 56,
-                  width: 56,
+                  url: mapRedMarker,
+                  height: 23,
+                  width: 23,
                   anchor: [0, 0],
                   textSize: 0.001,
                 },
                 {
-                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                  height: 66,
-                  width: 66,
+                  url: mapRedMarker,
+                  height: 28,
+                  width: 28,
                   anchor: [0, 0],
                   textSize: 0.001,
                 },
                 {
-                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                  height: 78,
-                  width: 78,
+                  url: mapRedMarker,
+                  height: 33,
+                  width: 33,
                   anchor: [0, 0],
                   textSize: 0.001,
                 },
                 {
-                  url: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m2.png',
-                  height: 90,
-                  width: 90,
+                  url: mapRedMarker,
+                  height: 38,
+                  width: 38,
                   anchor: [0, 0],
                   textSize: 0.001,
                 },
