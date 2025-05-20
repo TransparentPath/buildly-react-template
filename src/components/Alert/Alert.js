@@ -37,7 +37,7 @@ const Alert = () => {
           // Unique key for React reconciliation based on alert type and message
           key={`${data.type}-${data.message}`}
           open={data.open || false} // Control open state of Snackbar
-          autoHideDuration={2000} // Auto close after 2 seconds
+          autoHideDuration={5000} // Auto close after 5 seconds
           onClose={handleClose} // Function to handle closing of Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Positioning of Snackbar
           message={data.message} // Alert message to display

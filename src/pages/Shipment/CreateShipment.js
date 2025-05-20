@@ -1902,7 +1902,7 @@ const CreateShipment = ({ history, location }) => {
                 />
               </Grid>
               <Grid item xs={8} md={9} lg={9.6} mt={isMobile() ? 1 : 0}>
-                <FormControl style={{ height: 64 }} fullWidth component="fieldset" variant="outlined" className="createShipmentAttachedFiles">
+                <FormControl fullWidth component="fieldset" variant="outlined" className="createShipmentAttachedFiles">
                   <FormLabel component="legend" className="createShipmentLegend">
                     Attached Files
                   </FormLabel>
