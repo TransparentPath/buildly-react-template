@@ -229,6 +229,7 @@
   border-radius: 4px;
   overflow-y: hidden;
   overflow-x: auto;
+  min-height: 66px;
 }
 
 .createShipmentFileButton {
