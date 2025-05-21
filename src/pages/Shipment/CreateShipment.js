@@ -863,9 +863,13 @@ const CreateShipment = ({ history, location }) => {
     }
   };
 
-  const handleFileView = (file) => {
+  const handleFileView = (file, link = null) => {
     setFileViewerModal(true);
-    setSelectedFile(file);
+    if (_.isEmpty(link)) {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile({ file, link });
+    }
   };
 
   const closeFileView = () => {
@@ -1898,7 +1902,7 @@ const CreateShipment = ({ history, location }) => {
                 />
               </Grid>
               <Grid item xs={8} md={9} lg={9.6} mt={isMobile() ? 1 : 0}>
-                <FormControl style={{ height: 64 }} fullWidth component="fieldset" variant="outlined" className="createShipmentAttachedFiles">
+                <FormControl fullWidth component="fieldset" variant="outlined" className="createShipmentAttachedFiles">
                   <FormLabel component="legend" className="createShipmentLegend">
                     Attached Files
                   </FormLabel>
@@ -1916,8 +1920,8 @@ const CreateShipment = ({ history, location }) => {
                       <Chip
                         key={`${file}-${idx}`}
                         variant="outlined"
-                        label={file.name}
-                        onClick={() => handleFileView(file)}
+                        label={file}
+                        onClick={() => handleFileView(file, editData.uploaded_pdf_link[idx])}
                         onDelete={(e) => setAttachedFiles(_.filter(attachedFiles, (f, index) => (index !== idx)))}
                       />
                     ))}

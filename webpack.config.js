@@ -125,8 +125,8 @@ module.exports = (env, argv) => {
     ],
     externals: {
       // only define the dependencies you are NOT using as externals!
-      canvg: "canvg",
-      dompurify: "dompurify"
+      canvg: 'canvg',
+      dompurify: 'dompurify',
     },
   };
 
