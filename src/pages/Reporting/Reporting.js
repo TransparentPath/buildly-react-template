@@ -523,7 +523,7 @@ const Reporting = () => {
   const downloadExcel = async () => {
     // Create a new workbook and add a worksheet
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Sensor Report Data');
+    const worksheet = workbook.addWorksheet(selectedShipment.name);
 
     // Define border style for consistent cell formatting
     const borderStyle = {
@@ -620,8 +620,6 @@ const Reporting = () => {
       '',
       selectedShipment.status,
     ]);
-
-    worksheet.name = selectedShipment.name;
 
     // Add color key explanation with rich text formatting for different colors
     descriptionRow1.getCell(1).value = {
@@ -933,64 +931,68 @@ const Reporting = () => {
       }
 
       // Update temperature excursion count in the summary area
-      descriptionRow1.getCell(10).value = {
-        richText: [
-          { text: 'Temperature:' },
-          {
-            text: maxTempExcursionsCount > 0 ? ` ${maxTempExcursionsCount} ` : '',
-            font: { color: { argb: theme.palette.error.main.replace('#', '') } },
-          },
-          {
-            text: minTempExcursionsCount > 0 ? ` ${minTempExcursionsCount} ` : '',
-            font: { color: { argb: theme.palette.info.main.replace('#', '') } },
-          },
-        ],
-      };
+      const tempRichText = [{ text: 'Temperature:' }];
+      if (maxTempExcursionsCount > 0) {
+        tempRichText.push({
+          text: ` ${maxTempExcursionsCount} `,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        });
+      }
+      if (minTempExcursionsCount > 0) {
+        tempRichText.push({
+          text: ` ${minTempExcursionsCount} `,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        });
+      }
+      descriptionRow1.getCell(10).value = { richText: tempRichText };
 
       // Update humidity excursion count in the summary area
-      descriptionRow2.getCell(10).value = {
-        richText: [
-          { text: 'Humidity:' },
-          {
-            text: maxHumExcursionsCount > 0 ? ` ${maxHumExcursionsCount} ` : '',
-            font: { color: { argb: theme.palette.error.main.replace('#', '') } },
-          },
-          {
-            text: minHumExcursionsCount > 0 ? ` ${minHumExcursionsCount} ` : '',
-            font: { color: { argb: theme.palette.info.main.replace('#', '') } },
-          },
-        ],
-      };
+      const humRichText = [{ text: 'Humidity:' }];
+      if (maxHumExcursionsCount > 0) {
+        humRichText.push({
+          text: ` ${maxHumExcursionsCount} `,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        });
+      }
+      if (minHumExcursionsCount > 0) {
+        humRichText.push({
+          text: ` ${minHumExcursionsCount} `,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        });
+      }
+      descriptionRow2.getCell(10).value = { richText: humRichText };
 
       // Update shock excursion count in the summary area
-      descriptionRow3.getCell(10).value = {
-        richText: [
-          { text: 'Shock:' },
-          {
-            text: maxShockExcursionsCount > 0 ? ` ${maxShockExcursionsCount} ` : '',
-            font: { color: { argb: theme.palette.error.main.replace('#', '') } },
-          },
-          {
-            text: minShockExcursionsCount > 0 ? ` ${minShockExcursionsCount} ` : '',
-            font: { color: { argb: theme.palette.info.main.replace('#', '') } },
-          },
-        ],
-      };
+      const shockRichText = [{ text: 'Shock:' }];
+      if (maxShockExcursionsCount > 0) {
+        shockRichText.push({
+          text: ` ${maxShockExcursionsCount} `,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        });
+      }
+      if (minShockExcursionsCount > 0) {
+        shockRichText.push({
+          text: ` ${minShockExcursionsCount} `,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        });
+      }
+      descriptionRow3.getCell(10).value = { richText: shockRichText };
 
       // Update light excursion count in the summary area
-      descriptionRow4.getCell(10).value = {
-        richText: [
-          { text: 'Light:' },
-          {
-            text: maxLightExcursionsCount > 0 ? ` ${maxLightExcursionsCount} ` : '',
-            font: { color: { argb: theme.palette.error.main.replace('#', '') } },
-          },
-          {
-            text: minLightExcursionsCount > 0 ? ` ${minLightExcursionsCount} ` : '',
-            font: { color: { argb: theme.palette.info.main.replace('#', '') } },
-          },
-        ],
-      };
+      const lightRichText = [{ text: 'Light:' }];
+      if (maxLightExcursionsCount > 0) {
+        lightRichText.push({
+          text: ` ${maxLightExcursionsCount} `,
+          font: { color: { argb: theme.palette.error.main.replace('#', '') } },
+        });
+      }
+      if (minLightExcursionsCount > 0) {
+        lightRichText.push({
+          text: ` ${minLightExcursionsCount} `,
+          font: { color: { argb: theme.palette.info.main.replace('#', '') } },
+        });
+      }
+      descriptionRow4.getCell(10).value = { richText: lightRichText };
 
       // Check if the row's timestamp is within the transit period (between departure and arrival)
       const dateValue = moment(row[columns[dateTimeColIndex - 1].name]).unix();
@@ -1103,7 +1105,9 @@ const Reporting = () => {
           const cellValue = cell.value
             ? cell.value.richText
               ? cell.value.richText.map((obj) => obj.text).join('')
-              : cell.value.toString()
+              : typeof cell.value === 'object'
+                ? JSON.stringify(cell.value)
+                : cell.value.toString()
             : '';
           maxLength = Math.max(maxLength, cellValue.length);
         });
