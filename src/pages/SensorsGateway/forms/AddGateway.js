@@ -40,7 +40,6 @@ const AddGateway = ({
   const [openFormModal, setFormModal] = useState(true); // Controls the visibility of the form modal
   const [openConfirmModal, setConfirmModal] = useState(false); // Controls the confirmation modal visibility
   const [custodianList, setCustodianList] = useState([]); // Stores the list of custodians
-  const [custodian_uuid, setcustodian_uuid] = useState(''); // Tracks the selected custodian UUID
   const [last_known_location, setLastLocation] = useState(''); // Tracks the last known location of the gateway
   const [formError, setFormError] = useState({}); // Tracks form validation errors
 
@@ -63,6 +62,7 @@ const AddGateway = ({
   const sim_card_id = useInput(editData.sim_card_id || '');
   const battery_level = useInput(editData.last_known_battery_level || '');
   const mac_address = useInput(editData.mac_address || '');
+  const [custodian_uuid, setcustodian_uuid] = useState(editData.custodian_uuid || '');
 
   const buttonText = editPage ? 'Save' : 'Add Tracker'; // Button text based on form mode
   const formTitle = editPage ? 'Edit Tracker' : 'Add Tracker'; // Form title based on form mode
