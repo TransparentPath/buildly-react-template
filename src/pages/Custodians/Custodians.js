@@ -39,43 +39,43 @@ const Custodian = ({ history, redirectTo }) => {
   // Query hooks to fetch different types of data needed for the custodians
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
-    () => getCustodianQuery(organization, displayAlert),
+    () => getCustodianQuery(organization, displayAlert, 'Custodian'),
     { refetchOnWindowFocus: false }, // Disable refetch on window focus for performance
   );
 
   const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
     ['custodianTypes'],
-    () => getCustodianTypeQuery(displayAlert),
+    () => getCustodianTypeQuery(displayAlert, 'Custodian'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
     ['contact', organization],
-    () => getContactQuery(organization, displayAlert),
+    () => getContactQuery(organization, displayAlert, 'Custodian'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Custodian'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Custodian'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Custodian'),
     { refetchOnWindowFocus: false },
   );
 
   // Mutations for deleting a custodian and uploading bulk custodians
-  const { mutate: deleteCustodianMutation, isLoading: isDeletingCustodian } = useDeleteCustodianMutation(organization, displayAlert);
-  const { mutate: uploadBulkCustodianMutation, isLoading: isUploadingBulkCustodian } = useUploadBulkCustodianMutation(organization, displayAlert);
+  const { mutate: deleteCustodianMutation, isLoading: isDeletingCustodian } = useDeleteCustodianMutation(organization, displayAlert, 'Custodian');
+  const { mutate: uploadBulkCustodianMutation, isLoading: isUploadingBulkCustodian } = useUploadBulkCustodianMutation(organization, displayAlert, 'Custodian');
 
   // Define paths for adding and editing custodians, redirecting based on the `redirectTo` prop
   const addCustodianPath = redirectTo

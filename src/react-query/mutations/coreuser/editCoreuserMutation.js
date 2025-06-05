@@ -14,7 +14,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for er
  *
  * @returns {Object} - React Query mutation object, which can be used to trigger the edit user mutation
  */
-export const useEditCoreuserMutation = (displayAlert) => {
+export const useEditCoreuserMutation = (displayAlert, section) => {
   // Access React Query's query client to invalidate queries after the mutation
   const queryClient = useQueryClient();
 
@@ -56,7 +56,7 @@ export const useEditCoreuserMutation = (displayAlert) => {
        */
       onError: (error) => {
         // Call the utility function to get a user-friendly error message and display it
-        getErrorMessage(error, 'edit user', displayAlert);
+        getErrorMessage(section, error, 'edit user', displayAlert);
       },
     },
   );

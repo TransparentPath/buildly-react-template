@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility for formatting 
  *
  * @returns {object} - The mutation object from useMutation (with methods like mutate, isLoading, etc.)
  */
-export const useEditOrganizationTypeMutation = (history, redirectTo, displayAlert) => {
+export const useEditOrganizationTypeMutation = (history, redirectTo, displayAlert, section) => {
   // Get the query client instance for cache management
   const queryClient = useQueryClient();
 
@@ -52,7 +52,7 @@ export const useEditOrganizationTypeMutation = (history, redirectTo, displayAler
        * - Uses a utility to extract and display a meaningful error message.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit organization type', displayAlert);
+        getErrorMessage(section, error, 'edit organization type', displayAlert);
       },
     },
   );

@@ -31,31 +31,31 @@ const Items = ({ history, redirectTo }) => {
   // Fetching different data via react-query hooks:
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ['items', organization],
-    () => getItemQuery(organization, displayAlert),
+    () => getItemQuery(organization, displayAlert, 'Item'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
     ['itemTypes', organization],
-    () => getItemTypeQuery(organization, displayAlert),
+    () => getItemTypeQuery(organization, displayAlert, 'Item'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Item'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: productData, isLoading: isLoadingProducts } = useQuery(
     ['products', organization],
-    () => getProductQuery(organization, displayAlert),
+    () => getProductQuery(organization, displayAlert, 'Item'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: productTypesData, isLoading: isLoadingProductTypes } = useQuery(
     ['productTypes', organization],
-    () => getProductTypeQuery(organization, displayAlert),
+    () => getProductTypeQuery(organization, displayAlert, 'Item'),
     { refetchOnWindowFocus: false },
   );
 
@@ -96,7 +96,7 @@ const Items = ({ history, redirectTo }) => {
   };
 
   // Mutation hook to delete an item
-  const { mutate: deleteItemMutation, isLoading: isDeletingItem } = useDeleteItemMutation(organization, displayAlert);
+  const { mutate: deleteItemMutation, isLoading: isDeletingItem } = useDeleteItemMutation(organization, displayAlert, 'Item');
 
   // Function to handle the delete modal's confirmation action
   const handleDeleteModal = () => {

@@ -29,7 +29,7 @@ const ExportData = () => {
   // Fetch export data based on selected table and export type using useQuery hook
   const { data: exportData, isLoading: isLoadingExportData } = useQuery(
     ['exportData'], // Query key for caching purposes
-    () => getExportDataQuery(exportTable, exportType, displayAlert), // Function to fetch data
+    () => getExportDataQuery(exportTable, exportType, displayAlert, 'Import export'), // Function to fetch data
     {
       enabled: ready, // Only run the query if ready is true (i.e., when the user is ready to export)
       refetchOnWindowFocus: false, // Disable refetching when the window is focused

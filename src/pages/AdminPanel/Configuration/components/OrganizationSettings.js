@@ -80,25 +80,25 @@ const OrganizationSettings = () => {
    */
   const { data: organizationTypesData, isLoading: isLoadingOrganizationTypes } = useQuery(
     ['organizationTypes'],
-    () => getOrganizationTypeQuery(displayAlert),
+    () => getOrganizationTypeQuery(displayAlert, 'Organization settings'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Organization settings'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: currenciesData, isLoading: isLoadingCurrencies } = useQuery(
     ['currencies'],
-    () => getCurrenciesQuery(displayAlert),
+    () => getCurrenciesQuery(displayAlert, 'Organization settings'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Organization settings'),
     { refetchOnWindowFocus: false },
   );
 
@@ -375,8 +375,8 @@ const OrganizationSettings = () => {
    * API Mutations
    * Handlers for updating organization and unit settings
    */
-  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(displayAlert);
-  const { mutate: editUnitMutation, isLoading: isEditingUnit } = useEditUnitMutation(organization, displayAlert);
+  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(displayAlert, 'Organization settings');
+  const { mutate: editUnitMutation, isLoading: isEditingUnit } = useEditUnitMutation(organization, displayAlert, 'Organization settings');
 
   /**
    * Form Submission Handler

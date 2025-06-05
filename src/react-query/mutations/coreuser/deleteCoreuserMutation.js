@@ -13,7 +13,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for er
  *
  * @returns {Object} - React Query mutation object, which can be used to trigger the delete core user mutation
  */
-export const useDeleteCoreuserMutation = (displayAlert) => {
+export const useDeleteCoreuserMutation = (displayAlert, section) => {
   // Access React Query's query client to invalidate queries after the mutation
   const queryClient = useQueryClient();
 
@@ -54,7 +54,7 @@ export const useDeleteCoreuserMutation = (displayAlert) => {
        */
       onError: (error) => {
         // Call the utility function to get a user-friendly error message and display it
-        getErrorMessage(error, 'delete user', displayAlert);
+        getErrorMessage(section, error, 'delete user', displayAlert);
       },
     },
   );

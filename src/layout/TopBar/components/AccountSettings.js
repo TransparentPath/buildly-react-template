@@ -53,12 +53,12 @@ const AccountSettings = ({ open, setOpen }) => {
   // Fetch list of countries data via query hook for dropdown or selection purposes
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Account settings'),
     { refetchOnWindowFocus: false },
   );
 
   // Mutation hook for updating user information
-  const { mutate: updateUserMutation, isLoading: isUpdatingUser } = useUpdateUserMutation(null, displayAlert);
+  const { mutate: updateUserMutation, isLoading: isUpdatingUser } = useUpdateUserMutation(null, displayAlert, 'Account settings');
 
   // Function to reset the form fields when the dialog is closed
   const closeAccountSettings = () => {

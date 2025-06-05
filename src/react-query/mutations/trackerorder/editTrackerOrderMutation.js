@@ -10,7 +10,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  *
  * @returns {object} - Mutation object (e.g., mutate, isLoading, isSuccess, etc.).
  */
-export const useEditTrackerOrderMutation = (org_uuid, displayAlert) => {
+export const useEditTrackerOrderMutation = (org_uuid, displayAlert, section) => {
   const queryClient = useQueryClient();
 
   return useMutation(
@@ -45,7 +45,7 @@ export const useEditTrackerOrderMutation = (org_uuid, displayAlert) => {
        * - Show a formatted error message.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit tracker order', displayAlert);
+        getErrorMessage(section, error, 'edit tracker order', displayAlert);
       },
     },
   );

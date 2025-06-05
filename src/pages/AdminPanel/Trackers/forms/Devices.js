@@ -37,19 +37,19 @@ const Devices = ({ isNewDevices }) => {
   // Queries for fetching organization and gateway data
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert), // Fetch all organizations
+    () => getAllOrganizationQuery(displayAlert, 'Devices'), // Fetch all organizations
     { refetchOnWindowFocus: false },
   );
 
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
     ['gateways', organization],
-    () => getGatewayQuery(null, displayAlert), // Fetch gateway data for the selected organization
+    () => getGatewayQuery(null, displayAlert, 'Devices'), // Fetch gateway data for the selected organization
     { refetchOnWindowFocus: false, enabled: buttonClick }, // Fetch only after button is clicked
   );
 
   // Mutations for handling new and edited gateway data
-  const { data: newGetewayData, mutate: fetchNewGatewayMutation, isLoading: isFetchingNewGateway } = useFetchNewGatewayMutation(displayAlert);
-  const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(org_uuid, null, null, displayAlert);
+  const { data: newGetewayData, mutate: fetchNewGatewayMutation, isLoading: isFetchingNewGateway } = useFetchNewGatewayMutation(displayAlert, 'Devices');
+  const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(org_uuid, null, null, displayAlert, 'Devices');
 
   // Function to fetch new gateways (either new or reused)
   const fetchGateways = () => {

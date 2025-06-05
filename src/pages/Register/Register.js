@@ -100,6 +100,7 @@ const Register = ({ history }) => {
     history,
     routes.LOGIN,
     displayAlert,
+    'Register',
   );
 
   /**

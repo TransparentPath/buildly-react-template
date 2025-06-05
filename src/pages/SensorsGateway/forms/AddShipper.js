@@ -124,7 +124,7 @@ const AddShipper = ({
   };
 
   // Mutation hook to add a new custodian
-  const { mutate: addCustodianMutation, isLoading: isAddingShipper } = useAddCustodianMutation(organization, null, null, displayAlert);
+  const { mutate: addCustodianMutation, isLoading: isAddingShipper } = useAddCustodianMutation(organization, null, null, displayAlert, 'Shipper');
 
   /**
    * Handle form submission.

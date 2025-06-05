@@ -25,6 +25,7 @@ export const useEditItemMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => {
   // Get the React Query client instance to interact with cached queries
   const queryClient = useQueryClient();
@@ -67,7 +68,7 @@ export const useEditItemMutation = (
        * @param {any} error - Error thrown during the request.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit item', displayAlert);
+        getErrorMessage(section, error, 'edit item', displayAlert);
       },
     },
   );

@@ -111,13 +111,16 @@ const AlertNotifications = ({
   }, [notifications]);
 
   // Reload data if access token is still valid
-  const reloadData = () => {
+  const reloadData = async () => {
+    console.log('Reloading data...');
     if (oauthService.hasValidAccessToken()) {
+      console.log('started invalidating queries');
       // Invalidate relevant queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['shipments'] });
-      queryClient.invalidateQueries({ queryKey: ['allGateways'] });
-      queryClient.invalidateQueries({ queryKey: ['sensorAlerts'] });
-      queryClient.invalidateQueries({ queryKey: ['sensorReports'] });
+      await queryClient.invalidateQueries({ queryKey: ['shipments'] });
+      await queryClient.invalidateQueries({ queryKey: ['allGateways'] });
+      await queryClient.invalidateQueries({ queryKey: ['sensorAlerts'] });
+      await queryClient.invalidateQueries({ queryKey: ['sensorReports'] });
+      console.log('finished invalidating queries');
       setRedirectToLogin(false);
     } else {
       oauthService.logout(); // Log out if the token is invalid

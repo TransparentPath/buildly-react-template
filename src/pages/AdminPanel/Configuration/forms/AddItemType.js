@@ -70,8 +70,8 @@ const AddItemType = ({ history, location }) => {
   };
 
   // Custom mutation hooks for adding and editing item types
-  const { mutate: addItemTypeMutation, isLoading: isAddingItemType } = useAddItemTypeMutation(organization, history, location.state.from, displayAlert);
-  const { mutate: editItemTypeMutation, isLoading: isEditingItemType } = useEditItemTypeMutation(organization, history, location.state.from, displayAlert);
+  const { mutate: addItemTypeMutation, isLoading: isAddingItemType } = useAddItemTypeMutation(organization, history, location.state.from, displayAlert, 'Item type');
+  const { mutate: editItemTypeMutation, isLoading: isEditingItemType } = useEditItemTypeMutation(organization, history, location.state.from, displayAlert, 'Item type');
 
   /**
    * Handle form submission logic.

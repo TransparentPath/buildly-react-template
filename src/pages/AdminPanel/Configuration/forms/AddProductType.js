@@ -70,10 +70,10 @@ const AddProductType = ({ history, location }) => {
   };
 
   // Custom mutation hook to handle product type creation
-  const { mutate: addProductTypeMutation, isLoading: isAddingProductType } = useAddProductTypeMutation(organization, history, location.state.from, displayAlert);
+  const { mutate: addProductTypeMutation, isLoading: isAddingProductType } = useAddProductTypeMutation(organization, history, location.state.from, displayAlert, 'Product type');
 
   // Custom mutation hook to handle product type editing
-  const { mutate: editProductTypeMutation, isLoading: isEditingProductType } = useEditProductTypeMutation(organization, history, location.state.from, displayAlert);
+  const { mutate: editProductTypeMutation, isLoading: isEditingProductType } = useEditProductTypeMutation(organization, history, location.state.from, displayAlert, 'Product type');
 
   /**
    * Handle form submission to create or edit a product type

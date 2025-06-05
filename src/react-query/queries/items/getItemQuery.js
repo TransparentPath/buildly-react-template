@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of items.
  *                             Returns an empty array if the request fails.
  */
-export const getItemQuery = async (organization, displayAlert) => {
+export const getItemQuery = async (organization, displayAlert, section) => {
   try {
     // Sending a GET request to fetch items data for a specific organization
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getItemQuery = async (organization, displayAlert) => {
     return response.data;
   } catch (error) {
     // If an error occurs, handle it by displaying a user-friendly error message
-    getErrorMessage(error, 'load items data', displayAlert);
+    getErrorMessage(section, error, 'load items data', displayAlert);
     // Return an empty array to ensure consistent return type on failure
     return [];
   }

@@ -13,7 +13,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  *
  * @returns {object} - The mutation object from useMutation (e.g., mutate, status, etc.).
  */
-export const useAddTrackerOrderMutation = (history, redirectTo, displayAlert, setCart) => {
+export const useAddTrackerOrderMutation = (history, redirectTo, displayAlert, setCart, section) => {
   const queryClient = useQueryClient();
 
   return useMutation(
@@ -56,7 +56,7 @@ export const useAddTrackerOrderMutation = (history, redirectTo, displayAlert, se
        * - Format and display an error message using `getErrorMessage`.
        */
       onError: (error) => {
-        getErrorMessage(error, 'create tracker order', displayAlert);
+        getErrorMessage(section, error, 'create tracker order', displayAlert);
       },
     },
   );

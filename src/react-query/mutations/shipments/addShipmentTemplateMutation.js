@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
  * @param {Function} displayAlert - A function used to display alerts to the user (e.g., success or error messages).
  * @returns {Object} The mutation object, which includes the mutate function for triggering the mutation.
  */
-export const useAddShipmentTemplateMutation = (organization, displayAlert) => {
+export const useAddShipmentTemplateMutation = (organization, displayAlert, section) => {
   const queryClient = useQueryClient(); // React Query's queryClient to manage cache invalidation and query refetching
 
   return useMutation(
@@ -56,7 +56,7 @@ export const useAddShipmentTemplateMutation = (organization, displayAlert) => {
        */
       onError: (error) => {
         // Use the utility function to extract and display an error message
-        getErrorMessage(error, 'create shipment template', displayAlert);
+        getErrorMessage(section, error, 'create shipment template', displayAlert);
       },
     },
   );

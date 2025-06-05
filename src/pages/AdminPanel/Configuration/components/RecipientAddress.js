@@ -42,14 +42,14 @@ const RecipientAddress = ({ redirectTo, history }) => {
   // Fetch unit data (e.g., date/time units) using React Query
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Recipient address'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch recipient addresses using React Query
   const { data: recipientAddressData, isLoading: isLoadingRecipientAddresses } = useQuery(
     ['recipientAddresses', organization],
-    () => getRecipientAddressQuery(organization, displayAlert),
+    () => getRecipientAddressQuery(organization, displayAlert, 'Recipient address'),
     { refetchOnWindowFocus: false },
   );
 
@@ -81,7 +81,7 @@ const RecipientAddress = ({ redirectTo, history }) => {
   };
 
   // Mutation hook for deleting a recipient address
-  const { mutate: deleteRecipientAddressMutation, isLoading: isDeletingRecipientAddress } = useDeleteRecipientAddressMutation(displayAlert);
+  const { mutate: deleteRecipientAddressMutation, isLoading: isDeletingRecipientAddress } = useDeleteRecipientAddressMutation(displayAlert, 'Recipient address');
 
   // Confirm deletion from modal
   const handleDeleteModal = () => {

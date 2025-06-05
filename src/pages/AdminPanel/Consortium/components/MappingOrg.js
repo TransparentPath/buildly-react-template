@@ -37,14 +37,14 @@ const MappingOrg = ({ history, redirectTo }) => {
   // Fetch all organizations, caching and preventing refetch on window focus
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Mapping organizations'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch custodians for the current user's organization
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
-    () => getCustodianQuery(organization, displayAlert),
+    () => getCustodianQuery(organization, displayAlert, 'Mapping organizations'),
     { refetchOnWindowFocus: false },
   );
 

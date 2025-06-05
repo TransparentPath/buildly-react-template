@@ -302,7 +302,7 @@ const CreateShipment = ({ history, location }) => {
   // Used when selecting a predefined shipment structure.
   const { data: shipmentTemplateData, isLoading: isLoadingShipmentTemplates } = useQuery(
     ['shipmentTemplates', organizationUuid],
-    () => getShipmentTemplatesQuery(organizationUuid, displayAlert),
+    () => getShipmentTemplatesQuery(organizationUuid, displayAlert, 'Create shipment'),
     {
       enabled: !_.isEmpty(organizationUuid), // Only run query if organization UUID is available
       refetchOnWindowFocus: false, // Prevent re-fetching when the window regains focus
@@ -312,7 +312,7 @@ const CreateShipment = ({ history, location }) => {
   // Fetches all custodians (e.g., Shippers, Receivers, Carriers) tied to the organization.
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organizationUuid],
-    () => getCustodianQuery(organizationUuid, displayAlert),
+    () => getCustodianQuery(organizationUuid, displayAlert, 'Create shipment'),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
@@ -320,7 +320,7 @@ const CreateShipment = ({ history, location }) => {
   // Needed for labeling and filtering custodian roles in forms.
   const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
     ['custodianTypes'],
-    () => getCustodianTypeQuery(displayAlert),
+    () => getCustodianTypeQuery(displayAlert, 'Create shipment'),
     { refetchOnWindowFocus: false },
   );
 
@@ -328,7 +328,7 @@ const CreateShipment = ({ history, location }) => {
   // This includes names, phone numbers, and addresses.
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
     ['contact', organizationUuid],
-    () => getContactQuery(organizationUuid, displayAlert),
+    () => getContactQuery(organizationUuid, displayAlert, 'Create shipment'),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
@@ -336,7 +336,7 @@ const CreateShipment = ({ history, location }) => {
   // Used for displaying correct unit info in item details and shipment thresholds.
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organizationUuid],
-    () => getUnitQuery(organizationUuid, displayAlert),
+    () => getUnitQuery(organizationUuid, displayAlert, 'Create shipment'),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
@@ -344,28 +344,28 @@ const CreateShipment = ({ history, location }) => {
   // Useful for setting up shipment origins and destinations.
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Create shipment'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetches the list of available shipment items within the organization.
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ['items', organizationUuid],
-    () => getItemQuery(organizationUuid, displayAlert),
+    () => getItemQuery(organizationUuid, displayAlert, 'Create shipment'),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   // Fetches the different item types (e.g., Vaccine, Medical Equipment).
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
     ['itemTypes', organizationUuid],
-    () => getItemTypeQuery(organizationUuid, displayAlert),
+    () => getItemTypeQuery(organizationUuid, displayAlert, 'Create shipment'),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
   // Fetches the list of available gateways (trackers) associated with the organization.
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
     ['gateways', organizationUuid],
-    () => getGatewayQuery(organizationUuid, displayAlert),
+    () => getGatewayQuery(organizationUuid, displayAlert, 'Create shipment'),
     { enabled: !_.isEmpty(organizationUuid), refetchOnWindowFocus: false },
   );
 
@@ -373,7 +373,7 @@ const CreateShipment = ({ history, location }) => {
   // Helps determine the platform name and supported features.
   const { data: gatewayTypesData, isLoading: isLoadingGatewayTypes } = useQuery(
     ['gatewayTypes'],
-    () => getGatewayTypeQuery(displayAlert),
+    () => getGatewayTypeQuery(displayAlert, 'Create shipment'),
     { refetchOnWindowFocus: false },
   );
 
@@ -381,29 +381,29 @@ const CreateShipment = ({ history, location }) => {
   // Requires `editData.shipment_uuid` to be available.
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies'],
-    () => getCustodyQuery(encodeURIComponent(editData.shipment_uuid), displayAlert),
+    () => getCustodyQuery(encodeURIComponent(editData.shipment_uuid), displayAlert, 'Create shipment'),
     { enabled: !_.isEmpty(editData), refetchOnWindowFocus: false },
   );
 
   // Deletes a specific custody handover record for a shipment.
-  const { mutate: deleteCustodyMutation, isLoading: isDeletingCustody } = useDeleteCustodyMutation(displayAlert);
+  const { mutate: deleteCustodyMutation, isLoading: isDeletingCustody } = useDeleteCustodyMutation(displayAlert, 'Create shipment');
 
   // Adds a new shipment template to the system.
-  const { mutate: addShipmentTemplateMutation, isLoading: isAddingShipmentTemplate } = useAddShipmentTemplateMutation(organizationUuid, displayAlert);
+  const { mutate: addShipmentTemplateMutation, isLoading: isAddingShipmentTemplate } = useAddShipmentTemplateMutation(organizationUuid, displayAlert, 'Create shipment');
 
   // Updates an existing shipment template.
-  const { mutate: editShipmentTemplateMutation, isLoading: isEditingShipmentTemplate } = useEditShipmentTemplateMutation(organizationUuid, displayAlert);
+  const { mutate: editShipmentTemplateMutation, isLoading: isEditingShipmentTemplate } = useEditShipmentTemplateMutation(organizationUuid, displayAlert, 'Create shipment');
 
   // Deletes a shipment template by ID.
-  const { mutate: deleteShipmentTemplateMutation, isLoading: isDeletingShipmentTemplate } = useDeleteShipmentTemplateMutation(organizationUuid, displayAlert);
+  const { mutate: deleteShipmentTemplateMutation, isLoading: isDeletingShipmentTemplate } = useDeleteShipmentTemplateMutation(organizationUuid, displayAlert, 'Create shipment');
 
   // Adds a new shipment record.
   // Redirects to shipment list screen on success.
-  const { mutate: addShipmentMutation, isLoading: isAddingShipment } = useAddShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert);
+  const { mutate: addShipmentMutation, isLoading: isAddingShipment } = useAddShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert, 'Create shipment');
 
   // Edits an existing shipment's details.
   // Redirects to shipment list screen on success.
-  const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert);
+  const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert, 'Create shipment');
 
   // useEffect to populate form fields when editing an existing shipment
   useEffect(() => {

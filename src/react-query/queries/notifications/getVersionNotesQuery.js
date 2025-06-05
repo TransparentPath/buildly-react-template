@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array|Object>} - Resolves to the content of the version notes.
  *                                    Returns an empty array in case of a failure.
  */
-export const getVersionNotesQuery = async (versionNumber, displayAlert) => {
+export const getVersionNotesQuery = async (versionNumber, displayAlert, section) => {
   try {
     // Performing a GET request to the VERSION_NOTES static URL.
     // This request doesn't require any custom headers.
@@ -23,7 +23,7 @@ export const getVersionNotesQuery = async (versionNumber, displayAlert) => {
     return response.data;
   } catch (error) {
     // Displaying a user-friendly error message if something goes wrong
-    getErrorMessage(error, 'load version notes data', displayAlert);
+    getErrorMessage(section, error, 'load version notes data', displayAlert);
     // Return an empty array to ensure the consuming logic doesn't break
     return [];
   }

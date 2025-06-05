@@ -42,14 +42,14 @@ const ProductType = ({ redirectTo, history }) => {
   // Fetch unit data for the organization using React Query
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Product type'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch product type data for the organization using React Query
   const { data: productTypesData, isLoading: isLoadingProductTypes } = useQuery(
     ['productTypes', organization],
-    () => getProductTypeQuery(organization, displayAlert),
+    () => getProductTypeQuery(organization, displayAlert, 'Product type'),
     { refetchOnWindowFocus: false },
   );
 
@@ -76,7 +76,7 @@ const ProductType = ({ redirectTo, history }) => {
   };
 
   // Mutation hook to delete a product type
-  const { mutate: deleteProductTypeMutation, isLoading: isDeletingProductType } = useDeleteProductTypeMutation(organization, displayAlert);
+  const { mutate: deleteProductTypeMutation, isLoading: isDeletingProductType } = useDeleteProductTypeMutation(organization, displayAlert, 'Product type');
 
   // Execute the delete mutation and close the modal
   const handleDeleteModal = () => {

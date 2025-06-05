@@ -14,7 +14,7 @@ import _ from 'lodash';
  * @returns {Promise<Array>} - Returns a filtered array of gateway type objects,
  *                             or an empty array on failure.
  */
-export const getGatewayTypeQuery = async (displayAlert) => {
+export const getGatewayTypeQuery = async (displayAlert, section) => {
   try {
     // Sending a GET request to fetch all available gateway types
     const response = await httpService.makeRequest(
@@ -30,7 +30,7 @@ export const getGatewayTypeQuery = async (displayAlert) => {
     return data;
   } catch (error) {
     // If an error occurs during the request, display an alert message
-    getErrorMessage(error, 'load tracker types data', displayAlert);
+    getErrorMessage(section, error, 'load tracker types data', displayAlert);
     // Returning an empty array to prevent UI from breaking due to an error
     return [];
   }

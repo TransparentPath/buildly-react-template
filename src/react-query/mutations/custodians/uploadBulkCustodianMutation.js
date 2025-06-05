@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for er
  *
  * @returns {Object} - React Query mutation object for uploading bulk custodians
  */
-export const useUploadBulkCustodianMutation = (organization, displayAlert) => {
+export const useUploadBulkCustodianMutation = (organization, displayAlert, section) => {
   const queryClient = useQueryClient();
 
   return useMutation(
@@ -57,7 +57,7 @@ export const useUploadBulkCustodianMutation = (organization, displayAlert) => {
        */
       onError: (error) => {
         // Call utility function to handle and display the error message
-        getErrorMessage(error, 'upload bulk custodian', displayAlert);
+        getErrorMessage(section, error, 'upload bulk custodian', displayAlert);
       },
     },
   );

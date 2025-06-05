@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Resolves to an array of unit records if successful.
  *                             Returns an empty array in case of an error.
  */
-export const getUnitQuery = async (organization, displayAlert) => {
+export const getUnitQuery = async (organization, displayAlert, section) => {
   try {
     // Performing a GET request to fetch unit of measure data for the given organization
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getUnitQuery = async (organization, displayAlert) => {
     return response.data;
   } catch (error) {
     // Handling errors: Displaying a user-friendly alert if the request fails
-    getErrorMessage(error, 'load unit of measurements data', displayAlert);
+    getErrorMessage(section, error, 'load unit of measurements data', displayAlert);
     // Returning an empty array to maintain consistent return format even on failure
     return [];
   }

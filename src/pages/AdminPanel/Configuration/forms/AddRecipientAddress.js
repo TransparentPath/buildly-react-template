@@ -97,7 +97,7 @@ const AddRecipientAddress = ({ history, location }) => {
   // Mutation hooks for adding and editing recipient addresses
   const { mutate: addRecipientAddressMutation, isLoading: isAddingRecipientAddress } = useAddRecipientAddressMutation(history, location.state.from, displayAlert);
 
-  const { mutate: editRecipientAddressMutation, isLoading: isEditingRecipientAddress } = useEditRecipientAddressMutation(history, location.state.from, displayAlert);
+  const { mutate: editRecipientAddressMutation, isLoading: isEditingRecipientAddress } = useEditRecipientAddressMutation(history, location.state.from, displayAlert, 'Recipient address');
 
   // Handle form submit
   const handleSubmit = (event) => {

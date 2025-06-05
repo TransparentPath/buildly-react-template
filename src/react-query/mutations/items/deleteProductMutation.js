@@ -17,7 +17,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @param {Function} displayAlert - Callback to trigger a user alert (e.g., snackbar or toast).
  * @returns {Object} The mutation object returned by React Query's useMutation.
  */
-export const useDeleteProductMutation = (organization, displayAlert) => {
+export const useDeleteProductMutation = (organization, displayAlert, section) => {
   // Instantiate the query client to interact with the React Query cache
   const queryClient = useQueryClient();
 
@@ -53,7 +53,7 @@ export const useDeleteProductMutation = (organization, displayAlert) => {
        * @param {any} error - The error returned by the failed mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'delete product', displayAlert);
+        getErrorMessage(section, error, 'delete product', displayAlert);
       },
     },
   );

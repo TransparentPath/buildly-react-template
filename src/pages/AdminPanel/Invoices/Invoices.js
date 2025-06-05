@@ -185,7 +185,7 @@ const Invoices = () => {
    */
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Invoices'),
     { refetchOnWindowFocus: false },
   );
 
@@ -195,7 +195,7 @@ const Invoices = () => {
    */
   const { data: trackerOrderData, isLoading: isLoadingTrackerOrder } = useQuery(
     ['trackerOrders', org_uuid],
-    () => getTrackerOrderQuery(org_uuid, displayAlert),
+    () => getTrackerOrderQuery(org_uuid, displayAlert, 'Invoices'),
     { refetchOnWindowFocus: false },
   );
 
@@ -207,7 +207,7 @@ const Invoices = () => {
     data: whatsappChargesData,
     mutate: whatsappChargesMutation,
     isLoading: isWhatsappChargesLoading,
-  } = useWhatsappChargesMutation(displayAlert);
+  } = useWhatsappChargesMutation(displayAlert, 'Invoices');
 
   /**
    * Mutation to edit tracker order details (e.g., shipping cost)
@@ -216,7 +216,7 @@ const Invoices = () => {
   const {
     mutate: editTrackerOrderMutation,
     isLoading: isTrackerOrderEditing,
-  } = useEditTrackerOrderMutation(org_uuid, displayAlert);
+  } = useEditTrackerOrderMutation(org_uuid, displayAlert, 'Invoices');
 
   /**
    * Populate available years for selection based on organization creation date

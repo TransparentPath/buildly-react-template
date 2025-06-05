@@ -178,15 +178,23 @@ export const calculateLatLngBounds = (lat, lng, miles) => {
  * @param {string} message - Context message to include (e.g., 'fetch data').
  * @param {function} displayAlert - Callback function to show an alert (e.g., toast).
  */
-export const getErrorMessage = (error, message, displayAlert) => {
+export const getErrorMessage = (section, error, message, displayAlert) => {
   let errorMessage = `Unable to ${message}`;
-  let errorCode = 'Unknown';
+  let errorCode = '';
+
   if (error.response) {
     const { status, data } = error.response;
-    errorCode = status || 'Unknown';
+    errorCode = status;
     if (data?.message) {
       errorMessage = data.message;
     }
   }
-  displayAlert('error', `${errorMessage} due to error code ${errorCode}`);
+
+  // Build message based on presence of valid error code
+  const showErrorCode = !_.isEmpty(errorCode);
+  const fullMessage = showErrorCode
+    ? `${section} section: ${errorMessage}. Error code: ${errorCode}`
+    : `${section} section: ${errorMessage}`;
+
+  displayAlert('error', fullMessage);
 };

@@ -10,7 +10,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to for
  *
  * @returns {object} - The mutation object from useMutation, providing methods like mutate, status, data, etc.
  */
-export const useDeleteOrganizationTypeMutation = (displayAlert) => {
+export const useDeleteOrganizationTypeMutation = (displayAlert, section) => {
   // Get the React Query client instance to manage cache and query invalidation
   const queryClient = useQueryClient();
 
@@ -35,7 +35,7 @@ export const useDeleteOrganizationTypeMutation = (displayAlert) => {
       // Called when the mutation fails with an error
       onError: (error) => {
         // Display a formatted error message using the provided utility
-        getErrorMessage(error, 'delete organization type', displayAlert);
+        getErrorMessage(section, error, 'delete organization type', displayAlert);
       },
     },
   );

@@ -21,6 +21,7 @@ export const useAddGatewayMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => {
   const queryClient = useQueryClient(); // React Query hook for cache management
 
@@ -67,7 +68,7 @@ export const useAddGatewayMutation = (
        */
       onError: (error) => {
         // Displaying an error message if the mutation fails
-        getErrorMessage(error, 'create tracker', displayAlert);
+        getErrorMessage(section, error, 'create tracker', displayAlert);
       },
     },
   );

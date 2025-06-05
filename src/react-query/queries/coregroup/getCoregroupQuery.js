@@ -10,7 +10,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of core groups.
  *                             If the request fails, returns an empty array.
  */
-export const getCoregroupQuery = async (displayAlert) => {
+export const getCoregroupQuery = async (displayAlert, section) => {
   try {
     // Sending a GET request to the API endpoint to retrieve core group data
     const response = await httpService.makeRequest(
@@ -21,7 +21,7 @@ export const getCoregroupQuery = async (displayAlert) => {
     return response.data;
   } catch (error) {
     // If there's an error, extract and display a descriptive error message using the utility method
-    getErrorMessage(error, 'load core groups data', displayAlert);
+    getErrorMessage(section, error, 'load core groups data', displayAlert);
     // Return an empty array to ensure consistent return type on failure
     return [];
   }

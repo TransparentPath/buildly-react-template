@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Object|Array>} - Resolves to the parsed OPTIONS metadata response.
  *                                    Returns an empty array in case of an error.
  */
-export const getGatewayOptionQuery = async (displayAlert) => {
+export const getGatewayOptionQuery = async (displayAlert, section) => {
   try {
     // Making an OPTIONS request to the 'gateway' API endpoint.
     // The third parameter (true) might indicate custom behavior like adding auth headers.
@@ -26,7 +26,7 @@ export const getGatewayOptionQuery = async (displayAlert) => {
     return data;
   } catch (error) {
     // Handling any errors by showing a user-friendly alert message
-    getErrorMessage(error, 'load gateway options data', displayAlert);
+    getErrorMessage(section, error, 'load gateway options data', displayAlert);
     // Returning an empty array for consistent return structure
     return [];
   }

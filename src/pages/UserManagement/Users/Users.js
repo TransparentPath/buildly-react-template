@@ -33,7 +33,7 @@ const Users = () => {
    */
   const { data: coreuserData, isLoading: isLoadingCoreuser } = useQuery(
     ['users'],
-    () => getCoreuserQuery(displayAlert),
+    () => getCoreuserQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
@@ -42,7 +42,7 @@ const Users = () => {
    */
   const { data: coregroupData, isLoading: isLoadingCoregroup } = useQuery(
     ['coregroup'],
-    () => getCoregroupQuery(displayAlert),
+    () => getCoregroupQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
@@ -51,19 +51,19 @@ const Users = () => {
    */
   const { data: organizations, isLoading: isLoadingOrganizations } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
   /**
    * Mutation to update a user's details (like their active status or assigned groups).
    */
-  const { mutate: editUserMutation, isLoading: isEditingUser } = useEditCoreuserMutation(displayAlert);
+  const { mutate: editUserMutation, isLoading: isEditingUser } = useEditCoreuserMutation(displayAlert, 'User');
 
   /**
    * Mutation to delete a user from the system.
    */
-  const { mutate: deleteUserMutation, isLoading: isDeletingUser } = useDeleteCoreuserMutation(displayAlert);
+  const { mutate: deleteUserMutation, isLoading: isDeletingUser } = useDeleteCoreuserMutation(displayAlert, 'User');
 
   /**
    * Effect hook to format and update the list of users once data is fetched.

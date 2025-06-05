@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of item types.
  *                             Returns an empty array in case of a request failure.
  */
-export const getItemTypeQuery = async (organization, displayAlert) => {
+export const getItemTypeQuery = async (organization, displayAlert, section) => {
   try {
     // Sending a GET request to the API with the organization UUID as a query parameter
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getItemTypeQuery = async (organization, displayAlert) => {
     return response.data;
   } catch (error) {
     // If an error occurs during the request, display an alert with a descriptive error message
-    getErrorMessage(error, 'load item types data', displayAlert);
+    getErrorMessage(section, error, 'load item types data', displayAlert);
     // Return an empty array to gracefully handle request failures
     return [];
   }

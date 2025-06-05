@@ -154,10 +154,10 @@ const AddItems = ({
   };
 
   // Hook for adding a new item
-  const { mutate: addItemMutation, isLoading: isAddingItem } = useAddItemMutation(organization, history, redirectTo, displayAlert);
+  const { mutate: addItemMutation, isLoading: isAddingItem } = useAddItemMutation(organization, history, redirectTo, displayAlert, 'Item');
 
   // Hook for editing an existing item
-  const { mutate: editItemMutation, isLoading: isEditingItem } = useEditItemMutation(organization, history, redirectTo, displayAlert);
+  const { mutate: editItemMutation, isLoading: isEditingItem } = useEditItemMutation(organization, history, redirectTo, displayAlert, 'Item');
 
   /**
    * Handles form submission

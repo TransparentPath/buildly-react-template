@@ -52,12 +52,12 @@ const Login = ({ history }) => {
 
   // Mutation hook for resetting password check (for password recovery)
   const { mutate: resetPasswordCheckMutation, isLoading: isPasswordCheck } = useResetPasswordCheckMutation(
-    history, routes.RESET_PASSWORD_CONFIRM, routes.LOGIN, displayAlert,
+    history, routes.RESET_PASSWORD_CONFIRM, routes.LOGIN, displayAlert, 'Login',
   );
 
   // Mutation hook for logging in a user
   const { mutate: loginMutation, isLoading: islogin, isError: isLoginError } = useLoginMutation(
-    history, (location.state && location.state.from) || routes.SHIPMENT, displayAlert, timezone,
+    history, (location.state && location.state.from) || routes.SHIPMENT, displayAlert, timezone, 'Login',
   );
 
   // useEffect hook to handle reset password check based on the URL path when resetting a password

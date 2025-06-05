@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array|Object>} - Returns recipient address data as an array or object depending on the API,
  *                                    or an empty array if the request fails.
  */
-export const getRecipientAddressQuery = async (organization_uuid, displayAlert) => {
+export const getRecipientAddressQuery = async (organization_uuid, displayAlert, section) => {
   try {
     // Making a GET request to fetch recipient addresses filtered by organization UUID
     const response = await httpService.makeRequest(
@@ -23,7 +23,7 @@ export const getRecipientAddressQuery = async (organization_uuid, displayAlert) 
     return response.data;
   } catch (error) {
     // Showing a user-friendly alert if an error occurs during the request
-    getErrorMessage(error, 'load recipient addresses data', displayAlert);
+    getErrorMessage(section, error, 'load recipient addresses data', displayAlert);
     // Returning an empty array to gracefully handle errors in the calling code
     return [];
   }

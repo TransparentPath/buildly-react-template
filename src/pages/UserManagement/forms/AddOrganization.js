@@ -98,42 +98,42 @@ const AddOrganization = ({
   // Fetch core user data
   const { data: coreuserData, isLoading: isLoadingCoreuser } = useQuery(
     ['users'],
-    () => getCoreuserQuery(displayAlert),
+    () => getCoreuserQuery(displayAlert, 'Organization'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch all organizations
   const { data: organizations, isLoading: isLoadingOrganizations } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Organization'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch organization types
   const { data: organizationTypesData, isLoading: isLoadingOrganizationTypes } = useQuery(
     ['organizationTypes'],
-    () => getOrganizationTypeQuery(displayAlert),
+    () => getOrganizationTypeQuery(displayAlert, 'Organization'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch countries
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Organization'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch currencies
   const { data: currenciesData, isLoading: isLoadingCurrencies } = useQuery(
     ['currencies'],
-    () => getCurrenciesQuery(displayAlert),
+    () => getCurrenciesQuery(displayAlert, 'Organization'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch unit data for the organization
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Organization'),
     { refetchOnWindowFocus: false },
   );
 
@@ -314,7 +314,7 @@ const AddOrganization = ({
   };
 
   // Mutation hook to invite users
-  const { mutate: inviteMutation, isLoading: isInviting } = useInviteMutation(discardFormData, displayAlert);
+  const { mutate: inviteMutation, isLoading: isInviting } = useInviteMutation(discardFormData, displayAlert, 'Organization');
 
   /**
    * Handle form submission.

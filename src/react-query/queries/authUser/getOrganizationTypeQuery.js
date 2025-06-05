@@ -9,7 +9,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @param {function} displayAlert - A callback function used to show error alerts to the user if the request fails.
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of organization types. Returns an empty array if the request fails.
  */
-export const getOrganizationTypeQuery = async (displayAlert) => {
+export const getOrganizationTypeQuery = async (displayAlert, section) => {
   try {
     // Sending a GET request to the API endpoint for retrieving all organization types
     const response = await httpService.makeRequest(
@@ -20,7 +20,7 @@ export const getOrganizationTypeQuery = async (displayAlert) => {
     return response.data;
   } catch (error) {
     // If there's an error during the request, use the utility method to handle and display the error
-    getErrorMessage(error, 'load organization types data', displayAlert);
+    getErrorMessage(section, error, 'load organization types data', displayAlert);
     // Return an empty array to ensure the calling function receives a consistent data type
     return [];
   }

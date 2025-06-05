@@ -42,14 +42,14 @@ const AddResellers = ({ open, setOpen }) => {
   // Fetch all organizations
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Reseller'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch custodians for the selected reseller organization
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', selectedResellerOrganization.value],
-    () => getCustodianQuery(selectedResellerOrganization.value.organization_uuid, displayAlert),
+    () => getCustodianQuery(selectedResellerOrganization.value.organization_uuid, displayAlert, 'Reseller'),
     { refetchOnWindowFocus: false, enabled: !_.isEmpty(selectedResellerOrganization.value) },
   );
 
@@ -125,7 +125,7 @@ const AddResellers = ({ open, setOpen }) => {
   };
 
   // Mutation hook to update organization data
-  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(discardFormData, displayAlert);
+  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(discardFormData, displayAlert, 'Reseller');
 
   /**
    * Handle form submission for adding a reseller.

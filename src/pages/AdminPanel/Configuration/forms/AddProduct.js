@@ -76,10 +76,10 @@ const AddProduct = ({ history, location }) => {
   };
 
   // React Query mutation hook for adding a product
-  const { mutate: addProductMutation, isLoading: isAddingProduct } = useAddProductMutation(organization, history, location.state.from, displayAlert);
+  const { mutate: addProductMutation, isLoading: isAddingProduct } = useAddProductMutation(organization, history, location.state.from, displayAlert, 'Product');
 
   // React Query mutation hook for editing a product
-  const { mutate: editProductMutation, isLoading: isEditingProduct } = useEditProductMutation(organization, history, location.state.from, displayAlert);
+  const { mutate: editProductMutation, isLoading: isEditingProduct } = useEditProductMutation(organization, history, location.state.from, displayAlert, 'Product');
 
   /**
    * Handle form submission: trigger add or edit mutation
