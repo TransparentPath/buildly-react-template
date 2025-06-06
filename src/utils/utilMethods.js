@@ -191,8 +191,7 @@ export const getErrorMessage = (section, error, message, displayAlert) => {
   }
 
   // Build message based on presence of valid error code
-  const showErrorCode = !_.isEmpty(errorCode);
-  const fullMessage = showErrorCode
+  const fullMessage = !_.isEmpty(errorCode.toString())
     ? `${section} section: ${errorMessage}. Error code: ${errorCode}`
     : `${section} section: ${errorMessage}`;
 

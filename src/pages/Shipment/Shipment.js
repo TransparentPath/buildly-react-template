@@ -88,8 +88,6 @@ const Shipment = ({ history }) => {
 
   isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
-  console.log(shipmentData);
-
   // Fetch custodian data
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
@@ -644,8 +642,6 @@ const Shipment = ({ history }) => {
   const closeFileView = () => {
     setFileViewerModal(false);
   };
-
-  console.log(rows);
 
   return (
     <Box mt={5} mb={5}>

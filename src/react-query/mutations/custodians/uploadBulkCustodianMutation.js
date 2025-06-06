@@ -22,12 +22,10 @@ export const useUploadBulkCustodianMutation = (organization, displayAlert, secti
      * @returns {Object} - The response data from the upload request
      */
     async (formData) => {
-      const uploadResponse = await httpService.makeRequest(
+      const uploadResponse = await httpService.makeMultipartRequest(
         'post', // HTTP POST method for uploading data
         `${window.env.CUSTODIAN_URL}upload_bulk_custodians/`, // API endpoint for uploading bulk custodians
         formData, // The form data containing the bulk custodian file
-        null, // No specific headers required for the body
-        'multipart/form-data', // Setting the content-type to multipart/form-data for file uploads
       );
       return uploadResponse.data;
     },
