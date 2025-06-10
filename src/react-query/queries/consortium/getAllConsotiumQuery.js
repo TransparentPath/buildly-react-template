@@ -10,7 +10,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of consortiums.
  *                             Returns an empty array if the request fails.
  */
-export const getAllConsortiumQuery = async (displayAlert) => {
+export const getAllConsortiumQuery = async (displayAlert, section) => {
   try {
     // Sending a GET request to fetch all consortiums
     const response = await httpService.makeRequest(
@@ -21,7 +21,7 @@ export const getAllConsortiumQuery = async (displayAlert) => {
     return response.data;
   } catch (error) {
     // If the request fails, handle and display the error using the utility method
-    getErrorMessage(error, 'load consortiums data', displayAlert);
+    getErrorMessage(section, error, 'load consortiums data', displayAlert);
     // Return an empty array to gracefully handle the failure
     return [];
   }

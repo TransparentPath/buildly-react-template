@@ -10,7 +10,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
  * @param {Function} displayAlert - Function to display success/error alerts to the user.
  * @returns {Object} - The mutation object returned by `useMutation`.
  */
-export const useEditGatewayTypeMutation = (history, redirectTo, displayAlert) => {
+export const useEditGatewayTypeMutation = (history, redirectTo, displayAlert, section) => {
   const queryClient = useQueryClient(); // React Query hook for managing query cache
 
   return useMutation(
@@ -51,7 +51,7 @@ export const useEditGatewayTypeMutation = (history, redirectTo, displayAlert) =>
        * @param {Error} error - The error object returned from the failed mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit tracker type', displayAlert); // Display error message
+        getErrorMessage(section, error, 'edit tracker type', displayAlert); // Display error message
       },
     },
   );

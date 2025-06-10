@@ -18,6 +18,7 @@ export const useResetPasswordMutation = (
   displayAlert,
   setError,
   history,
+  section,
 ) => useMutation(
   /**
    * Mutation function to send the reset password email.
@@ -69,7 +70,7 @@ export const useResetPasswordMutation = (
      * @param {object} error - Error object from the failed request
      */
     onError: (error) => {
-      getErrorMessage(error, 'send the email', displayAlert); // Show user-friendly error message
+      getErrorMessage(section, error, 'send the email', displayAlert); // Show user-friendly error message
     },
   },
 );

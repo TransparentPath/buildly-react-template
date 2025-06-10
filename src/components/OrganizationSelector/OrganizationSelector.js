@@ -37,7 +37,7 @@ const OrganizationSelector = ({
   // React Query to fetch all organizations
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Organization selector'), // Fetch organizations with a custom message
     { refetchOnWindowFocus: false }, // Disable refetching when window refocuses
   );
 

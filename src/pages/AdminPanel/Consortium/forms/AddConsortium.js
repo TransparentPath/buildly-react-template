@@ -67,8 +67,8 @@ const AddConsortium = ({ history, location }) => {
   };
 
   // Initialize add and edit mutations with success/error handlers
-  const { mutate: addConsortiumMutation, isLoading: isAddingConsortium } = useAddConsortiumMutation(history, location.state.from, displayAlert);
-  const { mutate: editConsortiumMutation, isLoading: isEditingConsortium } = useEditConsortiumMutation(history, location.state.from, displayAlert);
+  const { mutate: addConsortiumMutation, isLoading: isAddingConsortium } = useAddConsortiumMutation(history, location.state.from, displayAlert, 'Consortium');
+  const { mutate: editConsortiumMutation, isLoading: isEditingConsortium } = useEditConsortiumMutation(history, location.state.from, displayAlert, 'Consortium');
 
   /**
    * Handles the form submission, triggering either add or edit mutation

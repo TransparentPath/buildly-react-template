@@ -13,7 +13,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
  * @param {Function} displayAlert - Function to display success or error alerts to the user.
  * @returns {object} - Mutation object returned by `useMutation` containing the mutation function and status.
  */
-export const useWhatsappChargesMutation = (displayAlert) => useMutation(
+export const useWhatsappChargesMutation = (displayAlert, section) => useMutation(
   /**
    * The mutation function that sends the POST request for Whatsapp charges.
    *
@@ -39,7 +39,7 @@ export const useWhatsappChargesMutation = (displayAlert) => useMutation(
      */
     onError: (error) => {
       // Calling the utility function to display a user-friendly error message
-      getErrorMessage(error, 'fetch Whatsapp charges', displayAlert);
+      getErrorMessage(section, error, 'fetch Whatsapp charges', displayAlert);
     },
   },
 );

@@ -10,7 +10,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for er
  *
  * @returns {Object} - React Query mutation object for deleting a custody type
  */
-export const useDeleteCustodyMutation = (displayAlert) => {
+export const useDeleteCustodyMutation = (displayAlert, section) => {
   // Create a query client to manage cache and invalidate queries
   const queryClient = useQueryClient();
 
@@ -48,7 +48,7 @@ export const useDeleteCustodyMutation = (displayAlert) => {
        */
       onError: (error) => {
         // Call utility function to get the error message and display it
-        getErrorMessage(error, 'delete custody', displayAlert);
+        getErrorMessage(section, error, 'delete custody', displayAlert);
       },
     },
   );

@@ -18,6 +18,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility to format and d
 export const useUpdateUserMutation = (
   history,
   displayAlert,
+  section,
 ) => useMutation(
   /**
    * The mutation function to update user profile and organization details.
@@ -83,7 +84,7 @@ export const useUpdateUserMutation = (
      */
     onError: (error) => {
       // Use a utility function to handle and display error messages to the user
-      getErrorMessage(error, 'update user details', displayAlert);
+      getErrorMessage(section, error, 'update user details', displayAlert);
     },
   },
 );

@@ -22,7 +22,7 @@ const UserGroups = () => {
    */
   const { data: coregroupData, isLoading: isLoadingCoregroup } = useQuery(
     ['coregroups'],
-    () => getCoregroupQuery(displayAlert),
+    () => getCoregroupQuery(displayAlert, 'User groups'),
     { refetchOnWindowFocus: false }, // Avoid refetching on tab focus
   );
 
@@ -32,7 +32,7 @@ const UserGroups = () => {
    */
   const { data: organizations, isLoading: isLoadingOrganizations } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'User groups'),
     { refetchOnWindowFocus: false },
   );
 
@@ -40,7 +40,7 @@ const UserGroups = () => {
    * Mutation for updating group permissions.
    * Called when a permission switch is toggled.
    */
-  const { mutate: editGroupMutation, isLoading: isEditingGroup } = useEditCoregroupMutation(displayAlert);
+  const { mutate: editGroupMutation, isLoading: isEditingGroup } = useEditCoregroupMutation(displayAlert, 'User groups');
 
   /**
    * When both core groups and organization data are loaded,

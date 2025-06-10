@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<any>} - Returns a promise that resolves to the response from the API.
  *                             If the request fails, returns an empty array.
  */
-export const getApiResponseQuery = async (url, header, displayAlert) => {
+export const getApiResponseQuery = async (url, header, displayAlert, section) => {
   try {
     // Sending a GET request to the specified URL with custom headers
     const response = await httpService.makeRequest(
@@ -28,7 +28,7 @@ export const getApiResponseQuery = async (url, header, displayAlert) => {
     return response;
   } catch (error) {
     // If an error occurs, display a descriptive error message using the utility function
-    getErrorMessage(error, 'load API response data', displayAlert);
+    getErrorMessage(section, error, 'load API response data', displayAlert);
     // Return an empty array to ensure a consistent return type when the request fails
     return [];
   }

@@ -9,7 +9,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to ext
  * @param {Function} displayAlert - Function to display success, info, or error alerts to the user.
  * @returns {Object} The mutation object, including the mutate function for triggering the request.
  */
-export const useFetchNewGatewayMutation = (displayAlert) => useMutation(
+export const useFetchNewGatewayMutation = (displayAlert, section) => useMutation(
   /**
    * The mutation function that performs the API request to fetch new trackers.
    *
@@ -57,7 +57,7 @@ export const useFetchNewGatewayMutation = (displayAlert) => useMutation(
      */
     onError: (error) => {
       // Display a generic error message using the utility function
-      getErrorMessage(error, 'fetch trackers', displayAlert);
+      getErrorMessage(section, error, 'fetch trackers', displayAlert);
     },
   },
 );

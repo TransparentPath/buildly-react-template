@@ -15,7 +15,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  *
  * @returns {Array} - The data of the tracker orders if the request is successful; an empty array if an error occurs.
  */
-export const getTrackerOrderQuery = async (organization_uuid, displayAlert) => {
+export const getTrackerOrderQuery = async (organization_uuid, displayAlert, section) => {
   try {
     // Attempt to make the API request to fetch tracker orders for the given organization UUID
     const response = await httpService.makeRequest(
@@ -27,7 +27,7 @@ export const getTrackerOrderQuery = async (organization_uuid, displayAlert) => {
   } catch (error) {
     // If an error occurs during the API request, catch it and display an error message
     // 'getErrorMessage' is a utility function that handles the error and displays a relevant message
-    getErrorMessage(error, 'load tracker orders data', displayAlert);
+    getErrorMessage(section, error, 'load tracker orders data', displayAlert);
     // Return an empty array as a fallback in case of an error
     return [];
   }

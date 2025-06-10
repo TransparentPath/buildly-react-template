@@ -32,7 +32,7 @@ const Verification = ({ location }) => {
   const { displayAlert } = useAlert(); // Destructure method to display alert
 
   // Mutation hook to resend reset password email
-  const { mutate: resetPasswordMutation, isLoading: isResetPassword } = useResetPasswordMutation(displayAlert);
+  const { mutate: resetPasswordMutation, isLoading: isResetPassword } = useResetPasswordMutation(displayAlert, 'Verification');
 
   // Side effect to handle countdown timer when button is disabled
   useEffect(() => {

@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for er
  *
  * @returns {Object} - React Query mutation object for adding a custodian type
  */
-export const useAddCustodianTypeMutation = (history, redirectTo, displayAlert) => {
+export const useAddCustodianTypeMutation = (history, redirectTo, displayAlert, section) => {
   // Create a query client to manage cache and invalidate queries
   const queryClient = useQueryClient();
 
@@ -54,7 +54,7 @@ export const useAddCustodianTypeMutation = (history, redirectTo, displayAlert) =
        * @param {Object} error - The error from the mutation request
        */
       onError: (error) => {
-        getErrorMessage(error, 'create custodian type', displayAlert);
+        getErrorMessage(section, error, 'create custodian type', displayAlert);
       },
     },
   );

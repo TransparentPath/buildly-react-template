@@ -94,14 +94,14 @@ const TopBar = ({
   // Query: fetch organizations
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Top bar'),
     { refetchOnWindowFocus: false },
   );
 
   // Query: fetch unit data based on current organization
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', org_uuid],
-    () => getUnitQuery(org_uuid, displayAlert),
+    () => getUnitQuery(org_uuid, displayAlert, 'Top bar'),
     { refetchOnWindowFocus: false },
   );
 
@@ -109,12 +109,12 @@ const TopBar = ({
   const { data: versionNotesData, isLoading: isLoadingVersionNotes } = useQuery(
     ['versionNotes'],
     // eslint-disable-next-line no-undef
-    () => getVersionNotesQuery(VERSION, displayAlert),
+    () => getVersionNotesQuery(VERSION, displayAlert, 'Top bar'),
     { refetchOnWindowFocus: false },
   );
 
   // Mutation: update user preferences (e.g., language/org)
-  const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert);
+  const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert, 'Top bar');
 
   /**
    * Sets the Google Translate cookie based on user language preference.

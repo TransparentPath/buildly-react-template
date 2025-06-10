@@ -14,7 +14,7 @@ import _ from 'lodash';
  * @param {function} displayAlert - A function used to show an error alert message if the request fails.
  * @returns {Promise<Array>} - Returns a filtered array of gateway objects or an empty array on failure.
  */
-export const getGatewayQuery = async (organization, displayAlert) => {
+export const getGatewayQuery = async (organization, displayAlert, section) => {
   try {
     // Sending a GET request to retrieve gateways associated with a specific organization
     const response = await httpService.makeRequest(
@@ -30,7 +30,7 @@ export const getGatewayQuery = async (organization, displayAlert) => {
     return data;
   } catch (error) {
     // Showing an alert if the API request fails
-    getErrorMessage(error, 'load trackers data', displayAlert);
+    getErrorMessage(section, error, 'load trackers data', displayAlert);
     // Returning an empty array so that UI logic doesn’t break on failure
     return [];
   }

@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of contact records.
  *                             Returns an empty array if the request fails.
  */
-export const getContactQuery = async (organization, displayAlert) => {
+export const getContactQuery = async (organization, displayAlert, section) => {
   try {
     // Making a GET request to fetch contacts filtered by organization UUID
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getContactQuery = async (organization, displayAlert) => {
     return response.data;
   } catch (error) {
     // If an error occurs, show a descriptive error message using the utility function
-    getErrorMessage(error, 'load contacts data', displayAlert);
+    getErrorMessage(section, error, 'load contacts data', displayAlert);
     // Return an empty array to maintain consistency in return type
     return [];
   }

@@ -12,7 +12,7 @@ import _ from 'lodash';
  * @param {function} displayAlert - A function used to display error alerts in case of request failure.
  * @returns {Promise<Array>} - Returns an array of countries with their states or an empty array if the request fails.
  */
-export const getCountriesQuery = async (displayAlert) => {
+export const getCountriesQuery = async (displayAlert, section) => {
   try {
     // Make an API request to fetch countries and their states
     const response = await httpService.makeRequest(
@@ -61,7 +61,7 @@ export const getCountriesQuery = async (displayAlert) => {
     return [];
   } catch (error) {
     // If the request fails, show an error alert with the relevant message
-    getErrorMessage(error, 'load countries and related states data', displayAlert);
+    getErrorMessage(section, error, 'load countries and related states data', displayAlert);
     // Return an empty array as a fallback in case of an error
     return [];
   }

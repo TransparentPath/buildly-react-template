@@ -40,14 +40,14 @@ const Product = ({ redirectTo, history }) => {
   // Fetch units of measure (e.g., weight, date, time units)
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Product'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch list of products
   const { data: productData, isLoading: isLoadingProducts } = useQuery(
     ['products', organization],
-    () => getProductQuery(organization, displayAlert),
+    () => getProductQuery(organization, displayAlert, 'Product'),
     { refetchOnWindowFocus: false },
   );
 
@@ -74,7 +74,7 @@ const Product = ({ redirectTo, history }) => {
   };
 
   // Mutation hook for deleting a product
-  const { mutate: deleteProductMutation, isLoading: isDeletingProduct } = useDeleteProductMutation(organization, displayAlert);
+  const { mutate: deleteProductMutation, isLoading: isDeletingProduct } = useDeleteProductMutation(organization, displayAlert, 'Product');
 
   // Execute delete mutation and close modal
   const handleDeleteModal = () => {

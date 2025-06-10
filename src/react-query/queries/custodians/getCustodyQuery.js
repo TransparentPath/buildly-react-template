@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of custody records.
  *                             If the request fails, it returns an empty array.
  */
-export const getCustodyQuery = async (shipmentIds, displayAlert) => {
+export const getCustodyQuery = async (shipmentIds, displayAlert, section) => {
   try {
     // Sending a GET request to the API with the shipment IDs as query parameters
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getCustodyQuery = async (shipmentIds, displayAlert) => {
     return response.data;
   } catch (error) {
     // If the request fails, extract and display a user-friendly error message using the utility function
-    getErrorMessage(error, 'load custodies data', displayAlert);
+    getErrorMessage(section, error, 'load custodies data', displayAlert);
     // Return an empty array to ensure consistent data type even when the request fails
     return [];
   }

@@ -16,7 +16,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  *
  * @returns {Object} - React Query mutation object (e.g., mutate, isLoading, etc.)
  */
-export const useUpdateOrganizationMutation = (discardFormData, displayAlert) => {
+export const useUpdateOrganizationMutation = (discardFormData, displayAlert, section) => {
   // Access the query client to invalidate or refetch related data after mutation
   const queryClient = useQueryClient();
   return useMutation(
@@ -69,7 +69,7 @@ export const useUpdateOrganizationMutation = (discardFormData, displayAlert) => 
        * @param {Object} error - Error object returned from the failed request
        */
       onError: (error) => {
-        getErrorMessage(error, 'update organization settings', displayAlert);
+        getErrorMessage(section, error, 'update organization settings', displayAlert);
       },
     },
   );

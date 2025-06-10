@@ -20,7 +20,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  *
  * @returns {object} - Mutation object with helpers like `mutate`, `isLoading`, etc.
  */
-export const useAddProductTypeMutation = (organization, history, redirectTo, displayAlert) => {
+export const useAddProductTypeMutation = (organization, history, redirectTo, displayAlert, section) => {
   // Initialize the query client to interact with the cache
   const queryClient = useQueryClient();
 
@@ -62,7 +62,7 @@ export const useAddProductTypeMutation = (organization, history, redirectTo, dis
        * @param {any} error - The error thrown during the mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'create product type', displayAlert);
+        getErrorMessage(section, error, 'create product type', displayAlert);
       },
     },
   );

@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
  *
  * @returns {object} - The mutation object from useMutation with mutate, status, error, and other properties
  */
-export const useInviteMutation = (discardFormData, displayAlert) => {
+export const useInviteMutation = (discardFormData, displayAlert, section) => {
   // Get React Query's query client instance to manage cache
   const queryClient = useQueryClient();
 
@@ -56,7 +56,7 @@ export const useInviteMutation = (discardFormData, displayAlert) => {
        * - Uses utility to extract and display a readable error message.
        */
       onError: (error) => {
-        getErrorMessage(error, 'send invite or create organization', displayAlert);
+        getErrorMessage(section, error, 'send invite or create organization', displayAlert);
       },
     },
   );

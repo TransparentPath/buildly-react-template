@@ -39,13 +39,13 @@ const GatewayType = ({ redirectTo, history }) => {
   // Queries for fetching unit data and gateway types, with loading states
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Custodian type'),
     { refetchOnWindowFocus: false }, // Disable refetch on window focus
   );
 
   const { data: gatewayTypesData, isLoading: isLoadingGatewayTypes } = useQuery(
     ['gatewayTypes'],
-    () => getGatewayTypeQuery(displayAlert),
+    () => getGatewayTypeQuery(displayAlert, 'Custodian type'),
     { refetchOnWindowFocus: false }, // Disable refetch on window focus
   );
 
@@ -72,7 +72,7 @@ const GatewayType = ({ redirectTo, history }) => {
   };
 
   // Mutation for deleting a gateway type using the custom hook
-  const { mutate: deleteGatewayTypeMutation, isLoading: isDeletingGatewayType } = useDeleteGatewayTypeMutation(displayAlert);
+  const { mutate: deleteGatewayTypeMutation, isLoading: isDeletingGatewayType } = useDeleteGatewayTypeMutation(displayAlert, 'Custodian type');
 
   // Handler for confirming the deletion in the modal
   const handleDeleteModal = () => {

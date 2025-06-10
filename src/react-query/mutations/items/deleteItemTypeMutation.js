@@ -17,7 +17,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @param {Function} displayAlert - A callback to show alerts to the user (e.g., toast/snackbar).
  * @returns {Object} - The mutation object returned by useMutation.
  */
-export const useDeleteItemTypeMutation = (organization, displayAlert) => {
+export const useDeleteItemTypeMutation = (organization, displayAlert, section) => {
   // Get a reference to the query client for managing React Query cache
   const queryClient = useQueryClient();
 
@@ -53,7 +53,7 @@ export const useDeleteItemTypeMutation = (organization, displayAlert) => {
        * @param {any} error - The error object thrown during the mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'delete item type', displayAlert);
+        getErrorMessage(section, error, 'delete item type', displayAlert);
       },
     },
   );

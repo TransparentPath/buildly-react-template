@@ -45,7 +45,7 @@ const CookieConsent = () => {
   }, [user]);
 
   // React Query mutation for updating user data
-  const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert);
+  const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert, 'Cookie consent');
 
   /**
    * Handle user consent by submitting an update to their profile.

@@ -10,7 +10,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of core users.
  *                             Returns an empty array if the request fails.
  */
-export const getCoreuserQuery = async (displayAlert) => {
+export const getCoreuserQuery = async (displayAlert, section) => {
   try {
     // Making a GET request to fetch core user data from the API
     const response = await httpService.makeRequest(
@@ -21,7 +21,7 @@ export const getCoreuserQuery = async (displayAlert) => {
     return response.data;
   } catch (error) {
     // If an error occurs, extract and display a friendly error message using the utility
-    getErrorMessage(error, 'load core users data', displayAlert);
+    getErrorMessage(section, error, 'load core users data', displayAlert);
     // Return an empty array to allow the app to handle failure gracefully
     return [];
   }

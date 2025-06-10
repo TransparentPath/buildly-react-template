@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
  *
  * @returns {Object} - React Query mutation object for adding API setup
  */
-export const useAddApiSetupMutation = (displayAlert) => useMutation(
+export const useAddApiSetupMutation = (displayAlert, section) => useMutation(
   /**
    * The mutation function for adding API setup data.
    *
@@ -57,7 +57,7 @@ export const useAddApiSetupMutation = (displayAlert) => useMutation(
      * @param {Object} error - The error returned from the mutation
      */
     onError: (error) => {
-      getErrorMessage(error, 'setup API', displayAlert); // Call utility function to handle error
+      getErrorMessage(section, error, 'setup API', displayAlert); // Call utility function to handle error
     },
   },
 );

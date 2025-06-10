@@ -13,7 +13,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for er
  *
  * @returns {Object} - React Query mutation object, which can be used to trigger the edit core group mutation
  */
-export const useEditCoregroupMutation = (displayAlert) => {
+export const useEditCoregroupMutation = (displayAlert, section) => {
   // Access React Query's query client to invalidate queries after the mutation
   const queryClient = useQueryClient();
 
@@ -55,7 +55,7 @@ export const useEditCoregroupMutation = (displayAlert) => {
        */
       onError: (error) => {
         // Call the utility function to get a user-friendly error message and display it
-        getErrorMessage(error, 'edit user group', displayAlert);
+        getErrorMessage(section, error, 'edit user group', displayAlert);
       },
     },
   );

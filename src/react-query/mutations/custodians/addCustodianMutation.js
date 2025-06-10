@@ -20,6 +20,7 @@ export const useAddCustodianMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => {
   // Access React Query's query client to invalidate queries after the mutation
   const queryClient = useQueryClient();
@@ -103,7 +104,7 @@ export const useAddCustodianMutation = (
        * @param {Object} error - The error returned by the failed mutation request
        */
       onError: (error) => {
-        getErrorMessage(error, 'create custodian', displayAlert);
+        getErrorMessage(section, error, 'create custodian', displayAlert);
       },
     },
   );

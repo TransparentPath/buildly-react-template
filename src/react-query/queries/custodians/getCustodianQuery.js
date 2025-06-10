@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of custodians.
  *                             If the API call fails, returns an empty array.
  */
-export const getCustodianQuery = async (organization, displayAlert) => {
+export const getCustodianQuery = async (organization, displayAlert, section) => {
   try {
     // Sending a GET request to the backend API to fetch custodians linked to the given organization UUID
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getCustodianQuery = async (organization, displayAlert) => {
     return response.data;
   } catch (error) {
     // Handle the error gracefully by displaying a user-friendly message
-    getErrorMessage(error, 'load custodians data', displayAlert);
+    getErrorMessage(section, error, 'load custodians data', displayAlert);
     // Return an empty array to maintain a consistent return type in case of failure
     return [];
   }

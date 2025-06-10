@@ -40,14 +40,14 @@ const CustodianType = ({ redirectTo, history }) => {
   // Fetch available units for the organization
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Gateway type'),
     { refetchOnWindowFocus: false }, // Prevent refetch on window focus for performance
   );
 
   // Fetch all custodian types
   const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
     ['custodianTypes'],
-    () => getCustodianTypeQuery(displayAlert),
+    () => getCustodianTypeQuery(displayAlert, 'Gateway type'),
     { refetchOnWindowFocus: false },
   );
 
@@ -74,7 +74,7 @@ const CustodianType = ({ redirectTo, history }) => {
   };
 
   // Mutation hook to delete a custodian type
-  const { mutate: deleteCustodianTypeMutation, isLoading: isDeletingCustodianType } = useDeleteCustodianTypeMutation(displayAlert);
+  const { mutate: deleteCustodianTypeMutation, isLoading: isDeletingCustodianType } = useDeleteCustodianTypeMutation(displayAlert, 'Custodian type');
 
   // Finalize deletion of custodian type and close the modal
   const handleDeleteModal = () => {

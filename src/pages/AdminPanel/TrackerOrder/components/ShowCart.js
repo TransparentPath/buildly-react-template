@@ -45,7 +45,7 @@ const ShowCart = ({ history, location }) => {
   // Fetching unit data (e.g., date and time formats) using React Query
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization_uuid],
-    () => getUnitQuery(organization_uuid, displayAlert),
+    () => getUnitQuery(organization_uuid, displayAlert, 'Cart'),
     { refetchOnWindowFocus: false },
   );
 
@@ -59,7 +59,7 @@ const ShowCart = ({ history, location }) => {
     : '';
 
   // Mutation hook for adding a tracker order
-  const { mutate: addTrackerOrderMutation, isLoading: isAddingTrackerOrder } = useAddTrackerOrderMutation(history, location.state.from, displayAlert, setCart);
+  const { mutate: addTrackerOrderMutation, isLoading: isAddingTrackerOrder } = useAddTrackerOrderMutation(history, location.state.from, displayAlert, setCart, 'Cart');
 
   // Close cart modal and navigate to the previous page
   const closeCart = () => {

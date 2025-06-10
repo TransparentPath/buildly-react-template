@@ -13,7 +13,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
  *
  * @returns {Object} - React Query mutation object, which can be used to trigger the delete consortium mutation
  */
-export const useDeleteConsortiumMutation = (displayAlert) => {
+export const useDeleteConsortiumMutation = (displayAlert, section) => {
   // Access React Query's query client to invalidate queries after mutation
   const queryClient = useQueryClient();
 
@@ -52,7 +52,7 @@ export const useDeleteConsortiumMutation = (displayAlert) => {
        */
       onError: (error) => {
         // Call the utility function to get a user-friendly error message and display it
-        getErrorMessage(error, 'delete consortium', displayAlert);
+        getErrorMessage(section, error, 'delete consortium', displayAlert);
       },
     },
   );

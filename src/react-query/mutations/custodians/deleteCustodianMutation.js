@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for er
  *
  * @returns {Object} - React Query mutation object for deleting a custodian
  */
-export const useDeleteCustodianMutation = (organization, displayAlert) => {
+export const useDeleteCustodianMutation = (organization, displayAlert, section) => {
   // Create a query client to manage cache and invalidate queries
   const queryClient = useQueryClient();
 
@@ -60,7 +60,7 @@ export const useDeleteCustodianMutation = (organization, displayAlert) => {
        */
       onError: (error) => {
         // Call utility function to get the error message and display it
-        getErrorMessage(error, 'delete custodian', displayAlert);
+        getErrorMessage(section, error, 'delete custodian', displayAlert);
       },
     },
   );

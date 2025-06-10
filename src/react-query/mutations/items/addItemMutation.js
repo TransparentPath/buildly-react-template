@@ -17,6 +17,7 @@ export const useAddItemMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => {
   const queryClient = useQueryClient(); // Initialize React Query client for cache management
 
@@ -62,7 +63,7 @@ export const useAddItemMutation = (
        * @param {Object} error - The error object returned by the mutation
        */
       onError: (error) => {
-        getErrorMessage(error, 'create item', displayAlert); // Handle and display the error message
+        getErrorMessage(section, error, 'create item', displayAlert); // Handle and display the error message
       },
     },
   );

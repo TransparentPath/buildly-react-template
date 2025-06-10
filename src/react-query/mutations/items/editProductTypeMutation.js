@@ -25,6 +25,7 @@ export const useEditProductTypeMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => {
   // Get query client instance to manage query cache
   const queryClient = useQueryClient();
@@ -67,7 +68,7 @@ export const useEditProductTypeMutation = (
        * @param {any} error - The error thrown by the mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit product type', displayAlert); // Show error alert
+        getErrorMessage(section, error, 'edit product type', displayAlert); // Show error alert
       },
     },
   );

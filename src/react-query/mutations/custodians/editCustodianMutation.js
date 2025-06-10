@@ -18,6 +18,7 @@ export const useEditCustodianMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => {
   const queryClient = useQueryClient();
 
@@ -74,7 +75,7 @@ export const useEditCustodianMutation = (
        */
       onError: (error) => {
         // Call utility function to handle and display the error message
-        getErrorMessage(error, 'edit custodian', displayAlert);
+        getErrorMessage(section, error, 'edit custodian', displayAlert);
       },
     },
   );

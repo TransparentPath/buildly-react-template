@@ -80,7 +80,7 @@ const EditMapping = ({ history, location }) => {
   };
 
   // React Query mutation hook to submit the custodian update
-  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert);
+  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert, 'Mapping');
 
   // Form submission handler
   const handleSubmit = (event) => {

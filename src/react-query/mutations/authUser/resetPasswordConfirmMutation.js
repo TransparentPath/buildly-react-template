@@ -18,6 +18,7 @@ export const useResetPasswordConfirmMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => useMutation(
   /**
    * Mutation function that submits the new password and validates the reset token and UID.
@@ -49,7 +50,7 @@ export const useResetPasswordConfirmMutation = (
      * @param {object} error - Error object returned by the server
      */
     onError: (error) => {
-      getErrorMessage(error, 'reset the password', displayAlert); // Show a user-friendly error message
+      getErrorMessage(section, error, 'reset the password', displayAlert); // Show a user-friendly error message
     },
   },
 );

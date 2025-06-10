@@ -65,71 +65,71 @@ const Gateway = ({ history, redirectTo }) => {
   // Fetch gateway data
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
     ['gateways', organization],
-    () => getGatewayQuery(organization, displayAlert),
+    () => getGatewayQuery(organization, displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch gateway types
   const { data: gatewayTypesData, isLoading: isLoadingGatewayTypes } = useQuery(
     ['gatewayTypes'],
-    () => getGatewayTypeQuery(displayAlert),
+    () => getGatewayTypeQuery(displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch custodian types
   const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
     ['custodianTypes'],
-    () => getCustodianTypeQuery(displayAlert),
+    () => getCustodianTypeQuery(displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch custodians
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
-    () => getCustodianQuery(organization, displayAlert),
+    () => getCustodianQuery(organization, displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch contact information
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
     ['contact', organization],
-    () => getContactQuery(organization, displayAlert),
+    () => getContactQuery(organization, displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch shipment data
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', organization],
-    () => getShipmentsQuery(organization, 'Planned,En route,Arrived', displayAlert),
+    () => getShipmentsQuery(organization, 'Planned,En route,Arrived', displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch countries
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch unit data
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch organization data
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Gateway'),
     { refetchOnWindowFocus: false },
   );
 
   // Mutation to sync gateways
-  const { mutate: syncGatewayMutation, isLoading: isSyncingGateway } = useSyncGatewayMutation(organization, displayAlert);
+  const { mutate: syncGatewayMutation, isLoading: isSyncingGateway } = useSyncGatewayMutation(organization, displayAlert, 'Gateway');
 
   // Mutation to edit gateways
-  const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(organization, null, null, displayAlert);
+  const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(organization, null, null, displayAlert, 'Gateway');
 
   // Path for editing gateways
   const editPath = redirectTo

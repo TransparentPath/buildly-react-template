@@ -10,7 +10,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of custodian types.
  *                             Returns an empty array if the request fails.
  */
-export const getCustodianTypeQuery = async (displayAlert) => {
+export const getCustodianTypeQuery = async (displayAlert, section) => {
   try {
     // Sending a GET request to fetch custodian type data from the API
     const response = await httpService.makeRequest(
@@ -21,7 +21,7 @@ export const getCustodianTypeQuery = async (displayAlert) => {
     return response.data;
   } catch (error) {
     // If there's an error, handle it by displaying a descriptive error message to the user
-    getErrorMessage(error, 'load custodian types data', displayAlert);
+    getErrorMessage(section, error, 'load custodian types data', displayAlert);
     // Return an empty array to ensure the app continues functioning properly even if the request fails
     return [];
   }

@@ -17,6 +17,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility to format and d
 export const useEditShipmentTemplateMutation = (
   organization,
   displayAlert,
+  section,
 ) => {
   // Initialize React Query's query client to manage and invalidate cached queries
   const queryClient = useQueryClient();
@@ -57,7 +58,7 @@ export const useEditShipmentTemplateMutation = (
        * @param {Object} error - The error object from the failed mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit shipment template', displayAlert);
+        getErrorMessage(section, error, 'edit shipment template', displayAlert);
       },
     },
   );

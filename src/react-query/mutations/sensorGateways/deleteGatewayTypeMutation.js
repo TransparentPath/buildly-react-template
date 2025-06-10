@@ -13,7 +13,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for ex
  * @param {Function} displayAlert - Function to display success or error alerts to the user.
  * @returns {object} - Mutation object returned by `useMutation` containing the mutation function and status.
  */
-export const useDeleteGatewayTypeMutation = (displayAlert) => {
+export const useDeleteGatewayTypeMutation = (displayAlert, section) => {
   const queryClient = useQueryClient(); // React Query hook for cache management
 
   return useMutation(
@@ -52,7 +52,7 @@ export const useDeleteGatewayTypeMutation = (displayAlert) => {
        */
       onError: (error) => {
         // Displaying an error message if the mutation fails
-        getErrorMessage(error, 'delete tracker type', displayAlert);
+        getErrorMessage(section, error, 'delete tracker type', displayAlert);
       },
     },
   );

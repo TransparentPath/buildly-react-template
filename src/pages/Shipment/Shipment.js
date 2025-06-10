@@ -82,7 +82,7 @@ const Shipment = ({ history }) => {
   // Fetch shipment data
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, organization],
-    () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert),
+    () => getShipmentsQuery(organization, shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter, displayAlert, 'Shipment'),
     { refetchOnWindowFocus: false },
   );
 
@@ -91,42 +91,42 @@ const Shipment = ({ history }) => {
   // Fetch custodian data
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
-    () => getCustodianQuery(organization, displayAlert),
+    () => getCustodianQuery(organization, displayAlert, 'Shipment'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch item data
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ['items', organization],
-    () => getItemQuery(organization, displayAlert),
+    () => getItemQuery(organization, displayAlert, 'Shipment'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch unit data
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Shipment'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch country data
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Shipment'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch gateway data
   const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
     ['allGateways'],
-    () => getAllGatewayQuery(displayAlert),
+    () => getAllGatewayQuery(displayAlert, 'Shipment'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch custody data
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies', shipmentData, shipmentFilter],
-    () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
+    () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert, 'Shipment'),
     {
       enabled: isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null)))),
       refetchOnWindowFocus: false,
@@ -136,7 +136,7 @@ const Shipment = ({ history }) => {
   // Fetch sensor alert data
   const { data: sensorAlertData, isLoading: isLoadingSensorAlerts } = useQuery(
     ['sensorAlerts', shipmentData, shipmentFilter],
-    () => getSensorAlertQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert),
+    () => getSensorAlertQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), displayAlert, 'Shipment'),
     {
       enabled: isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
       refetchOnWindowFocus: false,
@@ -146,7 +146,7 @@ const Shipment = ({ history }) => {
   // Fetch sensor report data for global view
   const { data: reportData1, isLoading: isLoadingReports1 } = useQuery(
     ['sensorReports', shipmentData, shipmentFilter],
-    () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), 10, displayAlert),
+    () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), 10, displayAlert, 'Shipment'),
     {
       enabled: _.isEmpty(selectedShipment) && _.isEmpty(expandedRows) && isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
       refetchOnWindowFocus: false,
@@ -166,7 +166,7 @@ const Shipment = ({ history }) => {
     refetch: refetchReports2,
   } = useQuery(
     ['sensorReports', shipmentData, shipmentFilter],
-    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
+    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert, 'Shipment'),
     {
       enabled: !_.isEmpty(selectedShipment) && !_.isEmpty(expandedRows) && isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
       refetchOnWindowFocus: false,
