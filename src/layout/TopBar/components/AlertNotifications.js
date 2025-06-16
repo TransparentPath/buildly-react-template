@@ -87,22 +87,20 @@ const AlertNotifications = ({
     reconnectAttempts: 10,
     reconnectInterval: 3000,
     onOpen: () => {
-      console.log('Socket opened');
       sendJsonMessage({ command: 'fetch_alerts', organization_uuid: pushGrpRef.current });
     },
     onClose: () => {
-      console.warn('Socket closed');
       if (pendingReload.current && oauthService.hasValidAccessToken()) {
         reloadData();
       }
     },
     onError: (event) => {
+      // eslint-disable-next-line no-console
       console.error('WebSocket error:', event);
     },
   }, Boolean(pushGrp));
 
   const reloadData = useCallback(async () => {
-    console.log('Reloading data...');
     if (oauthService.hasValidAccessToken()) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['shipments'] }),
@@ -121,8 +119,6 @@ const AlertNotifications = ({
   useEffect(() => {
     if (!lastJsonMessage) return;
     const msg = lastJsonMessage;
-    console.log('[Socket]', msg.command, msg);
-
     if (msg.command === 'fetch_alerts' || msg.command === 'new_alert') {
       handleMessages(msg);
     }
