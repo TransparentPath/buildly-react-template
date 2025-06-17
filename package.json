@@ -51,6 +51,7 @@
     "react-router-dom": "5.3.4",
     "react-select": "^5.7.4",
     "react-timezone-select": "^2.1.2",
+    "react-use-websocket": "3.0.0",
     "recharts": "^2.13.0",
     "serve": "^11.0.0",
     "workbox-core": "^6.5.1",
