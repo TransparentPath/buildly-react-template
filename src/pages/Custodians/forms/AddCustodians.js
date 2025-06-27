@@ -175,10 +175,10 @@ const AddCustodians = ({ history, location }) => {
   };
 
   // Hook for adding a new custodian
-  const { mutate: addCustodianMutation, isLoading: isAddingCustodian } = useAddCustodianMutation(organization, history, redirectTo, displayAlert);
+  const { mutate: addCustodianMutation, isLoading: isAddingCustodian } = useAddCustodianMutation(organization, history, redirectTo, displayAlert, 'Custodian');
 
   // Hook for editing an existing custodian
-  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert);
+  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert, 'Custodian');
 
   /**
    * Handles form submission

@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Returns a promise that resolves to an array of products.
  *                             Returns an empty array in case of an error.
  */
-export const getProductQuery = async (organization, displayAlert) => {
+export const getProductQuery = async (organization, displayAlert, section) => {
   try {
     // Sending a GET request to the 'product' endpoint with the organization UUID as a query parameter
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getProductQuery = async (organization, displayAlert) => {
     return response.data;
   } catch (error) {
     // On failure, display an error message using a reusable utility
-    getErrorMessage(error, 'load products data', displayAlert);
+    getErrorMessage(section, error, 'load products data', displayAlert);
     // Return an empty array to keep the return value consistent
     return [];
   }

@@ -13,7 +13,7 @@ import _ from 'lodash';
  * @param {function} displayAlert - A function to display error messages if the request fails.
  * @returns {Promise<Array>} - An array of filtered gateway objects, or an empty array on failure.
  */
-export const getAllGatewayQuery = async (displayAlert) => {
+export const getAllGatewayQuery = async (displayAlert, section) => {
   try {
     // Making a GET request to fetch all gateway (tracker) entries
     const response = await httpService.makeRequest(
@@ -29,7 +29,7 @@ export const getAllGatewayQuery = async (displayAlert) => {
     return data;
   } catch (error) {
     // If an error occurs, display a formatted alert
-    getErrorMessage(error, 'load all trackers data', displayAlert);
+    getErrorMessage(section, error, 'load all trackers data', displayAlert);
     // Return an empty array to ensure calling code can safely handle failures
     return [];
   }

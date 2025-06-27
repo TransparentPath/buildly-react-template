@@ -39,14 +39,14 @@ const OrganizationType = ({ redirectTo, history }) => {
   // Fetch list of measurement units using organization ID
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization], // Unique query key
-    () => getUnitQuery(organization, displayAlert), // Query function
+    () => getUnitQuery(organization, displayAlert, 'Organization type'), // Query function
     { refetchOnWindowFocus: false }, // Prevent automatic refetch on window focus
   );
 
   // Fetch list of organization types (no org ID needed)
   const { data: organizationTypesData, isLoading: isLoadingOrganizationTypes } = useQuery(
     ['organizationTypes'], // Query key
-    () => getOrganizationTypeQuery(displayAlert), // API call
+    () => getOrganizationTypeQuery(displayAlert, 'Organization type'), // API call
     { refetchOnWindowFocus: false },
   );
 
@@ -73,7 +73,7 @@ const OrganizationType = ({ redirectTo, history }) => {
   };
 
   // Hook to delete an organization type via mutation
-  const { mutate: deleteOrganizationTypeMutation, isLoading: isDeletingOrganizationType } = useDeleteOrganizationTypeMutation(displayAlert);
+  const { mutate: deleteOrganizationTypeMutation, isLoading: isDeletingOrganizationType } = useDeleteOrganizationTypeMutation(displayAlert, 'Organization type');
 
   // Handler for confirming deletion
   const handleDeleteModal = () => {

@@ -114,7 +114,7 @@ const Reporting = () => {
   // Query to fetch shipment data based on filters
   const { data: shipmentData, isLoading: isLoadingShipments } = useQuery(
     ['shipments', shipmentFilter, locShipmentID, organization],
-    () => getShipmentsQuery(organization, (shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), displayAlert, locShipmentID),
+    () => getShipmentsQuery(organization, (shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), displayAlert, 'Reporting', locShipmentID),
     { refetchOnWindowFocus: false },
   );
 
@@ -123,56 +123,56 @@ const Reporting = () => {
   // Query to fetch unit data
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Reporting'),
     { refetchOnWindowFocus: false },
   );
 
   // Query to fetch country data
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Reporting'),
     { refetchOnWindowFocus: false },
   );
 
   // Query to fetch item data
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
     ['items', organization],
-    () => getItemQuery(organization, displayAlert),
+    () => getItemQuery(organization, displayAlert, 'Reporting'),
     { refetchOnWindowFocus: false },
   );
 
   // Query to fetch item type data
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
     ['itemTypes', organization],
-    () => getItemTypeQuery(organization, displayAlert),
+    () => getItemTypeQuery(organization, displayAlert, 'Reporting'),
     { refetchOnWindowFocus: false },
   );
 
   // Query to fetch custodian data
   const { data: custodianData, isLoading: isLoadingCustodians } = useQuery(
     ['custodians', organization],
-    () => getCustodianQuery(organization, displayAlert),
+    () => getCustodianQuery(organization, displayAlert, 'Reporting'),
     { refetchOnWindowFocus: false },
   );
 
   // Query to fetch contact information
   const { data: contactInfo, isLoading: isLoadingContact } = useQuery(
     ['contact', organization],
-    () => getContactQuery(organization, displayAlert),
+    () => getContactQuery(organization, displayAlert, 'Reporting'),
     { refetchOnWindowFocus: false },
   );
 
   // Query to fetch all gateway data
   const { data: allGatewayData, isLoading: isLoadingAllGateways } = useQuery(
     ['allGateways'],
-    () => getAllGatewayQuery(displayAlert),
+    () => getAllGatewayQuery(displayAlert, 'Reporting'),
     { refetchOnWindowFocus: false },
   );
 
   // Query to fetch custody data
   const { data: custodyData, isLoading: isLoadingCustodies } = useQuery(
     ['custodies', shipmentData, shipmentFilter],
-    () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert),
+    () => getCustodyQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null))), displayAlert, 'Reporting'),
     {
       enabled: isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'shipment_uuid'), null)))),
       refetchOnWindowFocus: false,
@@ -182,7 +182,7 @@ const Reporting = () => {
   // Query to fetch sensor alert data
   const { data: sensorAlertData, isLoading: isLoadingSensorAlerts, isFetching: isFetchingSensorAlerts } = useQuery(
     ['sensorAlerts', selectedShipment, shipmentFilter],
-    () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert),
+    () => getSensorAlertQuery(encodeURIComponent(selectedShipment.partner_shipment_id), displayAlert, 'Reporting'),
     {
       enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(selectedShipment.partner_shipment_id),
       refetchOnWindowFocus: false,
@@ -192,7 +192,7 @@ const Reporting = () => {
   // Query to fetch sensor report data
   const { data: sensorReportData, isLoading: isLoadingSensorReports, isFetching: isFetchingSensorReports } = useQuery(
     ['sensorReports', selectedShipment, shipmentFilter],
-    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert),
+    () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert, 'Reporting'),
     {
       enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEmpty(selectedShipment.partner_shipment_id),
       refetchOnWindowFocus: false,
@@ -202,7 +202,7 @@ const Reporting = () => {
   // Query to fetch processed sensor data
   const { data: sensorProcessedData, isLoading: isLoadingSensorProcessedData } = useQuery(
     ['processedSensorData', selectedShipment, shipmentFilter],
-    () => getSensorProcessedDataQuery(selectedShipment, displayAlert),
+    () => getSensorProcessedDataQuery(selectedShipment, displayAlert, 'Reporting'),
     {
       enabled: !_.isEmpty(selectedShipment) && isShipmentDataAvailable && !_.isEqual(shipmentFilter, 'Active'),
       refetchOnWindowFocus: false,
@@ -210,7 +210,7 @@ const Reporting = () => {
   );
 
   // Mutation for downloading PDF reports
-  const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading } = useReportPDFDownloadMutation((shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), locShipmentID, organization, displayAlert);
+  const { mutate: reportPDFDownloadMutation, isLoading: isReportPDFDownloading } = useReportPDFDownloadMutation((shipmentFilter === 'Active' ? 'Planned,En route,Arrived' : shipmentFilter), locShipmentID, organization, displayAlert, 'Reporting');
 
   // Extracting date and time formats from unit data
   const dateFormat = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))

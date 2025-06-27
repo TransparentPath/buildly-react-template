@@ -23,6 +23,7 @@ export const useReportPDFDownloadMutation = (
   locShipmentID,
   organization,
   displayAlert,
+  section,
 ) => {
   // Get query client instance to manage query cache
   const queryClient = useQueryClient();
@@ -70,7 +71,7 @@ export const useReportPDFDownloadMutation = (
        */
       onError: (error) => {
         // Use the utility function to handle error and display the error message
-        getErrorMessage(error, 'create report', displayAlert);
+        getErrorMessage(section, error, 'create report', displayAlert);
       },
     },
   );

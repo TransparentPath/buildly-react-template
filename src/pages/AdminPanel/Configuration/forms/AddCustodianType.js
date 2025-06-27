@@ -63,10 +63,10 @@ const AddCustodianType = ({ history, location }) => {
   };
 
   // Add mutation hook
-  const { mutate: addCustodianTypeMutation, isLoading: isAddingCustodianType } = useAddCustodianTypeMutation(history, location.state.from, displayAlert);
+  const { mutate: addCustodianTypeMutation, isLoading: isAddingCustodianType } = useAddCustodianTypeMutation(history, location.state.from, displayAlert, 'Custodian type');
 
   // Edit mutation hook
-  const { mutate: editCustodianTypeMutation, isLoading: isEditingCustodianType } = useEditCustodianTypeMutation(history, location.state.from, displayAlert);
+  const { mutate: editCustodianTypeMutation, isLoading: isEditingCustodianType } = useEditCustodianTypeMutation(history, location.state.from, displayAlert, 'Custodian type');
 
   /**
    * Handles form submit for adding/editing custodian type

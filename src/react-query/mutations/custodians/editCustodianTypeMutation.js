@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for er
  *
  * @returns {Object} - React Query mutation object for editing custodian type
  */
-export const useEditCustodianTypeMutation = (history, redirectTo, displayAlert) => {
+export const useEditCustodianTypeMutation = (history, redirectTo, displayAlert, section) => {
   const queryClient = useQueryClient();
 
   return useMutation(
@@ -55,7 +55,7 @@ export const useEditCustodianTypeMutation = (history, redirectTo, displayAlert) 
        */
       onError: (error) => {
         // Call utility function to handle and display the error message
-        getErrorMessage(error, 'edit custodian type', displayAlert);
+        getErrorMessage(section, error, 'edit custodian type', displayAlert);
       },
     },
   );

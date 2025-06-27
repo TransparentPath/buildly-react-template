@@ -16,7 +16,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  *
  * @returns {object} - The mutation object from React Query, including `mutate`, `isLoading`, etc.
  */
-export const useDeleteItemMutation = (organization, displayAlert) => {
+export const useDeleteItemMutation = (organization, displayAlert, section) => {
   // Access React Query's client to manage the query cache
   const queryClient = useQueryClient();
 
@@ -52,7 +52,7 @@ export const useDeleteItemMutation = (organization, displayAlert) => {
        * @param {any} error - Error object thrown during mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'delete item', displayAlert);
+        getErrorMessage(section, error, 'delete item', displayAlert);
       },
     },
   );

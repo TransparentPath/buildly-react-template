@@ -11,7 +11,7 @@ import _ from 'lodash';
  * @param {function} displayAlert - A function used to display error alerts in case of request failure.
  * @returns {Promise<Array>} - Returns an array of objects containing country ISO3 code and its currency, or an empty array if the request fails.
  */
-export const getCurrenciesQuery = async (displayAlert) => {
+export const getCurrenciesQuery = async (displayAlert, section) => {
   try {
     // Make an API request to fetch countries and their currencies
     const response = await httpService.makeRequest(
@@ -30,7 +30,7 @@ export const getCurrenciesQuery = async (displayAlert) => {
     return [];
   } catch (error) {
     // If an error occurs, show an alert and return an empty array
-    getErrorMessage(error, 'load currencies data', displayAlert);
+    getErrorMessage(section, error, 'load currencies data', displayAlert);
     return [];
   }
 };

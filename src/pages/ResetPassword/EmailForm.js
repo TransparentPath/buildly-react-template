@@ -40,7 +40,7 @@ const EmailForm = ({ history }) => {
   const { displayAlert } = useAlert();
 
   // Reset password mutation hook from React Query
-  const { mutate: resetPasswordMutation, isLoading: isResetPassword } = useResetPasswordMutation(displayAlert, setError, history);
+  const { mutate: resetPasswordMutation, isLoading: isResetPassword } = useResetPasswordMutation(displayAlert, setError, history, 'EmailForm');
 
   // Called when user submits the form
   const handleSubmit = (event) => {

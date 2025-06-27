@@ -21,7 +21,7 @@ jobs:
         fetch-depth: 0
     - uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 20
 
     # auto generate tag from label defined in Dockerfile
     - name: Tag version
@@ -92,13 +92,3 @@ jobs:
         to: ${{ secrets.RECIPIENT_EMAIL }}
         from: ${{ secrets.SENDER_EMAIL }}
         body: Production Docker Image of buildly-ui pushed to Google Container Registry Successfully
-
-    - name: Deploy on Kapstan
-      id: Kapstan
-      uses: kapstan-io/deployment-action@latest
-      with: 
-        application_name: buildly-ui
-        image_repository_name: ${{ env.IMAGE_NAME }}
-        image_tag: latest
-        kapstan_api_key: ${{ secrets.PROD_KAPSTAN_KEY }}
-        wait_for_deployment: false

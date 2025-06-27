@@ -15,7 +15,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
  *
  * @returns {Object} - React Query mutation object, which can be used to trigger the edit consortium mutation
  */
-export const useEditConsortiumMutation = (history, redirectTo, displayAlert) => {
+export const useEditConsortiumMutation = (history, redirectTo, displayAlert, section) => {
   // Access React Query's query client to invalidate queries after mutation
   const queryClient = useQueryClient();
 
@@ -61,7 +61,7 @@ export const useEditConsortiumMutation = (history, redirectTo, displayAlert) => 
        */
       onError: (error) => {
         // Call the utility function to get a user-friendly error message and display it
-        getErrorMessage(error, 'edit consortium', displayAlert);
+        getErrorMessage(section, error, 'edit consortium', displayAlert);
       },
     },
   );

@@ -20,7 +20,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  *
  * @returns {object} mutation - A mutation object from `react-query` with properties like `mutate`, `isLoading`, etc.
  */
-export const useAddProductMutation = (organization, history, redirectTo, displayAlert) => {
+export const useAddProductMutation = (organization, history, redirectTo, displayAlert, section) => {
   // Initialize the query client to interact with the cache
   const queryClient = useQueryClient();
 
@@ -65,7 +65,7 @@ export const useAddProductMutation = (organization, history, redirectTo, display
        * @param {any} error - The error object from the failed API call.
        */
       onError: (error) => {
-        getErrorMessage(error, 'create product', displayAlert);
+        getErrorMessage(section, error, 'create product', displayAlert);
       },
     },
   );

@@ -21,6 +21,7 @@ export const useResetPasswordCheckMutation = (
   resetRedirectTo,
   loginRedirectTo,
   displayAlert,
+  section,
 ) => useMutation(
   /**
    * Mutation function to validate reset token and user ID.
@@ -51,7 +52,7 @@ export const useResetPasswordCheckMutation = (
      * @param {object} error - Error object from the failed API request
      */
     onError: (error) => {
-      getErrorMessage(error, 'reset the password', displayAlert); // Show formatted error message
+      getErrorMessage(section, error, 'reset the password', displayAlert); // Show formatted error message
     },
   },
 );

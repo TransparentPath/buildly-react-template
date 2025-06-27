@@ -106,7 +106,7 @@ const AddTrackerOrder = ({ history, location }) => {
    */
   const { data: recipientAddressData, isLoading: isLoadingRecipientAddresses } = useQuery(
     ['recipientAddresses', organization_uuid],
-    () => getRecipientAddressQuery(organization_uuid, displayAlert),
+    () => getRecipientAddressQuery(organization_uuid, displayAlert, 'Tracker order'),
     { refetchOnWindowFocus: false },
   );
 

@@ -98,19 +98,19 @@ const AddFromAPI = () => {
    */
   const { data: itemOptionData, isLoading: isLoadingItemOptions } = useQuery(
     ['itemOptions'],
-    () => getItemOptionQuery(),
+    () => getItemOptionQuery(displayAlert, 'Import export'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: gatewayOptionData, isLoading: isLoadingGatewayOptions } = useQuery(
     ['gatewayOptions'],
-    () => getGatewayOptionQuery(),
+    () => getGatewayOptionQuery(displayAlert, 'Import export'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: productOptionData, isLoading: isLoadingProductOptions } = useQuery(
     ['productOptions'],
-    () => getProductOptionQuery(),
+    () => getProductOptionQuery(displayAlert, 'Import export'),
     { refetchOnWindowFocus: false },
   );
 
@@ -120,7 +120,7 @@ const AddFromAPI = () => {
    */
   const { data: apiResponse, isLoading: isLoadingApiResponse } = useQuery(
     ['apiResponse'],
-    () => getApiResponseQuery(finalUrl, reqHeader, displayAlert),
+    () => getApiResponseQuery(finalUrl, reqHeader, displayAlert, 'Import export'),
     {
       enabled: !!(!provider.name && finalUrl && reqHeader),
       refetchOnWindowFocus: false,
@@ -164,7 +164,7 @@ const AddFromAPI = () => {
   /**
    * Mutation for saving API configuration
    */
-  const { mutate: addApiSetupMutation, isLoading: isAddingApiSetup } = useAddApiSetupMutation(displayAlert);
+  const { mutate: addApiSetupMutation, isLoading: isAddingApiSetup } = useAddApiSetupMutation(displayAlert, 'Import export');
 
   /**
    * Handles form submission

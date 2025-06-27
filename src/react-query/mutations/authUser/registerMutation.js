@@ -16,6 +16,7 @@ export const useRegisterMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => useMutation(
   /**
    * Mutation function to send registration data to the backend.
@@ -48,7 +49,7 @@ export const useRegisterMutation = (
      * @param {object} error - Error object returned from the failed request
      */
     onError: (error) => {
-      getErrorMessage(error, 'register', displayAlert); // Show formatted error alert
+      getErrorMessage(section, error, 'register', displayAlert); // Show formatted error alert
     },
   },
 );

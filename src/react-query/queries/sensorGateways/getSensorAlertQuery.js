@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @param {function} displayAlert - A function used to display error messages if the request fails.
  * @returns {Promise<Array>} - Returns an array of sensor alert objects or an empty array on failure.
  */
-export const getSensorAlertQuery = async (shipmentIds, displayAlert) => {
+export const getSensorAlertQuery = async (shipmentIds, displayAlert, section) => {
   try {
     // Sending a GET request to fetch sensor alert data for the given shipment IDs
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getSensorAlertQuery = async (shipmentIds, displayAlert) => {
     return response.data;
   } catch (error) {
     // If the request fails, display an alert with a user-friendly error message
-    getErrorMessage(error, 'load sensor alerts data', displayAlert);
+    getErrorMessage(section, error, 'load sensor alerts data', displayAlert);
     // Return an empty array to prevent UI errors or crashes on failure
     return [];
   }

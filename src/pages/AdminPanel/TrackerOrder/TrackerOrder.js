@@ -55,14 +55,14 @@ const TrackerOrder = ({ redirectTo, history }) => {
   // Fetch unit data (time and date format) using react-query
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization_uuid],
-    () => getUnitQuery(organization_uuid, displayAlert),
+    () => getUnitQuery(organization_uuid, displayAlert, 'Tracker order'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch tracker order data using react-query
   const { data: trackerOrderData, isLoading: isLoadingTrackerOrder } = useQuery(
     ['trackerOrders', organization_uuid],
-    () => getTrackerOrderQuery(organization_uuid, displayAlert),
+    () => getTrackerOrderQuery(organization_uuid, displayAlert, 'Tracker order'),
     { refetchOnWindowFocus: false },
   );
 

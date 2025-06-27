@@ -68,10 +68,10 @@ const AddOrganizationType = ({ history, location }) => {
   };
 
   // React Query mutation hook to add a new organization type
-  const { mutate: addOrganizationTypeMutation, isLoading: isAddingOrganizationType } = useAddOrganizationTypeMutation(history, location.state.from, displayAlert);
+  const { mutate: addOrganizationTypeMutation, isLoading: isAddingOrganizationType } = useAddOrganizationTypeMutation(history, location.state.from, displayAlert, 'Organization type');
 
   // React Query mutation hook to edit an existing organization type
-  const { mutate: editOrganizationTypeMutation, isLoading: isEditingOrganizationType } = useEditOrganizationTypeMutation(history, location.state.from, displayAlert);
+  const { mutate: editOrganizationTypeMutation, isLoading: isEditingOrganizationType } = useEditOrganizationTypeMutation(history, location.state.from, displayAlert, 'Organization type');
 
   /**
    * Handles the form submission for adding or editing organization types.

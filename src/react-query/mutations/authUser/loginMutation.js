@@ -19,6 +19,7 @@ export const useLoginMutation = (
   redirectTo,
   displayAlert,
   timezone,
+  section,
 ) => useMutation(
   /**
    * Mutation function to handle the login process using OAuth password grant.
@@ -67,7 +68,7 @@ export const useLoginMutation = (
      * @param {object} error - The error object thrown during the login attempt
      */
     onError: (error) => {
-      getErrorMessage(error, 'sign in', displayAlert); // Display a user-friendly error message
+      getErrorMessage(section, error, 'sign in', displayAlert); // Display a user-friendly error message
     },
   },
 );

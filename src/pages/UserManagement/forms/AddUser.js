@@ -57,21 +57,21 @@ const AddUser = ({ open, setOpen }) => {
   // Fetch core user data
   const { data: coreuserData, isLoading: isLoadingCoreuser } = useQuery(
     ['users'],
-    () => getCoreuserQuery(displayAlert),
+    () => getCoreuserQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch organization data
   const { data: orgData, isLoading: isLoadingOrganizations } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch core group data
   const { data: coregroupData, isLoading: isLoadingCoregroup } = useQuery(
     ['coregroup'],
-    () => getCoregroupQuery(displayAlert),
+    () => getCoregroupQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
@@ -208,7 +208,7 @@ const AddUser = ({ open, setOpen }) => {
   };
 
   // Mutation hook to invite users
-  const { mutate: inviteMutation, isLoading: isInviting } = useInviteMutation(discardFormData, displayAlert);
+  const { mutate: inviteMutation, isLoading: isInviting } = useInviteMutation(discardFormData, displayAlert, 'User');
 
   /**
    * Handle form submission.

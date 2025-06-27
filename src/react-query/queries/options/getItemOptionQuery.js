@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Object|Array>} - Resolves to an object containing field metadata and other OPTIONS details,
  *                                    or an empty array in case of error.
  */
-export const getItemOptionQuery = async (displayAlert) => {
+export const getItemOptionQuery = async (displayAlert, section) => {
   try {
     // Making an OPTIONS request to the item endpoint.
     // The third parameter (true) likely indicates inclusion of headers (e.g., authorization)
@@ -27,7 +27,7 @@ export const getItemOptionQuery = async (displayAlert) => {
     return data;
   } catch (error) {
     // Handling and showing errors using a helper method
-    getErrorMessage(error, 'load item options data', displayAlert);
+    getErrorMessage(section, error, 'load item options data', displayAlert);
     // Fallback to an empty array to prevent UI crashes
     return [];
   }

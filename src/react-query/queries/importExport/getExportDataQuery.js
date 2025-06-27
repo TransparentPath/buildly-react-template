@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Object|Array>} - Returns the exported data from the API if successful.
  *                                    Returns an empty array if the request fails or if no valid table is specified.
  */
-export const getExportDataQuery = async (exportTable, exportType, displayAlert) => {
+export const getExportDataQuery = async (exportTable, exportType, displayAlert, section) => {
   // Initialize the endpoint variable to be set based on the table to export
   let endPoint;
   // Determine the correct API endpoint based on the table to export
@@ -41,7 +41,7 @@ export const getExportDataQuery = async (exportTable, exportType, displayAlert) 
     return response.data;
   } catch (error) {
     // If an error occurs, handle and display a descriptive error message
-    getErrorMessage(error, 'export data', displayAlert);
+    getErrorMessage(section, error, 'export data', displayAlert);
     // Return an empty array to ensure the application can handle failure gracefully
     return [];
   }

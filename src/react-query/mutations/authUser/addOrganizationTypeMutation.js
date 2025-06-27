@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility to extract and 
  *
  * @returns {object} - The mutation object from useMutation, containing methods like mutate, status, data, etc.
  */
-export const useAddOrganizationTypeMutation = (history, redirectTo, displayAlert) => {
+export const useAddOrganizationTypeMutation = (history, redirectTo, displayAlert, section) => {
   // Get the QueryClient instance to manage and invalidate cache
   const queryClient = useQueryClient();
 
@@ -43,7 +43,7 @@ export const useAddOrganizationTypeMutation = (history, redirectTo, displayAlert
       // Callback triggered when the mutation encounters an error
       onError: (error) => {
         // Display an appropriate error message to the user
-        getErrorMessage(error, 'create organization type', displayAlert);
+        getErrorMessage(section, error, 'create organization type', displayAlert);
       },
     },
   );

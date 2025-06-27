@@ -39,13 +39,13 @@ const ItemType = ({ redirectTo, history }) => {
   // Query hooks for fetching units and item types data using React Query
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization], // Query key based on organization ID
-    () => getUnitQuery(organization, displayAlert), // API call to fetch units
+    () => getUnitQuery(organization, displayAlert, 'Item type'), // API call to fetch units
     { refetchOnWindowFocus: false }, // Prevent refetch on window focus
   );
 
   const { data: itemTypesData, isLoading: isLoadingItemTypes } = useQuery(
     ['itemTypes', organization], // Query key for item types data
-    () => getItemTypeQuery(organization, displayAlert), // API call to fetch item types
+    () => getItemTypeQuery(organization, displayAlert, 'Item type'), // API call to fetch item types
     { refetchOnWindowFocus: false }, // Prevent refetch on window focus
   );
 
@@ -72,7 +72,7 @@ const ItemType = ({ redirectTo, history }) => {
   };
 
   // Mutation hook for deleting an item type
-  const { mutate: deleteItemTypeMutation, isLoading: isDeletingItemType } = useDeleteItemTypeMutation(organization, displayAlert);
+  const { mutate: deleteItemTypeMutation, isLoading: isDeletingItemType } = useDeleteItemTypeMutation(organization, displayAlert, 'Item type');
 
   // Function to handle the deletion when the delete modal is confirmed
   const handleDeleteModal = () => {

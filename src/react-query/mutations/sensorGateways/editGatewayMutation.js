@@ -23,6 +23,7 @@ export const useEditGatewayMutation = (
   history,
   redirectTo,
   displayAlert,
+  section,
 ) => {
   const queryClient = useQueryClient(); // React Query hook for cache management
 
@@ -83,7 +84,7 @@ export const useEditGatewayMutation = (
        * @param {Error} error - The error object returned from the mutation failure.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit tracker(s)', displayAlert); // Display error message
+        getErrorMessage(section, error, 'edit tracker(s)', displayAlert); // Display error message
       },
     },
   );

@@ -14,7 +14,7 @@ import _ from 'lodash';
  * @param {string|null} shipmentId - Optional. The shipment ID to filter a specific shipment (if provided).
  * @returns {Promise<Array>} - Returns an array of shipment objects or an empty array if the request fails or no data is found.
  */
-export const getShipmentsQuery = async (organization, status, displayAlert, shipmentId = null) => {
+export const getShipmentsQuery = async (organization, status, displayAlert, section, shipmentId = null) => {
   try {
     // Initialize query parameters with organization UUID
     let query_params = `?organization_uuid=${organization}`;
@@ -64,7 +64,7 @@ export const getShipmentsQuery = async (organization, status, displayAlert, ship
     return [];
   } catch (error) {
     // If an error occurs, show an alert and return an empty array
-    getErrorMessage(error, 'load shipments data', displayAlert);
+    getErrorMessage(section, error, 'load shipments data', displayAlert);
     return [];
   }
 };

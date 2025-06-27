@@ -11,7 +11,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @returns {Promise<Array>} - Resolves to an array of product types if the request succeeds.
  *                             Returns an empty array in case of an error.
  */
-export const getProductTypeQuery = async (organization, displayAlert) => {
+export const getProductTypeQuery = async (organization, displayAlert, section) => {
   try {
     // Sending a GET request to fetch product types for the given organization
     const response = await httpService.makeRequest(
@@ -22,7 +22,7 @@ export const getProductTypeQuery = async (organization, displayAlert) => {
     return response.data;
   } catch (error) {
     // Handle any error by displaying a custom error message
-    getErrorMessage(error, 'load product types data', displayAlert);
+    getErrorMessage(section, error, 'load product types data', displayAlert);
     // Return an empty array so the calling component can safely handle the failure
     return [];
   }

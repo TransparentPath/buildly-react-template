@@ -16,7 +16,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility to handle and d
  * @param {Function} displayAlert - A function used to display success or error alerts.
  * @returns {Object} The mutation object, which includes the mutate function for triggering the mutation.
  */
-export const useEditShipmentMutation = (organization, history, redirectTo, displayAlert) => {
+export const useEditShipmentMutation = (organization, history, redirectTo, displayAlert, section) => {
   const queryClient = useQueryClient(); // React Query's queryClient for managing cache and refetching data
 
   return useMutation(
@@ -180,56 +180,54 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
         }
         // If there's a gateway to update, configure it accordingly.
         if (updateGateway) {
-          setTimeout(async () => {
-            let gateway_status = '';
-            let shipment_ids = [];
-            let { battery_alert_level } = updateGateway;
-            switch (data.data.status) {
-              case 'Completed':
-                gateway_status = updateGateway.gateway_status;
-                shipment_ids = updateGateway.shipment_ids;
-                battery_alert_level = updateGateway.battery_alert_level;
-                break;
-              case 'Cancelled':
-              case 'Damaged':
-              case 'Battery Depleted':
-                gateway_status = 'unavailable';
-                shipment_ids = [];
-                battery_alert_level = 0;
-                break;
-              case 'Planned':
-              case 'En route':
-                gateway_status = 'assigned';
-                shipment_ids = data.data.partner_shipment_id ? [data.data.partner_shipment_id] : [];
-                break;
-              default:
-                break;
-            }
-            const gatewayPayload = {
-              ...updateGateway,
-              gateway_status,
-              shipment_ids,
-              battery_alert_level,
+          let gateway_status = '';
+          let shipment_ids = [];
+          let { battery_alert_level } = updateGateway;
+          switch (data.data.status) {
+            case 'Completed':
+              gateway_status = updateGateway.gateway_status;
+              shipment_ids = updateGateway.shipment_ids;
+              battery_alert_level = updateGateway.battery_alert_level;
+              break;
+            case 'Cancelled':
+            case 'Damaged':
+            case 'Battery Depleted':
+              gateway_status = 'unavailable';
+              shipment_ids = [];
+              battery_alert_level = 0;
+              break;
+            case 'Planned':
+            case 'En route':
+              gateway_status = 'assigned';
+              shipment_ids = data.data.partner_shipment_id ? [data.data.partner_shipment_id] : [];
+              break;
+            default:
+              break;
+          }
+          const gatewayPayload = {
+            ...updateGateway,
+            gateway_status,
+            shipment_ids,
+            battery_alert_level,
+          };
+          await httpService.makeRequest(
+            'patch',
+            `${window.env.API_URL}sensors/gateway/${gatewayPayload.id}`,
+            gatewayPayload,
+          );
+          if (_.includes(['planned', 'en route', 'arrived'], _.toLower(data.data.status))) {
+            const configurePayload = {
+              platform_type: data.data.platform_name,
+              gateway: updateGateway.imei_number,
+              transmission_interval: _.isEqual(_.toLower(data.data.status), 'planned') || (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) ? 5 : data.data.transmission_time,
+              measurement_interval: _.isEqual(_.toLower(data.data.status), 'planned') || (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) ? 5 : data.data.measurement_time,
             };
             await httpService.makeRequest(
-              'patch',
-              `${window.env.API_URL}sensors/gateway/${gatewayPayload.id}`,
-              gatewayPayload,
+              'post',
+              `${window.env.API_URL}sensors/configure_gateway/`,
+              configurePayload,
             );
-            if (_.includes(['planned', 'en route', 'arrived'], _.toLower(data.data.status))) {
-              const configurePayload = {
-                platform_type: data.data.platform_name,
-                gateway: updateGateway.imei_number,
-                transmission_interval: _.isEqual(_.toLower(data.data.status), 'planned') || (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) ? 5 : data.data.transmission_time,
-                measurement_interval: _.isEqual(_.toLower(data.data.status), 'planned') || (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) ? 5 : data.data.measurement_time,
-              };
-              await httpService.makeRequest(
-                'post',
-                `${window.env.API_URL}sensors/configure_gateway/`,
-                configurePayload,
-              );
-            }
-          }, 500);
+          }
         }
       }
     },
@@ -242,26 +240,26 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
        * - Optionally redirects the user to a new route.
        */
       onSuccess: async () => {
+        if (history && redirectTo) {
+          history.push(redirectTo);
+        }
         await queryClient.invalidateQueries({
-          queryKey: ['shipments', 'Planned,En route,Arrived', organization],
+          queryKey: ['shipments'],
         });
         await queryClient.invalidateQueries({
           queryKey: ['allGateways'],
         });
         await queryClient.invalidateQueries({
-          queryKey: ['custodians', organization],
+          queryKey: ['custodians'],
         });
         displayAlert('success', 'Successfully edited shipment');
-        if (history && redirectTo) {
-          history.push(redirectTo);
-        }
       },
       /**
        * onError callback: This is triggered when the mutation fails.
        * - Displays the error message to the user.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit shipment', displayAlert);
+        getErrorMessage(section, error, 'edit shipment', displayAlert);
       },
     },
   );

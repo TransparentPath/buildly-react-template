@@ -53,7 +53,7 @@ const NewPassword = ({ history, location }) => {
   const { displayAlert } = useAlert();
 
   // Custom React Query mutation hook for confirming password reset
-  const { mutate: resetPasswordConfirmMutation, isLoading: isResetPasswordConfirm } = useResetPasswordConfirmMutation(history, routes.LOGIN, displayAlert);
+  const { mutate: resetPasswordConfirmMutation, isLoading: isResetPasswordConfirm } = useResetPasswordConfirmMutation(history, routes.LOGIN, displayAlert, 'Reset Password');
 
   // Handles form submission
   const handleSubmit = (event) => {

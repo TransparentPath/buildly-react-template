@@ -16,7 +16,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function for ex
  * @param {Function} displayAlert - Function used to display alerts (success, error, etc.) to the user.
  * @returns {Object} The mutation object, including the mutate function for triggering the request.
  */
-export const useAddShipmentMutation = (organization, history, redirectTo, displayAlert) => {
+export const useAddShipmentMutation = (organization, history, redirectTo, displayAlert, section) => {
   const queryClient = useQueryClient(); // React Query's queryClient to manage cache invalidation and query refetching
 
   return useMutation(
@@ -131,48 +131,46 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
         );
         // If a gateway needs to be updated, initiate the update process
         if (updateGateway) {
-          setTimeout(async () => {
-            shipmentPayload = {
-              ...data.data,
-              gateway_ids: [updateGateway.gateway_uuid], // Assigning the gateway to the shipment
-              gateway_imei: [_.toString(updateGateway.imei_number)], // Assigning the gateway IMEI number to the shipment
+          shipmentPayload = {
+            ...data.data,
+            gateway_ids: [updateGateway.gateway_uuid], // Assigning the gateway to the shipment
+            gateway_imei: [_.toString(updateGateway.imei_number)], // Assigning the gateway IMEI number to the shipment
+          };
+          // Updating the shipment with the new gateway details
+          const shipment = await httpService.makeRequest(
+            'patch', // HTTP method (PATCH)
+            `${window.env.API_URL}shipment/shipment/${data.data.id}/`, // API endpoint to update the shipment
+            shipmentPayload, // Shipment payload with the updated gateway details
+          );
+          if (shipment && shipment.data) {
+            // Preparing payload to update the gateway
+            const gatewayPayload = {
+              ...updateGateway,
+              gateway_status: 'assigned', // Marking the gateway as 'assigned'
+              shipment_ids: shipment.data.partner_shipment_id
+                ? [shipment.data.partner_shipment_id]
+                : [], // Associating the shipment with the gateway
             };
-            // Updating the shipment with the new gateway details
-            const shipment = await httpService.makeRequest(
+            // Preparing payload to configure the gateway
+            const configureGatewayPayload = {
+              platform_type: shipment.data.platform_name,
+              gateway: updateGateway.imei_number, // Gateway IMEI number
+              transmission_interval: _.isEqual(_.toLower(shipment.data.status), 'planned') || (_.isEqual(_.toLower(shipment.data.status), 'arrived') && !isWarehouse) ? 5 : shipment.data.transmission_time, // Transmission interval for the gateway
+              measurement_interval: _.isEqual(_.toLower(shipment.data.status), 'planned') || (_.isEqual(_.toLower(shipment.data.status), 'arrived') && !isWarehouse) ? 5 : shipment.data.measurement_time, // Measurement interval for the gateway
+            };
+            // Updating the gateway with the new details
+            await httpService.makeRequest(
               'patch', // HTTP method (PATCH)
-              `${window.env.API_URL}shipment/shipment/${data.data.id}/`, // API endpoint to update the shipment
-              shipmentPayload, // Shipment payload with the updated gateway details
+              `${window.env.API_URL}sensors/gateway/${gatewayPayload.id}`, // API endpoint to update the gateway
+              gatewayPayload, // Gateway details to be updated
             );
-            if (shipment && shipment.data) {
-              // Preparing payload to update the gateway
-              const gatewayPayload = {
-                ...updateGateway,
-                gateway_status: 'assigned', // Marking the gateway as 'assigned'
-                shipment_ids: shipment.data.partner_shipment_id
-                  ? [shipment.data.partner_shipment_id]
-                  : [], // Associating the shipment with the gateway
-              };
-              // Preparing payload to configure the gateway
-              const configureGatewayPayload = {
-                platform_type: shipment.data.platform_name,
-                gateway: updateGateway.imei_number, // Gateway IMEI number
-                transmission_interval: _.isEqual(_.toLower(shipment.data.status), 'planned') || (_.isEqual(_.toLower(shipment.data.status), 'arrived') && !isWarehouse) ? 5 : shipment.data.transmission_time, // Transmission interval for the gateway
-                measurement_interval: _.isEqual(_.toLower(shipment.data.status), 'planned') || (_.isEqual(_.toLower(shipment.data.status), 'arrived') && !isWarehouse) ? 5 : shipment.data.measurement_time, // Measurement interval for the gateway
-              };
-              // Updating the gateway with the new details
-              await httpService.makeRequest(
-                'patch', // HTTP method (PATCH)
-                `${window.env.API_URL}sensors/gateway/${gatewayPayload.id}`, // API endpoint to update the gateway
-                gatewayPayload, // Gateway details to be updated
-              );
-              // Configuring the gateway with the new settings
-              await httpService.makeRequest(
-                'post', // HTTP method (POST)
-                `${window.env.API_URL}sensors/configure_gateway/`, // API endpoint for configuring the gateway
-                configureGatewayPayload, // Configuration payload for the gateway
-              );
-            }
-          }, 500); // Delay for updating the gateway after a short timeout
+            // Configuring the gateway with the new settings
+            await httpService.makeRequest(
+              'post', // HTTP method (POST)
+              `${window.env.API_URL}sensors/configure_gateway/`, // API endpoint for configuring the gateway
+              configureGatewayPayload, // Configuration payload for the gateway
+            );
+          }
         }
       }
     },
@@ -188,21 +186,21 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
        * @returns {Promise} - Resolves once cache invalidation is done.
        */
       onSuccess: async () => {
+        // If redirection is required, navigate to the specified route
+        if (history && redirectTo) {
+          history.push(redirectTo);
+        }
         await queryClient.invalidateQueries({
-          queryKey: ['shipments', 'Planned,En route,Arrived', organization], // Invalidate shipments query to refresh data
+          queryKey: ['shipments'], // Invalidate shipments query to refresh data
         });
         await queryClient.invalidateQueries({
           queryKey: ['allGateways'], // Invalidate all gateways query to refresh data
         });
         await queryClient.invalidateQueries({
-          queryKey: ['custodians', organization], // Invalidate custodians query to refresh data
+          queryKey: ['custodians'], // Invalidate custodians query to refresh data
         });
         // Display a success alert
         displayAlert('success', 'Successfully added shipment');
-        // If redirection is required, navigate to the specified route
-        if (history && redirectTo) {
-          history.push(redirectTo);
-        }
       },
       /**
        * onError callback: This function is triggered when the mutation fails.
@@ -211,7 +209,7 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
        * @param {Error} error - The error object containing the failure details.
        */
       onError: (error) => {
-        getErrorMessage(error, 'create shipment', displayAlert); // Display error message using the utility function
+        getErrorMessage(section, error, 'create shipment', displayAlert); // Display error message using the utility function
       },
     },
   );

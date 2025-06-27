@@ -17,7 +17,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  * @param {Function} displayAlert - Function to display success or error alerts.
  * @returns {object} - Mutation object returned by useMutation.
  */
-export const useEditUnitMutation = (organization, displayAlert) => {
+export const useEditUnitMutation = (organization, displayAlert, section) => {
   // Get query client instance to manage query cache
   const queryClient = useQueryClient();
 
@@ -57,7 +57,7 @@ export const useEditUnitMutation = (organization, displayAlert) => {
        * @param {any} error - The error thrown by the mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'edit unit of measure', displayAlert); // Show error alert
+        getErrorMessage(section, error, 'edit unit of measure', displayAlert); // Show error alert
       },
     },
   );

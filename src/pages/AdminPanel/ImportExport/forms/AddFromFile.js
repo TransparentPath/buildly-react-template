@@ -32,7 +32,7 @@ const AddFromFile = () => {
   const { displayAlert } = useAlert();
 
   // Mutation hook to handle the file upload process
-  const { mutate: addFromFileMutation, isLoading: isAddingFromFile } = useAddFromFileMutation(uploadType.value, displayAlert);
+  const { mutate: addFromFileMutation, isLoading: isAddingFromFile } = useAddFromFileMutation(uploadType.value, displayAlert, 'Import export');
 
   /**
    * Handles the form submission event.

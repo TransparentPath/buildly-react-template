@@ -54,21 +54,21 @@ const Consortium = ({ history, redirectTo }) => {
   // Fetch all organizations using React Query
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'Consortiums'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch all consortiums
   const { data: consortiumData, isLoading: isLoadingConsortiums } = useQuery(
     ['consortiums'],
-    () => getAllConsortiumQuery(displayAlert),
+    () => getAllConsortiumQuery(displayAlert, 'Consortium'),
     { refetchOnWindowFocus: false },
   );
 
   // Fetch units of measure (e.g., for date and time display)
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Consortium'),
     { refetchOnWindowFocus: false },
   );
 
@@ -97,7 +97,7 @@ const Consortium = ({ history, redirectTo }) => {
   };
 
   // Delete mutation hook
-  const { mutate: deleteConsortiumMutation, isLoading: isDeletingConsortium } = useDeleteConsortiumMutation(displayAlert);
+  const { mutate: deleteConsortiumMutation, isLoading: isDeletingConsortium } = useDeleteConsortiumMutation(displayAlert, 'Consortium');
 
   // Confirm deletion and close modal
   const handleDeleteModal = () => {

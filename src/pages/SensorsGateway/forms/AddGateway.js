@@ -122,8 +122,8 @@ const AddGateway = ({
   };
 
   // Mutation hooks for adding and editing gateways
-  const { mutate: addGatewayMutation, isLoading: isAddingGateway } = useAddGatewayMutation(organization, history, redirectTo, displayAlert);
-  const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(organization, history, redirectTo, displayAlert);
+  const { mutate: addGatewayMutation, isLoading: isAddingGateway } = useAddGatewayMutation(organization, history, redirectTo, displayAlert, 'Gateway');
+  const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(organization, history, redirectTo, displayAlert, 'Gateway');
 
   /**
    * Handle form submission.

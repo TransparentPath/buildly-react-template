@@ -12,7 +12,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
  *
  * @returns {Object} - React Query mutation object for uploading data from a file
  */
-export const useAddFromFileMutation = (model, displayAlert) => useMutation(
+export const useAddFromFileMutation = (model, displayAlert, section) => useMutation(
   /**
    * The mutation function for uploading data from a file based on the model type.
    *
@@ -60,7 +60,7 @@ export const useAddFromFileMutation = (model, displayAlert) => useMutation(
      * @param {Object} error - The error returned from the mutation
      */
     onError: (error) => {
-      getErrorMessage(error, `import ${_.capitalize(model)}`, displayAlert); // Handle error and display message
+      getErrorMessage(section, error, `import ${_.capitalize(model)}`, displayAlert); // Handle error and display message
     },
   },
 );

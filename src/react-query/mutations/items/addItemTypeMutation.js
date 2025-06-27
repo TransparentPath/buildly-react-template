@@ -19,7 +19,7 @@ import { getErrorMessage } from '@utils/utilMethods';
  *
  * @returns {object} mutation - The mutation object from react-query with methods like `mutate`.
  */
-export const useAddItemTypeMutation = (organization, history, redirectTo, displayAlert) => {
+export const useAddItemTypeMutation = (organization, history, redirectTo, displayAlert, section) => {
   // Access the react-query query client to manually invalidate or refetch queries.
   const queryClient = useQueryClient();
 
@@ -64,7 +64,7 @@ export const useAddItemTypeMutation = (organization, history, redirectTo, displa
        * @param {any} error - The error thrown during mutation.
        */
       onError: (error) => {
-        getErrorMessage(error, 'create item type', displayAlert);
+        getErrorMessage(section, error, 'create item type', displayAlert);
       },
     },
   );

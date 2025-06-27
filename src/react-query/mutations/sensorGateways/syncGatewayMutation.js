@@ -13,6 +13,7 @@ import { getErrorMessage } from '@utils/utilMethods'; // Utility function to han
 export const useSyncGatewayMutation = (
   organization, // The organization ID or name used to manage query state
   displayAlert, // Function to show success, info, or error alerts to the user
+  section, // Optional section identifier for categorizing alerts or errors
 ) => {
   const queryClient = useQueryClient(); // React Query's queryClient to manage cache invalidation
 
@@ -62,7 +63,7 @@ export const useSyncGatewayMutation = (
        */
       onError: (error) => {
         // Displaying an error message using the utility function `getErrorMessage`
-        getErrorMessage(error, 'sync trackers', displayAlert);
+        getErrorMessage(section, error, 'sync trackers', displayAlert);
       },
     },
   );

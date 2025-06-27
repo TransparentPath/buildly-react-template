@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 // Global alert component used across the application
 import Alert from '@components/Alert/Alert';
+import { useAutoLogout } from './hooks/useAutoLogout';
 // App context and initialization object used for dependency injection or global app data
 import { app, AppContext } from '@context/App.context';
 // Main dashboard container (rendered after successful login)
@@ -46,43 +47,48 @@ import './App.css';
  * - Initializes with a router and conditional redirect based on auth token.
  * - Wraps components with MUI's theme and style providers.
  */
-const App = () => (
-  <Router>
-    {/* Provide global application context to child components */}
-    <AppContext.Provider value={app}>
-      {/* Ensures MUI styles are injected before other CSS for override priority */}
-      <StyledEngineProvider injectFirst>
-        {/* Apply MUI theme and enable dynamic color theming (light/dark mode support) */}
-        <CssVarsProvider theme={theme} defaultMode="light">
-          <div className="app">
-            {/* MUI baseline CSS to normalize styles across browsers */}
-            <CssBaseline />
-            {/* Default root route: redirect based on authentication status */}
-            <Route
-              exact
-              path="/"
-              render={() => (
-                oauthService.hasValidAccessToken()
-                  ? <Redirect to={routes.SHIPMENT} /> // Redirect to main app route if logged in
-                  : <Redirect to={routes.LOGIN} /> // Redirect to login if not authenticated
-              )}
-            />
-            {/* Publicly accessible routes */}
-            <Route path={routes.LOGIN} component={Login} />
-            <Route path={routes.REGISTER} component={Register} />
-            <Route path={routes.RESET_PASSWORD} component={EmailForm} />
-            <Route path={routes.VERIFICATION} component={Verification} />
-            <Route path={routes.RESET_PASSWORD_CONFIRM} component={NewPasswordForm} />
-            {/* Private route that requires a valid access token */}
-            <PrivateRoute path={routes.APP} component={ContainerDashboard} />
-          </div>
-          {/* Global alert system for showing toast or modal alerts */}
-          <Alert />
-        </CssVarsProvider>
-      </StyledEngineProvider>
-    </AppContext.Provider>
-  </Router>
-);
+const App = () => {
+  const [isSessionTimeout, setIsSessionTimeout] = React.useState(false);
+  useAutoLogout(oauthService.logout, 15 * 60 * 1000, setIsSessionTimeout);
+
+  return (
+    <Router>
+      {/* Provide global application context to child components */}
+      <AppContext.Provider value={app}>
+        {/* Ensures MUI styles are injected before other CSS for override priority */}
+        <StyledEngineProvider injectFirst>
+          {/* Apply MUI theme and enable dynamic color theming (light/dark mode support) */}
+          <CssVarsProvider theme={theme} defaultMode="light">
+            <div className="app">
+              {/* MUI baseline CSS to normalize styles across browsers */}
+              <CssBaseline />
+              {/* Default root route: redirect based on authentication status */}
+              <Route
+                exact
+                path="/"
+                render={() => (
+                  oauthService.hasValidAccessToken() && !isSessionTimeout
+                    ? <Redirect to={routes.SHIPMENT} /> // Redirect to main app route if logged in
+                    : <Redirect to={routes.LOGIN} /> // Redirect to login if not authenticated
+                )}
+              />
+              {/* Publicly accessible routes */}
+              <Route path={routes.LOGIN} component={Login} />
+              <Route path={routes.REGISTER} component={Register} />
+              <Route path={routes.RESET_PASSWORD} component={EmailForm} />
+              <Route path={routes.VERIFICATION} component={Verification} />
+              <Route path={routes.RESET_PASSWORD_CONFIRM} component={NewPasswordForm} />
+              {/* Private route that requires a valid access token */}
+              <PrivateRoute path={routes.APP} component={ContainerDashboard} />
+            </div>
+            {/* Global alert system for showing toast or modal alerts */}
+            <Alert />
+          </CssVarsProvider>
+        </StyledEngineProvider>
+      </AppContext.Provider>
+    </Router>
+  );
+};
 
 // Export the App component with hot module reloading support
 export default hot(module)(App);
