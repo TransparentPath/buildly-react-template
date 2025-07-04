@@ -57,13 +57,17 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
     : '';
 
+  const getThresholdValue = (arr) => (Array.isArray(arr) && arr.length > 0
+    ? _.get(_.orderBy(arr, ['set_at'], ['desc'])[0], 'value', null)
+    : null);
+
   // Extract threshold values for various measurements
-  const maxTempThreshold = selectedShipment && _.orderBy(selectedShipment.max_excursion_temp, ['set_at'], ['desc'])[0].value;
-  const minTempThreshold = selectedShipment && _.orderBy(selectedShipment.min_excursion_temp, ['set_at'], ['desc'])[0].value;
-  const maxHumThreshold = selectedShipment && _.orderBy(selectedShipment.max_excursion_humidity, ['set_at'], ['desc'])[0].value;
-  const minHumThreshold = selectedShipment && _.orderBy(selectedShipment.min_excursion_humidity, ['set_at'], ['desc'])[0].value;
-  const maxShockThreshold = selectedShipment && _.orderBy(selectedShipment.shock_threshold, ['set_at'], ['desc'])[0].value;
-  const maxLightThreshold = selectedShipment && _.orderBy(selectedShipment.light_threshold, ['set_at'], ['desc'])[0].value;
+  const maxTempThreshold = selectedShipment && getThresholdValue(selectedShipment.max_excursion_temp);
+  const minTempThreshold = selectedShipment && getThresholdValue(selectedShipment.min_excursion_temp);
+  const maxHumThreshold = selectedShipment && getThresholdValue(selectedShipment.max_excursion_humidity);
+  const minHumThreshold = selectedShipment && getThresholdValue(selectedShipment.min_excursion_humidity);
+  const maxShockThreshold = selectedShipment && getThresholdValue(selectedShipment.shock_threshold);
+  const maxLightThreshold = selectedShipment && getThresholdValue(selectedShipment.light_threshold);
 
   // State management for various tracking metrics
   const [trackerActivationDate, setTrackerActivationDate] = useState();
@@ -93,16 +97,21 @@ const ReportingDetailTable = forwardRef((props, ref) => {
    */
   useEffect(() => {
     if (!_.isEmpty(selectedShipment)) {
-      const selectedTracker = _.find(allGatewayData, (item) => item.name === selectedShipment.tracker);
-      const trackerActiveDate = formatDate(((selectedTracker && selectedTracker.activation_date) || selectedShipment.create_date), timeZone, `${dateFormat} ${timeFormat} z`);
-      const origin = _.filter(selectedShipment.custody_info, (item) => item.first_custody === true)[0].custodian_name;
-      const originCustodianUrl = _.filter(selectedShipment.custody_info, (item) => item.first_custody === true)[0].custodian_data.contact_data[0];
-      const originLoc = _.filter(selectedShipment.contact_info, (item) => item.url === originCustodianUrl)[0];
-      const destination = _.filter(selectedShipment.custody_info, (item) => item.last_custody === true)[0].custodian_name;
-      const destinationCustodianUrl = _.filter(selectedShipment.custody_info, (item) => item.last_custody === true)[0].custodian_data.contact_data[0];
-      const destinationLoc = _.filter(selectedShipment.contact_info, (item) => item.url === destinationCustodianUrl)[0];
-      const custodians = _.chain(selectedShipment.custody_info)
-        .filter((item) => item.first_custody !== true && item.last_custody !== true)
+      const selectedTracker = _.find(allGatewayData, (item) => item?.name === selectedShipment?.tracker);
+      const trackerDate = selectedTracker?.activation_date || selectedShipment?.create_date;
+      const trackerActiveDate = trackerDate
+        ? formatDate(trackerDate, timeZone, `${dateFormat} ${timeFormat} z`)
+        : 'N/A';
+      const firstCustody = _.find(selectedShipment?.custody_info, { first_custody: true });
+      const origin = firstCustody?.custodian_name || 'N/A';
+      const originCustodianUrl = firstCustody?.custodian_data?.contact_data?.[0] || '';
+      const originLoc = _.find(selectedShipment?.contact_info, { url: originCustodianUrl }) || null;
+      const lastCustody = _.find(selectedShipment?.custody_info, { last_custody: true });
+      const destination = lastCustody?.custodian_name || 'N/A';
+      const destinationCustodianUrl = lastCustody?.custodian_data?.contact_data?.[0] || '';
+      const destinationLoc = _.find(selectedShipment?.contact_info, { url: destinationCustodianUrl }) || null;
+      const custodians = _.chain(selectedShipment?.custody_info || [])
+        .filter((item) => item?.first_custody !== true && item?.last_custody !== true)
         .sortBy('load_id')
         .value();
       setTrackerActivationDate(trackerActiveDate);
@@ -112,7 +121,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
       setDestinationCustodianLocation(destinationLoc);
       setIntermediateCustodians(custodians);
     }
-  }, [selectedShipment]);
+  }, [selectedShipment, allGatewayData]);
 
   /**
    * Effect to process sensor alerts and categorize them into transit and storage alerts

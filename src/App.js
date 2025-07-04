@@ -66,11 +66,13 @@ const App = () => {
               <Route
                 exact
                 path="/"
-                render={() => (
-                  oauthService.hasValidAccessToken() && !isSessionTimeout
-                    ? <Redirect to={routes.SHIPMENT} /> // Redirect to main app route if logged in
-                    : <Redirect to={routes.LOGIN} /> // Redirect to login if not authenticated
-                )}
+                render={() => {
+                  const hasToken = oauthService.hasValidAccessToken();
+                  if (!hasToken || isSessionTimeout) {
+                    return <Redirect to={routes.LOGIN} />; // Redirect to login if not authenticated
+                  }
+                  return <Redirect to={routes.SHIPMENT} />; // Redirect to main app route if logged in
+                }}
               />
               {/* Publicly accessible routes */}
               <Route path={routes.LOGIN} component={Login} />

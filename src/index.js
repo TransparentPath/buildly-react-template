@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Importing React core library
 import React from 'react';
 // Importing ReactDOM for rendering the React application to the DOM
@@ -12,6 +13,21 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 // Creating a new instance of QueryClient which handles cache, retries, and deduplication
 const queryClient = new QueryClient();
+
+const clearWorkboxCaches = async () => {
+  if (!('caches' in window)) return;
+  try {
+    caches.keys().then((cacheNames) => {
+      cacheNames.forEach((cacheName) => {
+        if (cacheName.startsWith('workbox-precache')) {
+          caches.delete(cacheName);
+        }
+      });
+    });
+  } catch (err) {
+    console.error('Failed to clear workbox caches:', err);
+  }
+};
 
 /**
  * Rendering the application to the root HTML element.
@@ -30,6 +46,10 @@ ReactDOM.render(
   // Mounts the React app inside the HTML element with id="root"
   document.getElementById('root'),
 );
+
+// Clear workbox-related caches on app startup (optional for freshness)
+clearWorkboxCaches();
+window.addEventListener('pagehide', clearWorkboxCaches);
 
 // Register the service worker to enable offline functionality and caching
 registerServiceWorker();
