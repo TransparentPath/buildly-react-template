@@ -375,7 +375,7 @@ const OrganizationSettings = () => {
    * API Mutations
    * Handlers for updating organization and unit settings
    */
-  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(displayAlert, 'Organization settings');
+  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(null, displayAlert, 'Organization settings');
   const { mutate: editUnitMutation, isLoading: isEditingUnit } = useEditUnitMutation(organization, displayAlert, 'Organization settings');
 
   /**
