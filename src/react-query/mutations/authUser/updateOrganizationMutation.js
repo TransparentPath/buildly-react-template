@@ -60,7 +60,9 @@ export const useUpdateOrganizationMutation = (discardFormData, displayAlert, sec
         // Show success message to user
         displayAlert('success', 'Organization settings successfully updated!');
         // Discard form data (e.g., close modal or clear input fields)
-        discardFormData();
+        if (typeof discardFormData === 'function') {
+          discardFormData();
+        }
       },
       /**
        * Callback executed when the mutation fails.

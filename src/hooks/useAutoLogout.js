@@ -1,37 +1,59 @@
 /* eslint-disable no-alert */
-/* eslint-disable prefer-const */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useHistory } from 'react-router-dom';
+import { routes } from '@routes/routesConstants'; // Adjust if necessary
 
 export const useAutoLogout = (logoutFn, timeout, setIsSessionTimeout) => {
-  useEffect(() => {
-    const events = ['mousemove', 'keydown', 'click', 'scroll'];
-    let timer;
+  const timerRef = useRef(null);
+  const hasLoggedOutRef = useRef(false); // Prevent double logout
+  const history = useHistory();
+  const activityEvents = ['mousemove', 'keydown', 'click', 'scroll'];
 
+  useEffect(() => {
     const resetTimer = () => {
-      localStorage.setItem('lastActivity', Date.now());
+      localStorage.setItem('lastActivity', Date.now().toString());
     };
 
-    const checkInactivity = () => {
+    const handleInactivity = () => {
       const lastActivity = parseInt(localStorage.getItem('lastActivity'), 10);
-      const now = Date.now();
+      if (!isNaN(lastActivity)) {
+        const now = Date.now();
+        if (now - lastActivity > timeout && !hasLoggedOutRef.current) {
+          hasLoggedOutRef.current = true;
 
-      if (now - lastActivity > timeout) {
-        logoutFn();
-        setIsSessionTimeout(true); // Set session timeout state
-        alert('You have been logged out due to inactivity. Please log in again.');
+          // Clear session (cookies, tokens, etc.)
+          logoutFn();
+
+          // Set session timeout state (used in App.js for conditional redirect)
+          setIsSessionTimeout(true);
+
+          if ('caches' in window) {
+            caches.keys().then((cacheNames) => {
+              cacheNames.forEach((cacheName) => {
+                if (cacheName.startsWith('workbox-precache')) {
+                  caches.delete(cacheName); // ✅ always call as method of caches
+                }
+              });
+            });
+          }
+
+          // Optional: show toast instead of alert
+          // You could dispatch a global alert here
+          alert('You have been logged out due to inactivity. Please log in again.');
+        }
       }
     };
 
-    // Setup activity tracking
-    events.forEach((event) => window.addEventListener(event, resetTimer));
-    resetTimer(); // initialize the last activity timestamp
+    // Attach activity listeners
+    activityEvents.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer(); // Set initial activity
 
-    // Start interval checker
-    timer = setInterval(checkInactivity, 60 * 1000); // check every 1 minute
+    // Set periodic inactivity check
+    timerRef.current = setInterval(handleInactivity, 60 * 1000); // every 1 minute
 
     return () => {
-      events.forEach((event) => window.removeEventListener(event, resetTimer));
-      clearInterval(timer);
+      activityEvents.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [logoutFn, history, timeout]);
+  }, [logoutFn, timeout, setIsSessionTimeout, history]);
 };
