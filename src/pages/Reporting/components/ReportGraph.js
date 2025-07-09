@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 // React and third-party imports
 import React, { useState, useEffect, forwardRef } from 'react';
 import _ from 'lodash';
@@ -19,6 +20,9 @@ const ReportGraph = forwardRef((props, ref) => {
     graphType, // Currently selected graph type (e.g., temperature, humidity)
     data, // Graph data categorized by graph type
   } = props;
+
+  const reportTypes = REPORT_TYPES(unitOfMeasure);
+  const hasValidGraphData = data && typeof data === 'object' && graphType in data && !_.isEmpty(data[graphType]);
 
   return (
     // Outer container for the entire graph view layout
@@ -43,29 +47,56 @@ const ReportGraph = forwardRef((props, ref) => {
       <Grid item xs={2} sm={1}>
         <List component="nav" aria-label="main graph-type" className="reportingGraphIconBar">
           {
-            // Map over each available report type and render its icon
-            _.map(REPORT_TYPES(unitOfMeasure), (item, index) => (
-              <ListItem
-                key={`iconItem${index}${item.id}`} // Unique key based on index and item ID
-                style={{ paddingRight: '33px', marginTop: '12px' }} // Custom icon spacing
-                selected={item.id === graphType} // Highlight icon if it's the selected graph type
-              >
-                {
-                  // Dynamically get and render the icon component with themed color
-                  getIcon({ ...item, color: theme.palette.background.dark })
+            _.isArray(reportTypes) && reportTypes.length > 0 ? (
+              _.map(reportTypes, (item, index) => {
+                let iconElement;
+                try {
+                  iconElement = getIcon({ ...item, color: theme?.palette?.background?.dark || '#000' });
+                } catch (e) {
+                  iconElement = <Typography color="error">Icon Error</Typography>;
                 }
-              </ListItem>
-            ))
+
+                return (
+                  <ListItem
+                    key={`iconItem${index}${item.id}`}
+                    style={{ paddingRight: '33px', marginTop: '12px' }}
+                    selected={item.id === graphType}
+                  >
+                    {iconElement}
+                  </ListItem>
+                );
+              })
+            ) : (
+              <Typography variant="body2" color="error" sx={{ pl: 2, pt: 2 }}>
+                No graph types available.
+              </Typography>
+            )
           }
         </List>
       </Grid>
 
       {/* Main graph area that shows the graph based on selected type */}
       <Grid item xs={10} sm={11}>
-        <GraphComponent
-          data={data[graphType]} // Pass the specific data for the selected graph type
-          selectedGraph={graphType} // Let GraphComponent know what type to render
-        />
+        {
+          !graphType || !data ? (
+            <Typography variant="body1" color="error" sx={{ mt: 2 }}>
+              Graph data is not available.
+            </Typography>
+          ) : hasValidGraphData ? (
+            <GraphComponent
+              key={graphType}
+              data={data[graphType]}
+              selectedGraph={graphType}
+            />
+          ) : (
+            <Typography variant="body1" color="error" sx={{ mt: 2 }}>
+              No data found for selected graph type:
+              {' '}
+              <strong>{graphType}</strong>
+              .
+            </Typography>
+          )
+        }
       </Grid>
     </Grid>
   );
