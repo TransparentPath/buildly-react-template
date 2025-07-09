@@ -838,11 +838,19 @@ const CreateShipment = ({ history, location }) => {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'video/mp4',
+    'video/quicktime',
   ];
 
   const fileChange = (event) => {
-    const maxAllowedSize = 5 * 1024 * 1024;
+    const maxSizeVideo = 10 * 1024 * 1024; // 10 MB
+    const maxSizeOthers = 5 * 1024 * 1024; // 5 MB
     let error = false;
+
+    const videoTypes = [
+      'video/mp4',
+      'video/quicktime',
+    ];
 
     const newFiles = Array.from(event.target.files).filter((file) => {
       if (!allowedTypes.includes(file.type)) {
@@ -850,9 +858,13 @@ const CreateShipment = ({ history, location }) => {
         alert('File type is not supported.');
         return false;
       }
+
+      const isVideo = videoTypes.includes(file.type);
+      const maxAllowedSize = isVideo ? maxSizeVideo : maxSizeOthers;
+
       if (file.size > maxAllowedSize) {
         error = true;
-        alert('File size is more that 5MB. Please upload another file.');
+        alert(`File size is more than  ${isVideo ? '10MB' : '5MB'}. Please upload another file.`);
         return false;
       }
       return true;

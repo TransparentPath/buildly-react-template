@@ -75,6 +75,19 @@ const CustomFileViewer = ({ open, closeFileView, selectedFile }) => {
       );
     }
 
+    if (['mp4', 'mov', 'webm'].includes(extension)) {
+      return (
+        <video
+          src={fileURL}
+          controls
+          style={{ maxWidth: '100%', maxHeight: '100%' }}
+        >
+          <track kind="captions" src="" label="No captions" />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
     return (
       <div>
         <Typography variant="body1" textAlign="center">
