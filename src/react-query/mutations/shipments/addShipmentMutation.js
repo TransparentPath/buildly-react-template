@@ -197,6 +197,9 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
           queryKey: ['allGateways'], // Invalidate all gateways query to refresh data
         });
         await queryClient.invalidateQueries({
+          queryKey: ['gateways'], // Invalidate gateways query to refresh data
+        });
+        await queryClient.invalidateQueries({
           queryKey: ['custodians'], // Invalidate custodians query to refresh data
         });
         // Display a success alert

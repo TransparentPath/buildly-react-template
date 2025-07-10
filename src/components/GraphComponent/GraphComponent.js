@@ -38,7 +38,7 @@ const GraphComponent = ({
   };
 
   return (
-    <div>
+    <div style={{ marginLeft: 20 }}>
       {/* If data exists and has items, render the graph */}
       {data && _.size(data) > 0 ? (
         <>
@@ -51,18 +51,14 @@ const GraphComponent = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <div className="graphMaxColor" />
               <Typography variant="body1">
-                Max
-                {' '}
-                {_.capitalize(selectedGraph)}
+                {`Max ${_.capitalize(selectedGraph)}`}
               </Typography>
             </div>
-            {data.every((point) => 'min' in point) && (
+            {_.includes(_.keysIn(data[0]), 'min') && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <div className="graphMinColor" />
                 <Typography variant="body1">
-                  Min
-                  {' '}
-                  {_.capitalize(selectedGraph)}
+                  {`Min ${_.capitalize(selectedGraph)}`}
                 </Typography>
               </div>
             )}
