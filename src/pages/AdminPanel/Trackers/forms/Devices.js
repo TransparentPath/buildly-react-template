@@ -17,110 +17,98 @@ import { useEditGatewayMutation } from '@react-query/mutations/sensorGateways/ed
 import '../../AdminPanelStyles.css';
 
 const Devices = ({ isNewDevices }) => {
-  // Initial setup: Retrieve user info and organization details
   const user = getUser();
   const org = user.organization.name;
   const org_uuid = user.organization.organization_uuid;
 
-  // State hooks for managing the UI and data
-  const [rows, setRows] = useState([]); // Holds the list of gateways/devices to display
-  const [selectedRows, setSelectedRows] = useState([]); // Holds selected rows from the table
-  const [selectedRowsIndex, setSelectedRowsIndex] = useState([]); // Holds indices of selected rows
-  const [organization, setOrganization] = useState(user.organization.name); // Currently selected organization
-  const [buttonClick, setButtonClick] = useState(false); // Tracks if the button to load gateways has been clicked
-  const [mainMenuOpen, setMainMenuOpen] = useState(false); // Controls the menu open/close state
-  const [submenuAnchorEl, setSubmenuAnchorEl] = useState(null); // Anchors the submenu position
+  const [rows, setRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsIndex, setSelectedRowsIndex] = useState([]);
+  const [organization, setOrganization] = useState(user.organization.name);
+  const [buttonClick, setButtonClick] = useState(false);
+  const [mainMenuOpen, setMainMenuOpen] = useState(false);
+  const [submenuAnchorEl, setSubmenuAnchorEl] = useState(null);
 
-  // Hook for displaying alerts
   const { displayAlert } = useAlert();
 
-  // Queries for fetching organization and gateway data
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert, 'Devices'), // Fetch all organizations
+    () => getAllOrganizationQuery(displayAlert, 'Devices'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: gatewayData, isLoading: isLoadingGateways } = useQuery(
     ['gateways', organization],
-    () => getGatewayQuery(null, displayAlert, 'Devices'), // Fetch gateway data for the selected organization
-    { refetchOnWindowFocus: false, enabled: buttonClick }, // Fetch only after button is clicked
+    () => getGatewayQuery(null, displayAlert, 'Devices'),
+    { refetchOnWindowFocus: false, enabled: buttonClick },
   );
 
-  // Mutations for handling new and edited gateway data
   const { data: newGetewayData, mutate: fetchNewGatewayMutation, isLoading: isFetchingNewGateway } = useFetchNewGatewayMutation(displayAlert, 'Devices');
+
   const { mutate: editGatewayMutation, isLoading: isEditingGateway } = useEditGatewayMutation(org_uuid, null, null, displayAlert, 'Devices');
 
-  // Function to fetch new gateways (either new or reused)
   const fetchGateways = () => {
     if (isNewDevices) {
       const newGatewayData = {
         platform_type: 'Tive',
         is_new: true,
       };
-      fetchNewGatewayMutation(newGatewayData); // Fetch new gateways
+      fetchNewGatewayMutation(newGatewayData);
     } else {
-      setButtonClick(true); // Trigger fetching existing gateway data
+      setButtonClick(true);
     }
   };
 
-  // Effect hook to update rows when new or existing gateway data is fetched
   useEffect(() => {
     if (isNewDevices) {
       if (!_.isEmpty(newGetewayData) && !_.isEmpty(newGetewayData.new_trackers)) {
-        setRows(newGetewayData.new_trackers); // Set new trackers (devices)
+        setRows(newGetewayData.new_trackers);
       }
     } else {
-      setRows(gatewayData); // Set fetched gateway data
+      setRows(gatewayData);
     }
   }, [newGetewayData, gatewayData]);
 
-  // Function to handle the selection of rows in the data table
   const handleSelectedTrackers = (allRows) => {
     const selectedFilteredRows = allRows.map((item) => {
       if (!_.isEmpty(newGetewayData) && !_.isEmpty(newGetewayData.new_trackers)) {
-        return newGetewayData.new_trackers[item.dataIndex]; // Get selected rows for new gateways
+        return newGetewayData.new_trackers[item.dataIndex];
       } else if (!_.isEmpty(gatewayData)) {
-        return gatewayData[item.dataIndex]; // Get selected rows for existing gateways
+        return gatewayData[item.dataIndex];
       } else {
         return null;
       }
     });
-    setSelectedRows(selectedFilteredRows); // Set selected rows data
-    setSelectedRowsIndex(allRows.map((item) => item.dataIndex)); // Set selected rows indices
+    setSelectedRows(selectedFilteredRows);
+    setSelectedRowsIndex(allRows.map((item) => item.dataIndex));
   };
 
-  // Function to handle the change of the selected organization
   const handleOrganizationChange = (e) => {
     const organization_name = e.target ? e.target.value : e;
-    setOrganization(!_.isEmpty(organization_name) ? organization_name : org); // Set the selected organization
-    setMainMenuOpen(false); // Close the main menu
-    setSubmenuAnchorEl(null); // Close the submenu
+    setOrganization(!_.isEmpty(organization_name) ? organization_name : org);
+    setMainMenuOpen(false);
+    setSubmenuAnchorEl(null);
   };
 
-  // Function to submit the selected rows and update gateway data
   const handleSubmit = () => {
-    const { organization_uuid } = _.filter(orgData, (o) => _.isEqual(o.name, organization))[0]; // Find the UUID of the selected organization
+    const { organization_uuid } = _.filter(orgData, (o) => _.isEqual(o.name, organization))[0];
     const updatedRows = selectedRows.map((row) => ({
       ...row,
-      organization_uuid, // Add organization UUID to each row
-      is_new: false, // Mark rows as no longer new
+      organization_uuid,
+      is_new: false,
     }));
-    editGatewayMutation(updatedRows); // Call the mutation to edit gateways
-    const filteredRows = rows.filter((row) => !selectedRows.some((selected) => selected.id === row.id)); // Filter out the selected rows from the table
-    setRows(filteredRows); // Update the rows
-    setButtonClick(false); // Reset the button click state
-    setSelectedRows([]); // Clear selected rows
-    setSelectedRowsIndex([]); // Clear selected rows indices
-    setOrganization(user.organization.name); // Reset the organization to the user's default
+    editGatewayMutation(updatedRows);
+    const filteredRows = rows.filter((row) => !selectedRows.some((selected) => selected.id === row.id));
+    setRows(filteredRows);
+    setButtonClick(false);
+    setSelectedRows([]);
+    setSelectedRowsIndex([]);
+    setOrganization(user.organization.name);
   };
 
   return (
     <div>
-      {/* Loader component to show loading spinner while data is being fetched */}
       {(isLoadingOrgs || isFetchingNewGateway || isEditingGateway || isLoadingGateways) && <Loader open={isLoadingOrgs || isFetchingNewGateway || isEditingGateway || isLoadingGateways} />}
-
-      {/* Button to trigger fetching gateways */}
       <Grid container>
         <Grid item xs={6} sm={3}>
           <Button
@@ -129,52 +117,47 @@ const Devices = ({ isNewDevices }) => {
             variant="contained"
             color="primary"
             className="adminTrackersButton"
-            onClick={fetchGateways} // Trigger fetching of new or reused gateways
-            disabled={isFetchingNewGateway || isEditingGateway || isLoadingGateways} // Disable the button while data is being fetched
+            onClick={fetchGateways}
+            disabled={isFetchingNewGateway || isEditingGateway || isLoadingGateways}
           >
             {isNewDevices ? 'Upload New Devices' : 'Upload Reused Devices'}
           </Button>
         </Grid>
       </Grid>
-
-      {/* Display the data table if there are rows to show */}
       {!_.isEmpty(rows) && (
         <Grid container>
           <Grid item xs={12} sm={8} mt={-6}>
-            {/* DataTableWrapper component to display the gateway data */}
             <DataTableWrapper
               hideAddButton
               noOptionsIcon
-              rows={rows || []} // Pass the rows (gateway data) to the table
-              columns={newGatewayColumns()} // Define the columns for the table
+              rows={rows || []}
+              columns={newGatewayColumns()}
               selectable={{
-                rows: 'multiple', // Allow multiple row selections
-                rowsHeader: true, // Allow header row selection
+                rows: 'multiple',
+                rowsHeader: true,
               }}
-              selected={selectedRowsIndex} // Highlight selected rows
+              selected={selectedRowsIndex}
               onRowSelectionChange={(rowsSelectedData, allRows, rowsSelected) => {
-                handleSelectedTrackers(allRows); // Update selected rows when a selection change occurs
+                handleSelectedTrackers(allRows);
               }}
             />
           </Grid>
-
-          {/* Organization selector and submission button */}
           <Grid item xs={12} sm={4} mt={1}>
             <OrganizationSelector
-              handleOrganizationChange={handleOrganizationChange} // Function to handle organization change
-              selectedOrg={organization} // Currently selected organization
-              mainMenuOpen={mainMenuOpen} // Whether the main menu is open
-              setMainMenuOpen={setMainMenuOpen} // Function to control the main menu open state
-              submenuAnchorEl={submenuAnchorEl} // Position of the submenu
-              setSubmenuAnchorEl={setSubmenuAnchorEl} // Function to control the submenu position
+              handleOrganizationChange={handleOrganizationChange}
+              selectedOrg={organization}
+              mainMenuOpen={mainMenuOpen}
+              setMainMenuOpen={setMainMenuOpen}
+              submenuAnchorEl={submenuAnchorEl}
+              setSubmenuAnchorEl={setSubmenuAnchorEl}
             />
             <Button
               type="button"
               variant="contained"
               color="primary"
               style={{ marginLeft: '20px', marginTop: '8px' }}
-              disabled={isFetchingNewGateway || isEditingGateway || isLoadingGateways || _.isEmpty(selectedRows) || _.isEmpty(organization)} // Disable if no rows are selected or if loading
-              onClick={handleSubmit} // Trigger submit to update gateway data
+              disabled={isFetchingNewGateway || isEditingGateway || isLoadingGateways || _.isEmpty(selectedRows) || _.isEmpty(organization)}
+              onClick={handleSubmit}
             >
               OK
             </Button>

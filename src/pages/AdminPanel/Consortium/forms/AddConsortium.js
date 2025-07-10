@@ -7,45 +7,38 @@ import {
   Chip,
 } from '@mui/material';
 import { Autocomplete } from '@mui/material';
-
-import Loader from '@components/Loader/Loader'; // Loader component to show while submitting form
-import FormModal from '@components/Modal/FormModal'; // Custom modal component for the form
-import { useInput } from '@hooks/useInput'; // Custom hook for managing input fields
-import { validators } from '@utils/validators'; // Validation utility
-import { isDesktop } from '@utils/mediaQuery'; // Utility to check if the screen is desktop size
-import { useAddConsortiumMutation } from '@react-query/mutations/consortium/addConsortiumMutation'; // React Query mutation for adding consortium
-import { useEditConsortiumMutation } from '@react-query/mutations/consortium/editConsortiumMutation'; // React Query mutation for editing consortium
-import useAlert from '@hooks/useAlert'; // Custom hook to display alert messages
-import '../../AdminPanelStyles.css'; // Styles for the admin panel form
+import Loader from '@components/Loader/Loader';
+import FormModal from '@components/Modal/FormModal';
+import { useInput } from '@hooks/useInput';
+import { validators } from '@utils/validators';
+import { isDesktop } from '@utils/mediaQuery';
+import { useAddConsortiumMutation } from '@react-query/mutations/consortium/addConsortiumMutation';
+import { useEditConsortiumMutation } from '@react-query/mutations/consortium/editConsortiumMutation';
+import useAlert from '@hooks/useAlert';
+import '../../AdminPanelStyles.css';
 
 const AddConsortium = ({ history, location }) => {
-  // Controls visibility of the form modal
   const [openFormModal, setFormModal] = useState(true);
-  // Controls visibility of confirmation modal when closing form with unsaved changes
   const [openConfirmModal, setConfirmModal] = useState(false);
 
   const { displayAlert } = useAlert();
 
-  // Get organization list passed via route state
   const { orgData } = location.state || {};
 
-  // Determine if form is in edit mode
   const editPage = location.state && location.state.type === 'edit';
   const editData = (editPage && location.state.data) || {};
 
-  // Form input: consortium name, pre-filled if editing
   const name = useInput((editData && editData.name) || '', {
     required: true,
   });
+  const [orgs, setOrgs] = useState((
+    editData && editData.organization_uuids
+  ) || []);
+  const [formError, setFormError] = useState({});
 
-  // State to track selected organizations, pre-filled if editing
-  const [orgs, setOrgs] = useState((editData && editData.organization_uuids) || []);
-  const [formError, setFormError] = useState({}); // Object to track validation errors
+  const buttonText = editPage ? 'Save' : 'Add Consortium';
+  const formTitle = editPage ? 'Edit Consortium' : 'Add Consortium';
 
-  const buttonText = editPage ? 'Save' : 'Add Consortium'; // Submit button label
-  const formTitle = editPage ? 'Edit Consortium' : 'Add Consortium'; // Modal title
-
-  // Close the form modal and prompt confirmation if there are unsaved changes
   const closeFormModal = () => {
     if (name.hasChanged()) {
       setConfirmModal(true);
@@ -57,7 +50,6 @@ const AddConsortium = ({ history, location }) => {
     }
   };
 
-  // Discard all changes and close the modal
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
@@ -66,24 +58,23 @@ const AddConsortium = ({ history, location }) => {
     }
   };
 
-  // Initialize add and edit mutations with success/error handlers
   const { mutate: addConsortiumMutation, isLoading: isAddingConsortium } = useAddConsortiumMutation(history, location.state.from, displayAlert, 'Consortium');
+
   const { mutate: editConsortiumMutation, isLoading: isEditingConsortium } = useEditConsortiumMutation(history, location.state.from, displayAlert, 'Consortium');
 
   /**
-   * Handles the form submission, triggering either add or edit mutation
+   * Submit The form and add/edit custodian type
+   * @param {Event} event the default submit event
    */
   const handleSubmit = (event) => {
     event.preventDefault();
     const currentDateTime = new Date();
-
     let data = {
       ...editData,
       name: name.value,
       organization_uuids: orgs,
       edit_date: currentDateTime,
     };
-
     if (editPage) {
       editConsortiumMutation(data);
     } else {
@@ -96,12 +87,15 @@ const AddConsortium = ({ history, location }) => {
   };
 
   /**
-   * Validates input fields on blur using custom validators
+   * Handle input field blur event
+   * @param {Event} e Event
+   * @param {String} validation validation type if any
+   * @param {Object} input input field
    */
+
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
-
     if (validateObj && validateObj.error) {
       setFormError({
         ...prevState,
@@ -110,18 +104,19 @@ const AddConsortium = ({ history, location }) => {
     } else {
       setFormError({
         ...prevState,
-        [e.target.id || parentId]: { error: false, message: '' },
+        [e.target.id || parentId]: {
+          error: false,
+          message: '',
+        },
       });
     }
   };
 
-  /**
-   * Determines if form submission should be disabled
-   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
-    if (!name.value) return true;
-
+    if (!name.value) {
+      return true;
+    }
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
@@ -131,15 +126,12 @@ const AddConsortium = ({ history, location }) => {
     return errorExists;
   };
 
-  /**
-   * Handles the selection change in the Autocomplete component
-   */
   const onInputChange = (value) => {
     switch (true) {
-      case value.length > orgs.length:
+      case (value.length > orgs.length):
         setOrgs([...orgs, _.last(value).organization_uuid]);
         break;
-      case value.length < orgs.length:
+      case (value.length < orgs.length):
         setOrgs(value);
         break;
       default:
@@ -158,18 +150,15 @@ const AddConsortium = ({ history, location }) => {
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
-          {/* Show loader when submitting form */}
           {(isAddingConsortium || isEditingConsortium) && (
             <Loader open={isAddingConsortium || isEditingConsortium} />
           )}
-
           <form
             className="adminPanelFormContainer"
             noValidate
             onSubmit={handleSubmit}
           >
             <Grid container spacing={isDesktop() ? 2 : 0}>
-              {/* Consortium Name Input */}
               <Grid item xs={12}>
                 <TextField
                   variant="outlined"
@@ -181,13 +170,13 @@ const AddConsortium = ({ history, location }) => {
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
-                  helperText={formError.name ? formError.name.message : ''}
+                  helperText={
+                    formError.name ? formError.name.message : ''
+                  }
                   onBlur={(e) => handleBlur(e, 'required', name)}
                   {...name.bind}
                 />
               </Grid>
-
-              {/* Organization Selection Input */}
               <Grid item xs={12}>
                 <Autocomplete
                   fullWidth
@@ -195,8 +184,12 @@ const AddConsortium = ({ history, location }) => {
                   filterSelectedOptions
                   id="orgs"
                   options={orgData}
-                  getOptionLabel={(option) => option && option.name}
-                  isOptionEqualToValue={(option, value) => !value || (value && option.organization_uuid === value)}
+                  getOptionLabel={(option) => (
+                    option && option.name
+                  )}
+                  isOptionEqualToValue={(option, value) => (
+                    !value || (value && (option.organization_uuid === value))
+                  )}
                   value={orgs}
                   onChange={(e, newValue) => onInputChange(newValue)}
                   renderTags={(value, getTagProps) => _.map(value, (option, index) => (
@@ -222,8 +215,6 @@ const AddConsortium = ({ history, location }) => {
                   )}
                 />
               </Grid>
-
-              {/* Submit and Cancel Buttons */}
               <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={6} sm={4}>
                   <Button

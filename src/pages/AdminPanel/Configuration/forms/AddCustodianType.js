@@ -1,45 +1,33 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { Grid, Button, TextField } from '@mui/material';
-import Loader from '@components/Loader/Loader'; // Loader shown during API calls
-import FormModal from '@components/Modal/FormModal'; // Reusable modal wrapper for the form
-import useAlert from '@hooks/useAlert'; // Custom hook for displaying alerts
-import { useInput } from '@hooks/useInput'; // Custom hook for managing input fields
-import { useAddCustodianTypeMutation } from '@react-query/mutations/custodians/addCustodianTypeMutation'; // Mutation for adding new custodian type
-import { useEditCustodianTypeMutation } from '@react-query/mutations/custodians/editCustodianTypeMutation'; // Mutation for editing existing custodian type
-import { validators } from '@utils/validators'; // Utility for validating form input
-import { isDesktop } from '@utils/mediaQuery'; // Utility to check if screen is desktop
-import '../../AdminPanelStyles.css'; // Styles shared across admin panel
+import Loader from '@components/Loader/Loader';
+import FormModal from '@components/Modal/FormModal';
+import useAlert from '@hooks/useAlert';
+import { useInput } from '@hooks/useInput';
+import { useAddCustodianTypeMutation } from '@react-query/mutations/custodians/addCustodianTypeMutation';
+import { useEditCustodianTypeMutation } from '@react-query/mutations/custodians/editCustodianTypeMutation';
+import { validators } from '@utils/validators';
+import { isDesktop } from '@utils/mediaQuery';
+import '../../AdminPanelStyles.css';
 
-/**
- * Component to add or edit a custodian type.
- * Displays a form inside a modal with validations and mutation calls.
- */
 const AddCustodianType = ({ history, location }) => {
-  // Form modal open state
   const [openFormModal, setFormModal] = useState(true);
-  // Confirmation modal for unsaved changes
   const [openConfirmModal, setConfirmModal] = useState(false);
+
   const { displayAlert } = useAlert();
-  // Check if the page is in edit mode
+
   const editPage = location.state && location.state.type === 'edit';
-  // Data to edit (only used if editPage is true)
   const editData = (editPage && location.state.data) || {};
-  // Input state for custodian type name
+
   const name = useInput((editData && editData.name) || '', {
     required: true,
   });
-  // Object to track form validation errors
   const [formError, setFormError] = useState({});
-  // Button label depending on whether it's an add or edit page
+
   const buttonText = editPage ? 'Save' : 'Add Custodian Type';
-  // Modal title depending on mode
   const formTitle = editPage ? 'Edit Custodian Type' : 'Add Custodian Type';
 
-  /**
-   * Handle form modal close.
-   * Shows confirmation if user made changes.
-   */
   const closeFormModal = () => {
     if (name.hasChanged()) {
       setConfirmModal(true);
@@ -51,9 +39,6 @@ const AddCustodianType = ({ history, location }) => {
     }
   };
 
-  /**
-   * Discard form changes and close modals
-   */
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
@@ -62,14 +47,13 @@ const AddCustodianType = ({ history, location }) => {
     }
   };
 
-  // Add mutation hook
-  const { mutate: addCustodianTypeMutation, isLoading: isAddingCustodianType } = useAddCustodianTypeMutation(history, location.state.from, displayAlert, 'Custodian type');
+  const { mutate: addCustodianTypeMutation, isLoading: isAddingCustodianType } = useAddCustodianTypeMutation(history, location.state.from, displayAlert, 'Custodian Type');
 
-  // Edit mutation hook
-  const { mutate: editCustodianTypeMutation, isLoading: isEditingCustodianType } = useEditCustodianTypeMutation(history, location.state.from, displayAlert, 'Custodian type');
+  const { mutate: editCustodianTypeMutation, isLoading: isEditingCustodianType } = useEditCustodianTypeMutation(history, location.state.from, displayAlert, 'Custodian Type');
 
   /**
-   * Handles form submit for adding/editing custodian type
+   * Submit The form and add/edit custodian type
+   * @param {Event} event the default submit event
    */
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -91,8 +75,12 @@ const AddCustodianType = ({ history, location }) => {
   };
 
   /**
-   * Handles validation on input blur
+   * Handle input field blur event
+   * @param {Event} e Event
+   * @param {String} validation validation type if any
+   * @param {Object} input input field
    */
+
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
@@ -112,12 +100,11 @@ const AddCustodianType = ({ history, location }) => {
     }
   };
 
-  /**
-   * Determines whether the submit button should be disabled
-   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
-    if (!name.value) return true;
+    if (!name.value) {
+      return true;
+    }
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
@@ -138,11 +125,9 @@ const AddCustodianType = ({ history, location }) => {
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
-          {/* Show loader if mutation is in progress */}
           {(isAddingCustodianType || isEditingCustodianType) && (
             <Loader open={isAddingCustodianType || isEditingCustodianType} />
           )}
-          {/* Main form */}
           <form
             className="adminPanelFormContainer"
             noValidate
@@ -167,7 +152,6 @@ const AddCustodianType = ({ history, location }) => {
                   {...name.bind}
                 />
               </Grid>
-              {/* Submit and Cancel buttons */}
               <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={6} sm={5.15} md={4}>
                   <Button

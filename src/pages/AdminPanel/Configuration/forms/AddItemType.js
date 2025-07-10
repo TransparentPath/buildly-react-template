@@ -12,41 +12,24 @@ import { useEditItemTypeMutation } from '@react-query/mutations/items/editItemTy
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
 
-/**
- * AddItemType component
- * This component handles both adding and editing of Item Types within an organization's admin panel.
- * It uses a modal form with validation and conditional behavior based on the route state.
- */
 const AddItemType = ({ history, location }) => {
-  // Get the organization UUID from the logged-in user's context
   const organization = getUser().organization.organization_uuid;
+  const [openFormModal, setFormModal] = useState(true);
+  const [openConfirmModal, setConfirmModal] = useState(false);
 
-  // Modal control states
-  const [openFormModal, setFormModal] = useState(true); // Controls the main form modal visibility
-  const [openConfirmModal, setConfirmModal] = useState(false); // Controls the discard confirmation modal
+  const { displayAlert } = useAlert();
 
-  const { displayAlert } = useAlert(); // Alert utility for displaying messages
-
-  // Determine if the current page is in "edit" mode
   const editPage = location.state && location.state.type === 'edit';
   const editData = (editPage && location.state.data) || {};
 
-  // Controlled input for item name with validation
   const name = useInput((editData && editData.name) || '', {
     required: true,
   });
-
-  // Error tracking for form fields
   const [formError, setFormError] = useState({});
 
-  // Set button text and form title dynamically based on mode
   const buttonText = editPage ? 'Save' : 'Add Item Type';
   const formTitle = editPage ? 'Edit Item Type' : 'Add Item Type';
 
-  /**
-   * Handle closing the modal form.
-   * If changes have been made, prompt a confirmation before discarding.
-   */
   const closeFormModal = () => {
     if (name.hasChanged()) {
       setConfirmModal(true);
@@ -58,9 +41,6 @@ const AddItemType = ({ history, location }) => {
     }
   };
 
-  /**
-   * Discard any changes made in the form and close the modal
-   */
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
@@ -69,26 +49,23 @@ const AddItemType = ({ history, location }) => {
     }
   };
 
-  // Custom mutation hooks for adding and editing item types
-  const { mutate: addItemTypeMutation, isLoading: isAddingItemType } = useAddItemTypeMutation(organization, history, location.state.from, displayAlert, 'Item type');
-  const { mutate: editItemTypeMutation, isLoading: isEditingItemType } = useEditItemTypeMutation(organization, history, location.state.from, displayAlert, 'Item type');
+  const { mutate: addItemTypeMutation, isLoading: isAddingItemType } = useAddItemTypeMutation(organization, history, location.state.from, displayAlert, 'Item Type');
+
+  const { mutate: editItemTypeMutation, isLoading: isEditingItemType } = useEditItemTypeMutation(organization, history, location.state.from, displayAlert, 'Item Type');
 
   /**
-   * Handle form submission logic.
-   * Prepares payload and calls appropriate mutation.
-   * @param {Event} event Form submit event
+   * Submit The form and add/edit custodian type
+   * @param {Event} event the default submit event
    */
   const handleSubmit = (event) => {
     event.preventDefault();
     const currentDateTime = new Date();
-    // Common data fields
     let data = {
       ...editData,
       name: name.value,
       organization_uuid: organization,
       edit_date: currentDateTime,
     };
-    // Branch for edit or create
     if (editPage) {
       editItemTypeMutation(data);
     } else {
@@ -101,26 +78,24 @@ const AddItemType = ({ history, location }) => {
   };
 
   /**
-   * Validate input fields on blur.
-   * Updates form error state if validation fails.
-   * @param {Event} e - blur event
-   * @param {String} validation - validation type
-   * @param {Object} input - input field handler
-   * @param {String} parentId - optional fallback for target id
+   * Handle input field blur event
+   * @param {Event} e Event
+   * @param {String} validation validation type if any
+   * @param {Object} input input field
    */
+
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
-    const key = e.target.id || parentId;
     if (validateObj && validateObj.error) {
       setFormError({
         ...prevState,
-        [key]: validateObj,
+        [e.target.id || parentId]: validateObj,
       });
     } else {
       setFormError({
         ...prevState,
-        [key]: {
+        [e.target.id || parentId]: {
           error: false,
           message: '',
         },
@@ -128,11 +103,6 @@ const AddItemType = ({ history, location }) => {
     }
   };
 
-  /**
-   * Check if form submission should be disabled.
-   * Disables if any required fields are empty or if there are validation errors.
-   * @returns {boolean}
-   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (!name.value) {
@@ -158,11 +128,9 @@ const AddItemType = ({ history, location }) => {
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
-          {/* Loading spinner overlay during async operations */}
           {(isAddingItemType || isEditingItemType) && (
             <Loader open={isAddingItemType || isEditingItemType} />
           )}
-          {/* Main form for adding/editing item types */}
           <form
             className="adminPanelFormContainer"
             noValidate
@@ -180,12 +148,13 @@ const AddItemType = ({ history, location }) => {
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
-                  helperText={formError.name ? formError.name.message : ''}
+                  helperText={
+                    formError.name ? formError.name.message : ''
+                  }
                   onBlur={(e) => handleBlur(e, 'required', name)}
                   {...name.bind}
                 />
               </Grid>
-              {/* Submit and Cancel buttons */}
               <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={6} sm={5.15} md={4}>
                   <Button

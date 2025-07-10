@@ -1,9 +1,3 @@
-/**
- * @file AddTrackerOrder.jsx
- * @description Component for creating new tracker orders with multiple tracker types,
- * quantities, and recipient details. Supports re-ordering and cart management.
- */
-
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { useQuery } from 'react-query';
@@ -32,88 +26,33 @@ import { useCartStore } from '@zustand/cart/cartStore';
 import '../TrackerOrderStyles.css';
 import { routes } from '@routes/routesConstants';
 
-/**
- * AddTrackerOrder Component
- *
- * Provides a form interface for creating new tracker orders with the following features:
- * - Multiple tracker type selection
- * - Quantity selection per tracker
- * - Recipient selection and address display
- * - Cart integration
- * - Re-order functionality
- * - Form validation
- *
- * @param {Object} props Component props
- * @param {Object} props.history React Router history object
- * @param {Object} props.location React Router location object
- */
 const AddTrackerOrder = ({ history, location }) => {
-  /**
-   * Current user's organization UUID for API requests
-   * @type {string}
-   */
   const { organization_uuid } = getUser().organization;
-
-  /**
-   * Modal visibility states
-   * @type {boolean}
-   */
   const [openFormModal, setFormModal] = useState(true);
   const [openConfirmModal, setConfirmModal] = useState(false);
   const [showAddMore, setShowAddMore] = useState(false);
 
-  /**
-   * Alert hook for displaying notifications
-   */
   const { displayAlert } = useAlert();
-
-  /**
-   * Cart management from Zustand store
-   */
   const { data: cartData, setCart } = useCartStore();
-
-  /**
-   * Retrieve any saved order data from localStorage
-   * @type {Object|null}
-   */
   const halfwayOrder = JSON.parse(localStorage.getItem('halfwayOrder'));
 
-  /**
-   * Check if this is a re-order operation and get associated data
-   */
   const reOrderPage = location.state && _.isEqual(location.state.type, 're-order');
   const reOrderData = (reOrderPage && location.state.data) || {};
 
-  /**
-   * Form input states using custom useInput hook
-   * Initializes with re-order data, halfway order data, or defaults
-   */
   const placeholderType = useInput('', { required: true });
   const placeholderQuantity = useInput(0, { required: true });
   const order_type = useInput((reOrderData && reOrderData.order_type) || (halfwayOrder && halfwayOrder.order_type) || [], { required: true });
   const order_quantity = useInput((reOrderData && reOrderData.order_quantity) || (halfwayOrder && halfwayOrder.order_quantity) || [], { required: true });
   const order_recipient = useInput((reOrderData && reOrderData.order_recipient) || (halfwayOrder && halfwayOrder.order_recipient) || '', { required: true });
   const order_address = useInput((reOrderData && reOrderData.order_address) || (halfwayOrder && halfwayOrder.order_address) || '', { required: true });
-
-  /**
-   * Form validation error state
-   * @type {Object}
-   */
   const [formError, setFormError] = useState({});
 
-  /**
-   * Query to fetch recipient addresses for the organization
-   */
   const { data: recipientAddressData, isLoading: isLoadingRecipientAddresses } = useQuery(
     ['recipientAddresses', organization_uuid],
     () => getRecipientAddressQuery(organization_uuid, displayAlert, 'Tracker order'),
     { refetchOnWindowFocus: false },
   );
 
-  /**
-   * Handles form modal closure
-   * Checks for unsaved changes and prompts confirmation if needed
-   */
   const closeFormModal = () => {
     localStorage.removeItem('halfwayOrder');
     if (
@@ -133,9 +72,6 @@ const AddTrackerOrder = ({ history, location }) => {
     }
   };
 
-  /**
-   * Discards form data and navigates back to tracker order list
-   */
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
@@ -143,10 +79,8 @@ const AddTrackerOrder = ({ history, location }) => {
   };
 
   /**
-   * Handles form submission
-   * Creates new order data and adds it to the cart
-   *
-   * @param {Event} event Form submission event
+   * Submit The form and add/edit custodian type
+   * @param {Event} event the default submit event
    */
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -166,13 +100,12 @@ const AddTrackerOrder = ({ history, location }) => {
   };
 
   /**
-   * Validates form fields on blur
-   *
-   * @param {Event} e Blur event
-   * @param {string} validation Validation type
-   * @param {Object} input Input field reference
-   * @param {string} parentId Parent element ID
+   * Handle input field blur event
+   * @param {Event} e Event
+   * @param {String} validation validation type if any
+   * @param {Object} input input field
    */
+
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
@@ -192,12 +125,6 @@ const AddTrackerOrder = ({ history, location }) => {
     }
   };
 
-  /**
-   * Checks if form submission should be disabled
-   * Validates required fields and error states
-   *
-   * @returns {boolean} True if submit should be disabled
-   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (!order_type.value || _.isEmpty(order_type.value) || !order_quantity.value || _.isEmpty(order_quantity.value) || !order_recipient.value || !order_address.value) {
@@ -212,10 +139,6 @@ const AddTrackerOrder = ({ history, location }) => {
     return errorExists;
   };
 
-  /**
-   * Handles navigation to add new recipient
-   * Saves current form state to localStorage before navigating
-   */
   const onAddRecipient = () => {
     if (!_.isEmpty(order_type.value) || !_.isEmpty(order_quantity.value) || order_recipient.value || order_address.value) {
       const newHalfwayOrder = {
@@ -246,14 +169,12 @@ const AddTrackerOrder = ({ history, location }) => {
           {isLoadingRecipientAddresses && <Loader open={isLoadingRecipientAddresses} />}
           <form noValidate onSubmit={handleSubmit}>
             <Grid container columnGap={2}>
-              {/* Tracker Selection Section */}
               <Grid item xs={12} md={5.8} className="addOrderContainer">
                 <Grid container>
                   <Grid item xs={12} padding={2}>
                     <Typography className="trackerOrderBold">TRACKER</Typography>
                   </Grid>
 
-                  {/* Existing Tracker Selections */}
                   {!_.isEmpty(order_type.value) && !_.isEmpty(order_quantity.value) && _.map(order_type.value, (orty, idx) => (
                     <Grid container key={`${idx}-${orty}`}>
                       <Grid item xs={12} className={idx > 0 ? 'addOrderTypeContainer' : ''} />
@@ -344,7 +265,6 @@ const AddTrackerOrder = ({ history, location }) => {
                     </Grid>
                   ))}
 
-                  {/* New Tracker Selection */}
                   {(showAddMore || (_.isEmpty(order_type.value) && _.isEmpty(order_quantity.value))) && (
                     <Grid container>
                       <Grid item xs={12} className={!_.isEmpty(order_type.value) ? 'addOrderTypeContainer' : ''} />
@@ -425,7 +345,6 @@ const AddTrackerOrder = ({ history, location }) => {
                 </Grid>
               </Grid>
 
-              {/* Recipient Selection Section */}
               <Grid item xs={12} md={5.8} className="addOrderContainer">
                 <Grid container>
                   <Grid item xs={12} padding={2}>
@@ -487,7 +406,6 @@ const AddTrackerOrder = ({ history, location }) => {
                 </Grid>
               </Grid>
 
-              {/* Add More Trackers Option */}
               <Grid item xs={12}>
                 {(_.size(_.without(ORDER_TYPES, ..._.filter(ORDER_TYPES, (o) => _.includes(order_type.value, o.value)))) > 0) && (
                   <Typography
@@ -503,7 +421,6 @@ const AddTrackerOrder = ({ history, location }) => {
                 )}
               </Grid>
 
-              {/* Form Actions */}
               <Grid container spacing={2} justifyContent="center" className="addOrderActions">
                 <Grid item xs={6} sm={5.15} md={4}>
                   <Button
