@@ -1,3 +1,5 @@
+/* eslint-disable no-else-return */
+/* eslint-disable consistent-return */
 /* eslint-disable no-alert */
 /* eslint-disable no-console */
 
@@ -23,6 +25,8 @@ const showRefreshUI = (registration) => {
  * @param {Function} callback - The function to call when the new SW is ready.
  */
 const onNewServiceWorker = (registration, callback) => {
+  if (!registration) return;
+
   // If there's already a waiting service worker, immediately trigger the callback
   if (registration.waiting) {
     // This can happen if another tab has already installed the new SW
@@ -34,8 +38,9 @@ const onNewServiceWorker = (registration, callback) => {
    * When the state becomes 'installed', it means the new SW is ready to activate.
    */
   const listenInstalledStateChange = () => {
-    registration.installing.addEventListener('statechange', (event) => {
+    registration.installing?.addEventListener('statechange', (event) => {
       if (event.target.state === 'installed') {
+        console.log('[SW] New service worker installed');
         // Trigger the callback to inform the user or take action
         callback();
       }
@@ -45,12 +50,9 @@ const onNewServiceWorker = (registration, callback) => {
   // If the SW is currently installing, attach state change listener
   if (registration.installing) {
     return listenInstalledStateChange();
+  } else {
+    registration.addEventListener('updatefound', listenInstalledStateChange);
   }
-
-  // If not installing yet, listen for updatefound event
-  registration.addEventListener('updatefound', listenInstalledStateChange);
-
-  return null;
 };
 
 /**
@@ -67,17 +69,26 @@ const registerServiceWorker = () => {
         .then((registration) => {
           console.log('SW registered: ', registration);
 
-          // If there's no current SW controlling the page, don't prompt
           if (!navigator.serviceWorker.controller) {
+            // First load; no service worker yet
             return;
           }
 
-          // Check for a new SW and notify when it's available
+          // Check for new service worker on install
           onNewServiceWorker(registration, () => {
-            showRefreshUI(registration);
+            console.log('[SW] New service worker found and waiting');
 
-            // Optional: clear a flag related to "What's New" modal (if used in app)
+            // Tell waiting SW to skip waiting
+            if (registration.waiting) {
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+
+          // Reload the page when the new SW takes control
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('[SW] Controller changed, reloading...');
             window.localStorage.removeItem('isWhatsNewShown');
+            showRefreshUI(registration); // This will alert and reload
           });
         })
         .catch((registrationError) => {

@@ -55,7 +55,7 @@ const AdminPanel = ({
   // This effect is triggered whenever the selected view changes. It updates the URL to reflect the active tab.
   useEffect(() => {
     history.push(`${routes.ADMIN_PANEL}/${view || location.state}`);
-  }, [view, history, location.state]);
+  }, [view]);
 
   // Function to handle tab clicks and set the new selected view
   const viewTabClicked = (event, newView) => {
