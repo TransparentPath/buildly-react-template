@@ -13,6 +13,7 @@ import {
   CssBaseline,
   StyledEngineProvider,
 } from '@mui/material';
+import _ from 'lodash';
 // Global alert component used across the application
 import Alert from '@components/Alert/Alert';
 import { useAutoLogout } from './hooks/useAutoLogout';
@@ -49,7 +50,12 @@ import './App.css';
  */
 const App = () => {
   const [isSessionTimeout, setIsSessionTimeout] = React.useState(false);
-  useAutoLogout(oauthService.logout, 15 * 60 * 1000, setIsSessionTimeout);
+
+  useAutoLogout(
+    oauthService.logout,
+    !_.isEqual(window.env.production, true) ? (60 * 60 * 1000) : (15 * 60 * 1000),
+    setIsSessionTimeout,
+  );
 
   return (
     <Router>

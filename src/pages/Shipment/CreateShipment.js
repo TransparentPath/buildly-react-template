@@ -1063,6 +1063,7 @@ const CreateShipment = ({ history, location }) => {
       (_.isEqual('available', updateGateway.gateway_status) && (!updateGateway.shipment_ids || _.isEqual([], updateGateway.shipment_ids)))
       || status.hasChanged()
       || _.includes(_.map(ADMIN_SHIPMENT_STATUS, 'value'), status.value)
+      || (_.isEqual('assigned', updateGateway.gateway_status) && _.isEqual(updateGateway.shipment_ids?.[0], editData?.partner_shipment_id) && (transmissionInterval.hasChanged() || measurementInterval.hasChanged()))
     )) {
       savePayload = { ...savePayload, updateGateway };
     }

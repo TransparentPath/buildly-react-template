@@ -1530,8 +1530,8 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         // Custom render function for the location column
         customBodyRender: (value) => (
           <div>
-            {!_.isEqual(value, null) && !_.isEqual(value, undefined) && !_.isEqual(value, 'Error retrieving address')
-              ? value : 'N/A'}
+            {!_.isNil(value) && !_.isEqual(value, 'Error retrieving address')
+              ? value : <span className="notranslate">N/A</span>}
           </div>
         ),
       },
@@ -1553,8 +1553,8 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
           return (
             <div>
               {!_.isEqual(locationValue, 'N/A')
-                ? (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')
-                : 'N/A'}
+                ? (!_.isNil(value) ? value : <span className="notranslate">N/A</span>)
+                : <span className="notranslate">N/A</span>}
             </div>
           );
         },
@@ -1577,8 +1577,8 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
           return (
             <div>
               {!_.isEqual(locationValue, 'N/A')
-                ? (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')
-                : 'N/A'}
+                ? (!_.isNil(value) ? value : <span className="notranslate">N/A</span>)
+                : <span className="notranslate">N/A</span>}
             </div>
           );
         },
@@ -1594,7 +1594,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
         customBodyRender: (value, tableMeta) => (
           <div style={getCellStyle(tableMeta)}>
-            {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : '')}
+            {(!_.isNil(value) ? _.round(_.toNumber(value), 2) : '')}
           </div>
         ),
       },
@@ -1609,7 +1609,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
         customBodyRender: (value, tableMeta) => (
           <div style={getCellStyle(tableMeta)}>
-            {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : '')}
+            {(!_.isNil(value) ? _.round(_.toNumber(value), 2) : '')}
           </div>
         ),
       },
@@ -1624,7 +1624,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
         customBodyRender: (value, tableMeta) => (
           <div style={getCellStyle(tableMeta)}>
-            {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : '')}
+            {(!_.isNil(value) ? _.round(_.toNumber(value), 2) : '')}
           </div>
         ),
       },
@@ -1639,7 +1639,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
         customBodyRender: (value, tableMeta) => (
           <div style={getCellStyle(tableMeta)}>
-            {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : '')}
+            {(!_.isNil(value) ? _.round(_.toNumber(value), 2) : '')}
           </div>
         ),
       },
@@ -1659,13 +1659,21 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
             <Grid container spacing={1}>
               <Grid item xs={4} style={{ alignContent: 'center', textAlign: 'center' }}>
                 <div style={getCellStyle(tableMeta)}>
-                  {(!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : '')}
+                  {(!_.isNil(value) ? _.round(_.toNumber(value), 2) : '')}
                 </div>
               </Grid>
               {!_.isEqual(value, null) && !_.isEqual(value, undefined) && (
                 <Grid item xs={8}>
-                  <Typography variant="body1">{`T: ${tTime ? tTime.short_label : 'N/A'}`}</Typography>
-                  <Typography variant="body1">{`M: ${mTime ? mTime.short_label : 'N/A'}`}</Typography>
+                  <Typography variant="body1">
+                    T:
+                    {' '}
+                    {tTime ? tTime.short_label : <span className="notranslate">N/A</span>}
+                  </Typography>
+                  <Typography variant="body1">
+                    M:
+                    {' '}
+                    {mTime ? mTime.short_label : <span className="notranslate">N/A</span>}
+                  </Typography>
                 </Grid>
               )}
             </Grid>
@@ -1683,7 +1691,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         filter: true,
         display: false,
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
-        customBodyRender: (value) => (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : ''),
+        customBodyRender: (value) => (!_.isNil(value) ? _.round(_.toNumber(value), 2) : ''),
       },
     },
     {
@@ -1695,7 +1703,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         filter: true,
         display: false,
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
-        customBodyRender: (value) => (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : ''),
+        customBodyRender: (value) => (!_.isNil(value) ? _.round(_.toNumber(value), 2) : ''),
       },
     },
     {
@@ -1707,7 +1715,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
         filter: true,
         display: false,
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
-        customBodyRender: (value) => (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? _.round(_.toNumber(value), 2) : ''),
+        customBodyRender: (value) => (!_.isNil(value) ? _.round(_.toNumber(value), 2) : ''),
       },
     },
   ]);
@@ -1792,13 +1800,10 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
       filter: true,
       customBodyRender: (value, tableMeta) => {
         const locationValue = tableMeta.rowData[tableMeta.columnIndex - 1];
-        return (
-          <div>
-            {!_.isEqual(locationValue, 'N/A')
-              ? (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')
-              : 'N/A'}
-          </div>
-        );
+        const displayValue = !_.isEqual(locationValue, 'N/A')
+          ? (!_.isNil(value) ? value : <span className="notranslate">N/A</span>)
+          : <span className="notranslate">N/A</span>;
+        return <div>{displayValue}</div>;
       },
       setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
     },
@@ -1812,13 +1817,10 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
       filter: true,
       customBodyRender: (value, tableMeta) => {
         const locationValue = tableMeta.rowData[tableMeta.columnIndex - 2];
-        return (
-          <div>
-            {!_.isEqual(locationValue, 'N/A')
-              ? (!_.isEqual(value, null) && !_.isEqual(value, undefined) ? value : 'N/A')
-              : 'N/A'}
-          </div>
-        );
+        const displayValue = !_.isEqual(locationValue, 'N/A')
+          ? (!_.isNil(value) ? value : <span className="notranslate">N/A</span>)
+          : <span className="notranslate">N/A</span>;
+        return <div>{displayValue}</div>;
       },
       setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
     },

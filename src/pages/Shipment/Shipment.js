@@ -799,7 +799,7 @@ const Shipment = ({ history }) => {
                     return (
                       <Grid container>
                         <Grid item className="shipmentGridTimeCenter">
-                          <Typography variant="body1">
+                          <Typography variant="body1" className="notranslate">
                             {!_.isEmpty(markers[0])
                               && markers[0].battery !== null
                               && markers[0].battery !== undefined

@@ -411,7 +411,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
     <Typography fontWeight={700}>
       {`${title}: `}
       {_.includes(value, null) || _.includes(value, undefined)
-        ? <span style={{ fontWeight: 400 }}>N/A</span>
+        ? <span style={{ fontWeight: 400 }} className="notranslate">N/A</span>
         : <span style={{ fontWeight: spanClass ? 500 : 400 }} className={`${!!spanClass && spanClass} ${!!translateClass && translateClass}`}>{value}</span>}
     </Typography>
   );
