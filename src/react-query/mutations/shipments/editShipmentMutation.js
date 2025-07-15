@@ -179,7 +179,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
           );
         }
         // If there's a gateway to update, configure it accordingly.
-        if (updateGateway) {
+        if (!_.isEmpty(updateGateway) && !_.isEqual(updateGateway.gateway_status, 'assigned')) {
           let gateway_status = '';
           let shipment_ids = [];
           let { battery_alert_level } = updateGateway;
@@ -228,6 +228,18 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
               configurePayload,
             );
           }
+        } else if (!_.isEmpty(updateGateway) && _.isEqual(updateGateway.gateway_status, 'assigned')) {
+          const configurePayload = {
+            platform_type: data.data.platform_name,
+            gateway: updateGateway.imei_number,
+            transmission_interval: _.isEqual(_.toLower(data.data.status), 'planned') || (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) ? 5 : data.data.transmission_time,
+            measurement_interval: _.isEqual(_.toLower(data.data.status), 'planned') || (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) ? 5 : data.data.measurement_time,
+          };
+          await httpService.makeRequest(
+            'post',
+            `${window.env.API_URL}sensors/configure_gateway/`,
+            configurePayload,
+          );
         }
       }
     },

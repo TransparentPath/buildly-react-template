@@ -48,7 +48,7 @@ const AdminPanel = ({
   // this will be triggered whenever the content switcher is clicked to change the view
   useEffect(() => {
     history.push(`${routes.ADMIN_PANEL}/${view || location.state}`);
-  }, [view, history, location.state]);
+  }, [view]);
 
   const viewTabClicked = (event, newView) => {
     setView(newView);

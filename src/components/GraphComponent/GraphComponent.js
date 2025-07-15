@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
@@ -38,7 +38,7 @@ const GraphComponent = ({
   };
 
   return (
-    <div style={{ marginLeft: 20 }}>
+    <div key={selectedGraph} style={{ marginLeft: 20 }}>
       {/* If data exists and has items, render the graph */}
       {data && _.size(data) > 0 ? (
         <>
@@ -94,6 +94,7 @@ const GraphComponent = ({
                 stroke={theme.palette.background.dark} // Line color from theme
                 fill={theme.palette.background.dark}
                 strokeWidth={3}
+                isAnimationActive={false}
               />
               {/* Max value line */}
               <Line
@@ -104,6 +105,7 @@ const GraphComponent = ({
                 stroke={theme.palette.error.main} // Error color for max (usually red)
                 fill={theme.palette.error.main}
                 strokeWidth={3}
+                isAnimationActive={false}
               />
               {/* Min value line (conditionally shown only if "min" exists in data) */}
               {_.includes(_.keysIn(data[0]), 'min') && (
@@ -115,6 +117,7 @@ const GraphComponent = ({
                   stroke={theme.palette.info.main} // Info color for min (usually blue)
                   fill={theme.palette.info.main}
                   strokeWidth={3}
+                  isAnimationActive={false}
                 />
               )}
             </LineChart>

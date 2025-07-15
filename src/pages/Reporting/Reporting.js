@@ -296,15 +296,13 @@ const Reporting = () => {
           .tz(timeZone).format(`${dateFormat} ${timeFormat}`);
       } else if (typeof (selectedShipment[value]) !== 'object') {
         if (value === 'had_alert') {
-          returnValue = selectedShipment[value]
-            ? 'YES'
-            : 'NO';
+          returnValue = selectedShipment[value] ? 'YES' : 'NO';
         } else {
           returnValue = selectedShipment[value];
         }
       }
     } else {
-      returnValue = 'N/A';
+      returnValue = <span className="notranslate">N/A</span>;
     }
     return returnValue;
   };
@@ -1218,6 +1216,15 @@ const Reporting = () => {
                 handleShipmentSelection(newValue);
               }}
               filterOptions={(options, { inputValue }) => options.filter((option) => option.name.toLowerCase().includes(inputValue.toLowerCase()))}
+              renderOption={(props, option) => (
+                <li
+                  {...props}
+                  className={`${props.className} notranslate`}
+                  data-no-translate="true"
+                >
+                  {option.name}
+                </li>
+              )}
               renderInput={(params) => (
                 <TextField
                   {...params}
