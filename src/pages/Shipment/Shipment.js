@@ -819,7 +819,6 @@ const Shipment = ({ history }) => {
                           (marker) => marker?.shipment?.partner_shipment_id === ship.partner_shipment_id,
                         ),
                     );
-                    const batteryValue = filterMarker?.[0]?.shipment?.battery_levels || ship.battery_levels;
                     const tTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.transmission_time });
                     const mTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.measurement_time });
 
@@ -827,7 +826,7 @@ const Shipment = ({ history }) => {
                       <Grid container>
                         <Grid item className="shipmentGridTimeCenter">
                           <Typography variant="body1" className="notranslate">
-                            {batteryValue}
+                            {ship.battery_levels}
                           </Typography>
                         </Grid>
                         <Grid item flex={1}>
