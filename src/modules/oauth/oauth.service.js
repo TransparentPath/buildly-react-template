@@ -141,7 +141,6 @@ const logout = () => {
     localStorage.removeItem('alertGrp');
     localStorage.removeItem('pushPreference');
     localStorage.removeItem('halfwayOrder');
-    localStorage.removeItem('lastActivity');
     if ('caches' in window) {
       caches.keys().then((cacheNames) => {
         cacheNames.forEach((cacheName) => {

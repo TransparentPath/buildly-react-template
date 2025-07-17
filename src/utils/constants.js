@@ -2386,8 +2386,9 @@ export const getShipmentFormattedRow = (
       const gateways = _.filter(gatewayData, (gateway) => (
         _.includes(editedShipment.gateway_imei, _.toString(gateway.imei_number))
       ));
+
       editedShipment.tracker = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, 'name'), ', '))) || 'N/A';
-      editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, (g) => _.toString(_.toInteger(g.last_known_battery_level))), ', '))) || 'N/A';
+      editedShipment.battery_levels = (!_.isEmpty(gateways) && _.toString(_.join(_.map(gateways, (g) => _.toString(_.toInteger(g.last_known_battery_level) || 'N/A')), ', '))) || 'N/A';
     }
 
     // Format alerts if shipment had any
@@ -2441,13 +2442,10 @@ export const getShipmentFormattedRow = (
       }));
 
       // Use most recent report for battery info
-      if (reports[0] && reports[0].report_entry.report_battery) {
-        editedShipment.battery_levels = reports[0].report_entry.report_battery;
-      }
+      editedShipment.battery_levels = (!_.isEmpty(reports) && reports[0].report_entry?.report_battery) || editedShipment.battery_levels;
     }
     shipmentList = [...shipmentList, editedShipment];
   });
-
   // Order shipments by departure date and creation date, descending
   return _.orderBy(
     shipmentList,
