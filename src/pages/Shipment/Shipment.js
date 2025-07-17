@@ -1,6 +1,6 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
@@ -28,7 +28,12 @@ import Loader from '@components/Loader/Loader';
 import MapComponent from '@components/MapComponent/MapComponent';
 import { getUser } from '@context/User.context';
 import { routes } from '@routes/routesConstants';
-import { getIcon, getShipmentFormattedRow, shipmentColumns } from '@utils/constants';
+import {
+  getIcon,
+  getShipmentFormattedRow,
+  shipmentColumns,
+  tempUnit,
+} from '@utils/constants';
 import { useQuery } from 'react-query';
 import { getShipmentsQuery } from '@react-query/queries/shipments/getShipmentsQuery';
 import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQuery';
@@ -145,7 +150,7 @@ const Shipment = ({ history }) => {
 
   // Fetch sensor report data for global view
   const { data: reportData1, isLoading: isLoadingReports1 } = useQuery(
-    ['sensorReports', shipmentData, shipmentFilter],
+    ['sensorReports', 'bulk', shipmentData, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null))), 10, displayAlert, 'Shipment'),
     {
       enabled: _.isEmpty(selectedShipment) && _.isEmpty(expandedRows) && isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
@@ -165,7 +170,7 @@ const Shipment = ({ history }) => {
     isLoading: isLoadingReports2,
     refetch: refetchReports2,
   } = useQuery(
-    ['sensorReports', shipmentData, shipmentFilter],
+    ['sensorReports', 'single', shipmentData, shipmentFilter],
     () => getSensorReportQuery(encodeURIComponent(selectedShipment.partner_shipment_id), null, displayAlert, 'Shipment'),
     {
       enabled: !_.isEmpty(selectedShipment) && !_.isEmpty(expandedRows) && isShipmentDataAvailable && !_.isEmpty(encodeURIComponent(_.toString(_.without(_.map(shipmentData, 'partner_shipment_id'), null)))),
@@ -173,7 +178,11 @@ const Shipment = ({ history }) => {
     },
   );
 
-  const sensorReportData = selectedShipment ? reportData2 : reportData1; // Determine which sensor report data to use
+  const sensorReportData = useMemo(() => _.uniqWith(
+    [...(reportData1 || []), ...(reportData2 || [])],
+    _.isEqual,
+  ), [reportData1, reportData2]);
+
   const isLoadingSensorReports = selectedShipment ? isLoadingReports2 : isLoadingReports1; // Determine which loading state to use
 
   const isLoaded = isLoadingShipments
@@ -486,14 +495,14 @@ const Shipment = ({ history }) => {
       lng: longitude,
       location: report_entry.report_location,
       label: 'Clustered',
-      temperature: tempMeasure === 'fahrenheit' ? report_entry.report_temp_fah : report_entry.report_temp_cel,
+      temperature: _.isEqual(_.lowerCase(tempMeasure), 'fahrenheit') ? report_entry.report_temp_fah : report_entry.report_temp_cel,
       light: report_entry.report_light,
       shock: report_entry.report_shock,
       tilt: report_entry.report_tilt,
       humidity: report_entry.report_humidity,
       battery: report_entry.report_battery,
       pressure: report_entry.report_pressure,
-      probe: tempMeasure === 'fahrenheit' ? report_entry.report_probe_fah : report_entry.report_probe_cel,
+      probe: _.isEqual(_.lowerCase(tempMeasure), 'fahrenheit') ? report_entry.report_probe_fah : report_entry.report_probe_cel,
       color: muiTheme.palette.success.main,
       allAlerts: [], // Alerts can be added here if needed
       date,
@@ -536,32 +545,41 @@ const Shipment = ({ history }) => {
     const minHum = selectedShipment && _.orderBy(selectedShipment.min_excursion_humidity, 'set_at', 'desc')[0];
     const maxShock = selectedShipment && _.orderBy(selectedShipment.shock_threshold, 'set_at', 'desc')[0];
     const maxLight = selectedShipment && _.orderBy(selectedShipment.light_threshold, 'set_at', 'desc')[0];
+    const temperatureUnit = tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))));
 
     return isValidData && (
       <>
         <Grid container flex>
-          <Typography>Temp (</Typography>
-          <Typography className="shipmentMaxColor">{maxTemp.value}</Typography>
-          <Typography>/</Typography>
-          <Typography className="shipmentMinColor">{minTemp.value}</Typography>
-          <Typography>{`): ${marker.temperature}`}</Typography>
+          <Typography component="div">
+            Temp (
+            <span className="shipmentMaxColor">{maxTemp.value}</span>
+            /
+            <span className="shipmentMinColor">{minTemp.value}</span>
+            {` ${temperatureUnit}): ${marker.temperature} ${temperatureUnit}`}
+          </Typography>
         </Grid>
         <Grid container flex>
-          <Typography>Humidity (</Typography>
-          <Typography className="shipmentMaxColor">{maxHum.value}</Typography>
-          <Typography>/</Typography>
-          <Typography className="shipmentMinColor">{minHum.value}</Typography>
-          <Typography>{`): ${marker.humidity}`}</Typography>
+          <Typography component="div">
+            Humidity (
+            <span className="shipmentMaxColor">{maxHum.value}</span>
+            /
+            <span className="shipmentMinColor">{minHum.value}</span>
+            {` %): ${marker.humidity} %}`}
+          </Typography>
         </Grid>
         <Grid container flex>
-          <Typography>Shock (</Typography>
-          <Typography className="shipmentMaxColor">{maxShock.value}</Typography>
-          <Typography>{`): ${marker.shock}`}</Typography>
+          <Typography component="div">
+            Shock (
+            <span className="shipmentMaxColor">{maxShock.value}</span>
+            {` G): ${marker.shock} G`}
+          </Typography>
         </Grid>
         <Grid container flex>
-          <Typography>Light (</Typography>
-          <Typography className="shipmentMaxColor">{maxLight.value}</Typography>
-          <Typography>{`): ${marker.light}`}</Typography>
+          <Typography component="div">
+            Light (
+            <span className="shipmentMaxColor">{maxLight.value}</span>
+            {` LUX): ${marker.light} LUX`}
+          </Typography>
         </Grid>
         <Typography>{`Battery: ${marker.battery}`}</Typography>
       </>
@@ -587,16 +605,17 @@ const Shipment = ({ history }) => {
     const minHum = selectedShipment && _.orderBy(selectedShipment.min_excursion_humidity, 'set_at', 'desc')[0];
     const maxShock = selectedShipment && _.orderBy(selectedShipment.shock_threshold, 'set_at', 'desc')[0];
     const maxLight = selectedShipment && _.orderBy(selectedShipment.light_threshold, 'set_at', 'desc')[0];
+    const temperatureUnit = tempUnit(_.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')));
 
     return hasInvalidData && (
       <Grid item xs={12}>
         <Typography fontWeight={700} fontStyle="italic">
           Irregular Transmission:
         </Typography>
-        {renderSensorValue('Temp ', marker.temperature, maxTemp.value, minTemp.value)}
-        {renderSensorValue('Humidity ', marker.humidity, maxHum.value, minHum.value)}
-        {renderSensorValue('Shock ', marker.shock, maxShock.value)}
-        {renderSensorValue('Light ', marker.light, maxLight.value)}
+        {renderSensorValue('Temp ', marker.temperature, `${maxTemp.value} ${temperatureUnit}`, `${minTemp.value} ${temperatureUnit}`, temperatureUnit)}
+        {renderSensorValue('Humidity ', marker.humidity, `${maxHum.value} %`, `${minHum.value} %`, '%')}
+        {renderSensorValue('Shock ', marker.shock, `${maxShock.value} G`, null, 'G')}
+        {renderSensorValue('Light ', marker.light, `${maxLight.value} LUX`, null, 'LUX')}
         {renderSensorValue('Battery', marker.battery)}
       </Grid>
     );
@@ -610,7 +629,7 @@ const Shipment = ({ history }) => {
    * @param {number} min - The minimum threshold (optional).
    * @returns {JSX.Element} - The rendered sensor value.
    */
-  const renderSensorValue = (label, value, max = null, min = null) => (
+  const renderSensorValue = (label, value, max = null, min = null, unit = null) => (
     !_.isEqual(value, null) && !_.isEqual(value, undefined) && (
       <Grid container flex>
         <Typography>{label}</Typography>
@@ -629,7 +648,7 @@ const Shipment = ({ history }) => {
         {(max || min) && (
           <Typography>)</Typography>
         )}
-        <Typography>{`: ${value}`}</Typography>
+        <Typography>{`: ${value} ${unit}`}</Typography>
       </Grid>
     )
   );
@@ -793,6 +812,16 @@ const Shipment = ({ history }) => {
                   }),
                   customBodyRenderLite: (dataIndex) => {
                     const ship = rows[dataIndex];
+                    const filterMarker = _.find(
+                      allMarkers,
+                      (markerGroup) => Array.isArray(markerGroup)
+                        && markerGroup.some(
+                          (marker) => marker?.shipment?.partner_shipment_id === ship.partner_shipment_id,
+                        ),
+                    );
+                    const batteryValue = filterMarker?.[0]?.shipment?.battery_levels != null
+                      ? filterMarker[0].shipment.battery_levels
+                      : ship.battery_levels;
                     const tTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.transmission_time });
                     const mTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.measurement_time });
 
@@ -800,11 +829,7 @@ const Shipment = ({ history }) => {
                       <Grid container>
                         <Grid item className="shipmentGridTimeCenter">
                           <Typography variant="body1" className="notranslate">
-                            {!_.isEmpty(markers[0])
-                              && markers[0].battery !== null
-                              && markers[0].battery !== undefined
-                              ? markers[0].battery
-                              : ship.battery_levels}
+                            {batteryValue}
                           </Typography>
                         </Grid>
                         <Grid item flex={1}>
