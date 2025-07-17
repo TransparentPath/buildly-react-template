@@ -564,7 +564,7 @@ const Shipment = ({ history }) => {
             <span className="shipmentMaxColor">{maxHum.value}</span>
             /
             <span className="shipmentMinColor">{minHum.value}</span>
-            {` %): ${marker.humidity} %}`}
+            {` %): ${marker.humidity} %`}
           </Typography>
         </Grid>
         <Grid container flex>
@@ -819,9 +819,7 @@ const Shipment = ({ history }) => {
                           (marker) => marker?.shipment?.partner_shipment_id === ship.partner_shipment_id,
                         ),
                     );
-                    const batteryValue = filterMarker?.[0]?.shipment?.battery_levels != null
-                      ? filterMarker[0].shipment.battery_levels
-                      : ship.battery_levels;
+                    const batteryValue = filterMarker?.[0]?.shipment?.battery_levels || ship.battery_levels;
                     const tTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.transmission_time });
                     const mTime = _.find(TIVE_GATEWAY_TIMES, { value: ship.measurement_time });
 
