@@ -1917,7 +1917,8 @@ const CreateShipment = ({ history, location }) => {
               <Grid item xs={8} md={9} lg={9.6} mt={isMobile() ? 1 : 0}>
                 <FormControl fullWidth component="fieldset" variant="outlined" className="createShipmentAttachedFiles">
                   <FormLabel component="legend" className="createShipmentLegend">
-                    Attached Files
+                    <span style={{ fontWeight: '700' }}>Attached File(s)</span>
+                    {' - limit each image, PDF, and Microsoft Office file to <5MB; each video file to <10MB'}
                   </FormLabel>
                   <Stack direction="row" spacing={1} mt={-1}>
                     {!_.isEmpty(files) && _.map(files, (file, idx) => (

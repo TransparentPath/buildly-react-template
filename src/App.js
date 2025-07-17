@@ -51,11 +51,7 @@ import './App.css';
 const App = () => {
   const [isSessionTimeout, setIsSessionTimeout] = React.useState(false);
 
-  useAutoLogout(
-    oauthService.logout,
-    !_.isEqual(window.env.production, true) ? (60 * 60 * 1000) : (15 * 60 * 1000),
-    setIsSessionTimeout,
-  );
+  useAutoLogout(oauthService.logout, setIsSessionTimeout);
 
   return (
     <Router>
