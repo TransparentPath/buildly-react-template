@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import {
@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { Typography, useTheme } from '@mui/material'; // MUI components
 import './GraphComponentStyles.css'; // Custom CSS styles for styling the graph, tooltips, and legends
+import { useTranslation } from 'react-i18next';
 
 // Main functional component to display a line chart
 const GraphComponent = ({
@@ -19,6 +20,8 @@ const GraphComponent = ({
   selectedGraph, // The currently selected graph type (e.g., "temperature", "speed")
 }) => {
   const theme = useTheme(); // Hook to access Material-UI theme (used for consistent color theming)
+
+  const { t } = useTranslation();
 
   const customDot = <circle r="0.5" />; // Tiny dot (currently unused)
 
@@ -46,20 +49,16 @@ const GraphComponent = ({
           <div className="graphLegendDiv" style={{ marginBottom: 6, marginTop: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <div className="graphNormalColor" />
-              <Typography variant="body1">{_.capitalize(selectedGraph)}</Typography>
+              <Typography className="notranslate" variant="body1">{t(selectedGraph)}</Typography>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <div className="graphMaxColor" />
-              <Typography variant="body1">
-                {`Max ${_.capitalize(selectedGraph)}`}
-              </Typography>
+              <Typography className="notranslate" variant="body1">{t(`max_${selectedGraph}`)}</Typography>
             </div>
             {_.includes(_.keysIn(data[0]), 'min') && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <div className="graphMinColor" />
-                <Typography variant="body1">
-                  {`Min ${_.capitalize(selectedGraph)}`}
-                </Typography>
+                <Typography className="notranslate" variant="body1">{t(`min_${selectedGraph}`)}</Typography>
               </div>
             )}
           </div>

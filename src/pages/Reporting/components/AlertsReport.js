@@ -13,6 +13,7 @@ import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { getAlertsReportColumns } from '@utils/constants';
 import '../ReportingStyles.css';
 import { getTimezone } from '@utils/utilMethods';
+import { useTranslation } from 'react-i18next';
 
 // AlertsReport is a component that receives props for displaying a report of alerts with shipment details
 const AlertsReport = forwardRef((props, ref) => {
@@ -20,6 +21,8 @@ const AlertsReport = forwardRef((props, ref) => {
   const {
     sensorReport, alerts, shipmentName, timezone, unitOfMeasure, shouldScroll,
   } = props;
+
+  const { t } = useTranslation();
 
   // Access the theme object for style properties
   const theme = useTheme();
@@ -184,6 +187,7 @@ const AlertsReport = forwardRef((props, ref) => {
             timezone,
             dateFormat,
             timeFormat,
+            t,
           )}
           extraOptions={{
             onDownload: (buildHead, buildBody, columns, data) => buildCSV(columns, data), // Trigger the CSV download

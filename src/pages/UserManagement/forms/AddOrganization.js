@@ -42,6 +42,7 @@ import { getCountriesQuery } from '@react-query/queries/shipments/getCountriesQu
 import { getCurrenciesQuery } from '@react-query/queries/shipments/getCurrenciesQuery';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
 import { useInviteMutation } from '@react-query/mutations/authUser/inviteMutation';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddOrganization Component
@@ -54,6 +55,8 @@ const AddOrganization = ({
 }) => {
   const { displayAlert } = useAlert(); // Hook to display alerts
   const organization = getUser().organization.organization_uuid; // Fetch the current user's organization UUID
+
+  const { t } = useTranslation();
 
   // State variables
   const [openConfirmModal, setConfirmModal] = useState(false); // Controls the confirmation modal visibility
@@ -476,7 +479,9 @@ const AddOrganization = ({
                 autoComplete="orgType"
                 {...orgType.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {_.map(organizationTypesData, (type) => (
                   <MenuItem
                     key={`orgType-${type.id}`}
@@ -671,7 +676,9 @@ const AddOrganization = ({
                   defaultMeasurementInterval.setValue(e.target.value);
                 }}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {!_.isEmpty(TIVE_GATEWAY_TIMES)
                   && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
@@ -695,9 +702,11 @@ const AddOrganization = ({
                 SelectProps={{ displayEmpty: true }}
                 {...defaultMeasurementInterval.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
-                  _.filter(TIVE_GATEWAY_TIMES, (t) => t.value <= defaultTransmissionInterval.value),
+                  _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultTransmissionInterval.value),
                   (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
                       {time.label}
@@ -727,7 +736,9 @@ const AddOrganization = ({
                   country.setValue(e.target.value);
                 }}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {countryList && _.map(countryList, (cntry, index) => (
                   <MenuItem
                     key={`country-${index}-${cntry}`}
@@ -750,7 +761,9 @@ const AddOrganization = ({
                 autoComplete="currency"
                 {...currency.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {currencyList && _.map(currencyList, (curr, index) => (
                   <MenuItem
                     key={`currency-${index}-${curr}`}
@@ -773,7 +786,9 @@ const AddOrganization = ({
                 autoComplete="date-format"
                 {...dateFormat.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {_.map(DATE_DISPLAY_CHOICES, (date, index) => (
                   <MenuItem
                     key={`date-${index}-${date.label}`}
@@ -796,7 +811,9 @@ const AddOrganization = ({
                 autoComplete="time-format"
                 {...timeFormat.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {_.map(TIME_DISPLAY_CHOICES, (time, index) => (
                   <MenuItem
                     key={`time-${index}-${time.label}`}
@@ -819,7 +836,9 @@ const AddOrganization = ({
                 autoComplete="distance"
                 {...distance.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {_.map(UOM_DISTANCE_CHOICES, (dist, index) => (
                   <MenuItem
                     key={`distance-${index}-${dist}`}
@@ -842,7 +861,10 @@ const AddOrganization = ({
                 autoComplete="temp"
                 {...temp.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+
+                </MenuItem>
                 {_.map(UOM_TEMPERATURE_CHOICES, (tmp, index) => (
                   <MenuItem
                     key={`temperature-${index}-${tmp}`}
@@ -865,7 +887,9 @@ const AddOrganization = ({
                 autoComplete="weight"
                 {...weight.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {_.map(UOM_WEIGHT_CHOICES, (wgt, index) => (
                   <MenuItem
                     key={`weight-${index}-${wgt}`}
@@ -915,7 +939,7 @@ const AddOrganization = ({
               >
                 {_.map(LANGUAGES, (item, index) => (
                   <MenuItem key={`${item.value}-${index}`} value={item.label}>
-                    {item.label}
+                    <span className="notranslate">{t(item.label)}</span>
                   </MenuItem>
                 ))}
               </TextField>

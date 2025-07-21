@@ -27,6 +27,7 @@ import { isMobile, isDesktop } from '@utils/mediaQuery';
 import { useAddItemMutation } from '@react-query/mutations/items/addItemMutation';
 import { useEditItemMutation } from '@react-query/mutations/items/editItemMutation';
 import useAlert from '@hooks/useAlert';
+import { useTranslation } from 'react-i18next';
 import '../ItemStyles.css';
 
 /**
@@ -46,6 +47,8 @@ const AddItems = ({
 
   // Alert display hook for notifications
   const { displayAlert } = useAlert();
+
+  const { t } = useTranslation();
 
   // Extract navigation data from location state
   const redirectTo = location.state && location.state.from;
@@ -357,7 +360,9 @@ const AddItems = ({
                   onBlur={(e) => handleBlur(e, 'required', item_type, 'item_type')}
                   {...item_type.bind}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {itemTypesData && _.map(_.orderBy(itemTypesData, ['name'], ['asc']), (item, index) => (
                     <MenuItem
                       key={`itemType${index}:${item.id}`}

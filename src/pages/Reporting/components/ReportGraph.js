@@ -10,6 +10,7 @@ import {
 // Utility and component imports
 import { getIcon, REPORT_TYPES } from '@utils/constants'; // Utility to get graph icons and types
 import GraphComponent from '@components/GraphComponent/GraphComponent';
+import { useTranslation } from 'react-i18next'; // For internationalization support
 
 // ForwardRef allows parent component to attach a ref to this component's root element
 const ReportGraph = forwardRef((props, ref) => {
@@ -20,6 +21,8 @@ const ReportGraph = forwardRef((props, ref) => {
     graphType, // Currently selected graph type (e.g., temperature, humidity)
     data, // Graph data categorized by graph type
   } = props;
+
+  const { t } = useTranslation(); // Translation function for internationalization
 
   const reportTypes = REPORT_TYPES(unitOfMeasure);
   const hasValidGraphData = data && typeof data === 'object' && graphType in data && !_.isEmpty(data[graphType]);
@@ -51,7 +54,7 @@ const ReportGraph = forwardRef((props, ref) => {
               _.map(reportTypes, (item, index) => {
                 let iconElement;
                 try {
-                  iconElement = getIcon({ ...item, color: theme?.palette?.background?.dark || '#000' });
+                  iconElement = getIcon({ ...item, color: theme?.palette?.background?.dark || '#000' }, t);
                 } catch (e) {
                   iconElement = <Typography color="error">Icon Error</Typography>;
                 }

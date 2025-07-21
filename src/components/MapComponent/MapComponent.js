@@ -26,6 +26,7 @@ import './MapComponentStyles.css'; // Custom CSS file
 import { getUser } from '@context/User.context'; // Function to retrieve current user info (likely from context)
 import { LANGUAGES } from '@utils/mock';
 import mapRedMarker from '../../assets/map-red-marker.png';
+import { useTranslation } from 'react-i18next'; // For internationalization support
 
 // Required for the Google Maps API to support features like autocomplete
 const libraries = ['places'];
@@ -48,6 +49,8 @@ export const MapComponent = (props) => {
     selectedCluster, // Currently selected marker cluster
     mapCountry, // Country code for the map region
   } = props;
+
+  const { t } = useTranslation(); // Translation function for internationalization
 
   const [center, setCenter] = useState({ lat: 47.606209, lng: -122.332069 }); // Default center (Seattle)
   const [mapZoom, setMapZoom] = useState(zoom); // Dynamic zoom level
@@ -321,8 +324,8 @@ export const MapComponent = (props) => {
                           }}
                         >
                           {_.find(mark.allAlerts, { id: item.id })
-                            ? getIcon(_.find(mark.allAlerts, { id: item.id }))
-                            : getIcon({ id: item.id, color: 'inherit' })}
+                            ? getIcon(_.find(mark.allAlerts, { id: item.id }), t)
+                            : getIcon({ id: item.id, color: 'inherit' }, t)}
                           {!_.isEqual(mark[item.id], null) && !_.isEqual(mark[item.id], undefined) ? (
                             <div
                               style={{

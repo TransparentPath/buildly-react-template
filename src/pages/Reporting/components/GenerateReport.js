@@ -25,7 +25,7 @@ import Loader from '@components/Loader/Loader';
 import FormModal from '@components/Modal/FormModal';
 import GraphComponent from '@components/GraphComponent/GraphComponent';
 import { getUser } from '@context/User.context';
-import { getIcon, REPORT_TYPES } from '@utils/constants';
+import { REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
 

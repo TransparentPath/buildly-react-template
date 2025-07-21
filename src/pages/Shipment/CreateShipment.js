@@ -68,7 +68,6 @@ import {
   TIVE_GATEWAY_TIMES,
   UOM_TEMPERATURE_CHOICES,
   INCOMPLETED_SHIPMENT_STATUS,
-  LANGUAGES,
 } from '@utils/mock';
 import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
 import { validators } from '@utils/validators';
@@ -95,6 +94,7 @@ import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
 import { isMobile } from '@utils/mediaQuery';
 import CustomFileViewer from './CustomFileViewer';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CreateShipment Component
@@ -118,6 +118,8 @@ const CreateShipment = ({ history, location }) => {
   // Theme and media query setup
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
+
+  const { t } = useTranslation();
 
   // Get current user info and relevant organizational data
   const user = getUser();
@@ -1167,7 +1169,9 @@ const CreateShipment = ({ history, location }) => {
             SelectProps={{ displayEmpty: true }}
             disabled={cannotEdit}
           >
-            <MenuItem value="">Select</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select')}</span>
+            </MenuItem>
             {!_.isEmpty(shipmentTemplateData) && _.map(shipmentTemplateData, (tmp) => (
               <MenuItem key={tmp.template_uuid} value={tmp} className="notranslate">
                 {tmp.name}
@@ -1291,7 +1295,9 @@ const CreateShipment = ({ history, location }) => {
                       SelectProps={{ displayEmpty: true }}
                       disabled={cannotEdit}
                     >
-                      <MenuItem value="">Select</MenuItem>
+                      <MenuItem value="">
+                        <span className="notranslate">{t('select')}</span>
+                      </MenuItem>
                       {!_.isEmpty(originList) && _.map(originList, (cust) => (
                         <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
@@ -1363,7 +1369,9 @@ const CreateShipment = ({ history, location }) => {
                       SelectProps={{ displayEmpty: true }}
                       disabled={cannotEdit}
                     >
-                      <MenuItem value="">Select</MenuItem>
+                      <MenuItem value="">
+                        <span className="notranslate">{t('select')}</span>
+                      </MenuItem>
                       {!_.isEmpty(destinationList) && _.map(destinationList, (cust) => (
                         <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
@@ -1612,7 +1620,7 @@ const CreateShipment = ({ history, location }) => {
                       <Typography variant="body1" fontWeight={700}>TEMPERATURE</Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Tooltip title="Temperature Alerts" placement="bottom">
+                      <Tooltip title={t('temp_alerts')} placement="bottom">
                         <FormControlLabel
                           control={(
                             <Switch
@@ -1694,7 +1702,7 @@ const CreateShipment = ({ history, location }) => {
                       <Typography variant="body1" fontWeight={700}>HUMIDITY</Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Tooltip title="Humidity Alerts" placement="bottom">
+                      <Tooltip title={t('hum_alerts')} placement="bottom">
                         <FormControlLabel
                           control={(
                             <Switch
@@ -1764,7 +1772,7 @@ const CreateShipment = ({ history, location }) => {
                       </Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Tooltip title="Shock Alerts" placement="bottom">
+                      <Tooltip title={t('shock_alerts')} placement="bottom">
                         <FormControlLabel
                           control={(
                             <Switch
@@ -1802,7 +1810,7 @@ const CreateShipment = ({ history, location }) => {
                       </Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Tooltip title="Light Alerts" placement="bottom">
+                      <Tooltip title={t('light_alerts')} placement="bottom">
                         <FormControlLabel
                           control={(
                             <Switch
@@ -2024,7 +2032,9 @@ const CreateShipment = ({ history, location }) => {
                           InputLabelProps={{ shrink: true }}
                           SelectProps={{ displayEmpty: true }}
                         >
-                          <MenuItem value="">Select</MenuItem>
+                          <MenuItem value="">
+                            <span className="notranslate">{t('select')}</span>
+                          </MenuItem>
                           {!_.isEmpty(carrierList)
                             && _.map(_.without(
                               carrierList,
@@ -2096,7 +2106,9 @@ const CreateShipment = ({ history, location }) => {
                     InputLabelProps={{ shrink: true }}
                     SelectProps={{ displayEmpty: true }}
                   >
-                    <MenuItem value="">Select</MenuItem>
+                    <MenuItem value="">
+                      <span className="notranslate">{t('select')}</span>
+                    </MenuItem>
                     {!_.isEmpty(carrierList)
                       && _.map(_.without(
                         carrierList,
@@ -2148,7 +2160,9 @@ const CreateShipment = ({ history, location }) => {
                   SelectProps={{ displayEmpty: true }}
                   {...gatewayType.bind}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {!_.isEmpty(gatewayTypesData) && _.map(gatewayTypesData, (gtype) => (
                     <MenuItem className="notranslate" key={gtype.id} value={gtype.name}>
                       {_.upperFirst(gtype.name)}
@@ -2176,7 +2190,9 @@ const CreateShipment = ({ history, location }) => {
                   SelectProps={{ displayEmpty: true }}
                   {...gateway.bind}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {!_.isEmpty(availableGateways) && _.map(availableGateways, (avgt) => (
                     <MenuItem key={avgt.gateway_uuid} value={avgt} className="notranslate">
                       {avgt.name}
@@ -2258,7 +2274,9 @@ const CreateShipment = ({ history, location }) => {
                             measurementInterval.setValue(e.target.value);
                           }}
                         >
-                          <MenuItem value="">Select</MenuItem>
+                          <MenuItem value="">
+                            <span className="notranslate">{t('select')}</span>
+                          </MenuItem>
                           {!_.isEmpty(TIVE_GATEWAY_TIMES)
                             && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                               <MenuItem key={`${time.value}-${index}`} value={time.value}>
@@ -2280,9 +2298,11 @@ const CreateShipment = ({ history, location }) => {
                           SelectProps={{ displayEmpty: true }}
                           {...measurementInterval.bind}
                         >
-                          <MenuItem value="">Select</MenuItem>
+                          <MenuItem value="">
+                            <span className="notranslate">{t('select')}</span>
+                          </MenuItem>
                           {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
-                            _.filter(TIVE_GATEWAY_TIMES, (t) => (_.includes(gatewayType.value, 'ProofTracker') ? t.value === transmissionInterval.value : t.value <= transmissionInterval.value)),
+                            _.filter(TIVE_GATEWAY_TIMES, (tive) => (_.includes(gatewayType.value, 'ProofTracker') ? tive.value === transmissionInterval.value : tive.value <= transmissionInterval.value)),
                             (time, index) => (
                               <MenuItem key={`${time.value}-${index}`} value={time.value}>
                                 {time.label}

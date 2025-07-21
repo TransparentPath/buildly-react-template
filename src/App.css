@@ -2,10 +2,14 @@
   width: 0;
   float: right;
   text-align: right;
-  display: block;
+  display: none;
 }
 
 .goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+.goog-te-gadget-icon {
   display: none !important;
 }
 
@@ -20,13 +24,17 @@
 }
 
 .activity-root {
-  display: hide !important;
+  display: none !important;
 }
 
 .status-message {
-  display: hide !important;
+  display: none !important;
 }
 
 .started-activity-container {
-  display: hide !important;
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf-ti6hGc {
+  display: none !important;
 }

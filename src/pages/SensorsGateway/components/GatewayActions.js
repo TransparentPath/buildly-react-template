@@ -6,7 +6,6 @@ import {
   TextField,
   MenuItem,
   Typography,
-  Tooltip,
 } from '@mui/material';
 import { CloudSync as CloudSyncIcon } from '@mui/icons-material';
 import { useInput } from '@hooks/useInput';
@@ -16,6 +15,7 @@ import Loader from '@components/Loader/Loader';
 import { validators } from '@utils/validators';
 import { isDesktop } from '@utils/mediaQuery';
 import { GATEWAY_STATUS, getCustodianFormattedRow } from '@utils/constants';
+import { useTranslation } from 'react-i18next';
 
 const GatewayActions = ({
   selectedRows, // Rows selected from a data grid
@@ -27,6 +27,8 @@ const GatewayActions = ({
   // Input hook for action selection and status change
   const gateway_action = useInput('');
   const change_status = useInput('', { required: true });
+
+  const { t } = useTranslation();
 
   // Local state to manage modal behavior and form values
   const [assignShipper, setAssignShipper] = useState('');
@@ -177,7 +179,9 @@ const GatewayActions = ({
           label="Actions"
           {...gateway_action.bind}
         >
-          <MenuItem value="">Select</MenuItem>
+          <MenuItem value="">
+            <span className="notranslate">{t('select')}</span>
+          </MenuItem>
           {_.map(GATEWAY_ACTIONS, (item, index) => {
             if (_.isEqual(_.size(selectedRows), 1) && !_.isEqual(item.value, 'Remove Tracker')) {
               return null;
@@ -251,7 +255,9 @@ const GatewayActions = ({
                   onBlur={(e) => handleBlur(e, 'required', change_status, 'changeStatus')}
                   {...change_status.bind}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {GATEWAY_STATUS
                     && _.map(
                       GATEWAY_STATUS,
@@ -284,7 +290,9 @@ const GatewayActions = ({
                   value={assignShipper}
                   onChange={onInputChange}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {custodianList
                     && _.map(
                       _.orderBy(

@@ -34,6 +34,7 @@ import { oauthService } from '@modules/oauth/oauth.service';
 import moment from 'moment-timezone';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import { useTranslation } from 'react-i18next';
 
 const Transition = React.forwardRef((props, ref) => (
   <Slide direction="left" ref={ref} {...props} />
@@ -52,6 +53,8 @@ const AlertNotifications = ({
   const queryClient = useQueryClient();
   const appTitle = useContext(AppContext).title;
   const { data: timeZone } = useStore();
+
+  const { t } = useTranslation();
 
   const [pushGrp, setPushGrp] = useState('');
   const [notifications, setNotifications] = useState([]);
@@ -285,6 +288,7 @@ const AlertNotifications = ({
                         timezone,
                         _.find(unitOfMeasure, (u) => u.unit_of_measure_for.toLowerCase() === 'date')?.unit_of_measure || '',
                         _.find(unitOfMeasure, (u) => u.unit_of_measure_for.toLowerCase() === 'time')?.unit_of_measure || '',
+                        t,
                       )}
                       noSpace
                       hideAddButton

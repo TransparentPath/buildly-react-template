@@ -19,6 +19,7 @@ import '../UserManagementStyles.css';
 import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
 import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQuery';
 import { useUpdateOrganizationMutation } from '@react-query/mutations/authUser/updateOrganizationMutation';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddResellers Component
@@ -27,6 +28,8 @@ import { useUpdateOrganizationMutation } from '@react-query/mutations/authUser/u
 const AddResellers = ({ open, setOpen }) => {
   const { displayAlert } = useAlert(); // Hook to display alerts
   const queryClient = useQueryClient(); // React Query client for cache management
+
+  const { t } = useTranslation();
 
   // State variables
   const [isAddResellerOpen, setAddResellerOpen] = useState(false); // Controls the visibility of the "Add Reseller" form
@@ -203,7 +206,9 @@ const AddResellers = ({ open, setOpen }) => {
                     resellerOrganization.setValue(selectedOrg);
                   }}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {!_.isEmpty(orgData) && _.map(
                     _.filter(orgData, (org) => _.isEqual(org.organization_type, 2) && !org.is_reseller),
                     (org) => (
@@ -274,7 +279,9 @@ const AddResellers = ({ open, setOpen }) => {
                   selectedResellerOrganization.setValue(selectedOrg);
                 }}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {!_.isEmpty(orgData) && _.map(
                   _.filter(orgData, (org) => _.isEqual(org.organization_type, 2) && org.is_reseller),
                   (org) => (
@@ -348,7 +355,9 @@ const AddResellers = ({ open, setOpen }) => {
                         setAddResellerCustomerOpen(false);
                       }}
                     >
-                      <MenuItem value="">Select</MenuItem>
+                      <MenuItem value="">
+                        <span className="notranslate">{t('select')}</span>
+                      </MenuItem>
                       {!_.isEmpty(orgData) && _.map(
                         _.filter(orgData, (o) => (
                           !o.is_reseller
