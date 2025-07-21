@@ -51,6 +51,7 @@ import { useUpdateOrganizationMutation } from '@react-query/mutations/authUser/u
 import { useEditUnitMutation } from '@react-query/mutations/items/editUnitMutation';
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
+import { useTranslation } from 'react-i18next';
 
 /**
  * OrganizationSettings Component
@@ -73,6 +74,8 @@ const OrganizationSettings = () => {
    * Alert hook for displaying notifications
    */
   const { displayAlert } = useAlert();
+
+  const { t } = useTranslation();
 
   /**
    * Data Fetching
@@ -603,7 +606,9 @@ const OrganizationSettings = () => {
               autoComplete="orgType"
               {...orgType.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {_.map(organizationTypesData, (type) => (
                 <MenuItem
                   key={`orgType-${type.id}`}
@@ -791,7 +796,9 @@ const OrganizationSettings = () => {
                 defaultMeasurementInterval.setValue(e.target.value);
               }}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {!_.isEmpty(TIVE_GATEWAY_TIMES)
                 && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
@@ -815,9 +822,11 @@ const OrganizationSettings = () => {
               SelectProps={{ displayEmpty: true }}
               {...defaultMeasurementInterval.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
-                _.filter(TIVE_GATEWAY_TIMES, (t) => t.value <= defaultTransmissionInterval.value),
+                _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultTransmissionInterval.value),
                 (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
                     {time.label}
@@ -852,7 +861,9 @@ const OrganizationSettings = () => {
                 country.setValue(e.target.value);
               }}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {countryList && _.map(countryList, (cntry, index) => (
                 <MenuItem
                   className="notranslate"
@@ -877,7 +888,9 @@ const OrganizationSettings = () => {
               autoComplete="currency"
               {...currency.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {currencyList && _.map(currencyList, (curr, index) => (
                 <MenuItem
                   className="notranslate"
@@ -905,7 +918,9 @@ const OrganizationSettings = () => {
               autoComplete="date-format"
               {...dateFormat.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {_.map(DATE_DISPLAY_CHOICES, (date, index) => (
                 <MenuItem
                   key={`date-${index}-${date.label}`}
@@ -928,7 +943,9 @@ const OrganizationSettings = () => {
               autoComplete="time-format"
               {...timeFormat.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {_.map(TIME_DISPLAY_CHOICES, (time, index) => (
                 <MenuItem
                   key={`time-${index}-${time.label}`}
@@ -954,7 +971,9 @@ const OrganizationSettings = () => {
             autoComplete="distance"
             {...distance.bind}
           >
-            <MenuItem value="">Select</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select')}</span>
+            </MenuItem>
             {_.map(UOM_DISTANCE_CHOICES, (dist, index) => (
               <MenuItem
                 key={`distance-${index}-${dist}`}
@@ -977,7 +996,9 @@ const OrganizationSettings = () => {
             autoComplete="temp"
             {...temp.bind}
           >
-            <MenuItem value="">Select</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select')}</span>
+            </MenuItem>
             {_.map(UOM_TEMPERATURE_CHOICES, (tmp, index) => (
               <MenuItem
                 key={`temperature-${index}-${tmp}`}
@@ -1000,7 +1021,9 @@ const OrganizationSettings = () => {
             autoComplete="weight"
             {...weight.bind}
           >
-            <MenuItem value="">Select</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select')}</span>
+            </MenuItem>
             {_.map(UOM_WEIGHT_CHOICES, (wgt, index) => (
               <MenuItem
                 key={`weight-${index}-${wgt}`}
@@ -1054,7 +1077,7 @@ const OrganizationSettings = () => {
           >
             {_.map(LANGUAGES, (item, index) => (
               <MenuItem key={`${item.value}-${index}`} value={item.label}>
-                {item.label}
+                <span className="notranslate">{t(item.label)}</span>
               </MenuItem>
             ))}
           </TextField>

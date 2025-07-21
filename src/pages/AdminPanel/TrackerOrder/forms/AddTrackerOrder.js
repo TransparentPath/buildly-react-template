@@ -31,6 +31,7 @@ import { FlightSafeIcon, FlightUnsafeIcon } from '@utils/constants';
 import { useCartStore } from '@zustand/cart/cartStore';
 import '../TrackerOrderStyles.css';
 import { routes } from '@routes/routesConstants';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddTrackerOrder Component
@@ -66,6 +67,8 @@ const AddTrackerOrder = ({ history, location }) => {
    * Alert hook for displaying notifications
    */
   const { displayAlert } = useAlert();
+
+  const { t } = useTranslation();
 
   /**
    * Cart management from Zustand store
@@ -274,7 +277,9 @@ const AddTrackerOrder = ({ history, location }) => {
                             order_type.setValue(newList);
                           }}
                         >
-                          <MenuItem value="">Select</MenuItem>
+                          <MenuItem value="">
+                            <span className="notranslate">{t('select')}</span>
+                          </MenuItem>
                           {_.map(ORDER_TYPES, (ot, index) => (
                             <MenuItem className="notranslate" key={`${ot.value}-${index}`} value={ot.value}>
                               <Typography component="div" className="addOrderTypeWithIcon">
@@ -333,7 +338,9 @@ const AddTrackerOrder = ({ history, location }) => {
                             order_quantity.setValue(newList);
                           }}
                         >
-                          <MenuItem value={0}>Select</MenuItem>
+                          <MenuItem value={0}>
+                            <span className="notranslate">{t('select')}</span>
+                          </MenuItem>
                           {_.map([25, 50, 75, 100], (quant, qidx) => (
                             <MenuItem key={`${qidx}-${quant}`} value={quant}>
                               {quant}
@@ -358,7 +365,9 @@ const AddTrackerOrder = ({ history, location }) => {
                           label={<span className="translate">Tracker Type</span>}
                           {...placeholderType.bind}
                         >
-                          <MenuItem value="">Select</MenuItem>
+                          <MenuItem value="">
+                            <span className="notranslate">{t('select')}</span>
+                          </MenuItem>
                           {_.map(_.without(ORDER_TYPES, ..._.filter(ORDER_TYPES, (o) => _.includes(order_type.value, o.value))), (ot, index) => (
                             <MenuItem className="notranslate" key={`${ot.value}-${index}`} value={ot.value}>
                               <Typography component="div" className="addOrderTypeWithIcon">
@@ -412,7 +421,9 @@ const AddTrackerOrder = ({ history, location }) => {
                             setShowAddMore(false);
                           }}
                         >
-                          <MenuItem value={0}>Select</MenuItem>
+                          <MenuItem value={0}>
+                            <span className="notranslate">{t('select')}</span>
+                          </MenuItem>
                           {_.map([25, 50, 75, 100], (quant, qidx) => (
                             <MenuItem key={`${qidx}-${quant}`} value={quant}>
                               {quant}

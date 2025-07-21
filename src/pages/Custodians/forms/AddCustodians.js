@@ -31,6 +31,7 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import usePlacesService from 'react-google-autocomplete/lib/usePlacesAutocompleteService';
 import Geocode from 'react-geocode';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddCustodians Component
@@ -50,6 +51,8 @@ const AddCustodians = ({ history, location }) => {
 
   // Alert display hook for notifications
   const { displayAlert } = useAlert();
+
+  const { t } = useTranslation();
 
   // Configure Geocode service for address processing
   Geocode.setApiKey(window.env.GEO_CODE_API);
@@ -451,7 +454,9 @@ const AddCustodians = ({ history, location }) => {
                   onBlur={(e) => handleBlur(e, 'required', custodianType, 'custodianType')}
                   {...custodianType.bind}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {custodianTypesData && _.map(_.orderBy(custodianTypesData, ['name'], ['asc']),
                     (item, index) => (
                       <MenuItem

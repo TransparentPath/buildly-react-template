@@ -43,6 +43,8 @@ import OrganizationSelector from '@components/OrganizationSelector/OrganizationS
 // Constants & styles
 import './TopBarStyles.css';
 import { LANGUAGES } from '@utils/mock';
+import i18n from '../../i18n/index';
+import { useTranslation } from 'react-i18next';
 
 // Main TopBar component
 const TopBar = ({
@@ -54,6 +56,8 @@ const TopBar = ({
   const isAdmin = checkForAdmin(user); // Check if user is admin
   const isSuperAdmin = checkForGlobalAdmin(user); // Check if user is super admin
   const org_uuid = user.organization.organization_uuid;
+
+  const { t } = useTranslation();
 
   // Local UI state
   const [anchorEl, setAnchorEl] = useState(null);
@@ -181,6 +185,8 @@ const TopBar = ({
     const selected_language = e.target.value;
     if (!_.isEqual(language, selected_language)) {
       setLanguage(selected_language);
+      const langObj = LANGUAGES.find((item) => item.label === selected_language);
+      i18n.changeLanguage(langObj.value);
       const updateData = {
         id: user.id,
         organization_uuid: user.organization.organization_uuid,
@@ -283,7 +289,7 @@ const TopBar = ({
           >
             {_.map(LANGUAGES, (item, index) => (
               <MenuItem key={`${item.value}-${index}`} value={item.label}>
-                {item.label}
+                <span className="notranslate">{t(item.label)}</span>
               </MenuItem>
             ))}
           </TextField>

@@ -24,7 +24,7 @@ import { useEditGatewayMutation } from '@react-query/mutations/sensorGateways/ed
 import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import '../GatewayStyles.css';
-import { LANGUAGES } from '@utils/mock';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddGateway Component
@@ -45,6 +45,8 @@ const AddGateway = ({
 
   const { displayAlert } = useAlert(); // Hook to display alerts
   const { data } = useStore(); // Zustand store for timezone data
+
+  const { t } = useTranslation();
 
   const redirectTo = location.state && location.state.from; // Redirect path after form submission
   const {
@@ -285,7 +287,9 @@ const AddGateway = ({
                       onBlur={(e) => handleBlur(e, 'required', gateway_type, 'gateway_type')}
                       {...gateway_type.bind}
                     >
-                      <MenuItem value="">Select</MenuItem>
+                      <MenuItem value="">
+                        <span className="notranslate">{t('select')}</span>
+                      </MenuItem>
                       {gatewayTypesData
                         && _.map(
                           gatewayTypesData,
@@ -320,7 +324,9 @@ const AddGateway = ({
                       )}
                       {...gateway_status.bind}
                     >
-                      <MenuItem value="">Select</MenuItem>
+                      <MenuItem value="">
+                        <span className="notranslate">{t('select')}</span>
+                      </MenuItem>
                       {GATEWAY_STATUS
                         && _.map(
                           GATEWAY_STATUS,
@@ -406,7 +412,9 @@ const AddGateway = ({
                       value={custodian_uuid}
                       onChange={onInputChange}
                     >
-                      <MenuItem value="">Select</MenuItem>
+                      <MenuItem value="">
+                        <span className="notranslate">{t('select')}</span>
+                      </MenuItem>
                       {custodianList
                         && _.map(
                           _.orderBy(

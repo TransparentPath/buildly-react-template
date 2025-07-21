@@ -47,9 +47,10 @@ import { getSensorAlertQuery } from '@react-query/queries/sensorGateways/getSens
 import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
-import { TIVE_GATEWAY_TIMES, LANGUAGES } from '@utils/mock';
+import { TIVE_GATEWAY_TIMES } from '@utils/mock';
 import { calculateLatLngBounds } from '@utils/utilMethods';
 import CustomFileViewer from './CustomFileViewer';
+import { useTranslation } from 'react-i18next'; // For internationalization support
 
 /**
  * Shipment Component
@@ -61,6 +62,8 @@ const Shipment = ({ history }) => {
   const user = getUser(); // Fetch the current logged-in user
   const organization = user.organization.organization_uuid; // Get the organization UUID of the logged-in user
   const userLanguage = user.user_language; // Get the user's preferred language
+
+  const { t } = useTranslation(); // Translation function for internationalization
 
   const { displayAlert } = useAlert(); // Hook to display alerts
   const { data } = useStore(); // Zustand store for timezone data
@@ -451,7 +454,7 @@ const Shipment = ({ history }) => {
     };
     return {
       id: moment(alert.create_date).unix(),
-      titleIcon: getIcon(item),
+      titleIcon: getIcon(item, t),
       title: alert.parameter_type === 'shock' || alert.parameter_type === 'light'
         ? `${_.toString(_.round(_.toNumber(alert.parameter_value.split(' ')[0]), 2))} ${alert.parameter_value.split(' ')[1]}`
         : alert.parameter_value,
@@ -796,6 +799,7 @@ const Shipment = ({ history }) => {
                   : '',
                 userLanguage,
                 muiTheme,
+                t,
               ),
               {
                 name: 'battery_levels',

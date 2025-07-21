@@ -14,10 +14,13 @@ import { isDesktop } from '@utils/mediaQuery';
 import { useEditCustodianMutation } from '@react-query/mutations/custodians/editCustodianMutation';
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
+import { useTranslation } from 'react-i18next';
 
 const EditMapping = ({ history, location }) => {
   // Get the current user's organization UUID
   const organization = getUser().organization.organization_uuid;
+
+  const { t } = useTranslation();
 
   // Modal state control
   const [openFormModal, setFormModal] = useState(true); // Controls form modal visibility
@@ -142,7 +145,9 @@ const EditMapping = ({ history, location }) => {
                   autoComplete="custodyOrg"
                   {...custodyOrg.bind}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {options && options.length > 0 && _.map(options, (option, index) => (
                     <MenuItem key={`org-option-${index}`} value={option.value}>
                       {option.name}
