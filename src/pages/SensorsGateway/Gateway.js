@@ -39,6 +39,7 @@ import { useStore } from '@zustand/timezone/timezoneStore';
 import Loader from '@components/Loader/Loader';
 import AddShipper from './forms/AddShipper';
 import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Gateway Component
@@ -54,6 +55,8 @@ const Gateway = ({ history, redirectTo }) => {
 
   const { displayAlert } = useAlert(); // Hook to display alerts
   const { data } = useStore(); // Zustand store for timezone data
+
+  const { t } = useTranslation();
 
   // State variables
   const [rows, setRows] = useState([]); // Stores formatted gateway data
@@ -253,7 +256,7 @@ const Gateway = ({ history, redirectTo }) => {
         <Grid item xs={12} className="gatewayHeaderContainer">
           <div className="gatewayHeader">
             <Typography variant="h4" mr={2}>Trackers</Typography>
-            <Tooltip placement="bottom" title="Sync Trackers">
+            <Tooltip placement="bottom" title={t('sync_trackers')}>
               <SyncIcon className="gatewaySyncIcon" onClick={handleSyncGateways} />
             </Tooltip>
             {isSuperAdmin && !_.isEmpty(selectedRows) && !_.isEqual(_.size(selectedRows), 0) && (

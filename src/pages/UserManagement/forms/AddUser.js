@@ -26,6 +26,7 @@ import { getCoreuserQuery } from '@react-query/queries/coreuser/getCoreuserQuery
 import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
 import { getCoregroupQuery } from '@react-query/queries/coregroup/getCoregroupQuery';
 import { useInviteMutation } from '@react-query/mutations/authUser/inviteMutation';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddUser Component
@@ -38,6 +39,8 @@ const AddUser = ({ open, setOpen }) => {
   const isSuperAdmin = checkForGlobalAdmin(user); // Check if the user is a super admin
   const isAdmin = checkForAdmin(user); // Check if the user is an admin
   const { organization_uuid } = user.organization; // Get the organization UUID of the logged-in user
+
+  const { t } = useTranslation();
 
   // State variables
   const [openConfirmModal, setConfirmModal] = useState(false); // Controls the confirmation modal visibility
@@ -375,7 +378,9 @@ const AddUser = ({ open, setOpen }) => {
                 autoComplete="user_role"
                 {...user_role.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {!_.isEmpty(rolesData) && _.map(rolesData, (role) => (
                   <MenuItem
                     key={role.id}

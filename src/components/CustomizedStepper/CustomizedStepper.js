@@ -77,7 +77,7 @@ const CustomizedSteppers = ({ steps }) => {
           {/* Each Step with optional line removal for the first step */}
           <Step className={index === 0 ? 'customizedStepperNoLine' : ''}>
             {/* Custom icon determined by state */}
-            <StepIcon icon={getIcon(step)} />
+            <StepIcon icon={getIcon(step, null)} />
             {/* Label for the step (shown under the icon) */}
             <StepLabel>{step.label}</StepLabel>
             {/* Main content of the step (usually a description or message) */}

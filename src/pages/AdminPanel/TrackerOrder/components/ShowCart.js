@@ -24,6 +24,7 @@ import { FlightSafeIcon, FlightUnsafeIcon } from '@utils/constants'; // Icons fo
 import { useStore } from '@zustand/timezone/timezoneStore'; // Store for timezone state
 import { useCartStore } from '@zustand/cart/cartStore'; // Store for cart state
 import '../TrackerOrderStyles.css'; // Importing styles
+import { useTranslation } from 'react-i18next';
 
 /**
  * ShowCart component is used to display a modal with the contents of the user's cart.
@@ -34,6 +35,8 @@ const ShowCart = ({ history, location }) => {
   const { organization_uuid, name } = getUser().organization;
   // State for controlling the visibility of the cart modal
   const [openCartModal, setCartModal] = useState(true);
+
+  const { t } = useTranslation();
 
   // Alert hook for showing alerts
   const { displayAlert } = useAlert();
@@ -213,7 +216,9 @@ const ShowCart = ({ history, location }) => {
                                 value={cd.order_quantity[idx]}
                                 onChange={(e) => updateOrderQuantity(index, idx, e.target.value)}
                               >
-                                <MenuItem value={0}>Select</MenuItem>
+                                <MenuItem value={0}>
+                                  <span className="notranslate">{t('select')}</span>
+                                </MenuItem>
                                 {/* Options for quantity selection */}
                                 {_.map([25, 50, 75, 100], (quant, qidx) => (
                                   <MenuItem key={`${qidx}-${quant}`} value={quant}>

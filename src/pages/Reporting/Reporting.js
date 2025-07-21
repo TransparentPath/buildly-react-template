@@ -71,8 +71,9 @@ import ReportGraph from './components/ReportGraph';
 
 // Importing styles
 import './ReportingStyles.css';
-import { LANGUAGES } from '@utils/mock';
 import { geocodeAddress } from '@utils/getLocations';
+
+import { useTranslation } from 'react-i18next';
 
 const Reporting = () => {
   // React hooks for managing state and references
@@ -81,7 +82,7 @@ const Reporting = () => {
   const user = getUser(); // Fetching the current user details
   const organization = user.organization.organization_uuid; // Extracting organization ID from user details
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones }); // Fetching timezone options
-
+  const { t } = useTranslation();
   // State variables for managing component data
   const [locShipmentID, setLocShipmentID] = useState(''); // Shipment ID from URL
   const [shipmentFilter, setShipmentFilter] = useState('Active'); // Filter for shipment status
@@ -331,7 +332,7 @@ const Reporting = () => {
   // Function to download CSV report
   const downloadCSV = () => {
     // Define the columns to be included in the CSV, filtering out those marked as not displayable
-    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false);
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false, null);
 
     // Sort the reports data in descending order based on the timestamp
     const data = _.orderBy(
@@ -532,7 +533,7 @@ const Reporting = () => {
     };
 
     // Filter columns to only include those marked for display
-    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false);
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false, null);
 
     // Sort report data by timestamp in descending order (newest first)
     const data = _.orderBy(
@@ -1170,7 +1171,7 @@ const Reporting = () => {
           >
             Insights Report
             {/* Tooltip explaining report is in beta */}
-            <Tooltip placement="bottom" title="Beta version. Charges may apply for final version.">
+            <Tooltip placement="bottom" title={t('insights_report')}>
               <InfoIcon fontSize="small" className="reportingDashboardButtonIcon" />
             </Tooltip>
           </Button>
@@ -1316,7 +1317,7 @@ const Reporting = () => {
                 onClick={() => setSelectedGraph(item.id)}
                 style={{ margin: '12px 0' }}
               >
-                {getIcon({ ...item, color: theme.palette.background.dark })}
+                {getIcon({ ...item, color: theme.palette.background.dark }, t)}
               </ListItem>
             ))}
           </List>

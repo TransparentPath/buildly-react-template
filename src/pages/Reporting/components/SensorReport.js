@@ -16,6 +16,7 @@ import { CloudDownload as DownloadIcon } from '@mui/icons-material'; // Icon for
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper'; // Custom table wrapper
 import { SENSOR_REPORT_COLUMNS } from '@utils/constants'; // Sensor column definitions
 import '../ReportingStyles.css'; // Custom styles
+import { useTranslation } from 'react-i18next';
 
 // Main SensorReport component to render a sensor data table and handle sorting, highlighting, and exporting
 const SensorReport = ({
@@ -32,6 +33,7 @@ const SensorReport = ({
   const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null); // For download options menu
+  const { t } = useTranslation(); // Translation hook for internationalization
 
   // When sensorReport changes, sort it by timestamp descending and update rows
   useEffect(() => {
@@ -107,7 +109,7 @@ const SensorReport = ({
           hideAddButton // Hides the default add button
           filename="SensorReportData" // Export filename
           rows={rows} // Row data for the table
-          columns={SENSOR_REPORT_COLUMNS(unitOfMeasure, selectedShipment)} // Columns configured with UOM and shipment info
+          columns={SENSOR_REPORT_COLUMNS(unitOfMeasure, selectedShipment, t)} // Columns configured with UOM and shipment info
           selectable={{
             rows: 'multiple', // Allow multiple row selection
             rowsHeader: false, // No selection checkbox in header
@@ -126,7 +128,7 @@ const SensorReport = ({
                 </Typography>
 
                 {/* Download icon with menu options */}
-                <Tooltip title="Download Options" placement="bottom">
+                <Tooltip title={t('download_option')} placement="bottom">
                   <IconButton className="reportingSensorTableExcelDownload" onClick={handleMenuOpen}>
                     <DownloadIcon />
                   </IconButton>

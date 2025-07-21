@@ -53,6 +53,7 @@ import { getTrackerOrderQuery } from '@react-query/queries/trackerorder/getTrack
 import { useEditTrackerOrderMutation } from '@react-query/mutations/trackerorder/editTrackerOrderMutation';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Invoices Component
@@ -69,6 +70,8 @@ const Invoices = () => {
    * @type {Object} User information including role and organization
    */
   const user = getUser();
+
+  const { t } = useTranslation();
 
   /**
    * Organization UUID for the current user, used for API queries
@@ -485,7 +488,7 @@ const Invoices = () => {
           <Typography className="invoiceHeading" variant="h4">
             Monthly Invoice
           </Typography>
-          <Tooltip placement="bottom" title="Download PDF">
+          <Tooltip placement="bottom" title={t('download_pdf')}>
             <LoginIcon className="invoiceDownloadIcon" onClick={generatePdfInvoice} />
           </Tooltip>
         </Grid>
@@ -513,7 +516,9 @@ const Invoices = () => {
             label="Year"
             disabled={!organization}
           >
-            <MenuItem value="">Select Year</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select_year')}</span>
+            </MenuItem>
             {availableYears.map((item, index) => (
               <MenuItem key={`year${index}`} value={item}>{item}</MenuItem>
             ))}
@@ -530,9 +535,13 @@ const Invoices = () => {
             onChange={handleMonthChange}
             disabled={!selectYear}
           >
-            <MenuItem value="">Select Month</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select_month')}</span>
+            </MenuItem>
             {availableMonths.map((item, index) => (
-              <MenuItem key={`month${index}`} value={item.value}>{item.label}</MenuItem>
+              <MenuItem key={`month${index}`} value={item.value}>
+                <span className="notranslate">{t(item.label)}</span>
+              </MenuItem>
             ))}
           </TextField>
 

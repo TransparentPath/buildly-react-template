@@ -29,6 +29,7 @@ import { getIconWithCount, tempUnit } from '@utils/constants';
 import { dateDifference, formatDate } from '@utils/utilMethods';
 import { isMobile } from '@utils/mediaQuery';
 import '../ReportingStyles.css';
+import { useTranslation } from 'react-i18next';
 
 const ReportingDetailTable = forwardRef((props, ref) => {
   const {
@@ -46,6 +47,8 @@ const ReportingDetailTable = forwardRef((props, ref) => {
 
   // Get user language preference for localization
   const userLanguage = getUser().user_language;
+
+  const { t } = useTranslation();
 
   // Extract measurement units from configuration
   const tempDisplayUnit = tempUnit(_.find(unitOfMeasure, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')));
@@ -468,7 +471,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
                 {!_.isEmpty(updatedTransitAlerts)
                   ? _.map(updatedTransitAlerts, (item, idx) => (
                     <span key={`icon-${idx}-${item.id}`} style={{ display: 'flex' }}>
-                      {getIconWithCount(item)}
+                      {getIconWithCount(item, t)}
                       {_.isEqual(idx, _.size(updatedTransitAlerts) - 1) ? ' ' : ', '}
                     </span>
                   ))
@@ -483,7 +486,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
                 {!_.isEmpty(updatedStorageAlerts)
                   ? _.map(updatedStorageAlerts, (item, idx) => (
                     <span key={`icon-${idx}-${item.id}`} style={{ display: 'flex' }}>
-                      {getIconWithCount(item)}
+                      {getIconWithCount(item, t)}
                       {_.isEqual(idx, _.size(updatedStorageAlerts) - 1) ? ' ' : ', '}
                     </span>
                   ))

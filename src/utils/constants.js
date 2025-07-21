@@ -668,64 +668,71 @@ export const SHIPMENT_OVERVIEW_COLUMNS = [
  * Returns a corresponding icon wrapped in a tooltip for the given sensor item.
  *
  * @param {Object} item - Sensor data (id, color, title).
+ * @param {Function} t - Translation function (optional).
  * @returns {JSX.Element|null} Sensor icon component.
  */
-export const getIcon = (item) => {
+export const getIcon = (item, t) => {
   const { id, color, title } = item;
+
+  const label = _.lowerCase(title) || id;
+  const tooltip = t ? t(label) : label;
+
+  const iconProps = { style: { fill: color, width: '24px', height: '24px' } };
+
   switch (id) {
     case 'temperature':
     case 'probe':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <TempIcon style={{ fill: color, width: '24px', height: '24px' }} />
+        <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+          <TempIcon {...iconProps} />
         </Tooltip>
       );
 
     case 'light':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <LightIcon style={{ fill: color, width: '24px', height: '24px' }} />
+        <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+          <LightIcon {...iconProps} />
         </Tooltip>
       );
 
     case 'shock':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <ShockIcon style={{ fill: color, width: '24px', height: '24px' }} />
+        <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+          <ShockIcon {...iconProps} />
         </Tooltip>
       );
 
     case 'tilt':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <TiltIcon fill={color} style={{ width: '24px', height: '24px' }} />
+        <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+          <TiltIcon {...iconProps} />
         </Tooltip>
       );
 
     case 'humidity':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <HumidIcon style={{ fill: color, width: '24px', height: '24px' }} />
+        <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+          <HumidIcon {...iconProps} />
         </Tooltip>
       );
 
     case 'battery':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <BatteryIcon style={{ fill: color, width: '24px', height: '24px' }} />
+        <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+          <BatteryIcon {...iconProps} />
         </Tooltip>
       );
 
     case 'pressure':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
-          <PressureIcon fill={color} style={{ width: '24px', height: '24px' }} />
+        <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+          <PressureIcon {...iconProps} />
         </Tooltip>
       );
 
     case 'time':
       return (
-        <Tooltip title={title || _.capitalize(id)} placement="right">
+        <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
           <AccessTimeIcon style={{ fill: color }} />
         </Tooltip>
       );
@@ -739,19 +746,26 @@ export const getIcon = (item) => {
  * Returns a sensor icon and its count in parentheses.
  *
  * @param {Object} item - Sensor data (id, color, title, count).
+ * @param {Function} t - Translation function (optional).
  * @returns {JSX.Element|null} Sensor icon with count.
  */
-export const getIconWithCount = (item) => {
+export const getIconWithCount = (item, t) => {
   const {
     id, color, title, count,
   } = item;
+
+  const label = _.lowerCase(title) || id;
+  const tooltip = t ? t(label) : label;
+
+  const iconProps = { style: { fill: color } };
+
   switch (id) {
     case 'temperature':
     case 'probe':
       return (
         <>
-          <Tooltip title={title || _.capitalize(id)} placement="right">
-            <TempIcon style={{ fill: color }} />
+          <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+            <TempIcon {...iconProps} />
           </Tooltip>
           {`(${count})`}
         </>
@@ -760,8 +774,8 @@ export const getIconWithCount = (item) => {
     case 'light':
       return (
         <>
-          <Tooltip title={title || _.capitalize(id)} placement="right">
-            <LightIcon style={{ fill: color }} />
+          <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+            <LightIcon {...iconProps} />
           </Tooltip>
           {`(${count})`}
         </>
@@ -770,8 +784,8 @@ export const getIconWithCount = (item) => {
     case 'shock':
       return (
         <>
-          <Tooltip title={title || _.capitalize(id)} placement="right">
-            <ShockIcon style={{ fill: color }} />
+          <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+            <ShockIcon {...iconProps} />
           </Tooltip>
           {`(${count})`}
         </>
@@ -780,8 +794,8 @@ export const getIconWithCount = (item) => {
     case 'tilt':
       return (
         <>
-          <Tooltip title={title || _.capitalize(id)} placement="right">
-            <TiltIcon fill={color} />
+          <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+            <TiltIcon {...iconProps} />
           </Tooltip>
           {`(${count})`}
         </>
@@ -790,8 +804,8 @@ export const getIconWithCount = (item) => {
     case 'humidity':
       return (
         <>
-          <Tooltip title={title || _.capitalize(id)} placement="right">
-            <HumidIcon style={{ fill: color }} />
+          <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+            <HumidIcon {...iconProps} />
           </Tooltip>
           {`(${count})`}
         </>
@@ -800,8 +814,8 @@ export const getIconWithCount = (item) => {
     case 'battery':
       return (
         <>
-          <Tooltip title={title || _.capitalize(id)} placement="right">
-            <BatteryIcon style={{ fill: color }} />
+          <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+            <BatteryIcon {...iconProps} />
           </Tooltip>
           {`(${count})`}
         </>
@@ -810,8 +824,8 @@ export const getIconWithCount = (item) => {
     case 'pressure':
       return (
         <>
-          <Tooltip title={title || _.capitalize(id)} placement="right">
-            <PressureIcon fill={color} />
+          <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+            <PressureIcon {...iconProps} />
           </Tooltip>
           {`(${count})`}
         </>
@@ -820,8 +834,8 @@ export const getIconWithCount = (item) => {
     case 'time':
       return (
         <>
-          <Tooltip title={title || _.capitalize(id)} placement="right">
-            <AccessTimeIcon style={{ fill: color }} />
+          <Tooltip title={<span className="notranslate">{tooltip}</span>} placement="right">
+            <AccessTimeIcon {...iconProps} />
           </Tooltip>
           {`(${count})`}
         </>
@@ -1457,7 +1471,7 @@ export const MARKER_DATA = (unitOfMeasure) => ([
 ]);
 
 // Generates the sensor report columns with custom cell rendering logic for different data types
-export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
+export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
   // Helper function to determine cell styles based on the presence of null or undefined values
   const getCellStyle = (tableMeta) => ({
     fontWeight: (
@@ -1491,7 +1505,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 {_.map(value, (item, idx) => (
                   <div key={`sensor-icon-${idx}-${item.id}`}>
-                    {getIcon(item)}
+                    {getIcon(item, t || null)}
                     {' '}
                   </div>
                 ))}
@@ -1722,7 +1736,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment) => {
 };
 
 // Function to generate columns for alerts report with custom body render for values
-export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeFormat) => ([
+export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'alertObj',
     label: 'Condition',
@@ -1735,7 +1749,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
           ? (
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div>
-                {getIcon(value)}
+                {getIcon(value, t || null)}
                 {' '}
               </div>
             </div>
@@ -2148,7 +2162,7 @@ export const GATEWAY_STATUS = [
 ];
 
 // Define the shipment columns for display in a data table
-export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
+export const shipmentColumns = (timezone, dateFormat, language, muiTheme, t) => ([
   {
     name: 'status',
     label: 'Status',
@@ -2250,7 +2264,7 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme) => ([
             >
               {_.map(value, (item, idx) => (
                 <div key={`icon-${idx}-${item.id}`}>
-                  {getIcon(item)}
+                  {getIcon(item, t || null)}
                   {' '}
                 </div>
               ))}
@@ -2643,7 +2657,7 @@ export const getGroupsFormattedRow = (groups, orgs) => {
 };
 
 // Returns column definitions for alert notifications
-export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat) => ([
+export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'alertObj',
     label: 'Condition',
@@ -2656,7 +2670,7 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat) =
           ? (
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div>
-                {getIcon(value)}
+                {getIcon(value, t || null)}
                 {' '}
               </div>
             </div>
