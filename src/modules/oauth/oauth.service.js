@@ -104,6 +104,7 @@ const setAccessToken = (token) => {
       const expiresAt = now.getTime() + expiresMilliSec;
       // Save expiration and timestamp data for later validation
       localStorage.setItem('expires_at', _.toString(expiresAt));
+      sessionStorage.setItem('expires_at', _.toString(expiresAt));
       localStorage.setItem('token_stored_at', _.toString(now));
     }
   }
@@ -141,6 +142,7 @@ const logout = () => {
     localStorage.removeItem('alertGrp');
     localStorage.removeItem('pushPreference');
     localStorage.removeItem('halfwayOrder');
+    sessionStorage.removeItem('expires_at');
     if ('caches' in window) {
       caches.keys().then((cacheNames) => {
         cacheNames.forEach((cacheName) => {

@@ -10,7 +10,7 @@ export const useAutoLogout = (logoutFn, setIsSessionTimeout) => {
 
   useEffect(() => {
     const handleSessionExpiration = () => {
-      const timeout = localStorage.getItem('expires_at');
+      const timeout = sessionStorage.getItem('expires_at');
       if (timeout) {
         const expiresAtTime = new Date(parseInt(timeout, 10)).getTime();
         const now = Date.now();

@@ -9,6 +9,7 @@
  *
  * @param {ServiceWorkerRegistration} registration - The current service worker registration.
  */
+
 const showRefreshUI = (registration) => {
   // Show an alert notifying the user about the new version
   alert('New version available for the application. It will automatically reload the page to move to the latest version of the application.');
@@ -68,6 +69,13 @@ const registerServiceWorker = () => {
       navigator.serviceWorker.register('/service-worker.js')
         .then((registration) => {
           console.log('SW registered: ', registration);
+
+          setInterval(() => registration.update(), 60 * 1000);
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+              registration.update();
+            }
+          });
 
           if (!navigator.serviceWorker.controller) {
             // First load; no service worker yet
