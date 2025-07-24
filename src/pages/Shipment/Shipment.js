@@ -61,7 +61,9 @@ const Shipment = ({ history }) => {
   const muiTheme = useTheme(); // Material-UI theme for styling
   const user = getUser(); // Fetch the current logged-in user
   const organization = user.organization.organization_uuid; // Get the organization UUID of the logged-in user
-  const userLanguage = user.user_language; // Get the user's preferred language
+  const userLanguage = user && user.user_language; // Get the user's preferred language
+
+  const { t } = useTranslation(); // Translation function for internationalization
 
   const { t } = useTranslation(); // Translation function for internationalization
 

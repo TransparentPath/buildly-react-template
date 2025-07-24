@@ -125,7 +125,7 @@ const CreateShipment = ({ history, location }) => {
   const user = getUser();
   const organization = user && user.organization;
   const organizationUuid = organization && organization.organization_uuid;
-  const userLanguage = user.user_language;
+  const userLanguage = user && user.user_language;
 
   // Determine if the user has admin or global admin access
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user);
@@ -572,7 +572,7 @@ const CreateShipment = ({ history, location }) => {
 
     const unblock = history.block((loc) => {
       let trgObj = { ...triggerExit, path: loc.pathname };
-      if ((loc.pathname !== routes.CREATE_SHIPMENT) && formEdited && !formSubmitted) {
+      if ((loc.pathname !== routes.CREATE_SHIPMENT) && (loc.pathname !== '/') && formEdited && !formSubmitted) {
         setConfirmLeave(true);
       } else {
         trgObj = { ...trgObj, onOk: true };

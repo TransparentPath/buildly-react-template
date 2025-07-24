@@ -19,16 +19,18 @@ import '../ReportingStyles.css'; // Custom styles
 import { useTranslation } from 'react-i18next';
 
 // Main SensorReport component to render a sensor data table and handle sorting, highlighting, and exporting
-const SensorReport = ({
-  sensorReport, // Array of sensor report data
-  shipmentName, // Name of the current shipment (used in title)
-  selectedShipment, // Full shipment object (used to build column definitions)
-  selectedMarker, // Currently selected map marker (used to highlight row)
-  unitOfMeasure, // Unit of measure (passed to column definitions)
-  timezone, // Timezone info (could be used for formatting)
-  downloadCSV, // Handler for downloading CSV
-  downloadExcel, // Handler for downloading Excel
-}) => {
+const SensorReport = (props) => {
+  const {
+    sensorReport, // Array of sensor report data
+    shipmentName, // Name of the current shipment (used in title)
+    selectedShipment, // Full shipment object (used to build column definitions)
+    selectedMarker, // Currently selected map marker (used to highlight row)
+    unitOfMeasure, // Unit of measure (passed to column definitions)
+    timezone, // Timezone info (could be used for formatting)
+    downloadCSV, // Handler for downloading CSV
+    downloadExcel, // Handler for downloading Excel
+  } = props;
+
   // Local state to manage data rows and selection
   const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState([]);
@@ -37,12 +39,16 @@ const SensorReport = ({
 
   // When sensorReport changes, sort it by timestamp descending and update rows
   useEffect(() => {
-    const sortedData = _.orderBy(
-      sensorReport,
-      (item) => moment(item.timestamp), // Parse timestamp
-      ['desc'], // Descending order
-    );
-    setRows(sortedData);
+    if (sensorReport) {
+      const editedSensorReports = [...sensorReport]; // Array to store edited sensor reports
+
+      const sortedData = _.orderBy(
+        editedSensorReports,
+        (item) => moment(item.timestamp), // Parse timestamp
+        ['desc'], // Descending order
+      );
+      setRows(sortedData);
+    }
   }, [sensorReport]);
 
   // When a marker is selected, highlight the corresponding row in the table

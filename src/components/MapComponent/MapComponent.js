@@ -206,7 +206,7 @@ export const MapComponent = (props) => {
       key={`map-${mapCountry}`}
       googleMapsApiKey={window.env.MAP_API_KEY}
       libraries={libraries}
-      language={_.find(LANGUAGES, { label: user.user_language })?.value || 'en'}
+      language={_.find(LANGUAGES, { label: user && user.user_language })?.value || 'en'}
       region={(mapCountry === 'MAR' ? 'MA' : mapCountry) || 'USA'}
     >
       <GoogleMap
