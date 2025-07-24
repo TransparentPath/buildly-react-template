@@ -1492,7 +1492,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
   return ([
     {
       name: 'allAlerts',
-      label: 'Alerts',
+      label: 'ALERTS',
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1516,7 +1516,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'timestamp',
-      label: 'Date Time',
+      label: 'DATE TIME',
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1532,7 +1532,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'location',
-      label: 'Location',
+      label: 'LOCATION',
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1553,7 +1553,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     // Latitude column with custom rendering based on location
     {
       name: 'lat',
-      label: 'Latitude',
+      label: 'LATITUDE',
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1577,7 +1577,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     // Longitude column with custom rendering based on location
     {
       name: 'lng',
-      label: 'Longitude',
+      label: 'LONGITUDE',
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1600,7 +1600,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'temperature',
-      label: `TEMP ${tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
+      label: `TEMPERATURE (${tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))})`,
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1615,7 +1615,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'humidity',
-      label: 'HUM %',
+      label: 'HUMIDITY (%)',
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1698,7 +1698,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     // Tilt and Pressure columns are hidden by default
     {
       name: 'tilt',
-      label: 'TILT (deg)',
+      label: 'TILT (°)',
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1722,7 +1722,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'probe',
-      label: `PROBE TEMP ${tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`,
+      label: `PROBE TEMPERATURE (${tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))})`,
       options: {
         sort: true,
         sortThirdClickReset: true,

@@ -1,12 +1,10 @@
 /* eslint-disable no-alert */
 import { useEffect, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
 import { routes } from '@routes/routesConstants'; // Adjust if necessary
 
-export const useAutoLogout = (logoutFn, setIsSessionTimeout) => {
+export const useAutoLogout = (logoutFn, history) => {
   const timerRef = useRef(null);
   const hasLoggedOutRef = useRef(false); // Prevent double logout
-  const history = useHistory();
 
   useEffect(() => {
     const handleSessionExpiration = () => {
@@ -20,8 +18,6 @@ export const useAutoLogout = (logoutFn, setIsSessionTimeout) => {
           // Clear session (cookies, tokens, etc.)
           logoutFn();
 
-          setIsSessionTimeout(true);
-
           if ('caches' in window) {
             caches.keys().then((cacheNames) => {
               cacheNames.forEach((cacheName) => {
@@ -32,6 +28,7 @@ export const useAutoLogout = (logoutFn, setIsSessionTimeout) => {
             });
           }
           alert('You have been logged out due to session expiration. Please log in again.');
+          history.push(routes.LOGIN);
         }
       }
     };
@@ -41,5 +38,5 @@ export const useAutoLogout = (logoutFn, setIsSessionTimeout) => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [logoutFn, setIsSessionTimeout, history]);
+  }, [logoutFn, history]);
 };
