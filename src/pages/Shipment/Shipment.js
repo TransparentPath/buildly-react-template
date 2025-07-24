@@ -65,8 +65,6 @@ const Shipment = ({ history }) => {
 
   const { t } = useTranslation(); // Translation function for internationalization
 
-  const { t } = useTranslation(); // Translation function for internationalization
-
   const { displayAlert } = useAlert(); // Hook to display alerts
   const { data } = useStore(); // Zustand store for timezone data
 
