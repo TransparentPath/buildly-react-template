@@ -20,12 +20,16 @@ import { isMobile } from '@utils/mediaQuery';
 import './ContainerStyles.css';
 import PrivacyPolicy from '@pages/PrivacyPolicy/PrivacyPolicy';
 import CookieConsent from '@components/CookieConsent/CookieConsent';
+import { useAutoLogout } from '@hooks/useAutoLogout';
+import { oauthService } from '@modules/oauth/oauth.service';
 
 const ContainerDashboard = ({ location, history }) => {
   // Fetching the current user data using the getUser function from context
   const userData = getUser();
   // useState hook to manage the visibility of the navigation bar (whether it's hidden or not)
   const [navHidden, setNavHidden] = useState(false);
+
+  useAutoLogout(oauthService.logout, history);
 
   return (
     <div className="containerRoot">

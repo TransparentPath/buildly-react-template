@@ -1341,6 +1341,7 @@ const Reporting = () => {
 
       {/* Additional report sections for sensor data and alerts */}
       <SensorReport
+        key={selectedShipment && selectedShipment.partner_shipment_id}
         sensorReport={reports}
         shipmentName={selectedShipment && selectedShipment.name}
         selectedShipment={selectedShipment}
