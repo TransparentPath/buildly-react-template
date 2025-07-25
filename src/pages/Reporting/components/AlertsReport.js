@@ -127,7 +127,7 @@ const AlertsReport = forwardRef((props, ref) => {
 
     // Generate the CSV header based on column labels, adjusting for date/time format
     const csvHeader = columns.map((col) => {
-      if (col.label === 'Date/Time stamp') {
+      if (col.label === 'DATE/TIME STAMP') {
         const timeArray = _.split(timeFormat, ' '); // Split time format to check for 12-hour or 24-hour
         const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour'; // Determine time period
         const formattedLabel = `${col.label} (${getTimezone(new Date(), timezone)}) (${dateFormat} ${timePeriod})`; // Format the label
@@ -139,7 +139,7 @@ const AlertsReport = forwardRef((props, ref) => {
     // Generate the CSV body based on the data and columns
     const csvBody = data.map(({ data: row }) => row.map((cell, index) => {
       const column = columns[index];
-      if (column.label === 'Date/Time stamp' && !_.isEmpty(cell)) {
+      if (column.label === 'DATE/TIME STAMP' && !_.isEmpty(cell)) {
         // Format the date/time field based on timezone
         return escapeCSV(moment(cell).tz(timezone).format(`${dateFormat} ${timeFormat}`));
       }

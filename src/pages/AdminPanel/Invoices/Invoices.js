@@ -403,8 +403,9 @@ const Invoices = () => {
 
     // Calculate first day of selected month and first day of next month for date range
     const year = moment().year();
-    const firstDateOfSelectedMonth = moment(`${year}-${selectMonth}-01`).startOf('month').format('YYYY-MM-DD');
-    const firstDateOfNextMonth = moment(`${year}-${selectMonth}-01`).add(1, 'month').startOf('month').format('YYYY-MM-DD');
+    const paddedMonth = String(selectMonth).padStart(2, '0');
+    const firstDateOfSelectedMonth = moment(`${year}-${paddedMonth}-01`, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD');
+    const firstDateOfNextMonth = moment(`${year}-${paddedMonth}-01`, 'YYYY-MM-DD').add(1, 'month').startOf('month').format('YYYY-MM-DD');
 
     // Prepare data for API call
     const chargesData = {
