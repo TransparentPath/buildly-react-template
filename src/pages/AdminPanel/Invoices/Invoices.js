@@ -615,7 +615,7 @@ const Invoices = () => {
                         />
                       ) : (
                         // Display mode - show text value
-                        <Typography ml={1} className="invoiceMsgText">{`$${item.shipping_cost}`}</Typography>
+                        <Typography ml={1} className="invoiceMsgText notranslate">{`$${item.shipping_cost}`}</Typography>
                       )}
 
                       {/* Edit/Save button */}
@@ -636,7 +636,9 @@ const Invoices = () => {
                 <Grid item xs={7} />
                 <Grid item xs={5}>
                   <Typography className="invoiceTotalChargesTitle">
-                    {`Total: $${totalCost}`}
+                    Total:
+                    {' '}
+                    <span className="notranslate">{`$${totalCost}`}</span>
                   </Typography>
                 </Grid>
               </Grid>
