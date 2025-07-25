@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
-import moment from 'moment-timezone';
 import {
   CartesianGrid, // Adds grid lines to the chart for better readability
   Line, // Represents each individual data line on the chart

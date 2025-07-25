@@ -2,7 +2,6 @@
 // React and third-party imports
 import React, { useState, useEffect, forwardRef } from 'react';
 import _ from 'lodash';
-import moment from 'moment-timezone'; // Not used here but might be in future or in reused code
 import {
   Grid, List, ListItem, Typography, useTheme,
 } from '@mui/material';

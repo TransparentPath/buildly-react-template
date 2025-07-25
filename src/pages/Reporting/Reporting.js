@@ -349,7 +349,7 @@ const Reporting = () => {
 
     // Generate the CSV header row by mapping over the columns
     const csvHeader = columns.map((col) => {
-      if (col.label === 'Date Time') {
+      if (col.label === 'DATE TIME') {
         // Format the Date Time column header with timezone and date/time format
         const timeArray = _.split(timeFormat, ' ');
         const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour';
@@ -359,7 +359,7 @@ const Reporting = () => {
       }
       if (col.name === 'temperature') {
         // Format the temperature column header with the appropriate unit
-        return escapeCSV(`TEMP ${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))}`);
+        return escapeCSV(`TEMPERATURE (${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))})`);
       }
       if (col.name === 'battery') {
         // Format the battery column header
@@ -369,7 +369,7 @@ const Reporting = () => {
     }).join(',');
 
     // Find the index of the Date Time column
-    const dateTimeColumnIndex = columns.findIndex((col) => col.label === 'Date Time');
+    const dateTimeColumnIndex = columns.findIndex((col) => col.label === 'DATE TIME');
 
     // Format the departure and arrival times for filtering rows within the time range
     const departureTime = moment(selectedShipment.actual_time_of_departure).tz(timeZone).format(`${dateFormat} ${timeFormat}`);
@@ -760,11 +760,11 @@ const Reporting = () => {
      * - Other columns use their standard labels
      */
     const headerRow = worksheet.addRow(columns.map((col) => {
-      if (col.label === 'Date Time') {
+      if (col.label === 'DATE TIME') {
         const timeArray = _.split(timeFormat, ' ');
         const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour';
         const filteredTimeZone = _.find(tzOptions, (option) => option.value === timeZone);
-        const formattedLabel = `Date Time (${filteredTimeZone.abbrev}) (${dateFormat} ${timePeriod})`;
+        const formattedLabel = `DATE TIME (${filteredTimeZone.abbrev}) (${dateFormat} ${timePeriod})`;
         return formattedLabel;
       }
       if (col.name === 'battery') {
@@ -791,7 +791,7 @@ const Reporting = () => {
     });
 
     // Determine the column index for the date/time column
-    const dateTimeColIndex = columns.findIndex((col) => col.label === 'Date Time') + 1;
+    const dateTimeColIndex = columns.findIndex((col) => col.label === 'DATE TIME') + 1;
 
     // Format departure and arrival times for the shipment in the selected timezone
     const departureTime = moment(selectedShipment.actual_time_of_departure).tz(timeZone).format(`${dateFormat} ${timeFormat}`);
