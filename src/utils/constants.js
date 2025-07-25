@@ -1739,7 +1739,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
 export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'alertObj',
-    label: 'Condition',
+    label: 'CONDITION',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1759,7 +1759,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'parameter_value',
-    label: 'Value',
+    label: 'VALUE',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1782,7 +1782,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'create_date',
-    label: 'Date/Time stamp',
+    label: 'DATE/TIME STAMP',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1796,7 +1796,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'location',
-    label: 'Location',
+    label: 'LOCATION',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1807,7 +1807,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'latitude',
-    label: 'Latitude',
+    label: 'LATITUDE',
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1824,7 +1824,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'longitude',
-    label: 'Longitude',
+    label: 'LONGITUDE',
     options: {
       sort: true,
       sortThirdClickReset: true,
