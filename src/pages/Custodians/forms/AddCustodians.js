@@ -1,4 +1,11 @@
 /* eslint-disable no-console */
+/*
+ * AddCustodians Component
+ * -----------------------
+ * This component provides a form for adding new custodians or editing existing ones.
+ * It handles form state, validation, API integration, and complex address processing
+ * using Google Maps API for place suggestions and geocoding.
+ */
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
 import {
@@ -24,16 +31,34 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import usePlacesService from 'react-google-autocomplete/lib/usePlacesAutocompleteService';
 import Geocode from 'react-geocode';
+import { useTranslation } from 'react-i18next';
 
+/**
+ * AddCustodians Component
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.history - Router history object for navigation
+ * @param {Object} props.location - Router location object containing state data
+ * @returns {JSX.Element} The rendered component
+ */
 const AddCustodians = ({ history, location }) => {
+  // Modal visibility states
   const [openFormModal, setFormModal] = useState(true);
   const [openConfirmModal, setConfirmModal] = useState(false);
 
+  // Form error tracking
+  const [formError, setFormError] = useState({});
+
+  // Alert display hook for notifications
   const { displayAlert } = useAlert();
 
+  const { t } = useTranslation();
+
+  // Configure Geocode service for address processing
   Geocode.setApiKey(window.env.GEO_CODE_API);
   Geocode.setLanguage('en');
 
+  // Set up Google Places service for address autocompletion
   const {
     placePredictions,
     getPlacePredictions,
@@ -42,24 +67,34 @@ const AddCustodians = ({ history, location }) => {
     apiKey: window.env.MAP_API_KEY,
   });
 
+  // Extract navigation data from location state
   const redirectTo = location.state && location.state.from;
   const {
-    custodianTypesData, orgData,
+    custodianTypesData, // Available custodian types for dropdown
+    orgData, // Organization data for matching
   } = location.state || {};
 
+  // Determine if this is an edit operation and extract existing data
   const editPage = location.state && location.state.type === 'edit';
   const editData = (editPage && location.state.data) || {};
   const contactData = editPage && location.state.contactData;
 
+  // Company information fields
   const company = useInput(editData.name || '', { required: true });
   const abbrevation = useInput(editData.abbrevation || '');
   const custodianType = useInput(editData.custodian_type || '', { required: true });
   const glnNumber = useInput(editData.custodian_glns || '');
+
+  // Contact person fields
   const firstName = useInput(contactData.first_name || '', { required: true });
   const lastName = useInput(contactData.last_name || '', { required: true });
   const email = useInput(contactData.email_address || '');
+
+  // Phone number with special handling
   const [number, setNumber] = useState(contactData.phone || '');
   const [numberFocus, setNumberFocus] = useState(false);
+
+  // Address fields
   const country = useInput(contactData.country || '', { required: true });
   const state = useInput(contactData.state || '', { required: true });
   const [address1, setAddress1] = useState(contactData.address1 || '');
@@ -67,14 +102,19 @@ const AddCustodians = ({ history, location }) => {
   const city = useInput(contactData.city || '', { required: true });
   const zip = useInput(contactData.postal_code || '', { required: true });
 
-  const [formError, setFormError] = useState({});
-
+  // UI text based on mode (add/edit)
   const buttonText = editPage ? 'Save' : 'Add Custodian';
   const formTitle = editPage ? 'Edit Custodian' : 'Add Custodian';
 
+  // Current user's organization
   const organization = getUser().organization.organization_uuid;
 
+  /**
+   * Handles closing the form modal
+   * Shows confirmation dialog if form data has changed
+   */
   const closeFormModal = () => {
+    // Check if any form data has been modified
     const dataHasChanged = (
       company.hasChanged()
       || custodianType.hasChanged()
@@ -88,6 +128,8 @@ const AddCustodians = ({ history, location }) => {
       || !_.isEqual(address1, '')
       || address_2.hasChanged()
     );
+
+    // If data changed, show confirmation dialog, otherwise close directly
     if (dataHasChanged) {
       setConfirmModal(true);
     } else {
@@ -98,6 +140,10 @@ const AddCustodians = ({ history, location }) => {
     }
   };
 
+  /**
+   * Handles discarding form data and closing form
+   * Called when user confirms they want to discard changes
+   */
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
@@ -106,24 +152,47 @@ const AddCustodians = ({ history, location }) => {
     }
   };
 
+  /**
+   * Generates an acronym from a string
+   * Used to auto-generate abbreviations from company names
+   *
+   * @param {string} str - Input string to create acronym from
+   * @returns {string} Uppercase acronym
+   */
   const acronym = (str) => {
     let abbr = '';
+    // Split on whitespace and remove empty strings
     const words = _.without(_.split(str, /\s+/), '');
+
+    // Take first letter of each word
     _.forEach(words, (word) => {
       abbr += word[0];
     });
+
+    // Limit to 7 characters
     if (_.size(abbrevation) > 7) {
       abbr = _.join(_.slice(abbr, 0, 7), '');
     }
+
     return _.toUpper(abbr);
   };
 
-  const { mutate: addCustodianMutation, isLoading: isAddingCustodian } = useAddCustodianMutation(organization, history, redirectTo, displayAlert);
+  // Hook for adding a new custodian
+  const { mutate: addCustodianMutation, isLoading: isAddingCustodian } = useAddCustodianMutation(organization, history, redirectTo, displayAlert, 'Custodian');
 
-  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert);
+  // Hook for editing an existing custodian
+  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert, 'Custodian');
 
+  /**
+   * Handles form submission
+   * Prepares and validates data before sending to the API
+   *
+   * @param {Event} event - Form submission event
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    // Prepare contact form data
     const contactFormValue = {
       country: country.value,
       state: state.value,
@@ -131,16 +200,20 @@ const AddCustodians = ({ history, location }) => {
       address2: address_2.value,
       city: city.value,
       postal_code: zip.value,
+      // Include these fields only when editing
       ...(editPage && { contact_uuid: contactData.contact_uuid }),
       ...(editPage && { url: contactData.url }),
       ...(editPage && { id: contactData.id }),
       organization_uuid: organization,
+      // Format phone with international prefix or set null if empty
       phone: !_.isEmpty(number) ? `+${number}` : null,
       first_name: firstName.value,
       last_name: lastName.value,
+      // Convert email to lowercase or set null if empty
       email_address: !_.isEmpty(email.value) ? email.value.toLowerCase() : null,
     };
 
+    // Find matching organization by comparing names with fuzzy matching
     const orgNames = _.map(orgData, 'name');
     const custodianName = new RegExp(
       `.*${company.value
@@ -160,16 +233,20 @@ const AddCustodians = ({ history, location }) => {
       }).organization_uuid;
     }
 
+    // Prepare custodian form data
     const custodianFormValue = {
       abbrevation: _.toUpper(abbrevation.value),
       custodian_type: custodianType.value,
       name: company.value,
       custodian_glns: glnNumber.value,
+      // Include these fields only when editing
       ...(editPage && { url: editData.url }),
       ...(editPage && { id: editData.id }),
       organization_uuid: organization,
       custody_org_uuid,
     };
+
+    // Call appropriate mutation based on mode (add/edit)
     if (editPage) {
       editCustodianMutation([custodianFormValue, contactFormValue]);
     } else {
@@ -177,15 +254,27 @@ const AddCustodians = ({ history, location }) => {
     }
   };
 
+  /**
+   * Handles field validation on blur
+   * Updates form error state based on validation results
+   *
+   * @param {Event} e - Blur event
+   * @param {string} validation - Type of validation to perform
+   * @param {Object} input - Input field state object
+   * @param {string} parentId - Parent element ID (for select fields)
+   */
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
+
     if (validateObj && validateObj.error) {
+      // Update error state with validation error
       setFormError({
         ...prevState,
         [e.target.id || parentId]: validateObj,
       });
     } else {
+      // Clear error state for this field
       setFormError({
         ...prevState,
         [e.target.id || parentId]: {
@@ -196,8 +285,14 @@ const AddCustodians = ({ history, location }) => {
     }
   };
 
+  /**
+   * Determines if the submit button should be disabled
+   * Based on required field completion and validation errors
+   *
+   * @returns {boolean} True if submit should be disabled
+   */
   const submitDisabled = () => {
-    const errorKeys = Object.keys(formError);
+    // Check if required fields are missing
     if (
       !company.value
       || !custodianType.value
@@ -212,6 +307,9 @@ const AddCustodians = ({ history, location }) => {
     ) {
       return true;
     }
+
+    // Check if any validation errors exist
+    const errorKeys = Object.keys(formError);
     let errorExists = false;
     _.forEach(errorKeys, (key) => {
       if (formError[key].error) {
@@ -221,21 +319,43 @@ const AddCustodians = ({ history, location }) => {
     return errorExists;
   };
 
+  /**
+   * Handles address selection from autocomplete suggestions
+   * Uses Google Geocoding API to extract address components
+   *
+   * @param {Object} address - Selected address object from Google Places API
+   */
   const handleSelectAddress = (address) => {
+    // Split address into components
     const addressDesc = address.description.split(', ');
+
+    // First geocode to get coordinates
     Geocode.fromAddress(address.description)
       .then(({ results }) => {
         const { lat, lng } = results[0].geometry.location;
+
+        // Reverse geocode from coordinates to get structured address data
         Geocode.fromLatLng(lat, lng)
           .then((response) => {
             const addressComponents = response.results[0].address_components;
-            let locality = addressComponents.find((component) => component.types.includes('administrative_area_level_3'))?.long_name;
-            if (!locality) {
-              locality = addressComponents.find((component) => component.types.includes('locality'))?.long_name;
-            }
+
+            // Find locality component (city) using multiple possible types
+            const localityTypes = [
+              'administrative_area_level_3',
+              'locality',
+              'administrative_area_level_1',
+              'administrative_area_level_2',
+            ];
+            const locality = localityTypes.reduce((result, type) => result || addressComponents.find((component) => component.types.includes(type))?.long_name, '');
+
+            // Extract postal code
             const zipCode = addressComponents.find((component) => component.types.includes('postal_code'))?.long_name;
+
+            // Process address line 1 by removing last two components and locality
             let filteredAddressDesc = addressDesc.slice(0, -2);
             filteredAddressDesc = filteredAddressDesc.filter((item) => item !== locality);
+
+            // Update form fields with extracted address data
             setAddress1(filteredAddressDesc.join(', '));
             city.setValue(locality);
             state.setValue(addressDesc[_.size(addressDesc) - 2]);
@@ -258,11 +378,16 @@ const AddCustodians = ({ history, location }) => {
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
+          {/* Loading indicator while API requests are in progress */}
           {(isAddingCustodian || isEditingCustodian) && (
             <Loader open={isAddingCustodian || isEditingCustodian} />
           )}
+
+          {/* Main form */}
           <form className="custodianFormContainer" noValidate onSubmit={handleSubmit}>
+            {/* Company information section */}
             <Grid container spacing={isDesktop() ? 2 : 0}>
+              {/* Company name field */}
               <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                 <TextField
                   className="notranslate"
@@ -280,10 +405,13 @@ const AddCustodians = ({ history, location }) => {
                   value={company.value}
                   onChange={(e) => {
                     company.setValue(e.target.value);
+                    // Auto-generate abbreviation when company name changes
                     abbrevation.setValue(acronym(e.target.value));
                   }}
                 />
               </Grid>
+
+              {/* Abbreviation field */}
               <Grid
                 className="custodianInputWithTooltip"
                 item
@@ -308,7 +436,10 @@ const AddCustodians = ({ history, location }) => {
                 />
               </Grid>
             </Grid>
+
+            {/* Custodian type and GLN section */}
             <Grid container spacing={isDesktop() ? 2 : 0}>
+              {/* Custodian type dropdown */}
               <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                 <TextField
                   variant="outlined"
@@ -323,7 +454,9 @@ const AddCustodians = ({ history, location }) => {
                   onBlur={(e) => handleBlur(e, 'required', custodianType, 'custodianType')}
                   {...custodianType.bind}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
                   {custodianTypesData && _.map(_.orderBy(custodianTypesData, ['name'], ['asc']),
                     (item, index) => (
                       <MenuItem
@@ -335,6 +468,8 @@ const AddCustodians = ({ history, location }) => {
                     ))}
                 </TextField>
               </Grid>
+
+              {/* GLN Number field (disabled) */}
               <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                 <TextField
                   variant="filled"
@@ -349,12 +484,17 @@ const AddCustodians = ({ history, location }) => {
                 />
               </Grid>
             </Grid>
+
+            {/* Contact information card */}
             <Card variant="outlined" className="custodianAddressContainer">
               <CardContent>
                 <Typography variant="h6" gutterBottom mt={1} mb={isMobile() ? 0 : 1.65}>
                   Contact Info
                 </Typography>
+
+                {/* Contact name fields */}
                 <Grid container spacing={isDesktop() ? 2 : 0}>
+                  {/* First name */}
                   <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                     <TextField
                       className="notranslate"
@@ -372,6 +512,8 @@ const AddCustodians = ({ history, location }) => {
                       {...firstName.bind}
                     />
                   </Grid>
+
+                  {/* Last name */}
                   <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                     <TextField
                       className="notranslate"
@@ -390,6 +532,8 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
+
+                {/* Email field */}
                 <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12}>
                     <TextField
@@ -408,6 +552,8 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
+
+                {/* Phone number with custom input component */}
                 <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip custodianRow" item xs={12}>
                     <Typography className="custodianPhoneLabel">Phone Number</Typography>
@@ -425,6 +571,8 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
+
+                {/* Address section with autocomplete */}
                 <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12}>
                     <TextField
@@ -438,6 +586,7 @@ const AddCustodians = ({ history, location }) => {
                       autoComplete="address_1"
                       value={address1}
                       onChange={(e) => {
+                        // Trigger places API suggestions as user types
                         getPlacePredictions({
                           input: e.target.value,
                         });
@@ -445,6 +594,8 @@ const AddCustodians = ({ history, location }) => {
                       }}
                     />
                   </Grid>
+
+                  {/* Address autocomplete dropdown */}
                   <div className={!_.isEmpty(placePredictions) ? 'custodianAddressPredictions' : ''}>
                     {placePredictions && _.map(placePredictions, (value, index) => (
                       <MenuItem
@@ -461,6 +612,8 @@ const AddCustodians = ({ history, location }) => {
                     ))}
                   </div>
                 </Grid>
+
+                {/* Address line 2 */}
                 <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12}>
                     <TextField
@@ -475,6 +628,8 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
+
+                {/* City and state fields (disabled, populated by address selection) */}
                 <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                     <TextField
@@ -503,6 +658,8 @@ const AddCustodians = ({ history, location }) => {
                     />
                   </Grid>
                 </Grid>
+
+                {/* Country and ZIP fields (disabled, populated by address selection) */}
                 <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                     <TextField
@@ -533,7 +690,10 @@ const AddCustodians = ({ history, location }) => {
                 </Grid>
               </CardContent>
             </Card>
+
+            {/* Form action buttons */}
             <Grid container spacing={2} justifyContent="center">
+              {/* Submit button */}
               <Grid item xs={12} sm={4}>
                 <Button
                   type="submit"
@@ -546,6 +706,8 @@ const AddCustodians = ({ history, location }) => {
                   {buttonText}
                 </Button>
               </Grid>
+
+              {/* Cancel button */}
               <Grid item xs={12} sm={4} className="custodianSubmit2">
                 <Button
                   type="button"

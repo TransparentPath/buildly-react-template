@@ -6,7 +6,6 @@ import {
   TextField,
   MenuItem,
   Typography,
-  Tooltip,
 } from '@mui/material';
 import { CloudSync as CloudSyncIcon } from '@mui/icons-material';
 import { useInput } from '@hooks/useInput';
@@ -16,23 +15,29 @@ import Loader from '@components/Loader/Loader';
 import { validators } from '@utils/validators';
 import { isDesktop } from '@utils/mediaQuery';
 import { GATEWAY_STATUS, getCustodianFormattedRow } from '@utils/constants';
+import { useTranslation } from 'react-i18next';
 
 const GatewayActions = ({
-  selectedRows,
-  custodianData,
-  contactInfo,
-  editGatewayMutation,
-  isEditingGateway,
+  selectedRows, // Rows selected from a data grid
+  custodianData, // List of available custodians
+  contactInfo, // Contact information linked to custodians
+  editGatewayMutation, // React Query mutation hook to update gateway data
+  isEditingGateway, // Boolean flag for tracking mutation status
 }) => {
+  // Input hook for action selection and status change
   const gateway_action = useInput('');
   const change_status = useInput('', { required: true });
 
+  const { t } = useTranslation();
+
+  // Local state to manage modal behavior and form values
   const [assignShipper, setAssignShipper] = useState('');
   const [custodianList, setCustodianList] = useState([]);
   const [openConfirmModal, setConfirmModal] = useState(false);
   const [showGatewayAction, setShowGatewayAction] = useState(false);
   const [formError, setFormError] = useState({});
 
+  // Format custodian data when input props change
   useEffect(() => {
     if (!_.isEmpty(custodianData) && contactInfo) {
       setCustodianList(getCustodianFormattedRow(
@@ -42,6 +47,7 @@ const GatewayActions = ({
     }
   }, [custodianData, contactInfo]);
 
+  // Close the modal, showing a confirmation if form data has changed
   const closeFormModal = () => {
     const dataHasChanged = (
       change_status.hasChanged()
@@ -54,6 +60,7 @@ const GatewayActions = ({
     }
   };
 
+  // Reset all form data and close confirmation modal
   const discardFormData = () => {
     gateway_action.reset();
     change_status.reset();
@@ -63,6 +70,7 @@ const GatewayActions = ({
     setShowGatewayAction(false);
   };
 
+  // Handle submission based on selected action
   const handleSubmit = (event) => {
     event.preventDefault();
     if (_.isEqual(gateway_action.value, 'Change Status')) {
@@ -88,12 +96,14 @@ const GatewayActions = ({
     }
   };
 
+  // When editing is done, reset the form
   useEffect(() => {
     if (!isEditingGateway) {
       discardFormData();
     }
   }, [isEditingGateway]);
 
+  // Validate form fields on blur
   const handleBlur = (e, validation, input, parentId) => {
     const validateObj = validators(validation, input);
     const prevState = { ...formError };
@@ -113,6 +123,7 @@ const GatewayActions = ({
     }
   };
 
+  // Determine if form submission should be disabled
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (!_.isEmpty(selectedRows)) {
@@ -138,6 +149,7 @@ const GatewayActions = ({
     return errorExists;
   };
 
+  // Update assign shipper state based on dropdown selection
   const onInputChange = (e) => {
     const { value } = e.target;
     if (value) {
@@ -157,6 +169,7 @@ const GatewayActions = ({
 
   return (
     <>
+      {/* Gateway Action Dropdown with OK Button */}
       <Grid item xs={12} sm={6} className="gatewayHeaderActionContainer">
         <TextField
           className={_.isEmpty(gateway_action.value) ? 'gatewayActions' : 'gatewayActionsValue'}
@@ -166,7 +179,9 @@ const GatewayActions = ({
           label="Actions"
           {...gateway_action.bind}
         >
-          <MenuItem value="">Select</MenuItem>
+          <MenuItem value="">
+            <span className="notranslate">{t('select')}</span>
+          </MenuItem>
           {_.map(GATEWAY_ACTIONS, (item, index) => {
             if (_.isEqual(_.size(selectedRows), 1) && !_.isEqual(item.value, 'Remove Tracker')) {
               return null;
@@ -192,6 +207,8 @@ const GatewayActions = ({
           OK
         </Button>
       </Grid>
+
+      {/* Modal Form for Gateway Actions */}
       <FormModal
         open={showGatewayAction}
         handleClose={closeFormModal}
@@ -203,6 +220,7 @@ const GatewayActions = ({
         {isEditingGateway && <Loader open={isEditingGateway} />}
         <form className="gatewayFormContainer" noValidate onSubmit={handleSubmit}>
           <Grid container spacing={isDesktop() ? 2 : 0}>
+            {/* Disabled field showing selected tracker names */}
             <Grid className="gatewayInputWithTooltip" item xs={12}>
               <TextField
                 className="notranslate"
@@ -220,78 +238,89 @@ const GatewayActions = ({
                 onBlur={(e) => handleBlur(e, 'required', { value: selectedRows, required: true })}
               />
             </Grid>
-            {_.isEqual(gateway_action.value, 'Change Status')
-              && (
-                <Grid className="gatewayInputWithTooltip" item xs={12} md={6} sm={6}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    required
-                    id="changeStatus"
-                    select
-                    label="Change Status"
-                    error={formError.changeStatus && formError.changeStatus.error}
-                    helperText={formError.changeStatus ? formError.changeStatus.message : ''}
-                    onBlur={(e) => handleBlur(e, 'required', change_status, 'changeStatus')}
-                    {...change_status.bind}
-                  >
-                    <MenuItem value="">Select</MenuItem>
-                    {GATEWAY_STATUS
-                      && _.map(
-                        GATEWAY_STATUS,
-                        (item, index) => (
-                          <MenuItem
-                            key={`gatewayStatus${index}:${item.value}`}
-                            value={item.value}
-                          >
-                            {item.name}
-                          </MenuItem>
-                        ),
-                      )}
-                  </TextField>
-                </Grid>
-              )}
-            {_.isEqual(gateway_action.value, 'Assign Shipper')
-              && (
-                <Grid className="gatewayInputWithTooltip" item xs={12} md={6} sm={6}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    required
-                    id="assignShipper"
-                    select
-                    label="Assign Shipper"
-                    error={formError.assignShipper && formError.assignShipper.error}
-                    helperText={formError.assignShipper ? formError.assignShipper.message : ''}
-                    onBlur={(e) => handleBlur(e, 'required', assignShipper, 'assignShipper')}
-                    value={assignShipper}
-                    onChange={onInputChange}
-                  >
-                    <MenuItem value="">Select</MenuItem>
-                    {custodianList
-                      && _.map(
-                        _.orderBy(
-                          _.filter(custodianList, ['custodian_type', `${window.env.CUSTODIAN_URL}custodian_type/1/`]),
-                          ['name'],
-                          ['asc'],
-                        ),
-                        (item, index) => (
-                          <MenuItem
-                            key={`custodian${index}:${item.id}`}
-                            value={item.custodian_uuid}
-                          >
-                            {item.name}
-                          </MenuItem>
-                        ),
-                      )}
-                  </TextField>
-                </Grid>
-              )}
-            {_.isEqual(gateway_action.value, 'Remove Tracker')
-              && <Typography ml={2}>Are you sure you want to remove these above tracker(s) from the organization?</Typography>}
+
+            {/* Conditionally render form fields based on selected action */}
+            {_.isEqual(gateway_action.value, 'Change Status') && (
+              <Grid className="gatewayInputWithTooltip" item xs={12} md={6} sm={6}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  required
+                  id="changeStatus"
+                  select
+                  label="Change Status"
+                  error={formError.changeStatus && formError.changeStatus.error}
+                  helperText={formError.changeStatus ? formError.changeStatus.message : ''}
+                  onBlur={(e) => handleBlur(e, 'required', change_status, 'changeStatus')}
+                  {...change_status.bind}
+                >
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
+                  {GATEWAY_STATUS
+                    && _.map(
+                      GATEWAY_STATUS,
+                      (item, index) => (
+                        <MenuItem
+                          key={`gatewayStatus${index}:${item.value}`}
+                          value={item.value}
+                        >
+                          {item.name}
+                        </MenuItem>
+                      ),
+                    )}
+                </TextField>
+              </Grid>
+            )}
+
+            {_.isEqual(gateway_action.value, 'Assign Shipper') && (
+              <Grid className="gatewayInputWithTooltip" item xs={12} md={6} sm={6}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  required
+                  id="assignShipper"
+                  select
+                  label="Assign Shipper"
+                  error={formError.assignShipper && formError.assignShipper.error}
+                  helperText={formError.assignShipper ? formError.assignShipper.message : ''}
+                  onBlur={(e) => handleBlur(e, 'required', assignShipper, 'assignShipper')}
+                  value={assignShipper}
+                  onChange={onInputChange}
+                >
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
+                  {custodianList
+                    && _.map(
+                      _.orderBy(
+                        _.filter(custodianList, ['custodian_type', `${window.env.CUSTODIAN_URL}custodian_type/1/`]),
+                        ['name'],
+                        ['asc'],
+                      ),
+                      (item, index) => (
+                        <MenuItem
+                          key={`custodian${index}:${item.id}`}
+                          value={item.custodian_uuid}
+                        >
+                          {item.name}
+                        </MenuItem>
+                      ),
+                    )}
+                </TextField>
+              </Grid>
+            )}
+
+            {_.isEqual(gateway_action.value, 'Remove Tracker') && (
+              <Typography ml={2}>
+                Are you sure you want to remove these above tracker(s) from the organization?
+              </Typography>
+            )}
           </Grid>
+
+          {/* Save and Cancel buttons */}
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} sm={4}>
               <Button

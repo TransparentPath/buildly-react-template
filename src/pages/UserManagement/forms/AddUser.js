@@ -26,60 +26,75 @@ import { getCoreuserQuery } from '@react-query/queries/coreuser/getCoreuserQuery
 import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
 import { getCoregroupQuery } from '@react-query/queries/coregroup/getCoregroupQuery';
 import { useInviteMutation } from '@react-query/mutations/authUser/inviteMutation';
+import { useTranslation } from 'react-i18next';
 
+/**
+ * AddUser Component
+ * This component provides a form to add new users to the system.
+ * It allows administrators to invite users by email, assign roles, and associate them with organizations.
+ */
 const AddUser = ({ open, setOpen }) => {
-  const { displayAlert } = useAlert();
-  const user = getUser();
-  const isSuperAdmin = checkForGlobalAdmin(user);
-  const isAdmin = checkForAdmin(user);
-  const { organization_uuid } = user.organization;
+  const { displayAlert } = useAlert(); // Hook to display alerts
+  const user = getUser(); // Fetch the current logged-in user
+  const isSuperAdmin = checkForGlobalAdmin(user); // Check if the user is a super admin
+  const isAdmin = checkForAdmin(user); // Check if the user is an admin
+  const { organization_uuid } = user.organization; // Get the organization UUID of the logged-in user
 
-  const [openConfirmModal, setConfirmModal] = useState(false);
-  const [emailData, setEmailData] = useState([]);
-  const [userEmails, setUserEmails] = useState([]);
-  const [rolesData, setRolesData] = useState([]);
-  const [formError, setFormError] = useState({});
-  const [submenuAnchorEl, setSubmenuAnchorEl] = useState(null);
-  const [submenuOrg, setSubmenuOrg] = useState(null);
-  const [displayOrgs, setDisplayOrgs] = useState(null);
-  const [mainMenuOpen, setMainMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
-  const organization_name = useInput('', { required: true });
-  const user_role = useInput('', { required: true });
+  // State variables
+  const [openConfirmModal, setConfirmModal] = useState(false); // Controls the confirmation modal visibility
+  const [emailData, setEmailData] = useState([]); // Stores existing user emails
+  const [userEmails, setUserEmails] = useState([]); // Stores the emails entered in the form
+  const [rolesData, setRolesData] = useState([]); // Stores available roles for the selected organization
+  const [formError, setFormError] = useState({}); // Tracks form validation errors
+  const [submenuAnchorEl, setSubmenuAnchorEl] = useState(null); // Anchor element for submenu
+  const [submenuOrg, setSubmenuOrg] = useState(null); // Stores the selected organization for the submenu
+  const [displayOrgs, setDisplayOrgs] = useState(null); // Stores organizations to display in the dropdown
+  const [mainMenuOpen, setMainMenuOpen] = useState(false); // Controls the main menu dropdown visibility
 
+  // Input hooks for form fields
+  const organization_name = useInput('', { required: true }); // Organization name input
+  const user_role = useInput('', { required: true }); // User role input
+
+  // Fetch core user data
   const { data: coreuserData, isLoading: isLoadingCoreuser } = useQuery(
     ['users'],
-    () => getCoreuserQuery(displayAlert),
+    () => getCoreuserQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch organization data
   const { data: orgData, isLoading: isLoadingOrganizations } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert),
+    () => getAllOrganizationQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch core group data
   const { data: coregroupData, isLoading: isLoadingCoregroup } = useQuery(
     ['coregroup'],
-    () => getCoregroupQuery(displayAlert),
+    () => getCoregroupQuery(displayAlert, 'User'),
     { refetchOnWindowFocus: false },
   );
 
+  // Effect to filter and display organizations
   useEffect(() => {
     if (orgData && !_.isEmpty(orgData)) {
-      const producerOrgs = orgData.filter((org) => org.organization_type === 2);
-      const resellerOrgs = producerOrgs.filter((org) => org.is_reseller);
+      const producerOrgs = orgData.filter((org) => org.organization_type === 2); // Filter producer organizations
+      const resellerOrgs = producerOrgs.filter((org) => org.is_reseller); // Filter reseller organizations
       const resellerCustomerOrgIds = resellerOrgs.reduce((ids, org) => {
         if (org.reseller_customer_orgs) {
           return ids.concat(org.reseller_customer_orgs);
         }
         return ids;
       }, []);
-      const customerOrgs = orgData.filter((org) => resellerCustomerOrgIds.includes(org.id));
-      setDisplayOrgs([...producerOrgs, ...customerOrgs]);
+      const customerOrgs = orgData.filter((org) => resellerCustomerOrgIds.includes(org.id)); // Filter customer organizations
+      setDisplayOrgs([...producerOrgs, ...customerOrgs]); // Combine producer and customer organizations
     }
   }, [orgData]);
 
+  // Effect to extract email data from core user data
   useEffect(() => {
     if (coreuserData) {
       const edata = coreuserData.map((item) => item.email);
@@ -87,6 +102,7 @@ const AddUser = ({ open, setOpen }) => {
     }
   }, [coreuserData]);
 
+  // Effect to update roles based on the selected organization
   useEffect(() => {
     if (isSuperAdmin) {
       if (!_.isEmpty(organization_name.value)) {
@@ -100,6 +116,9 @@ const AddUser = ({ open, setOpen }) => {
     }
   }, [coregroupData, organization_name.value]);
 
+  /**
+   * Discard form data and reset the form.
+   */
   const discardFormData = () => {
     setUserEmails([]);
     organization_name.clear();
@@ -109,6 +128,10 @@ const AddUser = ({ open, setOpen }) => {
     setOpen(false);
   };
 
+  /**
+   * Close the form modal.
+   * If form data has changed, show a confirmation modal; otherwise, close the modal directly.
+   */
   const closeFormModal = () => {
     const dataHasChanged = !_.isEmpty(userEmails)
       || organization_name.hasChanged()
@@ -120,6 +143,15 @@ const AddUser = ({ open, setOpen }) => {
     }
   };
 
+  /**
+   * Handle input blur event for validation.
+   * Updates the form error state based on validation results.
+   * @param {Event} e - The blur event.
+   * @param {string} validation - The validation type.
+   * @param {object} input - The input state object.
+   * @param {boolean} extras - Whether extra validation is required.
+   * @param {array} extraData - Additional data for validation.
+   */
   const handleBlur = (e, validation, input, extras, extraData) => {
     let validateObj;
     if (extras) {
@@ -144,11 +176,21 @@ const AddUser = ({ open, setOpen }) => {
     }
   };
 
+  /**
+   * Handle input change for user emails.
+   * Splits the input string into an array of emails.
+   * @param {Event} e - The input change event.
+   */
   const handleInputChange = (e) => {
     const emails = e.target.value.split(',').map((email) => email.trim());
     setUserEmails(emails);
   };
 
+  /**
+   * Check if the submit button should be disabled.
+   * Returns true if required fields are empty or there are validation errors.
+   * @returns {boolean} - Whether the submit button should be disabled.
+   */
   const submitDisabled = () => {
     const errorKeys = Object.keys(formError);
     if (isSuperAdmin) {
@@ -168,8 +210,14 @@ const AddUser = ({ open, setOpen }) => {
     return errorExists;
   };
 
-  const { mutate: inviteMutation, isLoading: isInviting } = useInviteMutation(discardFormData, displayAlert);
+  // Mutation hook to invite users
+  const { mutate: inviteMutation, isLoading: isInviting } = useInviteMutation(discardFormData, displayAlert, 'User');
 
+  /**
+   * Handle form submission.
+   * Validates and submits the form data to invite new users.
+   * @param {Event} event - The form submission event.
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
     const lowercaseUserEmails = userEmails.map((email) => email.toLowerCase());
@@ -189,16 +237,30 @@ const AddUser = ({ open, setOpen }) => {
     }
   };
 
+  /**
+   * Handle submenu click for organizations.
+   * Opens the submenu for the selected organization.
+   * @param {Event} event - The click event.
+   * @param {object} org - The selected organization.
+   */
   const handleSubmenuClick = (event, org) => {
     event.stopPropagation();
     setSubmenuAnchorEl(event.currentTarget);
     setSubmenuOrg(org);
   };
 
+  /**
+   * Close the submenu.
+   */
   const handleSubmenuClose = () => {
     setSubmenuAnchorEl(null);
   };
 
+  /**
+   * Handle submenu selection.
+   * Sets the selected organization name and closes the submenu.
+   * @param {object} org - The selected organization.
+   */
   const handleSubmenuSelect = (org) => {
     organization_name.setValue(org.name);
     handleSubmenuClose();
@@ -316,7 +378,9 @@ const AddUser = ({ open, setOpen }) => {
                 autoComplete="user_role"
                 {...user_role.bind}
               >
-                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="">
+                  <span className="notranslate">{t('select')}</span>
+                </MenuItem>
                 {!_.isEmpty(rolesData) && _.map(rolesData, (role) => (
                   <MenuItem
                     key={role.id}

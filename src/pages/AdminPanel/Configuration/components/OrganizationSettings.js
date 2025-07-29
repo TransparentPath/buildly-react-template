@@ -1,3 +1,13 @@
+/**
+ * @file OrganizationSettings.jsx
+ * @description Component for managing organization-wide settings including:
+ * - Alert configurations (temperature, humidity, shock, light)
+ * - Default thresholds and measurement intervals
+ * - Regional settings (country, currency, timezone)
+ * - Unit preferences (temperature, distance, weight)
+ * - Date/time format preferences
+ */
+
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import { useTimezoneSelect, allTimezones } from 'react-timezone-select';
@@ -41,49 +51,81 @@ import { useUpdateOrganizationMutation } from '@react-query/mutations/authUser/u
 import { useEditUnitMutation } from '@react-query/mutations/items/editUnitMutation';
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
+import { useTranslation } from 'react-i18next';
 
+/**
+ * OrganizationSettings Component
+ *
+ * Provides an interface for managing organization-wide settings with features:
+ * - Alert management for different sensor types
+ * - Threshold configuration for various measurements
+ * - Regional and localization preferences
+ * - Unit system preferences
+ * - Data transmission and measurement intervals
+ */
 const OrganizationSettings = () => {
+  /**
+   * Current organization data and UUID from user context
+   */
   const organizationData = getUser().organization;
   const organization = getUser().organization.organization_uuid;
 
+  /**
+   * Alert hook for displaying notifications
+   */
   const { displayAlert } = useAlert();
 
+  const { t } = useTranslation();
+
+  /**
+   * Data Fetching
+   * Queries for organization types, countries, currencies, and unit preferences
+   */
   const { data: organizationTypesData, isLoading: isLoadingOrganizationTypes } = useQuery(
     ['organizationTypes'],
-    () => getOrganizationTypeQuery(displayAlert),
+    () => getOrganizationTypeQuery(displayAlert, 'Organization settings'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery(
     ['countries'],
-    () => getCountriesQuery(displayAlert),
+    () => getCountriesQuery(displayAlert, 'Organization settings'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: currenciesData, isLoading: isLoadingCurrencies } = useQuery(
     ['currencies'],
-    () => getCurrenciesQuery(displayAlert),
+    () => getCurrenciesQuery(displayAlert, 'Organization settings'),
     { refetchOnWindowFocus: false },
   );
 
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
-    () => getUnitQuery(organization, displayAlert),
+    () => getUnitQuery(organization, displayAlert, 'Organization settings'),
     { refetchOnWindowFocus: false },
   );
 
+  /**
+   * Form Input States
+   * Using custom useInput hook for form field management
+   */
   const allowImportExport = useInput(
-    (organizationData
-      && organizationData.allow_import_export) || false,
+    (organizationData && organizationData.allow_import_export) || false,
   );
   const radius = useInput(
     (organizationData && organizationData.radius) || 0,
   );
   const orgType = useInput(
-    (organizationData
-      && organizationData.organization_type) || '',
+    (organizationData && organizationData.organization_type) || '',
   );
-  const orgAbb = useInput((organizationData && organizationData.abbrevation) || '');
+  const orgAbb = useInput(
+    (organizationData && organizationData.abbrevation) || '',
+  );
+
+  /**
+   * Threshold Settings
+   * Default values for various sensor measurements
+   */
   const defaultMaxTemperature = useInput(
     (organizationData && organizationData.default_max_temperature) || 100,
   );
@@ -96,8 +138,17 @@ const OrganizationSettings = () => {
   const defaultMinHumidity = useInput(
     (organizationData && organizationData.default_min_humidity) || 0,
   );
-  const defaultShock = useInput((organizationData && organizationData.default_shock) || 4);
-  const defaultLight = useInput((organizationData && organizationData.default_light) || 5);
+  const defaultShock = useInput(
+    (organizationData && organizationData.default_shock) || 4,
+  );
+  const defaultLight = useInput(
+    (organizationData && organizationData.default_light) || 5,
+  );
+
+  /**
+   * Transmission Settings
+   * Intervals for data transmission and measurement
+   */
   const defaultTransmissionInterval = useInput(
     (organizationData && organizationData.default_transmission_interval) || 20,
   );
@@ -105,43 +156,99 @@ const OrganizationSettings = () => {
     (organizationData && organizationData.default_measurement_interval) || 20,
   );
 
-  const supressTempAlerts = useInput(!_.includes(organizationData.alerts_to_suppress, 'temperature'));
-  const supressHumidityAlerts = useInput(!_.includes(organizationData.alerts_to_suppress, 'humidity'));
-  const supressShockAlerts = useInput(!_.includes(organizationData.alerts_to_suppress, 'shock'));
-  const supressLightAlerts = useInput(!_.includes(organizationData.alerts_to_suppress, 'light'));
+  /**
+   * Alert Settings
+   * Toggle states for different types of alerts
+   */
+  const supressTempAlerts = useInput(
+    !_.includes(organizationData.alerts_to_suppress, 'temperature'),
+  );
+  const supressHumidityAlerts = useInput(
+    !_.includes(organizationData.alerts_to_suppress, 'humidity'),
+  );
+  const supressShockAlerts = useInput(
+    !_.includes(organizationData.alerts_to_suppress, 'shock'),
+  );
+  const supressLightAlerts = useInput(
+    !_.includes(organizationData.alerts_to_suppress, 'light'),
+  );
 
-  const country = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
-    : 'United States');
-  const currency = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
-    : 'USD');
-  const dateFormat = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-    : 'MMM DD, YYYY');
-  const timeFormat = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
-    : 'hh:mm:ss A');
-  const distance = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
-    : 'Miles');
-  const temp = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure
-    : 'Fahrenheit');
-  const weight = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')).unit_of_measure
-    : 'Pounds');
+  /**
+   * Regional Settings
+   * Country, currency, and localization preferences
+   */
+  const country = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
+      : 'United States',
+  );
+  const currency = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+      : 'USD',
+  );
+  const dateFormat = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
+      : 'MMM DD, YYYY',
+  );
+  const timeFormat = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
+      : 'hh:mm:ss A',
+  );
+
+  /**
+   * Unit Preferences
+   * Measurement system settings
+   */
+  const distance = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
+      : 'Miles',
+  );
+  const temp = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'temperature')).unit_of_measure
+      : 'Fahrenheit',
+  );
+  const weight = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'weight')).unit_of_measure
+      : 'Pounds',
+  );
+
+  /**
+   * Timezone Settings
+   * Time zone selection using react-timezone-select
+   */
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones });
-  const timezone = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time zone'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time zone')).unit_of_measure
-    : 'America/Los_Angeles');
-  const language = useInput(_.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
-    ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
-    : 'English');
+  const timezone = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time zone'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time zone')).unit_of_measure
+      : 'America/Los_Angeles',
+  );
 
+  /**
+   * Language Settings
+   * Interface language preference
+   */
+  const language = useInput(
+    _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'language')).unit_of_measure
+      : 'English',
+  );
+
+  /**
+   * UI State Management
+   */
   const [countryList, setCountryList] = useState([]);
   const [currencyList, setCurrencyList] = useState([]);
 
+  /**
+   * Effect Hooks
+   * Handle data processing and state updates
+   */
   useEffect(() => {
     if (!_.isEmpty(countriesData)) {
       setCountryList(_.sortBy(_.without(_.uniq(_.map(countriesData, 'country')), [''])));
@@ -155,6 +262,7 @@ const OrganizationSettings = () => {
   }, [currenciesData]);
 
   useEffect(() => {
+    // Update form fields with unit data when available
     country.setValue(
       _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
         ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
@@ -202,7 +310,11 @@ const OrganizationSettings = () => {
     );
   }, [unitData]);
 
+  /**
+   * Form Actions
+   */
   const resetValues = () => {
+    // Reset all form fields to their initial values
     allowImportExport.reset();
     radius.reset();
     orgType.reset();
@@ -230,6 +342,10 @@ const OrganizationSettings = () => {
     language.reset();
   };
 
+  /**
+   * Form Validation
+   * @returns {boolean} True if any field has changed
+   */
   const submitDisabled = () => (
     allowImportExport.hasChanged()
     || radius.hasChanged()
@@ -258,13 +374,23 @@ const OrganizationSettings = () => {
     || language.hasChanged()
   );
 
-  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(displayAlert);
+  /**
+   * API Mutations
+   * Handlers for updating organization and unit settings
+   */
+  const { mutate: updateOrganizationMutation, isLoading: isUpdatingOrganization } = useUpdateOrganizationMutation(null, displayAlert, 'Organization settings');
+  const { mutate: editUnitMutation, isLoading: isEditingUnit } = useEditUnitMutation(organization, displayAlert, 'Organization settings');
 
-  const { mutate: editUnitMutation, isLoading: isEditingUnit } = useEditUnitMutation(organization, displayAlert);
-
+  /**
+   * Form Submission Handler
+   * Updates organization settings and unit preferences
+   *
+   * @param {Event} event Form submission event
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    // Update organization settings if changed
     if (allowImportExport.hasChanged()
       || radius.hasChanged()
       || orgType.hasChanged()
@@ -305,12 +431,16 @@ const OrganizationSettings = () => {
           !supressLightAlerts.value ? 'light' : '',
         ], ''),
       };
+
+      // Update radius if distance unit changed
       if (distance.hasChanged()) {
         data = { ...data, radius: uomDistanceUpdate(distance.value, radius.value) };
       }
+
       updateOrganizationMutation(data);
     }
 
+    // Update unit preferences if changed
     _.forEach(unitData, (unit) => {
       let uom = unit;
       switch (_.toLower(unit.unit_of_measure_for)) {
@@ -376,6 +506,7 @@ const OrganizationSettings = () => {
 
   return (
     <Grid className="adminPanelOrgRoot" container spacing={2}>
+      {/* Loading indicator */}
       {(isLoadingOrganizationTypes
         || isLoadingCountries
         || isLoadingCurrencies
@@ -392,17 +523,7 @@ const OrganizationSettings = () => {
           />
         )}
       <form className="adminPanelOrgFormContainer" noValidate onSubmit={handleSubmit}>
-        {/* <Grid item xs={12}>
-          <div className="adminPanelCheckbox">
-            <Checkbox
-              checked={allowImportExport.value}
-              onClick={(e) => allowImportExport.setValue(e.target.checked)}
-            />
-            <Typography className="adminPanelLabel">
-              Allow Import Export for this Organization?
-            </Typography>
-          </div>
-        </Grid> */}
+        {/* Alert Settings Section */}
         <Grid container spacing={2} mb={2}>
           <Grid item xs={12}>
             <Typography variant="subtitle1" fontWeight={700}>Alert Settings:</Typography>
@@ -457,6 +578,7 @@ const OrganizationSettings = () => {
           </Grid>
         </Grid>
 
+        {/* Geofence Settings */}
         <Grid item xs={12}>
           <TextField
             variant="outlined"
@@ -469,6 +591,8 @@ const OrganizationSettings = () => {
             {...radius.bind}
           />
         </Grid>
+
+        {/* Organization Details */}
         <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -482,7 +606,9 @@ const OrganizationSettings = () => {
               autoComplete="orgType"
               {...orgType.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {_.map(organizationTypesData, (type) => (
                 <MenuItem
                   key={`orgType-${type.id}`}
@@ -510,6 +636,8 @@ const OrganizationSettings = () => {
             />
           </Grid>
         </Grid>
+
+        {/* Temperature Settings */}
         <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -566,6 +694,8 @@ const OrganizationSettings = () => {
             />
           </Grid>
         </Grid>
+
+        {/* Humidity Settings */}
         <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -604,6 +734,8 @@ const OrganizationSettings = () => {
             />
           </Grid>
         </Grid>
+
+        {/* Shock and Light Settings */}
         <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -642,6 +774,8 @@ const OrganizationSettings = () => {
             />
           </Grid>
         </Grid>
+
+        {/* Transmission Settings */}
         <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -662,7 +796,9 @@ const OrganizationSettings = () => {
                 defaultMeasurementInterval.setValue(e.target.value);
               }}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {!_.isEmpty(TIVE_GATEWAY_TIMES)
                 && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
@@ -686,9 +822,11 @@ const OrganizationSettings = () => {
               SelectProps={{ displayEmpty: true }}
               {...defaultMeasurementInterval.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
-                _.filter(TIVE_GATEWAY_TIMES, (t) => t.value <= defaultTransmissionInterval.value),
+                _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultTransmissionInterval.value),
                 (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
                     {time.label}
@@ -698,6 +836,8 @@ const OrganizationSettings = () => {
             </TextField>
           </Grid>
         </Grid>
+
+        {/* Regional Settings */}
         <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -721,7 +861,9 @@ const OrganizationSettings = () => {
                 country.setValue(e.target.value);
               }}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {countryList && _.map(countryList, (cntry, index) => (
                 <MenuItem
                   className="notranslate"
@@ -746,7 +888,9 @@ const OrganizationSettings = () => {
               autoComplete="currency"
               {...currency.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {currencyList && _.map(currencyList, (curr, index) => (
                 <MenuItem
                   className="notranslate"
@@ -759,6 +903,8 @@ const OrganizationSettings = () => {
             </TextField>
           </Grid>
         </Grid>
+
+        {/* Date/Time Format Settings */}
         <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -772,7 +918,9 @@ const OrganizationSettings = () => {
               autoComplete="date-format"
               {...dateFormat.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {_.map(DATE_DISPLAY_CHOICES, (date, index) => (
                 <MenuItem
                   key={`date-${index}-${date.label}`}
@@ -795,7 +943,9 @@ const OrganizationSettings = () => {
               autoComplete="time-format"
               {...timeFormat.bind}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="">
+                <span className="notranslate">{t('select')}</span>
+              </MenuItem>
               {_.map(TIME_DISPLAY_CHOICES, (time, index) => (
                 <MenuItem
                   key={`time-${index}-${time.label}`}
@@ -807,6 +957,8 @@ const OrganizationSettings = () => {
             </TextField>
           </Grid>
         </Grid>
+
+        {/* Unit Settings */}
         <Grid item xs={12}>
           <TextField
             variant="outlined"
@@ -819,7 +971,9 @@ const OrganizationSettings = () => {
             autoComplete="distance"
             {...distance.bind}
           >
-            <MenuItem value="">Select</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select')}</span>
+            </MenuItem>
             {_.map(UOM_DISTANCE_CHOICES, (dist, index) => (
               <MenuItem
                 key={`distance-${index}-${dist}`}
@@ -842,7 +996,9 @@ const OrganizationSettings = () => {
             autoComplete="temp"
             {...temp.bind}
           >
-            <MenuItem value="">Select</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select')}</span>
+            </MenuItem>
             {_.map(UOM_TEMPERATURE_CHOICES, (tmp, index) => (
               <MenuItem
                 key={`temperature-${index}-${tmp}`}
@@ -865,7 +1021,9 @@ const OrganizationSettings = () => {
             autoComplete="weight"
             {...weight.bind}
           >
-            <MenuItem value="">Select</MenuItem>
+            <MenuItem value="">
+              <span className="notranslate">{t('select')}</span>
+            </MenuItem>
             {_.map(UOM_WEIGHT_CHOICES, (wgt, index) => (
               <MenuItem
                 key={`weight-${index}-${wgt}`}
@@ -876,6 +1034,8 @@ const OrganizationSettings = () => {
             ))}
           </TextField>
         </Grid>
+
+        {/* Timezone Settings */}
         <Grid item xs={12}>
           <TextField
             variant="outlined"
@@ -898,6 +1058,8 @@ const OrganizationSettings = () => {
             ))}
           </TextField>
         </Grid>
+
+        {/* Language Settings */}
         <Grid item xs={12}>
           <TextField
             variant="outlined"
@@ -915,11 +1077,13 @@ const OrganizationSettings = () => {
           >
             {_.map(LANGUAGES, (item, index) => (
               <MenuItem key={`${item.value}-${index}`} value={item.label}>
-                {item.label}
+                <span className="notranslate">{t(item.label)}</span>
               </MenuItem>
             ))}
           </TextField>
         </Grid>
+
+        {/* Form Actions */}
         <Grid container spacing={2} justifyContent="center">
           <Grid item xs={6} sm={4}>
             <Button

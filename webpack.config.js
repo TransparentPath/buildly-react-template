@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
+const { InjectManifest } = require('workbox-webpack-plugin');
 const packageJSON = require('./package.json');
 
 const buildDate = new Date().toUTCString();
@@ -117,16 +118,21 @@ module.exports = (env, argv) => {
         favicon: './src/assets/favicon.ico',
         hash: true,
       }),
-      new GenerateSW({
+      new InjectManifest({
+        swSrc: './src/service-worker.js',
+        swDest: 'service-worker.js',
         maximumFileSizeToCacheInBytes: 200000000,
-        clientsClaim: true,
-        skipWaiting: true,
       }),
+      // new GenerateSW({
+      //   maximumFileSizeToCacheInBytes: 200000000,
+      //   clientsClaim: true,
+      //   skipWaiting: true,
+      // }),
     ],
     externals: {
       // only define the dependencies you are NOT using as externals!
-      canvg: "canvg",
-      dompurify: "dompurify"
+      canvg: 'canvg',
+      dompurify: 'dompurify',
     },
   };
 

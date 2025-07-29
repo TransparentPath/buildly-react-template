@@ -14,55 +14,66 @@ import { isDesktop } from '@utils/mediaQuery';
 import { useEditCustodianMutation } from '@react-query/mutations/custodians/editCustodianMutation';
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
+import { useTranslation } from 'react-i18next';
 
 const EditMapping = ({ history, location }) => {
+  // Get the current user's organization UUID
   const organization = getUser().organization.organization_uuid;
-  const [openFormModal, setFormModal] = useState(true);
-  const [openConfirmModal, setConfirmModal] = useState(false);
-  const [options, setOptions] = useState([]);
 
-  const { displayAlert } = useAlert();
+  const { t } = useTranslation();
 
+  // Modal state control
+  const [openFormModal, setFormModal] = useState(true); // Controls form modal visibility
+  const [openConfirmModal, setConfirmModal] = useState(false); // Controls discard changes confirmation modal
+  const [options, setOptions] = useState([]); // Dropdown options for selecting a custodian organization
+
+  const { displayAlert } = useAlert(); // Hook to trigger global alert messages
+
+  // Extract required data from router location state
   const { orgData } = location.state || {};
   const redirectTo = location.state && location.state.from;
-
   const pageType = location.state && location.state.type;
   const pageData = location.state && location.state.data;
+
+  // UI strings based on whether the user is editing or setting a mapping
   const buttonText = _.isEqual(pageType, 'edit') ? 'Save' : 'Set Mapping';
   const formTitle = _.isEqual(pageType, 'edit') ? 'Edit Mapping' : 'Set Mapping';
 
+  // Controlled input for the selected custodian organization
   const custodyOrg = useInput((pageData && pageData.custody_org_uuid) || '');
 
+  // Setup dropdown options when component mounts or orgData/pageData changes
   useEffect(() => {
     if (orgData && pageData) {
       const opts = _.map(orgData, (org) => {
+        // Suggest an org that matches the name of the custodian
         const suggest = _.lowerCase(org.name) === _.lowerCase(pageData.name);
         return {
           value: org.organization_uuid,
           name: org.name,
-          order: suggest ? 1 : 0,
+          order: suggest ? 1 : 0, // Prioritize suggested orgs
         };
       });
-      const orderedOpts = _.orderBy(
-        opts,
-        ['order', 'name'],
-        ['desc', 'asc'],
-      );
+
+      // Order suggestions (suggested ones first, then alphabetical)
+      const orderedOpts = _.orderBy(opts, ['order', 'name'], ['desc', 'asc']);
       setOptions(orderedOpts);
     }
   }, [orgData, pageData]);
 
+  // Close the form modal, confirm if there are unsaved changes
   const closeFormModal = () => {
     if (custodyOrg.hasChanged()) {
-      setConfirmModal(true);
+      setConfirmModal(true); // Show confirmation modal
     } else {
-      setFormModal(false);
+      setFormModal(false); // Close without confirmation
       if (location && location.state) {
         history.push(redirectTo);
       }
     }
   };
 
+  // Discard unsaved changes and close the modal
   const discardFormData = () => {
     setConfirmModal(false);
     setFormModal(false);
@@ -71,20 +82,27 @@ const EditMapping = ({ history, location }) => {
     }
   };
 
-  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert);
+  // React Query mutation hook to submit the custodian update
+  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert, 'Mapping');
 
+  // Form submission handler
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    // Construct payload for updating custodian
     const editData = {
       ...pageData,
       custody_org_uuid: custodyOrg.value || null,
-      edit_date: new Date(),
+      edit_date: new Date(), // Add timestamp
     };
+
+    // Trigger mutation with data
     editCustodianMutation([editData, null]);
   };
 
   return (
     <div>
+      {/* Show form modal if state is open */}
       {openFormModal && (
         <FormModal
           open={openFormModal}
@@ -94,9 +112,13 @@ const EditMapping = ({ history, location }) => {
           setConfirmModal={setConfirmModal}
           handleConfirmModal={discardFormData}
         >
+          {/* Loader while mutation is in progress */}
           {isEditingCustodian && <Loader open={isEditingCustodian} />}
+
+          {/* Form contents */}
           <form className="adminPanelFormContainer" noValidate onSubmit={handleSubmit}>
             <Grid container spacing={isDesktop() ? 2 : 0}>
+              {/* Display custodian name (disabled input) */}
               <Grid item xs={12}>
                 <TextField
                   variant="outlined"
@@ -109,6 +131,8 @@ const EditMapping = ({ history, location }) => {
                   value={(pageData && pageData.name) || ''}
                 />
               </Grid>
+
+              {/* Dropdown to select custodian organization */}
               <Grid item xs={12}>
                 <TextField
                   variant="outlined"
@@ -121,19 +145,18 @@ const EditMapping = ({ history, location }) => {
                   autoComplete="custodyOrg"
                   {...custodyOrg.bind}
                 >
-                  <MenuItem value="">Select</MenuItem>
-                  {options
-                    && options.length > 0
-                    && _.map(options, (option, index) => (
-                      <MenuItem
-                        key={`org-option-${index}`}
-                        value={option.value}
-                      >
-                        {option.name}
-                      </MenuItem>
-                    ))}
+                  <MenuItem value="">
+                    <span className="notranslate">{t('select')}</span>
+                  </MenuItem>
+                  {options && options.length > 0 && _.map(options, (option, index) => (
+                    <MenuItem key={`org-option-${index}`} value={option.value}>
+                      {option.name}
+                    </MenuItem>
+                  ))}
                 </TextField>
               </Grid>
+
+              {/* Submit and Cancel buttons */}
               <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={6} sm={4}>
                   <Button

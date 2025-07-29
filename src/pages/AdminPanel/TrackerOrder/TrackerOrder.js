@@ -35,27 +35,38 @@ import AddTrackerOrder from './forms/AddTrackerOrder';
 import ShowCart from './components/ShowCart';
 
 const TrackerOrder = ({ redirectTo, history }) => {
+  // Fetching user data (organization_uuid and name) from context
   const { organization_uuid, name } = getUser().organization;
+
+  // State variables for controlling order summary modal
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // State for holding tracker order rows
   const [rows, setRows] = useState([]);
 
+  // Alert handling
   const { displayAlert } = useAlert();
+
+  // Time zone and cart data from zustand store
   const { data: timeZone } = useStore();
   const { data: cartData } = useCartStore();
 
+  // Fetch unit data (time and date format) using react-query
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization_uuid],
-    () => getUnitQuery(organization_uuid, displayAlert),
+    () => getUnitQuery(organization_uuid, displayAlert, 'Tracker order'),
     { refetchOnWindowFocus: false },
   );
 
+  // Fetch tracker order data using react-query
   const { data: trackerOrderData, isLoading: isLoadingTrackerOrder } = useQuery(
     ['trackerOrders', organization_uuid],
-    () => getTrackerOrderQuery(organization_uuid, displayAlert),
+    () => getTrackerOrderQuery(organization_uuid, displayAlert, 'Tracker order'),
     { refetchOnWindowFocus: false },
   );
 
+  // Setting date and time formats based on the unit data
   const dateFormat = _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'date'))
     ? _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'date')).unit_of_measure
     : '';
@@ -64,16 +75,19 @@ const TrackerOrder = ({ redirectTo, history }) => {
     ? _.find(unitData, (unit) => _.isEqual(_.toLower(unit.unit_of_measure_for), 'time')).unit_of_measure
     : '';
 
+  // Setting rows when tracker order data is updated
   useEffect(() => {
     setRows(trackerOrderData);
   }, [trackerOrderData]);
 
+  // Navigating to Add Tracker Order page
   const onAddButtonClick = () => {
     history.push(`${routes.TRACKERORDER}/add`, {
       from: redirectTo || routes.TRACKERORDER,
     });
   };
 
+  // Handling reorder functionality (navigate with order data)
   const onReOrder = (item) => {
     history.push(`${routes.TRACKERORDER}/add`, {
       type: 're-order',
@@ -82,17 +96,20 @@ const TrackerOrder = ({ redirectTo, history }) => {
     });
   };
 
+  // Closing the order summary dialog
   const onCloseOrderSummary = () => {
     setShowOrderSummary(false);
     setSelectedOrder(null);
   };
 
+  // Navigating to cart page
   const onCartClick = () => {
     history.push(`${routes.TRACKERORDER}/cart`, {
       from: redirectTo || routes.TRACKERORDER,
     });
   };
 
+  // Defining columns for the DataTable (including actions for reorder and order summary)
   const finalColumns = [
     {
       name: 'Repeat Order',
@@ -104,14 +121,13 @@ const TrackerOrder = ({ redirectTo, history }) => {
         customBodyRenderLite: (dataIndex) => (
           <div className="orderSummaryIconDiv">
             <IconButton onClick={(e) => onReOrder(rows[dataIndex])}>
-              {/* <RepeatIcon color="primary" /> */}
               <img src={orderReorderPng} alt="Re-order" />
             </IconButton>
           </div>
         ),
       },
     },
-    ...getTrackerOrderColumns(timeZone, dateFormat, timeFormat),
+    ...getTrackerOrderColumns(timeZone, dateFormat, timeFormat), // Adding the dynamic tracker order columns
     {
       name: 'Order Summary',
       options: {
@@ -127,7 +143,6 @@ const TrackerOrder = ({ redirectTo, history }) => {
                 setShowOrderSummary(true);
               }}
             >
-              {/* <SummarizeIcon color="primary" /> */}
               <img src={orderSummaryPng} alt="Summary" />
             </IconButton>
           </div>
@@ -138,16 +153,18 @@ const TrackerOrder = ({ redirectTo, history }) => {
 
   return (
     <div>
+      {/* DataTableWrapper to display tracker orders */}
       <DataTableWrapper
         noSpace
-        loading={isLoadingTrackerOrder || isLoadingUnits}
-        rows={trackerOrderData || []}
-        columns={finalColumns}
+        loading={isLoadingTrackerOrder || isLoadingUnits} // Loading indicator while fetching data
+        rows={trackerOrderData || []} // Displaying the tracker order data
+        columns={finalColumns} // Columns with order actions
         filename="TrackerOrders"
-        addButtonHeading="New Order"
-        onAddButtonClick={onAddButtonClick}
-        tableHeight="300px"
+        addButtonHeading="New Order" // Heading for add button
+        onAddButtonClick={onAddButtonClick} // Action when add button is clicked
+        tableHeight="300px" // Table height for better visibility
         customIconButtonRight={(
+          // Cart icon with badge showing the number of items in the cart
           <IconButton onClick={onCartClick}>
             <Badge color="error" showZero badgeContent={_.size(cartData)} className={_.size(cartData) > 0 ? 'orderCartBadge' : 'orderCartBadge orderCartGrey'}>
               <ShoppingCartIcon fontSize="large" color="primary" />
@@ -155,10 +172,12 @@ const TrackerOrder = ({ redirectTo, history }) => {
           </IconButton>
         )}
       >
+        {/* Route to AddTrackerOrder and ShowCart pages */}
         <Route path={`${routes.TRACKERORDER}/add`} component={AddTrackerOrder} />
         <Route path={`${routes.TRACKERORDER}/cart`} component={ShowCart} />
       </DataTableWrapper>
 
+      {/* Dialog for showing order summary */}
       <Dialog
         open={showOrderSummary}
         onClose={onCloseOrderSummary}
@@ -172,6 +191,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
               <Typography className="trackerOrderBold trackerOrderPrimaryColor">ORDER SUMMARY</Typography>
             </Grid>
 
+            {/* Displaying order details such as date, order number, quantity, type, recipient, etc. */}
             <Grid item xs={12} md={6}>
               <Typography className="trackerOrderBold">
                 {'Date: '}
@@ -186,6 +206,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
               </Typography>
             </Grid>
 
+            {/* Loop through the order types and quantities */}
             {selectedOrder && _.map(selectedOrder.order_type, (sot, index) => (
               <Grid item xs={12} mt={1} key={`${index}-${sot}`}>
                 <Typography className="trackerOrderBold">
@@ -201,6 +222,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
               </Grid>
             ))}
 
+            {/* Recipient and address details */}
             <Grid item xs={12} mt={2}>
               <Typography className="trackerOrderBold">
                 Recipient:
@@ -227,6 +249,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
           </Grid>
         </DialogContent>
 
+        {/* Dialog actions (Close button) */}
         <DialogActions>
           <Grid container mb={2}>
             <Grid item xs={12} textAlign="center">
@@ -235,7 +258,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
                 variant="contained"
                 color="primary"
                 size="medium"
-                onClick={onCloseOrderSummary}
+                onClick={onCloseOrderSummary} // Close the order summary dialog
               >
                 Close
               </Button>
