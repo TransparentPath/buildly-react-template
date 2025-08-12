@@ -282,12 +282,12 @@ const CreateShipment = ({ history, location }) => {
   const gateway = useInput('');
   const transmissionInterval = useInput(
     (!_.isEmpty(editData) && editData.transmission_time)
-    || (organization && organization.default_transmission_interval)
+    || (organization && organization.default_transit_transmission_interval)
     || 20,
   );
   const measurementInterval = useInput(
     (!_.isEmpty(editData) && editData.measurement_time)
-    || (organization && organization.default_measurement_interval)
+    || (organization && organization.default_transit_measurement_interval)
     || 20,
   );
 

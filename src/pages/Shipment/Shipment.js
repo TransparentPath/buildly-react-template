@@ -94,6 +94,8 @@ const Shipment = ({ history }) => {
     { refetchOnWindowFocus: false },
   );
 
+  console.log(shipmentData);
+
   isShipmentDataAvailable = !_.isEmpty(shipmentData) && !isLoadingShipments;
 
   // Fetch custodian data
