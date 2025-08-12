@@ -74,22 +74,26 @@ const AccountSettings = ({ open, setOpen }) => {
 
   // Function to check if the form submission should be disabled
   const submitDisabled = () => {
-    if (
-      (_.isEqual(geoOptions.email, user.geo_alert_preferences.email)
-        && _.isEqual(geoOptions.sms, user.geo_alert_preferences.sms)
-        && _.isEqual(geoOptions.whatsApp, user.geo_alert_preferences.whatsApp)
-        && _.isEqual(envOptions.email, user.env_alert_preferences.email)
-        && _.isEqual(envOptions.sms, user.env_alert_preferences.sms)
-        && _.isEqual(envOptions.whatsApp, user.env_alert_preferences.whatsApp)
-        && !timezone.hasChanged()
-        && whatsappNumber === user.whatsApp_number)
-      || (geoOptions.whatsApp && !whatsappNumber)
-      || (envOptions.whatsApp && !whatsappNumber)
-      || whatsappNumber.length < 11
-    ) {
-      return true; // Disable submission
+    let isSame = (_.isEqual(geoOptions.email, user.geo_alert_preferences.email)
+      && _.isEqual(envOptions.email, user.env_alert_preferences.email)
+      && _.isEqual(geoOptions.sms, user.geo_alert_preferences.sms)
+      && _.isEqual(envOptions.sms, user.env_alert_preferences.sms)
+      && _.isEqual(geoOptions.whatsApp, user.geo_alert_preferences.whatsApp)
+      && _.isEqual(envOptions.whatsApp, user.env_alert_preferences.whatsApp)
+      && !timezone.hasChanged());
+
+    // Check if whatsapp number is required or not
+    if (geoOptions.whatsApp || envOptions.whatsApp) {
+      isSame = isSame && _.isEqual(whatsappNumber, user.whatsApp_number);
+      if (!whatsappNumber) {
+        isSame = isSame && true; // Disable submission if WhatsApp number is required but not provided
+      }
+      if (_.size(whatsappNumber) < 11) {
+        isSame = isSame && true; // Disable submission if WhatsApp number is less than 11 digits
+      }
     }
-    return false; // Enable submission
+
+    return isSame;
   };
 
   // Function to handle form submission and update user information
