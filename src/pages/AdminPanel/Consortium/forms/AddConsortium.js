@@ -7,7 +7,7 @@ import {
   Chip,
 } from '@mui/material';
 import { Autocomplete } from '@mui/material';
-
+import { useTranslation } from 'react-i18next';
 import Loader from '@components/Loader/Loader'; // Loader component to show while submitting form
 import FormModal from '@components/Modal/FormModal'; // Custom modal component for the form
 import { useInput } from '@hooks/useInput'; // Custom hook for managing input fields
@@ -19,6 +19,8 @@ import useAlert from '@hooks/useAlert'; // Custom hook to display alert messages
 import '../../AdminPanelStyles.css'; // Styles for the admin panel form
 
 const AddConsortium = ({ history, location }) => {
+  const { t } = useTranslation();
+
   // Controls visibility of the form modal
   const [openFormModal, setFormModal] = useState(true);
   // Controls visibility of confirmation modal when closing form with unsaved changes
@@ -42,8 +44,8 @@ const AddConsortium = ({ history, location }) => {
   const [orgs, setOrgs] = useState((editData && editData.organization_uuids) || []);
   const [formError, setFormError] = useState({}); // Object to track validation errors
 
-  const buttonText = editPage ? 'Save' : 'Add Consortium'; // Submit button label
-  const formTitle = editPage ? 'Edit Consortium' : 'Add Consortium'; // Modal title
+  const buttonText = editPage ? t('addConsortium.save') : t('addConsortium.addConsortium'); // Submit button label
+  const formTitle = editPage ? t('addConsortium.editConsortium') : t('addConsortium.addConsortium'); // Modal title
 
   // Close the form modal and prompt confirmation if there are unsaved changes
   const closeFormModal = () => {
@@ -177,7 +179,7 @@ const AddConsortium = ({ history, location }) => {
                   fullWidth
                   required
                   id="name"
-                  label="Consortium Name"
+                  label={t('addConsortium.consortiumName')}
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
@@ -215,8 +217,8 @@ const AddConsortium = ({ history, location }) => {
                     <TextField
                       {...params}
                       variant="outlined"
-                      label="Custodian Organizations"
-                      placeholder="Attach"
+                      label={t('addConsortium.custodianOrganizations')}
+                      placeholder={t('addConsortium.attach')}
                       margin="normal"
                     />
                   )}
@@ -246,7 +248,7 @@ const AddConsortium = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('addConsortium.cancel')}
                   </Button>
                 </Grid>
               </Grid>

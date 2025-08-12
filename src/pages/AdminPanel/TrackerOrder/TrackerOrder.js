@@ -19,6 +19,7 @@ import {
   ShoppingCart as ShoppingCartIcon,
   Summarize as SummarizeIcon,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import orderReorderPng from '@assets/order_reorder.png';
 import orderSummaryPng from '@assets/order_summary.png';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
@@ -35,6 +36,8 @@ import AddTrackerOrder from './forms/AddTrackerOrder';
 import ShowCart from './components/ShowCart';
 
 const TrackerOrder = ({ redirectTo, history }) => {
+  const { t } = useTranslation();
+
   // Fetching user data (organization_uuid and name) from context
   const { organization_uuid, name } = getUser().organization;
 
@@ -112,7 +115,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
   // Defining columns for the DataTable (including actions for reorder and order summary)
   const finalColumns = [
     {
-      name: 'Repeat Order',
+      name: t('trackerOrder.repeatOrder'),
       options: {
         filter: false,
         sort: false,
@@ -121,15 +124,15 @@ const TrackerOrder = ({ redirectTo, history }) => {
         customBodyRenderLite: (dataIndex) => (
           <div className="orderSummaryIconDiv">
             <IconButton onClick={(e) => onReOrder(rows[dataIndex])}>
-              <img src={orderReorderPng} alt="Re-order" />
+              <img src={orderReorderPng} alt={t('trackerOrder.reorderAlt')} />
             </IconButton>
           </div>
         ),
       },
     },
-    ...getTrackerOrderColumns(timeZone, dateFormat, timeFormat), // Adding the dynamic tracker order columns
+    ...getTrackerOrderColumns(timeZone, dateFormat, timeFormat, t), // Adding the dynamic tracker order columns
     {
-      name: 'Order Summary',
+      name: t('trackerOrder.orderSummaryCol'),
       options: {
         filter: false,
         sort: false,
@@ -160,7 +163,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
         rows={trackerOrderData || []} // Displaying the tracker order data
         columns={finalColumns} // Columns with order actions
         filename="TrackerOrders"
-        addButtonHeading="New Order" // Heading for add button
+        addButtonHeading={t('trackerOrder.newOrder')} // Heading for add button
         onAddButtonClick={onAddButtonClick} // Action when add button is clicked
         tableHeight="300px" // Table height for better visibility
         customIconButtonRight={(
@@ -188,20 +191,22 @@ const TrackerOrder = ({ redirectTo, history }) => {
         <DialogContent className="orderSummaryDialogContent">
           <Grid container className="orderSummaryContent">
             <Grid item xs={12} mb={2} textAlign="center">
-              <Typography className="trackerOrderBold trackerOrderPrimaryColor">ORDER SUMMARY</Typography>
+              <Typography className="trackerOrderBold trackerOrderPrimaryColor">{t('trackerOrder.orderSummary')}</Typography>
             </Grid>
 
             {/* Displaying order details such as date, order number, quantity, type, recipient, etc. */}
             <Grid item xs={12} md={6}>
               <Typography className="trackerOrderBold">
-                {'Date: '}
+                {t('trackerOrder.date')}
+                {' '}
                 <span className="trackerOrderNormalFont">{selectedOrder && moment(selectedOrder.order_date).tz(timeZone).format(`${dateFormat} ${timeFormat}`)}</span>
               </Typography>
             </Grid>
 
             <Grid item xs={12} md={6} className="orderSummaryOrderNumber">
               <Typography className="trackerOrderBold">
-                {'Order Number: '}
+                {t('trackerOrder.orderNumber')}
+                {' '}
                 <span className="trackerOrderNormalFont">{selectedOrder && selectedOrder.order_number}</span>
               </Typography>
             </Grid>
@@ -210,14 +215,15 @@ const TrackerOrder = ({ redirectTo, history }) => {
             {selectedOrder && _.map(selectedOrder.order_type, (sot, index) => (
               <Grid item xs={12} mt={1} key={`${index}-${sot}`}>
                 <Typography className="trackerOrderBold">
-                  {'Number of Devices: '}
+                  {t('trackerOrder.numberOfDevices')}
+                  {' '}
                   <span className="trackerOrderNormalFont">{selectedOrder && selectedOrder.order_quantity[index]}</span>
                 </Typography>
 
                 <Typography className="trackerOrderBold">
-                  Type:
-                  {'  '}
-                  <span className="trackerOrderNormalFont notranslate">{sot}</span>
+                  {t('trackerOrder.type')}
+                  {' '}
+                  <span className="trackerOrderNormalFont">{sot}</span>
                 </Typography>
               </Grid>
             ))}
@@ -225,25 +231,25 @@ const TrackerOrder = ({ redirectTo, history }) => {
             {/* Recipient and address details */}
             <Grid item xs={12} mt={2}>
               <Typography className="trackerOrderBold">
-                Recipient:
-                {'  '}
-                <span className="trackerOrderNormalFont notranslate">{selectedOrder && selectedOrder.order_recipient}</span>
+                {t('trackerOrder.recipient')}
+                {' '}
+                <span className="trackerOrderNormalFont">{selectedOrder && selectedOrder.order_recipient}</span>
               </Typography>
             </Grid>
 
             <Grid item xs={12}>
               <Typography className="trackerOrderBold">
-                Customer:
-                {'  '}
-                <span className="trackerOrderNormalFont notranslate">{name}</span>
+                {t('trackerOrder.customer')}
+                {' '}
+                <span className="trackerOrderNormalFont">{name}</span>
               </Typography>
             </Grid>
 
             <Grid item xs={12} md={6} mt={2}>
               <Typography className="trackerOrderBold">
-                Recipient Address:
-                {'  '}
-                <span className="trackerOrderNormalFont notranslate">{selectedOrder && selectedOrder.order_address}</span>
+                {t('trackerOrder.recipientAddress')}
+                {' '}
+                <span className="trackerOrderNormalFont">{selectedOrder && selectedOrder.order_address}</span>
               </Typography>
             </Grid>
           </Grid>
@@ -260,7 +266,7 @@ const TrackerOrder = ({ redirectTo, history }) => {
                 size="medium"
                 onClick={onCloseOrderSummary} // Close the order summary dialog
               >
-                Close
+                {t('common.close')}
               </Button>
             </Grid>
           </Grid>

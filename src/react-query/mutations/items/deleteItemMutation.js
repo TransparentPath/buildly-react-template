@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to delete an item using React Query mutation.
@@ -43,7 +44,7 @@ export const useDeleteItemMutation = (organization, displayAlert, section) => {
         await queryClient.invalidateQueries({
           queryKey: ['items', organization],
         });
-        displayAlert('success', 'Item deleted successfully!');
+        displayAlert('success', i18n.t('api.successMessages.Item deleted successfully!'));
       },
       /**
        * Callback triggered if an error occurs during the deletion.

@@ -13,8 +13,11 @@ import { routes } from '@routes/routesConstants';
 import { getColumns } from '@utils/constants';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import AddProductType from '../forms/AddProductType';
+import { useTranslation } from 'react-i18next';
 
 const ProductType = ({ redirectTo, history }) => {
+  const { t } = useTranslation();
+
   // Get the current user's organization ID
   const organization = getUser().organization.organization_uuid;
 
@@ -100,16 +103,17 @@ const ProductType = ({ redirectTo, history }) => {
         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
           : '',
+        t,
       )}
-      filename="ProductType" // Filename to use when exporting data
-      addButtonHeading="Product Type" // Label on the "Add" button
+      filename={t('productType.filename')} // Filename to use when exporting data
+      addButtonHeading={t('productType.productType')} // Label on the "Add" button
       onAddButtonClick={onAddButtonClick} // Add button click handler
       editAction={editType} // Edit action callback
       deleteAction={deleteType} // Delete action callback
       openDeleteModal={openDeleteModal} // Whether delete modal is open
       setDeleteModal={setDeleteModal} // Function to toggle delete modal
       handleDeleteModal={handleDeleteModal} // Confirm delete action
-      deleteModalTitle="Are you sure you want to Delete this Product Type?" // Delete modal confirmation text
+      deleteModalTitle={t('productType.deleteModalTitle')} // Delete modal confirmation text
       tableHeight="300px" // Table height styling
     >
       {/* Route to render the AddProductType form in add mode */}

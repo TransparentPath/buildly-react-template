@@ -25,6 +25,7 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import usePlacesService from 'react-google-autocomplete/lib/usePlacesAutocompleteService';
 import Geocode from 'react-geocode';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddShipper Component
@@ -37,6 +38,7 @@ const AddShipper = ({
   orgData, // Array of organization data
   custodianTypesData, // Array of custodian types data
 }) => {
+  const { t } = useTranslation();
   const { displayAlert } = useAlert(); // Hook to display alerts
   const { data } = useStore(); // Zustand store for timezone data
   const organization = getUser().organization.organization_uuid; // Fetch the current user's organization UUID
@@ -274,7 +276,7 @@ const AddShipper = ({
       <FormModal
         open={open}
         handleClose={closeFormModal}
-        title="Add Shipper"
+        title={t('addShipper.addShipper')}
         openConfirmModal={openConfirmModal}
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
@@ -284,13 +286,12 @@ const AddShipper = ({
           <Grid container spacing={isDesktop() ? 2 : 0}>
             <Grid className="gatewayInputWithTooltip" item xs={12} md={6}>
               <TextField
-                className="notranslate"
                 variant="outlined"
                 margin="normal"
                 required
                 fullWidth
                 id="company"
-                label={<span className="translate">Company Name</span>}
+                label={t('addShipper.companyName')}
                 name="company"
                 autoComplete="company"
                 error={formError.company && formError.company.error}
@@ -315,7 +316,7 @@ const AddShipper = ({
                 margin="normal"
                 fullWidth
                 id="abbrevation"
-                label="Abbrevation"
+                label={t('addShipper.abbreviation')}
                 name="abbrevation"
                 autoComplete="abbrevation"
                 inputProps={{
@@ -335,7 +336,7 @@ const AddShipper = ({
                 fullWidth
                 id="custodianType"
                 disabled
-                label="Custodian Type"
+                label={t('addShipper.custodianType')}
                 value="Shipper"
               />
             </Grid>
@@ -346,7 +347,7 @@ const AddShipper = ({
                 disabled
                 fullWidth
                 id="glnNumber"
-                label="GLN Number"
+                label={t('addShipper.glnNumber')}
                 name="glnNumber"
                 autoComplete="glnNumber"
                 {...glnNumber.bind}
@@ -356,18 +357,17 @@ const AddShipper = ({
           <Card variant="outlined" className="gatewayAddressContainer">
             <CardContent>
               <Typography variant="h6" gutterBottom mt={1} mb={isMobile() ? 0 : 1.65}>
-                Contact Info
+                {t('addShipper.contactInfo')}
               </Typography>
               <Grid container spacing={isDesktop() ? 2 : 0}>
                 <Grid className="gatewayInputWithTooltip" item xs={12} md={6}>
                   <TextField
-                    className="notranslate"
                     variant="outlined"
                     margin="normal"
                     required
                     fullWidth
                     id="first_name"
-                    label={<span className="translate">First Name</span>}
+                    label={t('addShipper.firstName')}
                     name="first_name"
                     autoComplete="first_name"
                     error={formError.first_name && formError.first_name.error}
@@ -378,13 +378,12 @@ const AddShipper = ({
                 </Grid>
                 <Grid className="gatewayInputWithTooltip" item xs={12} md={6}>
                   <TextField
-                    className="notranslate"
                     variant="outlined"
                     margin="normal"
                     required
                     fullWidth
                     id="last_name"
-                    label={<span className="translate">Last Name</span>}
+                    label={t('addShipper.lastName')}
                     name="last_name"
                     autoComplete="last_name"
                     error={formError.last_name && formError.last_name.error}
@@ -401,7 +400,7 @@ const AddShipper = ({
                     margin="normal"
                     fullWidth
                     id="email"
-                    label="Email"
+                    label={t('addShipper.email')}
                     name="email"
                     autoComplete="email"
                     error={formError.email && formError.email.error}
@@ -413,12 +412,12 @@ const AddShipper = ({
               </Grid>
               <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                 <Grid className="gatewayInputWithTooltip gatewayRow" item xs={12}>
-                  <Typography className="gatewayPhoneLabel">Phone Number</Typography>
+                  <Typography className="gatewayPhoneLabel">{t('addShipper.phoneNumber')}</Typography>
                   <PhoneInput
                     value={number}
                     onChange={(value) => setNumber(value)}
-                    placeholder="Phone Number"
-                    specialLabel="Phone"
+                    placeholder={t('addShipper.phoneNumber')}
+                    specialLabel={t('addShipper.phone')}
                     inputClass={numberFocus ? 'gatewayPhoneInputFocused' : 'gatewayPhoneInput'}
                     containerClass={numberFocus ? 'gatewayPhoneInputContainerFocused' : 'gatewayPhoneInputContainer'}
                     buttonClass="gatewayFlagDropdown"
@@ -436,7 +435,7 @@ const AddShipper = ({
                     required
                     fullWidth
                     id="address_1"
-                    label="Address Line 1"
+                    label={t('addShipper.addressLine1')}
                     name="address_1"
                     autoComplete="address_1"
                     value={address1}
@@ -451,7 +450,7 @@ const AddShipper = ({
                 <div className={!_.isEmpty(placePredictions) ? 'gatewayAddressPredictions' : ''}>
                   {placePredictions && _.map(placePredictions, (value, index) => (
                     <MenuItem
-                      className="gatewayAddressPredictionsItem notranslate"
+                      className="gatewayAddressPredictionsItem"
                       key={`gatewayState${index}${value}`}
                       value={value.description}
                       onClick={() => {
@@ -471,7 +470,7 @@ const AddShipper = ({
                     margin="normal"
                     fullWidth
                     id="address_2"
-                    label="Address Line 2"
+                    label={t('addShipper.addressLine2')}
                     name="address_2"
                     autoComplete="address_2"
                     {...address_2.bind}
@@ -485,7 +484,7 @@ const AddShipper = ({
                     margin="normal"
                     fullWidth
                     id="city"
-                    label="City"
+                    label={t('addShipper.city')}
                     name="city"
                     autoComplete="city"
                     disabled
@@ -498,7 +497,7 @@ const AddShipper = ({
                     margin="normal"
                     fullWidth
                     id="state"
-                    label="State/Province"
+                    label={t('addShipper.state')}
                     name="state"
                     autoComplete="state"
                     disabled
@@ -513,7 +512,7 @@ const AddShipper = ({
                     margin="normal"
                     fullWidth
                     id="country"
-                    label="Country"
+                    label={t('addShipper.country')}
                     name="country"
                     autoComplete="country"
                     disabled
@@ -526,7 +525,7 @@ const AddShipper = ({
                     margin="normal"
                     fullWidth
                     id="zip"
-                    label="ZIP/Postal Code"
+                    label={t('addShipper.zip')}
                     name="zip"
                     autoComplete="zip"
                     disabled
@@ -546,7 +545,7 @@ const AddShipper = ({
                 className="gatewaySubmit"
                 disabled={isAddingShipper || submitDisabled()}
               >
-                Add Shipper
+                {t('addShipper.addShipper')}
               </Button>
             </Grid>
             <Grid item xs={12} sm={4} className="gatewaySubmit2">
@@ -558,7 +557,7 @@ const AddShipper = ({
                 onClick={discardFormData}
                 className="gatewaySubmit"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </Grid>
           </Grid>

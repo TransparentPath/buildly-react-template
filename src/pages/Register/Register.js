@@ -23,6 +23,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import logo from '@assets/tp-logo.png';
 import Copyright from '@components/Copyright/Copyright';
 import Loader from '@components/Loader/Loader';
@@ -46,6 +47,8 @@ import 'react-phone-input-2/lib/style.css';
  * @returns {JSX.Element} The rendered component
  */
 const Register = ({ history }) => {
+  const { t } = useTranslation();
+
   // Alert display hook for notifications
   const { displayAlert } = useAlert();
 
@@ -250,39 +253,21 @@ const Register = ({ history }) => {
   };
 
   return (
-    <Container
-      component="main"
-      maxWidth="sm"
-      className="registerContainer"
-    >
+    <Container component="main" maxWidth="sm" className="registerContainer">
       {/* Loading indicator */}
       {(isLoadingInviteTokenCheck || isRegister) && (
         <Loader open={isLoadingInviteTokenCheck || isRegister} />
       )}
-
       <CssBaseline />
-
       {/* Main registration card */}
       <Card variant="outlined">
         <CardContent>
           <div className="registerPaper">
             {/* Company logo */}
-            <img
-              src={logo}
-              className="registerLogo"
-              alt="Company logo"
-            />
-
-            <Typography component="h1" variant="h5">
-              Register
-            </Typography>
-
+            <img src={logo} className="registerLogo" alt={t('register.companyLogoAlt')} />
+            <Typography component="h1" variant="h5">{t('register.title')}</Typography>
             {/* Registration form */}
-            <form
-              className="registerForm"
-              noValidate
-              onSubmit={handleSubmit}
-            >
+            <form className="registerForm" noValidate onSubmit={handleSubmit}>
               {/* Name fields */}
               <Grid container spacing={isTablet() ? 0 : 3}>
                 <Grid item xs={12} md={6}>
@@ -292,12 +277,12 @@ const Register = ({ history }) => {
                     required
                     fullWidth
                     id="first_name"
-                    label={<span className="translate">First Name</span>}
+                    label={t('register.firstName')}
                     name="first_name"
                     autoComplete="first_name"
                     error={formError.first_name && formError.first_name.error}
                     helperText={formError.first_name ? formError.first_name.message : ''}
-                    className="notranslate registerTextField"
+                    className="registerTextField"
                     onBlur={(e) => handleBlur(e, 'required', first_name)}
                     {...first_name.bind}
                   />
@@ -308,18 +293,17 @@ const Register = ({ history }) => {
                     margin="normal"
                     fullWidth
                     id="last_name"
-                    label={<span className="translate">Last Name</span>}
+                    label={t('register.lastName')}
                     name="last_name"
                     autoComplete="last_name"
                     error={formError.last_name && formError.last_name.error}
                     helperText={formError.last_name ? formError.last_name.message : ''}
-                    className="notranslate registerTextField"
+                    className="registerTextField"
                     onBlur={(e) => handleBlur(e)}
                     {...last_name.bind}
                   />
                 </Grid>
               </Grid>
-
               {/* Email field (disabled, pre-filled from invitation) */}
               <Grid container spacing={isTablet() ? 0 : 3}>
                 <Grid item xs={12}>
@@ -327,7 +311,7 @@ const Register = ({ history }) => {
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label="Email"
+                    label={t('register.email')}
                     type="email"
                     className="registerTextField"
                     disabled
@@ -335,7 +319,6 @@ const Register = ({ history }) => {
                   />
                 </Grid>
               </Grid>
-
               {/* Password fields */}
               <Grid container spacing={isTablet() ? 0 : 3}>
                 <Grid item xs={12} md={6}>
@@ -345,7 +328,7 @@ const Register = ({ history }) => {
                     required
                     fullWidth
                     name="password"
-                    label="Password"
+                    label={t('register.password')}
                     type={showPassword ? 'text' : 'password'}
                     id="password"
                     autoComplete="current-password"
@@ -376,7 +359,7 @@ const Register = ({ history }) => {
                     required
                     fullWidth
                     id="re_password"
-                    label="Confirm Password"
+                    label={t('register.confirmPassword')}
                     name="re_password"
                     type={showConfirmPassword ? 'text' : 'password'}
                     autoComplete="re_password"
@@ -400,7 +383,6 @@ const Register = ({ history }) => {
                   />
                 </Grid>
               </Grid>
-
               {/* Password validation indicators */}
               <Typography
                 mt={-3}
@@ -408,7 +390,7 @@ const Register = ({ history }) => {
               >
                 {validations.length ? '✓' : '✗'}
                 {' '}
-                10-alphanumeric character length
+                {t('register.passwordValidation.length')}
               </Typography>
               <Typography
                 className={
@@ -419,14 +401,14 @@ const Register = ({ history }) => {
               >
                 {validations.upperCase && validations.lowerCase ? '✓' : '✗'}
                 {' '}
-                Uppercase and lowercase letters
+                {t('register.passwordValidation.case')}
               </Typography>
               <Typography
                 className={validations.digit ? 'registerValidText' : 'registerInvalidText'}
               >
                 {validations.digit ? '✓' : '✗'}
                 {' '}
-                At least 1 digit number
+                {t('register.passwordValidation.digit')}
               </Typography>
               <Typography
                 mb={0.75}
@@ -434,9 +416,8 @@ const Register = ({ history }) => {
               >
                 {validations.special ? '✓' : '✗'}
                 {' '}
-                At least 1 special character (!@#$%^&*, etc.)
+                {t('register.passwordValidation.special')}
               </Typography>
-
               {/* Organization name (disabled, pre-filled from invitation) */}
               <Grid container spacing={isTablet() ? 0 : 3}>
                 <Grid item xs={12}>
@@ -444,33 +425,31 @@ const Register = ({ history }) => {
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label={<Typography className="translate">Organization Name</Typography>}
-                    className="registerTextField notranslate"
+                    label={t('register.organizationName')}
+                    className="registerTextField"
                     disabled
                     {...organization_name.bind}
                   />
                 </Grid>
               </Grid>
-
               {/* Shipment status alerts section */}
               <Grid container spacing={isMobile() ? 0 : 3}>
                 <Grid item xs={12}>
                   <Typography variant="body1" fontWeight={700}>
-                    Shipment Status Change Alerts:
+                    {t('register.geoAlerts.title')}
                   </Typography>
                   <Typography variant="caption">
-                    Enabling these alerts will send notifications of departure and arrival activity of your shipments.
+                    {t('register.geoAlerts.description')}
                   </Typography>
                 </Grid>
-
                 {/* Email alerts toggle */}
                 <Grid item xs={6} sm={4} alignSelf="center">
-                  <Typography variant="body1" fontWeight={500}>Email Alerts:</Typography>
+                  <Typography variant="body1" fontWeight={500}>{t('register.emailAlerts')}</Typography>
                 </Grid>
                 <Grid item xs={6} sm={8} alignSelf="center">
                   <FormControlLabel
                     labelPlacement="end"
-                    label={geoOptions.email ? 'ON' : 'OFF'}
+                    label={geoOptions.email ? t('common.on') : t('common.off')}
                     control={(
                       <Switch
                         checked={geoOptions.email}
@@ -480,15 +459,14 @@ const Register = ({ history }) => {
                     )}
                   />
                 </Grid>
-
                 {/* WhatsApp alerts toggle */}
                 <Grid item xs={6} sm={4} alignSelf="center">
-                  <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
+                  <Typography variant="body1" fontWeight={500}>{t('register.whatsappAlerts')}</Typography>
                 </Grid>
                 <Grid item xs={6} sm={8} alignSelf="center">
                   <FormControlLabel
                     labelPlacement="end"
-                    label={geoOptions.whatsApp ? 'ON' : 'OFF'}
+                    label={geoOptions.whatsApp ? t('common.on') : t('common.off')}
                     control={(
                       <Switch
                         checked={geoOptions.whatsApp}
@@ -499,27 +477,22 @@ const Register = ({ history }) => {
                   />
                 </Grid>
               </Grid>
-
               {/* Environmental alerts section */}
               <Grid container spacing={isMobile() ? 0 : 3} mt={3}>
                 <Grid item xs={12}>
                   <Typography variant="body1" fontWeight={700}>
-                    Environmental Alerts:
+                    {t('register.envAlerts.title')}
                   </Typography>
-                  <Typography variant="caption">
-                    Enabling these alerts will send notifications about excursions of your settings for
-                    temperature, humidity, shock, tilt, and light exposure of your shipments.
-                  </Typography>
+                  <Typography variant="caption">{t('register.envAlerts.description')}</Typography>
                 </Grid>
-
                 {/* Email alerts toggle */}
                 <Grid item xs={6} sm={4} alignSelf="center">
-                  <Typography variant="body1" fontWeight={500}>Email Alerts:</Typography>
+                  <Typography variant="body1" fontWeight={500}>{t('register.emailAlerts')}</Typography>
                 </Grid>
                 <Grid item xs={6} sm={8} alignSelf="center">
                   <FormControlLabel
                     labelPlacement="end"
-                    label={envOptions.email ? 'ON' : 'OFF'}
+                    label={envOptions.email ? t('common.on') : t('common.off')}
                     control={(
                       <Switch
                         checked={envOptions.email}
@@ -529,15 +502,14 @@ const Register = ({ history }) => {
                     )}
                   />
                 </Grid>
-
                 {/* WhatsApp alerts toggle */}
                 <Grid item xs={6} sm={4} alignSelf="center">
-                  <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
+                  <Typography variant="body1" fontWeight={500}>{t('register.whatsappAlerts')}</Typography>
                 </Grid>
                 <Grid item xs={6} sm={8} alignSelf="center">
                   <FormControlLabel
                     labelPlacement="end"
-                    label={envOptions.whatsApp ? 'ON' : 'OFF'}
+                    label={envOptions.whatsApp ? t('common.on') : t('common.off')}
                     control={(
                       <Switch
                         checked={envOptions.whatsApp}
@@ -548,14 +520,13 @@ const Register = ({ history }) => {
                   />
                 </Grid>
               </Grid>
-
               {/* WhatsApp number input (shown only when WhatsApp alerts are enabled) */}
               {(geoOptions.whatsApp || envOptions.whatsApp) && (
                 <Grid item xs={12}>
                   <PhoneInput
                     value={whatsappNumber}
                     onChange={(value) => setWhatsappNumber(value)}
-                    placeholder="Send WhatsApp alerts on"
+                    placeholder={t('register.whatsappPlaceholder')}
                     inputClass={whatsappFocus ? 'registerPhoneInputFocused' : 'registerPhoneInput'}
                     containerClass={
                       whatsappFocus
@@ -568,11 +539,10 @@ const Register = ({ history }) => {
                     onBlur={() => setWhatsappFocus(false)}
                   />
                   <Typography variant="caption" className="registerAddText">
-                    Additional charges may apply
+                    {t('register.additionalCharges')}
                   </Typography>
                 </Grid>
               )}
-
               {/* Submit button */}
               <Button
                 type="submit"
@@ -582,18 +552,13 @@ const Register = ({ history }) => {
                 className="registerSubmit"
                 disabled={isLoadingInviteTokenCheck || isRegister || submitDisabled()}
               >
-                Register
+                {t('register.submit')}
               </Button>
-
               {/* Login link */}
               <Grid container>
                 <Grid item>
-                  <Link
-                    to={routes.LOGIN}
-                    variant="body2"
-                    color="primary"
-                  >
-                    Already have an account? Sign in
+                  <Link to={routes.LOGIN} variant="body2" color="primary">
+                    {t('register.alreadyHaveAccount')}
                   </Link>
                 </Grid>
               </Grid>
@@ -601,7 +566,6 @@ const Register = ({ history }) => {
           </div>
         </CardContent>
       </Card>
-
       {/* Copyright notice */}
       <Copyright />
     </Container>

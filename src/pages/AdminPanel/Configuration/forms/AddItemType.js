@@ -11,6 +11,7 @@ import { useAddItemTypeMutation } from '@react-query/mutations/items/addItemType
 import { useEditItemTypeMutation } from '@react-query/mutations/items/editItemTypeMutation';
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddItemType component
@@ -18,6 +19,8 @@ import '../../AdminPanelStyles.css';
  * It uses a modal form with validation and conditional behavior based on the route state.
  */
 const AddItemType = ({ history, location }) => {
+  const { t } = useTranslation();
+
   // Get the organization UUID from the logged-in user's context
   const organization = getUser().organization.organization_uuid;
 
@@ -40,8 +43,8 @@ const AddItemType = ({ history, location }) => {
   const [formError, setFormError] = useState({});
 
   // Set button text and form title dynamically based on mode
-  const buttonText = editPage ? 'Save' : 'Add Item Type';
-  const formTitle = editPage ? 'Edit Item Type' : 'Add Item Type';
+  const buttonText = editPage ? t('addItemType.save') : t('addItemType.addItemType');
+  const formTitle = editPage ? t('addItemType.editItemType') : t('addItemType.addItemType');
 
   /**
    * Handle closing the modal form.
@@ -176,7 +179,7 @@ const AddItemType = ({ history, location }) => {
                   fullWidth
                   required
                   id="name"
-                  label="Item Type"
+                  label={t('addItemType.itemType')}
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
@@ -208,7 +211,7 @@ const AddItemType = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('addItemType.cancel')}
                   </Button>
                 </Grid>
               </Grid>

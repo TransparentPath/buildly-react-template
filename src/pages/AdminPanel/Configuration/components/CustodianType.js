@@ -5,58 +5,63 @@ import { useQuery } from 'react-query';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { getUser } from '@context/User.context';
 import useAlert from '@hooks/useAlert';
-import { getGatewayTypeQuery } from '@react-query/queries/sensorGateways/getGatewayTypeQuery';
+import { getCustodianTypeQuery } from '@react-query/queries/custodians/getCustodianTypeQuery';
 import { getUnitQuery } from '@react-query/queries/items/getUnitQuery';
-import { useDeleteGatewayTypeMutation } from '@react-query/mutations/sensorGateways/deleteGatewayTypeMutation';
+import { useDeleteCustodianTypeMutation } from '@react-query/mutations/custodians/deleteCustodianTypeMutation';
 import { routes } from '@routes/routesConstants';
-import { getTrackerTypeColumns } from '@utils/constants';
+import { getColumns } from '@utils/constants';
 import { useStore } from '@zustand/timezone/timezoneStore';
-import AddGatewayType from '../forms/AddGatewayType';
+import AddCustodianType from '../forms/AddCustodianType';
+import { useTranslation } from 'react-i18next';
 
-const GatewayType = ({ redirectTo, history }) => {
-  // State hooks for managing the modal and ID of the gateway type to delete
+const CustodianType = ({ redirectTo, history }) => {
+  const { t } = useTranslation();
+
+  // Retrieve the current user's organization UUID
+  const organization = getUser().organization.organization_uuid;
+
+  // State for handling the delete confirmation modal and selected custodian type ID
   const [openDeleteModal, setDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  // Getting organization UUID from the user context
-  const organization = getUser().organization.organization_uuid;
-
-  // Custom hook to display alerts
+  // Hook to trigger alerts for errors/success
   const { displayAlert } = useAlert();
 
-  // Using Zustand store for retrieving timezone-related data
+  // Global store to access timezone or other shared values
   const { data } = useStore();
 
-  // Determine the 'add' and 'edit' routes, conditionally using 'redirectTo' or fallback paths
+  // Path for "Add Custodian Type" navigation, customized if redirectTo is provided
   const addPath = redirectTo
-    ? `${redirectTo}/gateway-type`
-    : `${routes.CONFIGURATION}/gateway-type/add`;
+    ? `${redirectTo}/custodian-type`
+    : `${routes.CONFIGURATION}/custodian-type/add`;
 
+  // Path for "Edit Custodian Type" navigation
   const editPath = redirectTo
-    ? `${redirectTo}/gateway-type`
-    : `${routes.CONFIGURATION}/gateway-type/edit`;
+    ? `${redirectTo}/custodian-type`
+    : `${routes.CONFIGURATION}/custodian-type/edit`;
 
-  // Queries for fetching unit data and gateway types, with loading states
+  // Fetch available units for the organization
   const { data: unitData, isLoading: isLoadingUnits } = useQuery(
     ['unit', organization],
     () => getUnitQuery(organization, displayAlert, 'Custodian type'),
-    { refetchOnWindowFocus: false }, // Disable refetch on window focus
+    { refetchOnWindowFocus: false }, // Prevent refetch on window focus for performance
   );
 
-  const { data: gatewayTypesData, isLoading: isLoadingGatewayTypes } = useQuery(
-    ['gatewayTypes'],
-    () => getGatewayTypeQuery(displayAlert, 'Custodian type'),
-    { refetchOnWindowFocus: false }, // Disable refetch on window focus
+  // Fetch all custodian types
+  const { data: custodianTypesData, isLoading: isLoadingCustodianTypes } = useQuery(
+    ['custodianTypes'],
+    () => getCustodianTypeQuery(displayAlert, 'Custodian type'),
+    { refetchOnWindowFocus: false },
   );
 
-  // Handler for the 'Add' button, navigates to the 'add' path
+  // Handler for the "Add" button click
   const onAddButtonClick = () => {
     history.push(`${addPath}`, {
       from: redirectTo || routes.CONFIGURATION,
     });
   };
 
-  // Handler for editing a gateway type, navigates to the 'edit' path with item data
+  // Handler to initiate edit action for a specific custodian type
   const editType = (item) => {
     history.push(`${editPath}/:${item.id}`, {
       type: 'edit',
@@ -65,52 +70,54 @@ const GatewayType = ({ redirectTo, history }) => {
     });
   };
 
-  // Handler for triggering the delete modal with the gateway type ID to be deleted
+  // Handler to trigger delete confirmation modal for a selected custodian type
   const deleteType = (item) => {
     setDeleteId(item.id);
     setDeleteModal(true);
   };
 
-  // Mutation for deleting a gateway type using the custom hook
-  const { mutate: deleteGatewayTypeMutation, isLoading: isDeletingGatewayType } = useDeleteGatewayTypeMutation(displayAlert, 'Custodian type');
+  // Mutation hook to delete a custodian type
+  const { mutate: deleteCustodianTypeMutation, isLoading: isDeletingCustodianType } = useDeleteCustodianTypeMutation(displayAlert, 'Custodian type');
 
-  // Handler for confirming the deletion in the modal
+  // Finalize deletion of custodian type and close the modal
   const handleDeleteModal = () => {
-    deleteGatewayTypeMutation(deleteId); // Perform the deletion mutation
-    setDeleteModal(false); // Close the modal after deletion
+    deleteCustodianTypeMutation(deleteId); // Executes delete mutation
+    setDeleteModal(false); // Closes modal
   };
 
   return (
     <DataTableWrapper
-      // Main DataTable wrapper for displaying gateway types with configuration
-      noSpace // Disables space between elements
-      loading={isLoadingUnits || isLoadingGatewayTypes || isDeletingGatewayType} // Shows loading indicator based on queries/mutations
-      rows={gatewayTypesData || []} // Data for the table rows, defaults to an empty array if no data
-      columns={getTrackerTypeColumns(
+      noSpace
+      loading={isLoadingUnits || isLoadingCustodianTypes || isDeletingCustodianType} // Show loader if any async operation is in progress
+      rows={custodianTypesData || []} // Rows to display in the table
+      columns={getColumns(
         data,
+        // Fetch the unit of measure for 'date' if available
         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
-          : '', // Fetch unit of measure for 'date' if exists
+          : '',
+        // Fetch the unit of measure for 'time' if available
         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
-          : '', // Fetch unit of measure for 'time' if exists
+          : '',
+        t,
       )}
-      filename="TrackerType" // Filename for exporting the data table
-      addButtonHeading="Tracker Type" // Label for the 'Add' button
-      onAddButtonClick={onAddButtonClick} // Handler for 'Add' button click
-      editAction={editType} // Handler for editing action on a row
-      deleteAction={deleteType} // Handler for delete action on a row
-      openDeleteModal={openDeleteModal} // State to determine if the delete modal is open
-      setDeleteModal={setDeleteModal} // Function to close/delete modal
-      handleDeleteModal={handleDeleteModal} // Function to execute deletion on modal confirm
-      deleteModalTitle="Are you sure you want to Delete this Tracker Type?" // Title of the confirmation modal
-      tableHeight="300px" // Table height
+      filename={t('custodianType.filename')} // Filename for export (e.g. CSV)
+      addButtonHeading={t('custodianType.custodianType')} // Text on the "Add" button
+      onAddButtonClick={onAddButtonClick} // Handler when "Add" button is clicked
+      editAction={editType} // Handler for row edit action
+      deleteAction={deleteType} // Handler for row delete action
+      openDeleteModal={openDeleteModal} // Delete modal open state
+      setDeleteModal={setDeleteModal} // Setter for modal visibility
+      handleDeleteModal={handleDeleteModal} // Handler when delete is confirmed
+      deleteModalTitle={t('custodianType.deleteModalTitle')} // Modal message
+      tableHeight="300px" // Table max height
     >
-      {/* Routes for the Add and Edit forms */}
-      <Route path={`${addPath}`} component={AddGatewayType} />
-      <Route path={`${editPath}/:id`} component={AddGatewayType} />
+      {/* Route to render AddCustodianType form for add or edit */}
+      <Route path={`${addPath}`} component={AddCustodianType} />
+      <Route path={`${editPath}/:id`} component={AddCustodianType} />
     </DataTableWrapper>
   );
 };
 
-export default GatewayType;
+export default CustodianType;

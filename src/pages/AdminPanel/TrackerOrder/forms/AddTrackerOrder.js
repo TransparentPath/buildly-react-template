@@ -253,7 +253,7 @@ const AddTrackerOrder = ({ history, location }) => {
               <Grid item xs={12} md={5.8} className="addOrderContainer">
                 <Grid container>
                   <Grid item xs={12} padding={2}>
-                    <Typography className="trackerOrderBold">TRACKER</Typography>
+                    <Typography className="trackerOrderBold">{t('trackerOrder.tracker')}</Typography>
                   </Grid>
 
                   {/* Existing Tracker Selections */}
@@ -262,12 +262,11 @@ const AddTrackerOrder = ({ history, location }) => {
                       <Grid item xs={12} className={idx > 0 ? 'addOrderTypeContainer' : ''} />
                       <Grid item xs={10} className="addOrderTextFieldWithClose">
                         <TextField
-                          className="notranslate"
                           variant="outlined"
                           fullWidth
                           id={`order-type-${idx}`}
                           select
-                          label={<span className="translate">Tracker Type</span>}
+                          label={t('trackerOrder.trackerType')}
                           value={orty}
                           onChange={(e) => {
                             const newList = _.map(
@@ -277,11 +276,9 @@ const AddTrackerOrder = ({ history, location }) => {
                             order_type.setValue(newList);
                           }}
                         >
-                          <MenuItem value="">
-                            <span className="notranslate">{t('select')}</span>
-                          </MenuItem>
+                          <MenuItem value="">{t('common.select')}</MenuItem>
                           {_.map(ORDER_TYPES, (ot, index) => (
-                            <MenuItem className="notranslate" key={`${ot.value}-${index}`} value={ot.value}>
+                            <MenuItem key={`${ot.value}-${index}`} value={ot.value}>
                               <Typography component="div" className="addOrderTypeWithIcon">
                                 {ot.label}
                                 <span>{_.includes(ot.label, 'Non') ? <FlightSafeIcon /> : <FlightUnsafeIcon />}</span>
@@ -326,7 +323,7 @@ const AddTrackerOrder = ({ history, location }) => {
                           className="addOrderQuantityField"
                           id={`order-quantity-${idx}`}
                           name="order-quantity"
-                          label="Tracker Quantity"
+                          label={t('trackerOrder.trackerQuantity')}
                           autoComplete="order-quantity"
                           select
                           value={order_quantity.value[idx]}
@@ -338,9 +335,7 @@ const AddTrackerOrder = ({ history, location }) => {
                             order_quantity.setValue(newList);
                           }}
                         >
-                          <MenuItem value={0}>
-                            <span className="notranslate">{t('select')}</span>
-                          </MenuItem>
+                          <MenuItem value={0}>{t('common.select')}</MenuItem>
                           {_.map([25, 50, 75, 100], (quant, qidx) => (
                             <MenuItem key={`${qidx}-${quant}`} value={quant}>
                               {quant}
@@ -357,19 +352,16 @@ const AddTrackerOrder = ({ history, location }) => {
                       <Grid item xs={12} className={!_.isEmpty(order_type.value) ? 'addOrderTypeContainer' : ''} />
                       <Grid item xs={!_.isEmpty(order_type.value) ? 10 : 12} className={!_.isEmpty(order_type.value) ? 'addOrderTextFieldWithClose' : 'addOrderTextField'}>
                         <TextField
-                          className="notranslate"
                           variant="outlined"
                           fullWidth
                           id="placeholder-order-type"
                           select
-                          label={<span className="translate">Tracker Type</span>}
+                          label={t('trackerOrder.trackerType')}
                           {...placeholderType.bind}
                         >
-                          <MenuItem value="">
-                            <span className="notranslate">{t('select')}</span>
-                          </MenuItem>
+                          <MenuItem value="">{t('common.select')}</MenuItem>
                           {_.map(_.without(ORDER_TYPES, ..._.filter(ORDER_TYPES, (o) => _.includes(order_type.value, o.value))), (ot, index) => (
-                            <MenuItem className="notranslate" key={`${ot.value}-${index}`} value={ot.value}>
+                            <MenuItem key={`${ot.value}-${index}`} value={ot.value}>
                               <Typography component="div" className="addOrderTypeWithIcon">
                                 {ot.label}
                                 <span>{_.includes(ot.label, 'Non') ? <FlightSafeIcon /> : <FlightUnsafeIcon />}</span>
@@ -410,7 +402,7 @@ const AddTrackerOrder = ({ history, location }) => {
                           className="addOrderQuantityField"
                           id="placeholder-order-quantity"
                           name="placeholder-order-quantity"
-                          label="Tracker Quantity"
+                          label={t('trackerOrder.trackerQuantity')}
                           autoComplete="placeholder-order-quantity"
                           select
                           value={placeholderQuantity.value}
@@ -421,9 +413,7 @@ const AddTrackerOrder = ({ history, location }) => {
                             setShowAddMore(false);
                           }}
                         >
-                          <MenuItem value={0}>
-                            <span className="notranslate">{t('select')}</span>
-                          </MenuItem>
+                          <MenuItem value={0}>{t('common.select')}</MenuItem>
                           {_.map([25, 50, 75, 100], (quant, qidx) => (
                             <MenuItem key={`${qidx}-${quant}`} value={quant}>
                               {quant}
@@ -440,18 +430,17 @@ const AddTrackerOrder = ({ history, location }) => {
               <Grid item xs={12} md={5.8} className="addOrderContainer">
                 <Grid container>
                   <Grid item xs={12} padding={2}>
-                    <Typography className="trackerOrderBold">RECIPIENT</Typography>
+                    <Typography className="trackerOrderBold">{t('trackerOrder.recipientCaps')}</Typography>
                   </Grid>
 
                   <Grid item xs={12} className="addOrderTextField">
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       fullWidth
                       select
                       required
                       id="order-recipient"
-                      label={<span className="translate">Order Recipient</span>}
+                      label={t('trackerOrder.orderRecipient')}
                       value={_.find(recipientAddressData, { name: order_recipient.value, address: order_address.value })}
                       onChange={(e) => {
                         if (e.target.value) {
@@ -468,16 +457,14 @@ const AddTrackerOrder = ({ history, location }) => {
                       }}
                     >
                       {_.map(recipientAddressData, (ra, index) => (
-                        <MenuItem className="notranslate" key={`${ra.name}-${index}`} value={ra}>
-                          {ra.name}
-                        </MenuItem>
+                        <MenuItem key={`${ra.name}-${index}`} value={ra}>{ra.name}</MenuItem>
                       ))}
                       <MenuItem
                         value={null}
                         className="addOrderNewRecipient"
                         onClick={onAddRecipient}
                       >
-                        Add Recipient +
+                        {t('trackerOrder.addRecipient')}
                       </MenuItem>
                     </TextField>
                   </Grid>
@@ -509,7 +496,7 @@ const AddTrackerOrder = ({ history, location }) => {
                       placeholderQuantity.setValue(0);
                     }}
                   >
-                    Add Tracker +
+                    {t('trackerOrder.addTracker')}
                   </Typography>
                 )}
               </Grid>
@@ -524,7 +511,7 @@ const AddTrackerOrder = ({ history, location }) => {
                     color="primary"
                     disabled={isLoadingRecipientAddresses || submitDisabled()}
                   >
-                    Add to cart
+                    {t('trackerOrder.addToCart')}
                   </Button>
                 </Grid>
               </Grid>

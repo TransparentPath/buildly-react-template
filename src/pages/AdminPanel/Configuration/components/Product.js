@@ -12,8 +12,11 @@ import { getUnitQuery } from '@react-query/queries/items/getUnitQuery'; // Fetch
 import { useDeleteProductMutation } from '@react-query/mutations/items/deleteProductMutation'; // Mutation hook for deleting product
 import useAlert from '@hooks/useAlert'; // Custom hook for displaying alerts
 import { useStore } from '@zustand/timezone/timezoneStore'; // Zustand store to get timezone-related or other global data
+import { useTranslation } from 'react-i18next';
 
 const Product = ({ redirectTo, history }) => {
+  const { t } = useTranslation();
+
   // Get current user's organization UUID
   const organization = getUser().organization.organization_uuid;
 
@@ -99,16 +102,17 @@ const Product = ({ redirectTo, history }) => {
         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
           : '',
+        t,
       )}
-      filename="Products" // Export file name
-      addButtonHeading="Product" // Label for add button
+      filename={t('product.filename')} // Export file name
+      addButtonHeading={t('product.product')} // Label for add button
       onAddButtonClick={onAddButtonClick} // Add button action
       editAction={editType} // Edit action callback
       deleteAction={deleteType} // Delete action callback
       openDeleteModal={openDeleteModal} // State to show/hide delete modal
       setDeleteModal={setDeleteModal} // Function to toggle delete modal
       handleDeleteModal={handleDeleteModal} // Confirm delete action
-      deleteModalTitle="Are you sure you want to Delete this Product?" // Modal confirmation message
+      deleteModalTitle={t('product.deleteModalTitle')} // Modal confirmation message
       tableHeight="300px" // Table height
     >
       {/* Route to render AddProduct form for adding */}

@@ -20,9 +20,12 @@ import { isDesktop } from '@utils/mediaQuery';
 import '../../AdminPanelStyles.css';
 import usePlacesService from 'react-google-autocomplete/lib/usePlacesAutocompleteService';
 import Geocode from 'react-geocode';
+import { useTranslation } from 'react-i18next';
 
 // Component for adding or editing recipient addresses
 const AddRecipientAddress = ({ history, location }) => {
+  const { t } = useTranslation();
+
   // Get organization UUID from logged in user
   const { organization_uuid } = getUser().organization;
 
@@ -61,8 +64,8 @@ const AddRecipientAddress = ({ history, location }) => {
   const [formError, setFormError] = useState({});
 
   // Button text and modal title based on mode
-  const buttonText = editPage ? 'Save' : 'Add Recipient Address';
-  const formTitle = editPage ? 'Edit Recipient Address' : 'Add Recipient Address';
+  const buttonText = editPage ? t('addRecipientAddress.save') : t('addRecipientAddress.addRecipientAddress');
+  const formTitle = editPage ? t('addRecipientAddress.editRecipientAddress') : t('addRecipientAddress.addRecipientAddress');
 
   // Handles modal close, prompts confirm modal if data was changed
   const closeFormModal = () => {
@@ -211,7 +214,7 @@ const AddRecipientAddress = ({ history, location }) => {
                   fullWidth
                   required
                   id="recipient-name"
-                  label="Recipient Name"
+                  label={t('addRecipientAddress.recipientName')}
                   {...name.bind}
                   error={formError.name && formError.name.error}
                   helperText={formError.name ? formError.name.message : ''}
@@ -227,7 +230,7 @@ const AddRecipientAddress = ({ history, location }) => {
                   required
                   fullWidth
                   id="address_1"
-                  label="Address Line 1"
+                  label={t('addRecipientAddress.addressLine1')}
                   value={address1}
                   onChange={(e) => {
                     getPlacePredictions({ input: e.target.value });
@@ -246,7 +249,7 @@ const AddRecipientAddress = ({ history, location }) => {
                       handleSelectAddress(value);
                       getPlacePredictions({ input: '' });
                     }}
-                    className="recipientAddressPredictionsItem notranslate"
+                    className="recipientAddressPredictionsItem"
                   >
                     {value.description}
                   </MenuItem>
@@ -260,23 +263,23 @@ const AddRecipientAddress = ({ history, location }) => {
                   margin="normal"
                   fullWidth
                   id="address_2"
-                  label="Address Line 2"
+                  label={t('addRecipientAddress.addressLine2')}
                   {...address_2.bind}
                 />
               </Grid>
 
               {/* Autofilled location fields */}
               <Grid item xs={12} md={6}>
-                <TextField label="City" disabled fullWidth {...city.bind} />
+                <TextField label={t('addRecipientAddress.city')} disabled fullWidth {...city.bind} />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="State/Province" disabled fullWidth {...state.bind} />
+                <TextField label={t('addRecipientAddress.state')} disabled fullWidth {...state.bind} />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="Country" disabled fullWidth {...country.bind} />
+                <TextField label={t('addRecipientAddress.country')} disabled fullWidth {...country.bind} />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="ZIP/Postal Code" disabled fullWidth {...zip.bind} />
+                <TextField label={t('addRecipientAddress.zip')} disabled fullWidth {...zip.bind} />
               </Grid>
 
               {/* Form action buttons */}
@@ -302,7 +305,7 @@ const AddRecipientAddress = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('addRecipientAddress.cancel')}
                   </Button>
                 </Grid>
               </Grid>

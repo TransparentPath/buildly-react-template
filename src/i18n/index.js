@@ -10,20 +10,16 @@ import ja from './locales/ja.json';
 import it from './locales/it.json';
 import ar from './locales/ar.json';
 
-const getGoogleTranslateLanguage = () => {
-  try {
-    const cookie = document.cookie.split('googtrans')[1]?.split(';')[0];
-    return cookie?.split('/')[2] || 'en';
-  } catch {
-    return 'en';
-  }
+const getLanguage = () => {
+  const storedLanguage = localStorage.getItem('language');
+  return storedLanguage || 'en';
 };
 
 i18n
   .use(initReactI18next)
   .init({
     supportedLngs: ['en', 'pt', 'es', 'de', 'fr', 'ja', 'it', 'ar'], // List of supported languages;
-    lng: getGoogleTranslateLanguage(), // sync with Google Translate
+    lng: getLanguage(), // Default language
     interpolation: {
       escapeValue: false,
     },

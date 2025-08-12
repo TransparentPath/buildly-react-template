@@ -36,8 +36,8 @@ const EditMapping = ({ history, location }) => {
   const pageData = location.state && location.state.data;
 
   // UI strings based on whether the user is editing or setting a mapping
-  const buttonText = _.isEqual(pageType, 'edit') ? 'Save' : 'Set Mapping';
-  const formTitle = _.isEqual(pageType, 'edit') ? 'Edit Mapping' : 'Set Mapping';
+  const buttonText = _.isEqual(pageType, 'edit') ? t('editMapping.save') : t('editMapping.setMapping');
+  const formTitle = _.isEqual(pageType, 'edit') ? t('editMapping.editMapping') : t('editMapping.setMapping');
 
   // Controlled input for the selected custodian organization
   const custodyOrg = useInput((pageData && pageData.custody_org_uuid) || '');
@@ -83,7 +83,7 @@ const EditMapping = ({ history, location }) => {
   };
 
   // React Query mutation hook to submit the custodian update
-  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert, 'Mapping');
+  const { mutate: editCustodianMutation, isLoading: isEditingCustodian } = useEditCustodianMutation(organization, history, redirectTo, displayAlert, 'Mapping organizations');
 
   // Form submission handler
   const handleSubmit = (event) => {
@@ -126,7 +126,7 @@ const EditMapping = ({ history, location }) => {
                   fullWidth
                   disabled
                   id="name"
-                  label="Custodian Name"
+                  label={t('editMapping.custodianName')}
                   name="name"
                   value={(pageData && pageData.name) || ''}
                 />
@@ -140,14 +140,12 @@ const EditMapping = ({ history, location }) => {
                   fullWidth
                   select
                   id="custodyOrg"
-                  label="Custodian Organization"
+                  label={t('editMapping.custodianOrganization')}
                   name="custodyOrg"
                   autoComplete="custodyOrg"
                   {...custodyOrg.bind}
                 >
-                  <MenuItem value="">
-                    <span className="notranslate">{t('select')}</span>
-                  </MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {options && options.length > 0 && _.map(options, (option, index) => (
                     <MenuItem key={`org-option-${index}`} value={option.value}>
                       {option.name}
@@ -179,7 +177,7 @@ const EditMapping = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('editMapping.cancel')}
                   </Button>
                 </Grid>
               </Grid>

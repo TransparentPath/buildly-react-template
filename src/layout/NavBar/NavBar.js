@@ -12,12 +12,16 @@ import {
 import { isMobile } from '@utils/mediaQuery'; // Utility function to check if the device is mobile
 import { NAVIGATION_ITEMS } from './NavBarConstants'; // Import navigation items for the menu
 import './NavBarStyles.css'; // Import the styling for the NavBar
+import { useTranslation } from 'react-i18next';
 
 const NavBar = ({ navHidden, setNavHidden, data }) => {
   // Access the Material-UI theme to handle direction (RTL or LTR)
   const theme = useTheme();
   // Check if the current device is mobile using the isMobile utility function
   const isMobileDevice = isMobile();
+
+  const { t } = useTranslation(); // i18n hook
+
   // Placeholder for the isAdmin flag (could be based on user role in a real-world scenario)
   const isAdmin = false;
   // Function to handle the click event for a ListItem (navigation item)
@@ -42,7 +46,7 @@ const NavBar = ({ navHidden, setNavHidden, data }) => {
             <NavLink
               to={item.link} // Link destination
               activeClassName="navbarActive" // Class applied when link is active
-              title={item.name} // Title text for the item
+              title={t(`navbar.${item.id}`)} // Title text for the item
               className="navbarNavLink" // Class for styling the link
             >
               {/* ListItem that represents a clickable item in the nav */}
@@ -55,7 +59,7 @@ const NavBar = ({ navHidden, setNavHidden, data }) => {
                 }}
               >
                 {/* Display the name of the navigation item */}
-                <ListItemText primary={item.name} />
+                <ListItemText primary={t(`navbar.${item.id}`)} />
               </ListItem>
             </NavLink>
             {/* Divider component to separate each nav item */}

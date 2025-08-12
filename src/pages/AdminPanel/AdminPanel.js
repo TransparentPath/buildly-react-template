@@ -7,6 +7,7 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import Forbidden from '@components/Forbidden/Forbidden'; // Component shown when the user doesn't have permission
 import { getUser } from '@context/User.context'; // To fetch the current logged-in user
 import { routes } from '@routes/routesConstants'; // Predefined routes for the app
@@ -23,23 +24,25 @@ import './AdminPanelStyles.css'; // Custom styles for the admin panel
 const AdminPanel = ({
   history, location, organizationData,
 }) => {
+  const { t } = useTranslation(); // Hook initialized
+
   // Check if the current user is an admin or global admin
   const isAdmin = checkForAdmin(getUser()) || checkForGlobalAdmin(getUser());
   const superAdmin = checkForGlobalAdmin(getUser()); // Specifically checks if the user is a super admin
 
   // Define the navigation items (tabs) in the admin panel
   let subNav = [
-    { label: 'Configuration', value: 'configuration' },
+    { label: t('adminPanel.configuration'), value: 'configuration' },
   ];
 
   // If the user is a super admin, show additional tabs
   if (superAdmin) {
     subNav = [
       ...subNav,
-      { label: 'Consortium', value: 'consortium' },
-      { label: 'Trackers', value: 'trackers' },
-      { label: 'Order More Trackers', value: 'orders' },
-      { label: 'Invoices', value: 'invoices' },
+      { label: t('adminPanel.consortium'), value: 'consortium' },
+      { label: t('adminPanel.trackers'), value: 'trackers' },
+      { label: t('adminPanel.orderMoreTrackers'), value: 'orders' },
+      { label: t('adminPanel.invoices'), value: 'invoices' },
     ];
   }
 
@@ -70,7 +73,7 @@ const AdminPanel = ({
           {/* Title of the admin panel */}
           <Box mb={3}>
             <Typography className="adminPanelHeading" variant="h4">
-              Admin Panel
+              {t('adminPanel.title')}
             </Typography>
           </Box>
 

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hook for handling mutations (async actions like POST, PATCH, DELETE)
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for extracting error messages from API responses
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for deleting a recipient address.
@@ -42,7 +43,7 @@ export const useDeleteRecipientAddressMutation = (displayAlert, section) => {
           queryKey: ['recipientAddresses'],
         });
         // Displaying a success message
-        displayAlert('success', 'Recipient address deleted successfully!');
+        displayAlert('success', i18n.t('api.successMessages.Recipient address deleted successfully!'));
       },
       /**
        * onError callback invoked when the mutation fails.

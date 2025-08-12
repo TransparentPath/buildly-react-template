@@ -526,7 +526,7 @@ const OrganizationSettings = () => {
         {/* Alert Settings Section */}
         <Grid container spacing={2} mb={2}>
           <Grid item xs={12}>
-            <Typography variant="subtitle1" fontWeight={700}>Alert Settings:</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>{t('orgSettings.alertSettings')}</Typography>
           </Grid>
           <Grid item xs={6} alignSelf="center">
             <FormControlLabel
@@ -534,7 +534,7 @@ const OrganizationSettings = () => {
               label={(
                 <div className="adminPanelOrgIconContainer">
                   <TemperatureIcon className="adminPanelOrgIcons" />
-                  Temperature Alerts
+                  {t('orgSettings.temperatureAlerts')}
                 </div>
               )}
               control={<Switch checked={supressTempAlerts.value} color="primary" onChange={(e) => supressTempAlerts.setValue(e.target.checked)} />}
@@ -546,7 +546,7 @@ const OrganizationSettings = () => {
               label={(
                 <div className="adminPanelOrgIconContainer">
                   <HumidityIcon className="adminPanelOrgIcons" />
-                  Humidity Alerts
+                  {t('orgSettings.humidityAlerts')}
                 </div>
               )}
               control={<Switch checked={supressHumidityAlerts.value} color="primary" onChange={(e) => supressHumidityAlerts.setValue(e.target.checked)} />}
@@ -558,7 +558,7 @@ const OrganizationSettings = () => {
               label={(
                 <div className="adminPanelOrgIconContainer">
                   <ShockIcon className="adminPanelOrgIcons" />
-                  Shock Alerts
+                  {t('orgSettings.shockAlerts')}
                 </div>
               )}
               control={<Switch checked={supressShockAlerts.value} color="primary" onChange={(e) => supressShockAlerts.setValue(e.target.checked)} />}
@@ -570,7 +570,7 @@ const OrganizationSettings = () => {
               label={(
                 <div className="adminPanelOrgIconContainer">
                   <LightIcon className="adminPanelOrgIcons" />
-                  Light Alerts
+                  {t('orgSettings.lightAlerts')}
                 </div>
               )}
               control={<Switch checked={supressLightAlerts.value} color="primary" onChange={(e) => supressLightAlerts.setValue(e.target.checked)} />}
@@ -585,7 +585,7 @@ const OrganizationSettings = () => {
             margin="normal"
             id="radius"
             fullWidth
-            label={`Radius for Geofence (${_.toLower(distance.value)})`}
+            label={t('orgSettings.radius', { unit: _.toLower(distance.value) })}
             name="radius"
             autoComplete="radius"
             {...radius.bind}
@@ -602,18 +602,13 @@ const OrganizationSettings = () => {
               select
               id="org-type"
               name="org-type"
-              label="Organization Type"
+              label={t('orgSettings.organizationType')}
               autoComplete="orgType"
               {...orgType.bind}
             >
-              <MenuItem value="">
-                <span className="notranslate">{t('select')}</span>
-              </MenuItem>
+              <MenuItem value="">{t('common.select')}</MenuItem>
               {_.map(organizationTypesData, (type) => (
-                <MenuItem
-                  key={`orgType-${type.id}`}
-                  value={type.id}
-                >
+                <MenuItem key={`orgType-${type.id}`} value={type.id}>
                   {_.capitalize(type.name)}
                 </MenuItem>
               ))}
@@ -626,7 +621,7 @@ const OrganizationSettings = () => {
               fullWidth
               id="org-abb"
               name="org-abb"
-              label="Organization Abbrevation"
+              label={t('orgSettings.organizationAbbreviation')}
               autoComplete="orgAbb"
               inputProps={{
                 maxLength: 7,
@@ -648,7 +643,7 @@ const OrganizationSettings = () => {
               className="adminPanelNumberInput"
               id="default-max-temperature"
               name="default-max-temperature"
-              label="Default Maximum Temperature for Excursion"
+              label={t('orgSettings.defaultMaxTemp')}
               autoComplete="default-max-temperature"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><TemperatureIcon /></InputAdornment>,
@@ -675,7 +670,7 @@ const OrganizationSettings = () => {
               className="adminPanelNumberInput"
               id="default-min-temperature"
               name="default-min-temperature"
-              label="Default Minimum Temperature for Excursion"
+              label={t('orgSettings.defaultMinTemp')}
               autoComplete="default-min-temperature"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><TemperatureIcon /></InputAdornment>,
@@ -706,7 +701,7 @@ const OrganizationSettings = () => {
               className="adminPanelNumberInput"
               id="default-max-humidity"
               name="default-max-humidity"
-              label="Default Maximum Humidity for Excursion"
+              label={t('orgSettings.defaultMaxHumidity')}
               autoComplete="default-max-humidity"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><HumidityIcon /></InputAdornment>,
@@ -724,7 +719,7 @@ const OrganizationSettings = () => {
               className="adminPanelNumberInput"
               id="default-min-humidity"
               name="default-min-humidity"
-              label="Default Minimum Humidity for Excursion"
+              label={t('orgSettings.defaultMinHumidity')}
               autoComplete="default-min-humidity"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><HumidityIcon /></InputAdornment>,
@@ -746,7 +741,7 @@ const OrganizationSettings = () => {
               className="adminPanelNumberInput"
               id="default-shock"
               name="default-shock"
-              label="Default Shock Threshold"
+              label={t('orgSettings.defaultShock')}
               autoComplete="default-shock"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><ShockIcon /></InputAdornment>,
@@ -764,7 +759,7 @@ const OrganizationSettings = () => {
               className="adminPanelNumberInput"
               id="default-light"
               name="default-light"
-              label="Default Light Threshold"
+              label={t('orgSettings.defaultLight')}
               autoComplete="default-light"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><LightIcon /></InputAdornment>,
@@ -783,10 +778,10 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               select
-              placeholder="Select..."
+              placeholder={t('orgSettings.select')}
               id="default-transmission-interval"
               name="default-transmission-interval"
-              label="Default Sensor Data Transmission Interval"
+              label={t('orgSettings.defaultTransmissionInterval')}
               autoComplete="default-transmission-interval"
               InputLabelProps={{ shrink: true }}
               SelectProps={{ displayEmpty: true }}
@@ -796,9 +791,7 @@ const OrganizationSettings = () => {
                 defaultMeasurementInterval.setValue(e.target.value);
               }}
             >
-              <MenuItem value="">
-                <span className="notranslate">{t('select')}</span>
-              </MenuItem>
+              <MenuItem value="">{t('common.select')}</MenuItem>
               {!_.isEmpty(TIVE_GATEWAY_TIMES)
                 && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
@@ -813,18 +806,16 @@ const OrganizationSettings = () => {
               margin="normal"
               fullWidth
               select
-              placeholder="Select..."
+              placeholder={t('orgSettings.select')}
               id="default-measurement-interval"
               name="default-measurement-interval"
-              label="Default Sensor Data Measurement Interval"
+              label={t('orgSettings.defaultMeasurementInterval')}
               autoComplete="default-measurement-interval"
               InputLabelProps={{ shrink: true }}
               SelectProps={{ displayEmpty: true }}
               {...defaultMeasurementInterval.bind}
             >
-              <MenuItem value="">
-                <span className="notranslate">{t('select')}</span>
-              </MenuItem>
+              <MenuItem value="">{t('common.select')}</MenuItem>
               {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
                 _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultTransmissionInterval.value),
                 (time, index) => (
@@ -841,14 +832,13 @@ const OrganizationSettings = () => {
         <Grid container spacing={isDesktop2() ? 2 : 0}>
           <Grid item xs={12} md={6}>
             <TextField
-              className="notranslate"
               variant="outlined"
               margin="normal"
               fullWidth
               select
               id="country"
               name="country"
-              label={<span className="translate">Default Country</span>}
+              label={t('orgSettings.defaultCountry')}
               autoComplete="country"
               value={country.value}
               onChange={(e) => {
@@ -861,12 +851,9 @@ const OrganizationSettings = () => {
                 country.setValue(e.target.value);
               }}
             >
-              <MenuItem value="">
-                <span className="notranslate">{t('select')}</span>
-              </MenuItem>
+              <MenuItem value="">{t('common.select')}</MenuItem>
               {countryList && _.map(countryList, (cntry, index) => (
                 <MenuItem
-                  className="notranslate"
                   key={`country-${index}-${cntry}`}
                   value={cntry}
                 >
@@ -877,23 +864,19 @@ const OrganizationSettings = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              className="notranslate"
               variant="outlined"
               margin="normal"
               fullWidth
               select
               id="currency"
               name="currency"
-              label={<span className="translate">Default Currency</span>}
+              label={t('orgSettings.defaultCurrency')}
               autoComplete="currency"
               {...currency.bind}
             >
-              <MenuItem value="">
-                <span className="notranslate">{t('select')}</span>
-              </MenuItem>
+              <MenuItem value="">{t('common.select')}</MenuItem>
               {currencyList && _.map(currencyList, (curr, index) => (
                 <MenuItem
-                  className="notranslate"
                   key={`currency-${index}-${curr}`}
                   value={curr}
                 >
@@ -914,13 +897,11 @@ const OrganizationSettings = () => {
               select
               id="date-format"
               name="date-format"
-              label="Default Date Format"
+              label={t('orgSettings.defaultDateFormat')}
               autoComplete="date-format"
               {...dateFormat.bind}
             >
-              <MenuItem value="">
-                <span className="notranslate">{t('select')}</span>
-              </MenuItem>
+              <MenuItem value="">{t('common.select')}</MenuItem>
               {_.map(DATE_DISPLAY_CHOICES, (date, index) => (
                 <MenuItem
                   key={`date-${index}-${date.label}`}
@@ -939,13 +920,11 @@ const OrganizationSettings = () => {
               select
               id="time-format"
               name="time-format"
-              label="Default Time Format"
+              label={t('orgSettings.defaultTimeFormat')}
               autoComplete="time-format"
               {...timeFormat.bind}
             >
-              <MenuItem value="">
-                <span className="notranslate">{t('select')}</span>
-              </MenuItem>
+              <MenuItem value="">{t('common.select')}</MenuItem>
               {_.map(TIME_DISPLAY_CHOICES, (time, index) => (
                 <MenuItem
                   key={`time-${index}-${time.label}`}
@@ -967,13 +946,11 @@ const OrganizationSettings = () => {
             select
             id="distance"
             name="distance"
-            label="Default Unit of Measure for Distance"
+            label={t('orgSettings.defaultDistance')}
             autoComplete="distance"
             {...distance.bind}
           >
-            <MenuItem value="">
-              <span className="notranslate">{t('select')}</span>
-            </MenuItem>
+            <MenuItem value="">{t('common.select')}</MenuItem>
             {_.map(UOM_DISTANCE_CHOICES, (dist, index) => (
               <MenuItem
                 key={`distance-${index}-${dist}`}
@@ -992,13 +969,11 @@ const OrganizationSettings = () => {
             select
             id="temp"
             name="temp"
-            label="Default Unit of Measure for Temperature"
+            label={t('orgSettings.defaultTemperature')}
             autoComplete="temp"
             {...temp.bind}
           >
-            <MenuItem value="">
-              <span className="notranslate">{t('select')}</span>
-            </MenuItem>
+            <MenuItem value="">{t('common.select')}</MenuItem>
             {_.map(UOM_TEMPERATURE_CHOICES, (tmp, index) => (
               <MenuItem
                 key={`temperature-${index}-${tmp}`}
@@ -1017,13 +992,11 @@ const OrganizationSettings = () => {
             select
             id="weight"
             name="weight"
-            label="Default Unit of Measure for Weight"
+            label={t('orgSettings.defaultWeight')}
             autoComplete="weight"
             {...weight.bind}
           >
-            <MenuItem value="">
-              <span className="notranslate">{t('select')}</span>
-            </MenuItem>
+            <MenuItem value="">{t('common.select')}</MenuItem>
             {_.map(UOM_WEIGHT_CHOICES, (wgt, index) => (
               <MenuItem
                 key={`weight-${index}-${wgt}`}
@@ -1044,7 +1017,7 @@ const OrganizationSettings = () => {
             select
             id="timezone"
             name="timezone"
-            label="Default Time Zone"
+            label={t('orgSettings.defaultTimezone')}
             autoComplete="timezone"
             value={timezone.value}
             onChange={(e) => {
@@ -1068,7 +1041,7 @@ const OrganizationSettings = () => {
             select
             id="language"
             name="language"
-            label="Default Language"
+            label={t('orgSettings.defaultLanguage')}
             autoComplete="language"
             value={language.value}
             onChange={(e) => {
@@ -1077,7 +1050,7 @@ const OrganizationSettings = () => {
           >
             {_.map(LANGUAGES, (item, index) => (
               <MenuItem key={`${item.value}-${index}`} value={item.label}>
-                <span className="notranslate">{t(item.label)}</span>
+                {t(`languages.${item.label}`)}
               </MenuItem>
             ))}
           </TextField>
@@ -1100,7 +1073,7 @@ const OrganizationSettings = () => {
                 || isEditingUnit
                 || !submitDisabled()}
             >
-              Save
+              {t('orgSettings.save')}
             </Button>
           </Grid>
           <Grid item xs={6} sm={4}>
@@ -1112,7 +1085,7 @@ const OrganizationSettings = () => {
               onClick={() => resetValues()}
               className="adminPanelSubmit"
             >
-              Reset
+              {t('orgSettings.reset')}
             </Button>
           </Grid>
         </Grid>

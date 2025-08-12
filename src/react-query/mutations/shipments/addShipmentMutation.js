@@ -4,6 +4,7 @@ import { httpService } from '@modules/http/http.service'; // Custom HTTP service
 import _ from 'lodash'; // Lodash utility library for working with arrays, objects, and other data types
 import { getLocations } from '@utils/getLocations'; // Utility function for fetching location details
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for extracting and displaying error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to add a shipment.
@@ -203,7 +204,7 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
           queryKey: ['custodians'], // Invalidate custodians query to refresh data
         });
         // Display a success alert
-        displayAlert('success', 'Successfully added shipment');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added shipment'));
       },
       /**
        * onError callback: This function is triggered when the mutation fails.

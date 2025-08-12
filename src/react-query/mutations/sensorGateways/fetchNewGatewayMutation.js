@@ -2,7 +2,7 @@
 import { useMutation } from 'react-query'; // React Query's `useMutation` hook for handling mutations
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to extract and display error messages
-
+import i18n from '../../../i18n/index';
 /**
  * Custom hook to fetch new trackers (gateways) from the API.
  *
@@ -41,10 +41,10 @@ export const useFetchNewGatewayMutation = (displayAlert, section) => useMutation
       // Check if the response contains any new trackers
       if (data.new_trackers && data.new_trackers.length > 0) {
         // Display success alert if new trackers are available
-        displayAlert('success', 'Successfully fetched new trackers');
+        displayAlert('success', i18n.t('api.successMessages.Successfully fetched new trackers'));
       } else {
         // Display an informational alert if no new trackers are found
-        displayAlert('info', 'No new trackers available to fetch');
+        displayAlert('info', i18n.t('api.infoMessages.No new trackers available to fetch'));
       }
     },
     /**

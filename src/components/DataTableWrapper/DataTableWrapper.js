@@ -1,6 +1,7 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
-import MUIDataTable from 'mui-datatables'; // MUI Data Table library for advanced data table UI
+import MUIDataTable, { MUIDataTableViewCol } from 'mui-datatables'; // MUI Data Table library for advanced data table UI
 // MUI Components
 import {
   Grid,
@@ -18,6 +19,7 @@ import {
   Download as DownloadIcon,
   Upload as UploadIcon,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import Loader from '../Loader/Loader'; // Reusable loader and confirmation modal
 import ConfirmModal from '../Modal/ConfirmModal';
 import { getUser } from '@context/User.context'; // Context and utility functions for user role validation
@@ -60,6 +62,7 @@ const DataTableWrapper = ({
   customIconButtonRight, // Custom JSX to render extra buttons
   isShipmentTable, // Flag to indicate if the table is for shipments
 }) => {
+  const { t } = useTranslation();
   const user = getUser(); // Fetch current user
   const isAdmin = checkForAdmin(user) || checkForGlobalAdmin(user); // Check if user has admin rights
 
@@ -70,7 +73,7 @@ const DataTableWrapper = ({
     finalColumns = [
       ...finalColumns,
       {
-        name: 'Edit',
+        name: t('dataTable.edit'),
         options: {
           filter: false,
           sort: false,
@@ -93,7 +96,7 @@ const DataTableWrapper = ({
     finalColumns = [
       ...finalColumns,
       {
-        name: 'Delete',
+        name: t('dataTable.delete'),
         options: {
           filter: false,
           sort: false,
@@ -146,10 +149,28 @@ const DataTableWrapper = ({
     },
     textLabels: {
       body: {
-        noMatch: 'No data to display',
+        noMatch: t('dataTable.noData'),
+        sortLabel: t('dataTable.sort'),
+        toolTip: t('dataTable.sort'),
       },
       pagination: {
-        jumpToPage: 'Go To Page',
+        jumpToPage: t('dataTable.goToPage'),
+        rowsPerPage: t('dataTable.rowsPerPage'),
+      },
+      toolbar: {
+        search: t('dataTable.search'),
+        downloadCsv: t('dataTable.downloadCsv'),
+        print: t('dataTable.print'),
+        viewColumns: t('dataTable.showColumns'),
+        filterTable: t('dataTable.filterTable'),
+      },
+      filter: {
+        title: t('dataTable.filters'),
+        reset: t('dataTable.reset'),
+      },
+      viewColumns: {
+        title: t('dataTable.showColumns'),
+        titleAria: t('dataTable.showColumns'),
       },
     },
     // Conditional row styling
@@ -251,7 +272,7 @@ const DataTableWrapper = ({
           setOpen={setDeleteModal}
           submitAction={handleDeleteModal}
           title={deleteModalTitle}
-          submitText="Delete"
+          submitText={t('dataTable.delete')}
         />
       )}
     </Box>

@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 import { Link, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import FormModal from '@components/Modal/FormModal';
 import FileViewer from 'react-file-viewer';
 
 const CustomFileViewer = ({ open, closeFileView, selectedFile }) => {
+  const { t } = useTranslation();
   const [fileURL, setFileURL] = useState(null);
   const isGoogleStorage = selectedFile?.link?.includes('storage.googleapis.com');
 
@@ -35,7 +37,7 @@ const CustomFileViewer = ({ open, closeFileView, selectedFile }) => {
 
   if (!selectedFile || !fileURL) return null;
 
-  const fileName = selectedFile.name || selectedFile.file || 'File Viewer';
+  const fileName = selectedFile.name || selectedFile.file || t('fileViewer.defaultTitle');
   const extension = fileName.split('.').pop()?.toLowerCase();
 
   const renderViewer = () => {
@@ -83,7 +85,7 @@ const CustomFileViewer = ({ open, closeFileView, selectedFile }) => {
           style={{ maxWidth: '100%', maxHeight: '100%' }}
         >
           <track kind="captions" src="" label="No captions" />
-          Your browser does not support the video tag.
+          {t('fileViewer.videoNotSupported')}
         </video>
       );
     }
@@ -91,7 +93,7 @@ const CustomFileViewer = ({ open, closeFileView, selectedFile }) => {
     return (
       <div>
         <Typography variant="body1" textAlign="center">
-          Preview not available for this file type.
+          {t('fileViewer.previewNotAvailable')}
         </Typography>
         <Typography variant="body1" textAlign="center">
           <Link
@@ -105,7 +107,7 @@ const CustomFileViewer = ({ open, closeFileView, selectedFile }) => {
               },
             }}
           >
-            Download
+            {t('fileViewer.download')}
           </Link>
         </Typography>
       </div>

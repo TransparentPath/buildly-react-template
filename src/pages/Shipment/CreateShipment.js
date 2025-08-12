@@ -136,7 +136,7 @@ const CreateShipment = ({ history, location }) => {
 
   // Load initial shipment data if updating an existing shipment
   const editData = (location.state && location.state.ship) || {};
-  const formTitle = location.state && location.state.ship ? 'Update Shipment' : 'Create Shipment';
+  const formTitle = location.state && location.state.ship ? t('createShipment.updateShipment') : t('createShipment.createShipment');
 
   // Template-related states
   const [template, setTemplate] = useState('');
@@ -857,7 +857,7 @@ const CreateShipment = ({ history, location }) => {
     const newFiles = Array.from(event.target.files).filter((file) => {
       if (!allowedTypes.includes(file.type)) {
         error = true;
-        alert('File type is not supported.');
+        alert(t('createShipment.fileTypeNotSupported'));
         return false;
       }
 
@@ -866,7 +866,9 @@ const CreateShipment = ({ history, location }) => {
 
       if (file.size > maxAllowedSize) {
         error = true;
-        alert(`File size is more than  ${isVideo ? '10MB' : '5MB'}. Please upload another file.`);
+        alert('createShipment.fileTooLarge', {
+          maxSize: isVideo ? '10MB' : '5MB',
+        });
         return false;
       }
       return true;
@@ -1156,30 +1158,27 @@ const CreateShipment = ({ history, location }) => {
         </Grid>
         <Grid item xs={4}>
           <TextField
-            className="notranslate"
             variant="outlined"
             id="template"
             select
             fullWidth
-            placeholder="Select..."
-            label={<span className="translate">Templates</span>}
+            placeholder={t('createShipment.selectPlaceholder')}
+            label={t('createShipment.templates')}
             value={template}
             onChange={(e) => handleTemplateChange(e.target.value)}
             InputLabelProps={{ shrink: true }}
             SelectProps={{ displayEmpty: true }}
             disabled={cannotEdit}
           >
-            <MenuItem value="">
-              <span className="notranslate">{t('select')}</span>
-            </MenuItem>
+            <MenuItem value="">{t('common.select')}</MenuItem>
             {!_.isEmpty(shipmentTemplateData) && _.map(shipmentTemplateData, (tmp) => (
-              <MenuItem key={tmp.template_uuid} value={tmp} className="notranslate">
+              <MenuItem key={tmp.template_uuid} value={tmp}>
                 {tmp.name}
               </MenuItem>
             ))}
             <MenuItem value="all">
               <Typography style={{ color: theme.palette.primary.main, textDecoration: 'underline' }}>
-                See all templates...
+                {t('createShipment.seeAllTemplates')}
               </Typography>
             </MenuItem>
           </TextField>
@@ -1189,12 +1188,12 @@ const CreateShipment = ({ history, location }) => {
         <Grid container className="createShipmentNameContainer">
           <Grid item xs={6} md={8} className="createShipmentNameHeader">
             <Typography variant="body1" fontWeight={800}>
-              Template name
+              {t('createShipment.templateName')}
             </Typography>
           </Grid>
           <Grid item xs={6} md={4} className="createShipmentNameHeader">
             <Typography variant="body1" fontWeight={800}>
-              Actions
+              {t('createShipment.actions')}
             </Typography>
           </Grid>
           <Grid item xs={6} md={8} className="createShipmentNameData">
@@ -1208,10 +1207,10 @@ const CreateShipment = ({ history, location }) => {
                 variant="outlined"
                 id="template-name"
                 fullWidth
-                placeholder="32 characters maximum"
+                placeholder={t('createShipment.maxCharsPlaceholder', { count: 32 })}
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
-                helperText="There is a 32-character limit on template names"
+                helperText={t('createShipment.charLimitHelper', { count: 32 })}
                 inputProps={{ maxLength: 32 }}
                 disabled={cannotEdit}
               />
@@ -1252,7 +1251,7 @@ const CreateShipment = ({ history, location }) => {
                   onClick={(e) => setTemplateName('')}
                   className="createShipmentActionButtons2"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -1261,7 +1260,7 @@ const CreateShipment = ({ history, location }) => {
                   disabled={_.isEqual(template.name, templateName) || cannotEdit}
                   onClick={saveTemplateName}
                 >
-                  Save
+                  {t('createShipment.save')}
                 </Button>
               </div>
             )}
@@ -1272,22 +1271,19 @@ const CreateShipment = ({ history, location }) => {
         <Box mt={2}>
           <FormControl fullWidth component="fieldset" variant="outlined" className="createShipmentFieldset">
             <FormLabel component="legend" className="createShipmentLegend">
-              Shipment Details
+              {t('createShipment.shipmentDetails')}
             </FormLabel>
             <Grid container spacing={isDesktop ? 4 : 0}>
               <Grid item xs={12} sm={6}>
                 <Grid container spacing={2}>
                   <Grid item xs={8}>
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       id="origin-custodian"
                       select
                       fullWidth
-                      placeholder="Select..."
-                      label={(
-                        <span className="translate">Origin Custodian</span>
-                      )}
+                      placeholder={t('createShipment.selectPlaceholder')}
+                      label={t('createShipment.originCustodian')}
                       onBlur={(e) => handleBlur(e, 'required', originCustodian, 'origin-custodian')}
                       value={originCustodian}
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'start')}
@@ -1295,11 +1291,9 @@ const CreateShipment = ({ history, location }) => {
                       SelectProps={{ displayEmpty: true }}
                       disabled={cannotEdit}
                     >
-                      <MenuItem value="">
-                        <span className="notranslate">{t('select')}</span>
-                      </MenuItem>
+                      <MenuItem value="">{t('common.select')}</MenuItem>
                       {!_.isEmpty(originList) && _.map(originList, (cust) => (
-                        <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust.url}>
+                        <MenuItem key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
                         </MenuItem>
                       ))}
@@ -1309,7 +1303,7 @@ const CreateShipment = ({ history, location }) => {
                     <TextField
                       variant="outlined"
                       id="origin-custodian-abbreviation"
-                      label="ABBV."
+                      label={t('createShipment.abbv')}
                       disabled
                       value={originAbb}
                     />
@@ -1321,7 +1315,7 @@ const CreateShipment = ({ history, location }) => {
                       fullWidth
                       disabled
                       id="starting-address"
-                      label="Starting Address"
+                      label={t('createShipment.startingAddress')}
                       name="starting-address"
                       autoComplete="starting-address"
                       value={startingAddress}
@@ -1353,15 +1347,12 @@ const CreateShipment = ({ history, location }) => {
                 <Grid container spacing={2} mt={isMobile() ? 1.5 : -2}>
                   <Grid item xs={8}>
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       id="destination-custodian"
                       select
                       fullWidth
-                      placeholder="Select..."
-                      label={(
-                        <span className="translate">Destination Custodian</span>
-                      )}
+                      placeholder={t('createShipment.selectPlaceholder')}
+                      label={t('createShipment.destinationCustodian')}
                       onBlur={(e) => handleBlur(e, 'required', destinationCustodian, 'destination-custodian')}
                       value={destinationCustodian}
                       onChange={(e) => onInputChange(e.target.value, 'custodian', 'end')}
@@ -1369,11 +1360,9 @@ const CreateShipment = ({ history, location }) => {
                       SelectProps={{ displayEmpty: true }}
                       disabled={cannotEdit}
                     >
-                      <MenuItem value="">
-                        <span className="notranslate">{t('select')}</span>
-                      </MenuItem>
+                      <MenuItem value="">{t('common.select')}</MenuItem>
                       {!_.isEmpty(destinationList) && _.map(destinationList, (cust) => (
-                        <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust.url}>
+                        <MenuItem key={cust.custodian_uuid} value={cust.url}>
                           {cust.name}
                         </MenuItem>
                       ))}
@@ -1383,7 +1372,7 @@ const CreateShipment = ({ history, location }) => {
                     <TextField
                       variant="outlined"
                       id="destination-custodian-abbreviation"
-                      label="ABBV."
+                      label={t('createShipment.abbv')}
                       disabled
                       value={destinationAbb}
                     />
@@ -1395,7 +1384,7 @@ const CreateShipment = ({ history, location }) => {
                       fullWidth
                       disabled
                       id="ending-address"
-                      label="Ending Address"
+                      label={t('createShipment.endingAddress')}
                       name="ending-address"
                       autoComplete="ending-address"
                       value={endingAddress}
@@ -1425,7 +1414,7 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 1.5 : -2.5} className="createShipmentAdjustSpacing">
                 <DatePickerComponent
-                  label="Estimated Shipment Start"
+                  label={t('createShipment.estimatedStart')}
                   selectedDate={moment(departureDateTime).tz(data)}
                   disabled={cannotEdit}
                   hasTime
@@ -1447,7 +1436,7 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 0 : -2.5} className={isMobile() ? 'createShipmentAdjustSpacing' : ''}>
                 <DatePickerComponent
-                  label="Estimated Shipment End"
+                  label={t('createShipment.estimatedEnd')}
                   selectedDate={moment(arrivalDateTime).tz(data)}
                   disabled={cannotEdit}
                   hasTime
@@ -1467,7 +1456,7 @@ const CreateShipment = ({ history, location }) => {
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 1.5 : -2.5} className="createShipmentAdjustSpacing">
                 {actualDepartureDateTime && (
                   <DatePickerComponent
-                    label="Actual Shipment Start"
+                    label={t('createShipment.actualStart')}
                     selectedDate={moment(actualDepartureDateTime).tz(data)}
                     disabled
                     hasTime
@@ -1487,7 +1476,7 @@ const CreateShipment = ({ history, location }) => {
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 0 : -2.5} className={isMobile() ? 'createShipmentAdjustSpacing' : ''}>
                 {actualArrivalDateTime && (
                   <DatePickerComponent
-                    label="Actual Shipment Arrival"
+                    label={t('createShipment.actualArrival')}
                     selectedDate={moment(actualArrivalDateTime).tz(data)}
                     disabled
                     hasTime
@@ -1506,41 +1495,38 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={11} sm={5.5} mt={isMobile() ? 2 : 0}>
                 <TextField
-                  className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'}
                   variant="outlined"
                   id="status"
                   select
                   fullWidth
-                  placeholder="Select..."
-                  label={(
-                    <span className="translate">Shipment Status</span>
-                  )}
+                  placeholder={t('createShipment.selectPlaceholder')}
+                  label={t('createShipment.shipmentStatus')}
                   onBlur={(e) => handleBlur(e, 'required', status, 'status')}
                   InputLabelProps={{ shrink: true }}
                   SelectProps={{ displayEmpty: true }}
                   {...status.bind}
                   disabled={cannotEdit && !isAdmin}
                 >
-                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {_.isEmpty(editData) && _.map(CREATE_SHIPMENT_STATUS, (st, idx) => (
-                    <MenuItem className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'} key={`${idx}-${st.label}`} value={st.value}>
-                      {st.label}
+                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      {t(st.label)}
                     </MenuItem>
                   ))}
                   {!_.isEmpty(editData) && !cannotEdit && !isAdmin && _.map(USER_SHIPMENT_STATUS, (st, idx) => (
-                    <MenuItem className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'} key={`${idx}-${st.label}`} value={st.value}>
-                      {st.label}
+                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      {t(st.label)}
                     </MenuItem>
                   ))}
                   {!_.isEmpty(editData) && ((cannotEdit && !isAdmin) || (!cannotEdit && isAdmin))
                     && _.map([...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS], (st, idx) => (
-                      <MenuItem className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'} key={`${idx}-${st.label}`} value={st.value}>
-                        {st.label}
+                      <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                        {t(st.label)}
                       </MenuItem>
                     ))}
                   {!_.isEmpty(editData) && cannotEdit && isAdmin && _.map([...ADMIN_SHIPMENT_STATUS], (st, idx) => (
-                    <MenuItem className={_.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate'} key={`${idx}-${st.label}`} value={st.value}>
-                      {st.label}
+                    <MenuItem key={`${idx}-${st.label}`} value={st.value}>
+                      {t(st.label)}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -1574,7 +1560,7 @@ const CreateShipment = ({ history, location }) => {
                     ))
                   )}
                   renderOption={(props, option, { selected }) => (
-                    <li {...props} className="notranslate">
+                    <li {...props}>
                       <Checkbox
                         icon={uncheckedIcon}
                         checkedIcon={checkedIcon}
@@ -1587,12 +1573,9 @@ const CreateShipment = ({ history, location }) => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      className="notranslate"
                       variant="outlined"
-                      label={(
-                        <span className="translate">Items to be shipped</span>
-                      )}
-                      placeholder="Select..."
+                      label={t('createShipment.itemsToBeShipped')}
+                      placeholder={t('createShipment.selectPlaceholder')}
                     />
                   )}
                 />
@@ -1609,6 +1592,7 @@ const CreateShipment = ({ history, location }) => {
                       _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
                         ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
                         : '',
+                      t,
                     )}
                   />
                 </Grid>
@@ -1617,10 +1601,10 @@ const CreateShipment = ({ history, location }) => {
                 <div className="createShipmentFieldset">
                   <Grid container alignItems="center">
                     <Grid item xs={10}>
-                      <Typography variant="body1" fontWeight={700}>TEMPERATURE</Typography>
+                      <Typography variant="body1" fontWeight={700}>{t('createShipment.temperature')}</Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Tooltip title={t('temp_alerts')} placement="bottom">
+                      <Tooltip title={t('createShipment.tempAlerts')} placement="bottom">
                         <FormControlLabel
                           control={(
                             <Switch
@@ -1634,8 +1618,10 @@ const CreateShipment = ({ history, location }) => {
                     </Grid>
                   </Grid>
                   <Typography mt={2} mb={0.95} className="createShipmentAlertSettingText">
-                    <span className="createShipmentHighest">HIGHEST</span>
-                    {' safe temperature'}
+                    <span className="createShipmentHighest">{t('createShipment.highest')}</span>
+                    {' '}
+                    {t('createShipment.safeTemperature')}
+                    {' '}
                   </Typography>
                   <TextField
                     variant="outlined"
@@ -1664,8 +1650,10 @@ const CreateShipment = ({ history, location }) => {
                     onChange={(e) => max_excursion_temp.setValue(_.toString(e.target.value))}
                   />
                   <Typography mt={3} mb={0.95} className="createShipmentAlertSettingText">
-                    <span className="createShipmentLowest">LOWEST</span>
-                    {' safe temperature'}
+                    <span className="createShipmentLowest">{t('createShipment.lowest')}</span>
+                    {' '}
+                    {t('createShipment.safeTemperature')}
+                    {' '}
                   </Typography>
                   <TextField
                     variant="outlined"
@@ -1699,10 +1687,10 @@ const CreateShipment = ({ history, location }) => {
                 <div className="createShipmentFieldset">
                   <Grid container alignItems="center">
                     <Grid item xs={10}>
-                      <Typography variant="body1" fontWeight={700}>HUMIDITY</Typography>
+                      <Typography variant="body1" fontWeight={700}>{t('createShipment.humidity')}</Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Tooltip title={t('hum_alerts')} placement="bottom">
+                      <Tooltip title={t('createShipment.humAlerts')} placement="bottom">
                         <FormControlLabel
                           control={(
                             <Switch
@@ -1716,8 +1704,10 @@ const CreateShipment = ({ history, location }) => {
                     </Grid>
                   </Grid>
                   <Typography mt={2} mb={0.95} className="createShipmentAlertSettingText">
-                    <span className="createShipmentHighest">HIGHEST</span>
-                    {' safe humidity'}
+                    <span className="createShipmentHighest">{t('createShipment.highest')}</span>
+                    {' '}
+                    {t('createShipment.safeHumidity')}
+                    {' '}
                   </Typography>
                   <TextField
                     variant="outlined"
@@ -1737,8 +1727,10 @@ const CreateShipment = ({ history, location }) => {
                     onChange={(e) => max_excursion_humidity.setValue(_.toString(e.target.value))}
                   />
                   <Typography mt={3} mb={0.95} className="createShipmentAlertSettingText">
-                    <span className="createShipmentLowest">LOWEST</span>
-                    {' safe humidity'}
+                    <span className="createShipmentLowest">{t('createShipment.lowest')}</span>
+                    {' '}
+                    {t('createShipment.safeHumidity')}
+                    {' '}
                   </Typography>
                   <TextField
                     variant="outlined"
@@ -1761,18 +1753,17 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={12} sm={5.75} lg={3.83}>
                 <div className="createShipmentFieldset">
-                  <Typography variant="body1" component="div" fontWeight={700}>
-                    SHOCK & LIGHT
-                  </Typography>
+                  <Typography variant="body1" component="div" fontWeight={700}>{t('createShipment.shockLight')}</Typography>
                   <Grid container alignItems="center" mt={2}>
                     <Grid item xs={10}>
                       <Typography className="createShipmentAlertSettingText">
-                        <span className="createShipmentHighest">MAX</span>
-                        {' shock'}
+                        <span className="createShipmentHighest">{t('createShipment.max')}</span>
+                        {' '}
+                        {t('createShipment.shock')}
                       </Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Tooltip title={t('shock_alerts')} placement="bottom">
+                      <Tooltip title={t('createShipment.shockAlerts')} placement="bottom">
                         <FormControlLabel
                           control={(
                             <Switch
@@ -1805,12 +1796,13 @@ const CreateShipment = ({ history, location }) => {
                   <Grid container alignItems="center" mt={3}>
                     <Grid item xs={10}>
                       <Typography className="createShipmentAlertSettingText">
-                        <span className="createShipmentHighest">MAX</span>
-                        {' light'}
+                        <span className="createShipmentHighest">{t('createShipment.max')}</span>
+                        {' '}
+                        {t('createShipment.light')}
                       </Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Tooltip title={t('light_alerts')} placement="bottom">
+                      <Tooltip title={t('createShipment.lightAlerts')} placement="bottom">
                         <FormControlLabel
                           control={(
                             <Switch
@@ -1860,14 +1852,14 @@ const CreateShipment = ({ history, location }) => {
                     setShowTemplateDT(true);
                   }}
                 >
-                  Save as Template
+                  {t('createShipment.saveAsTemplate')}
                 </Button>
               </Grid>
             </Grid>
           </FormControl>
           <FormControl fullWidth component="fieldset" variant="outlined" className="createShipmentFieldset">
             <FormLabel component="legend" className="createShipmentLegend">
-              Order Information
+              {t('createShipment.orderInformation')}
             </FormLabel>
             <Grid container spacing={isDesktop ? 4 : 0}>
               <Grid item xs={2}>
@@ -1883,15 +1875,12 @@ const CreateShipment = ({ history, location }) => {
               </Grid>
               <Grid item xs={8.5} sm={9.5} ml={isMobile() ? 2 : 0}>
                 <TextField
-                  className="notranslate"
                   variant="outlined"
                   fullWidth
                   disabled={cannotEdit}
                   id="shipment-name"
                   name="shipment-name"
-                  label={(
-                    <span className="translate">Shipment Name</span>
-                  )}
+                  label={t('createShipment.shipmentName')}
                   autoComplete="shipment-name"
                   onBlur={(e) => handleBlur(e, 'required', shipmentName, 'shipment-name')}
                   {...shipmentName.bind}
@@ -1905,7 +1894,7 @@ const CreateShipment = ({ history, location }) => {
                   disabled={cannotEdit}
                   id="purchase-order-number"
                   name="purchase-order-number"
-                  label="Purchase Order Number"
+                  label={t('createShipment.purchaseOrderNumber')}
                   autoComplete="purchase-order-number"
                   {...purchaseOrderNumber.bind}
                 />
@@ -1917,7 +1906,7 @@ const CreateShipment = ({ history, location }) => {
                   disabled={cannotEdit}
                   id="bill-of-lading"
                   name="bill-of-lading"
-                  label="Bill Of Lading"
+                  label={t('createShipment.billOfLading')}
                   autoComplete="bill-of-lading"
                   {...billOfLading.bind}
                 />
@@ -1925,8 +1914,8 @@ const CreateShipment = ({ history, location }) => {
               <Grid item xs={8} md={9} lg={9.6} mt={isMobile() ? 1 : 0}>
                 <FormControl fullWidth component="fieldset" variant="outlined" className="createShipmentAttachedFiles">
                   <FormLabel component="legend" className="createShipmentLegend">
-                    <span style={{ fontWeight: '700' }}>Attached File(s)</span>
-                    {' - limit each image, PDF, and Microsoft Office file to <5MB; each video file to <10MB'}
+                    <span style={{ fontWeight: '700' }}>{t('createShipment.attachedFilesTitle')}</span>
+                    {t('createShipment.attachedFilesLimit', { docLimit: '5MB', videoLimit: '10MB' })}
                   </FormLabel>
                   <Stack direction="row" spacing={1} mt={-1}>
                     {!_.isEmpty(files) && _.map(files, (file, idx) => (
@@ -1972,7 +1961,7 @@ const CreateShipment = ({ history, location }) => {
                     disabled={cannotEdit}
                     onClick={(e) => setShowNote(true)}
                   >
-                    + Add a note
+                    {t('createShipment.addNoteBtn')}
                   </Button>
                 )}
                 {showNote && (
@@ -1986,7 +1975,7 @@ const CreateShipment = ({ history, location }) => {
                         maxRows={4}
                         id="note"
                         name="note"
-                        label="Note"
+                        label={t('createShipment.noteLabel')}
                         autoComplete="note"
                         {...note.bind}
                       />
@@ -2012,15 +2001,12 @@ const CreateShipment = ({ history, location }) => {
                     <Grid container spacing={4} mt={0}>
                       <Grid item xs={6} sm={5} lg={5.5}>
                         <TextField
-                          className="notranslate"
                           id={`add-cust-${addCust.custodian_uuid}`}
                           select
                           fullWidth
                           disabled={cannotEdit}
-                          placeholder="Select..."
-                          label={(
-                            <span className="translate">{`Custodian ${index + 1}`}</span>
-                          )}
+                          placeholder={t('createShipment.selectPlaceholder')}
+                          label={t('createShipment.custodianN', { n: index + 1 })}
                           value={addCust}
                           onChange={(e) => {
                             const newList = _.map(
@@ -2032,9 +2018,7 @@ const CreateShipment = ({ history, location }) => {
                           InputLabelProps={{ shrink: true }}
                           SelectProps={{ displayEmpty: true }}
                         >
-                          <MenuItem value="">
-                            <span className="notranslate">{t('select')}</span>
-                          </MenuItem>
+                          <MenuItem value="">{t('common.select')}</MenuItem>
                           {!_.isEmpty(carrierList)
                             && _.map(_.without(
                               carrierList,
@@ -2042,7 +2026,7 @@ const CreateShipment = ({ history, location }) => {
                               ..._.without(additionalCustodians, addCust),
                               _.find(carrierList, { url: destinationCustodian }),
                             ), (cust) => (
-                              <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust}>
+                              <MenuItem key={cust.custodian_uuid} value={cust}>
                                 {cust.name}
                               </MenuItem>
                             ))}
@@ -2052,7 +2036,7 @@ const CreateShipment = ({ history, location }) => {
                         <TextField
                           variant="outlined"
                           id={`add-cust-abb-${addCust.custodian_uuid}`}
-                          label="ID"
+                          label={t('createShipment.idShort')}
                           fullWidth
                           disabled
                           value={addCust.abbrevation}
@@ -2062,7 +2046,7 @@ const CreateShipment = ({ history, location }) => {
                         <TextField
                           variant="outlined"
                           id={`add-cust-type-${addCust.custodian_uuid}`}
-                          label="Custodian Type"
+                          label={t('createShipment.custodianType')}
                           fullWidth
                           disabled
                           value={addCust.type}
@@ -2089,16 +2073,13 @@ const CreateShipment = ({ history, location }) => {
               <Grid item xs={11.5} mt={isMobile() ? 2 : 0}>
                 {showAddCustodian && (
                   <TextField
-                    className="notranslate"
                     variant="outlined"
                     id="additional-custodian"
                     select
                     fullWidth
                     disabled={cannotEdit}
-                    placeholder="Select..."
-                    label={(
-                      <span className="translate">Add carriers/warehouses</span>
-                    )}
+                    placeholder={t('createShipment.selectPlaceholder')}
+                    label={t('createShipment.addCarriersWarehousesLabel')}
                     onChange={(e) => {
                       setAdditionalCustodians([...additionalCustodians, e.target.value]);
                       setShowAddCustodian(false);
@@ -2106,9 +2087,7 @@ const CreateShipment = ({ history, location }) => {
                     InputLabelProps={{ shrink: true }}
                     SelectProps={{ displayEmpty: true }}
                   >
-                    <MenuItem value="">
-                      <span className="notranslate">{t('select')}</span>
-                    </MenuItem>
+                    <MenuItem value="">{t('common.select')}</MenuItem>
                     {!_.isEmpty(carrierList)
                       && _.map(_.without(
                         carrierList,
@@ -2116,7 +2095,7 @@ const CreateShipment = ({ history, location }) => {
                         ...additionalCustodians,
                         _.find(carrierList, { url: destinationCustodian }),
                       ), (cust) => (
-                        <MenuItem className="notranslate" key={cust.custodian_uuid} value={cust}>
+                        <MenuItem key={cust.custodian_uuid} value={cust}>
                           {cust.name}
                         </MenuItem>
                       ))}
@@ -2130,7 +2109,7 @@ const CreateShipment = ({ history, location }) => {
                     disabled={cannotEdit}
                     onClick={(e) => setShowAddCustodian(true)}
                   >
-                    + Add carriers/warehouses
+                    {t('createShipment.addCarriersWarehousesBtn')}
                   </Button>
                 )}
               </Grid>
@@ -2138,17 +2117,16 @@ const CreateShipment = ({ history, location }) => {
           </FormControl>
           <FormControl fullWidth component="fieldset" variant="outlined" className="createShipmentFieldset">
             <FormLabel component="legend" className="createShipmentLegend">
-              Tracker
+              {t('createShipment.trackerSection')}
             </FormLabel>
             <Grid container spacing={isDesktop ? 4 : 0}>
               <Grid item xs={5} sm={5.5}>
                 <TextField
-                  className="notranslate"
                   id="gateway-type"
                   select
                   fullWidth
-                  placeholder="Select..."
-                  label={<span className="translate">Tracker platform</span>}
+                  placeholder={t('createShipment.selectPlaceholder')}
+                  label={t('createShipment.trackerPlatform')}
                   onBlur={(e) => handleBlur(e, 'required', gatewayType, 'gateway-type')}
                   disabled={
                     (!_.isEmpty(editData)
@@ -2160,11 +2138,9 @@ const CreateShipment = ({ history, location }) => {
                   SelectProps={{ displayEmpty: true }}
                   {...gatewayType.bind}
                 >
-                  <MenuItem value="">
-                    <span className="notranslate">{t('select')}</span>
-                  </MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {!_.isEmpty(gatewayTypesData) && _.map(gatewayTypesData, (gtype) => (
-                    <MenuItem className="notranslate" key={gtype.id} value={gtype.name}>
+                    <MenuItem key={gtype.id} value={gtype.name}>
                       {_.upperFirst(gtype.name)}
                     </MenuItem>
                   ))}
@@ -2173,12 +2149,11 @@ const CreateShipment = ({ history, location }) => {
               <Grid item xs={1} sm={0.5} className="createShipmentOuterAsterisk" mt={isMobile() ? -3.5 : 0}>*</Grid>
               <Grid item xs={5} sm={5.75} ml={isMobile() ? 2 : 0}>
                 <TextField
-                  className="notranslate"
                   id="gateway"
                   select
                   fullWidth
-                  placeholder="Select..."
-                  label={<span className="translate">Tracker identifier</span>}
+                  placeholder={t('createShipment.selectPlaceholder')}
+                  label={t('createShipment.trackerIdentifier')}
                   onBlur={(e) => handleBlur(e, 'required', gateway, 'gateway')}
                   disabled={
                     (!_.isEmpty(editData)
@@ -2190,18 +2165,15 @@ const CreateShipment = ({ history, location }) => {
                   SelectProps={{ displayEmpty: true }}
                   {...gateway.bind}
                 >
-                  <MenuItem value="">
-                    <span className="notranslate">{t('select')}</span>
-                  </MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {!_.isEmpty(availableGateways) && _.map(availableGateways, (avgt) => (
-                    <MenuItem key={avgt.gateway_uuid} value={avgt} className="notranslate">
+                    <MenuItem key={avgt.gateway_uuid} value={avgt}>
                       {avgt.name}
                     </MenuItem>
                   ))}
                 </TextField>
                 <Typography variant="caption" component="div" fontStyle="italic" color={theme.palette.background.light} mt={1}>
-                  Note: If no trackers appear in the drop down list, please verify that the
-                  tracker is Available and associated to the origin custodian.
+                  {t('createShipment.trackerDropdownNote')}
                 </Typography>
               </Grid>
             </Grid>
@@ -2209,28 +2181,28 @@ const CreateShipment = ({ history, location }) => {
               <Grid container spacing={4}>
                 <Grid item xs={6}>
                   <Typography variant="body1" component="div">
-                    Transmission/Measurement interval setting general guidance (may vary depending upon battery level, type, and conditions):
+                    {t('createShipment.intervalGuidanceTitle')}
                   </Typography>
                   <Typography>
                     <ul className="createShipmentGuidanceList">
-                      <li>5 minutes = &lt;1 week</li>
-                      <li>10 minutes = &lt;2 weeks</li>
-                      <li>20 minutes = &lt;3 weeks</li>
-                      <li>30 minutes = &lt;1 month</li>
-                      <li>1 hour = &lt;2 months</li>
-                      <li>2 hours = &lt;3 months</li>
-                      <li>6 hours = &lt;4 months</li>
-                      <li>12 hours = &lt;6 months</li>
+                      <li>{t('createShipment.intervalGuidance.5m')}</li>
+                      <li>{t('createShipment.intervalGuidance.10m')}</li>
+                      <li>{t('createShipment.intervalGuidance.20m')}</li>
+                      <li>{t('createShipment.intervalGuidance.30m')}</li>
+                      <li>{t('createShipment.intervalGuidance.1h')}</li>
+                      <li>{t('createShipment.intervalGuidance.2h')}</li>
+                      <li>{t('createShipment.intervalGuidance.6h')}</li>
+                      <li>{t('createShipment.intervalGuidance.12h')}</li>
                     </ul>
                   </Typography>
                   <Typography variant="caption" component="div" fontStyle="italic" color={theme.palette.background.light}>
-                    Note: numbers above based on 100% battery charge, non-lithium battery, in 0C-10C (32F-50F) temperature environment.
+                    {t('createShipment.intervalGuidanceNote')}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Grid item xs={12} className="createShipmentGatewayDetails">
                     <Typography variant="body1" component="div">
-                      Battery Level:
+                      {t('createShipment.batteryLevel')}
                     </Typography>
                     {gateway.value.last_known_battery_level
                       && _.gte(_.toNumber(gateway.value.last_known_battery_level), 90)
@@ -2263,8 +2235,8 @@ const CreateShipment = ({ history, location }) => {
                           select
                           fullWidth
                           disabled={cannotEdit}
-                          placeholder="Select..."
-                          label="Transmission interval"
+                          placeholder={t('createShipment.selectPlaceholder')}
+                          label={t('createShipment.transmissionInterval')}
                           onBlur={(e) => handleBlur(e, 'required', transmissionInterval, 'transmission-interval')}
                           InputLabelProps={{ shrink: true }}
                           SelectProps={{ displayEmpty: true }}
@@ -2274,9 +2246,7 @@ const CreateShipment = ({ history, location }) => {
                             measurementInterval.setValue(e.target.value);
                           }}
                         >
-                          <MenuItem value="">
-                            <span className="notranslate">{t('select')}</span>
-                          </MenuItem>
+                          <MenuItem value="">{t('common.select')}</MenuItem>
                           {!_.isEmpty(TIVE_GATEWAY_TIMES)
                             && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                               <MenuItem key={`${time.value}-${index}`} value={time.value}>
@@ -2291,16 +2261,14 @@ const CreateShipment = ({ history, location }) => {
                           select
                           fullWidth
                           disabled={cannotEdit}
-                          placeholder="Select..."
-                          label="Measurement interval"
+                          placeholder={t('createShipment.selectPlaceholder')}
+                          label={t('createShipment.measurementInterval')}
                           onBlur={(e) => handleBlur(e, 'required', measurementInterval, 'measurement-interval')}
                           InputLabelProps={{ shrink: true }}
                           SelectProps={{ displayEmpty: true }}
                           {...measurementInterval.bind}
                         >
-                          <MenuItem value="">
-                            <span className="notranslate">{t('select')}</span>
-                          </MenuItem>
+                          <MenuItem value="">{t('common.select')}</MenuItem>
                           {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
                             _.filter(TIVE_GATEWAY_TIMES, (tive) => (_.includes(gatewayType.value, 'ProofTracker') ? tive.value === transmissionInterval.value : tive.value <= transmissionInterval.value)),
                             (time, index) => (
@@ -2319,7 +2287,7 @@ const CreateShipment = ({ history, location }) => {
           </FormControl>
           <Grid container spacing={2}>
             <Grid item xs={6} sm={3}>
-              <Typography className="createShipmentFinalName">ID</Typography>
+              <Typography className="createShipmentFinalName">{t('createShipment.idShort')}</Typography>
               <TextField
                 variant="outlined"
                 id="org-id-final"
@@ -2330,18 +2298,18 @@ const CreateShipment = ({ history, location }) => {
               />
             </Grid>
             <Grid item xs={6} sm={5}>
-              <Typography className="createShipmentFinalName">SHIPMENT NAME</Typography>
+              <Typography className="createShipmentFinalName">{t('createShipment.shipmentNameUpper')}</Typography>
               <TextField
                 variant="outlined"
                 id="shipment-name-final"
                 fullWidth
                 disabled
-                className="createShipmentFinalNameDisplay noTranslate"
+                className="createShipmentFinalNameDisplay"
                 value={shipmentName.value}
               />
             </Grid>
             <Grid item xs={6} sm={2} mt={isMobile() ? -3 : 0}>
-              <Typography className="createShipmentFinalName">ORIGIN</Typography>
+              <Typography className="createShipmentFinalName">{t('createShipment.originShort')}</Typography>
               <TextField
                 variant="outlined"
                 id="origin-final"
@@ -2352,7 +2320,7 @@ const CreateShipment = ({ history, location }) => {
               />
             </Grid>
             <Grid item xs={6} sm={2} mt={isMobile() ? -3 : 0}>
-              <Typography className="createShipmentFinalName">DEST</Typography>
+              <Typography className="createShipmentFinalName">{t('createShipment.destShort')}</Typography>
               <TextField
                 variant="outlined"
                 id="dest-final"
@@ -2366,8 +2334,9 @@ const CreateShipment = ({ history, location }) => {
           <Grid container spacing={4}>
             <Grid item xs={12} mt={1}>
               <Typography variant="caption" component="div" textAlign="center" fontStyle="italic" color={theme.palette.background.light}>
-                This is your automated shipment number.
-                It is automatically generated from the form above.
+                {t('createShipment.autoShipmentNumberLine1')}
+                <br />
+                {t('createShipment.autoShipmentNumberLine2')}
               </Typography>
             </Grid>
             <Grid item xs={0.5} />
@@ -2379,7 +2348,7 @@ const CreateShipment = ({ history, location }) => {
                 onClick={(e) => history.push(routes.SHIPMENT)}
                 className="createShipmentActionButtons"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </Grid>
             <Grid item xs={5.5} mt={5}>
@@ -2395,7 +2364,7 @@ const CreateShipment = ({ history, location }) => {
                   onClick={(e) => handleSubmit(e, true)}
                   className="createShipmentActionButtons"
                 >
-                  Save as Draft
+                  {t('createShipment.saveAsDraft')}
                 </Button>
               )}
               {gateway.value && (
@@ -2410,7 +2379,7 @@ const CreateShipment = ({ history, location }) => {
                   onClick={(e) => handleSubmit(e, false)}
                   className="createShipmentActionButtons"
                 >
-                  {_.isEmpty(editData) ? 'Create a shipment' : 'Update shipment'}
+                  {_.isEmpty(editData) ? t('createShipment.createShipmentCta') : t('createShipment.updateShipmentCta')}
                 </Button>
               )}
             </Grid>
@@ -2419,7 +2388,7 @@ const CreateShipment = ({ history, location }) => {
           <Grid container spacing={4}>
             <Grid item xs={12} mt={2}>
               <Typography variant="caption" component="div" textAlign="center" fontStyle="italic" color={theme.palette.background.light}>
-                You must fill out all required fields to create an active shipment
+                {t('createShipment.requiredFieldsNote')}
               </Typography>
             </Grid>
           </Grid>
@@ -2443,8 +2412,8 @@ const CreateShipment = ({ history, location }) => {
               />
             )}
           <DialogTitle id="save-template-title">
-            {!saveAsName && 'All Templates'}
-            {saveAsName && 'Save template as...'}
+            {!saveAsName && t('createShipmentTemplates.allTemplates')}
+            {saveAsName && t('createShipmentTemplates.saveTemplateAs')}
             <IconButton
               aria-label="save-template-close"
               className="createShipmentCloseButton"
@@ -2462,14 +2431,13 @@ const CreateShipment = ({ history, location }) => {
               columns={[
                 {
                   name: 'name',
-                  label: 'Template Name',
+                  label: t('createShipmentTemplates.templateName'),
                   options: {
                     sort: true,
                     sortThirdClickReset: true,
                     filter: true,
                     setCellProps: () => ({
                       style: { textDecoration: !saveAsName && 'underline', textDecoractionColor: !saveAsName && theme.palette.background.light },
-                      className: 'notranslate',
                     }),
                   },
                 },
@@ -2478,6 +2446,7 @@ const CreateShipment = ({ history, location }) => {
                   _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date'))
                     ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'date')).unit_of_measure
                     : '',
+                  t,
                 ),
               ]}
               extraOptions={{
@@ -2505,11 +2474,11 @@ const CreateShipment = ({ history, location }) => {
                     variant="outlined"
                     id="template-name"
                     fullWidth
-                    label="Template Name"
-                    placeholder="32 characters maximum"
+                    label={t('createShipmentTemplates.templateName')}
+                    placeholder={t('createShipmentTemplates.placeholderMaxChars', { max: 32 })}
                     value={saveAsName}
                     onChange={(e) => setSaveAsName(e.target.value)}
-                    helperText="There is a 32-character limit on template names"
+                    helperText={t('createShipmentTemplates.helperMaxChars', { max: 32 })}
                     inputProps={{ maxLength: 32 }}
                   />
                 </Grid>
@@ -2521,7 +2490,7 @@ const CreateShipment = ({ history, location }) => {
                     style={{ height: '72.4%' }}
                     onClick={(e) => setShowTemplateDT(false)}
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                 </Grid>
                 <Grid item xs={2}>
@@ -2532,7 +2501,7 @@ const CreateShipment = ({ history, location }) => {
                     style={{ height: '72.4%' }}
                     onClick={saveAsTemplate}
                   >
-                    Save
+                    {t('createShipment.save')}
                   </Button>
                 </Grid>
               </Grid>
@@ -2544,10 +2513,10 @@ const CreateShipment = ({ history, location }) => {
         open={confirmReplace}
         setOpen={setConfirmReplace}
         submitAction={replaceTemplate}
-        title={`"${templateName || saveAsName}" already exists. Do you want to replace it?`}
-        msg1="A template with the same name already exists."
-        msg2="Replacing it will overwrite its current contents."
-        submitText={templateName || saveAsName ? 'Replace template' : 'Rename template'}
+        title={t('createShipmentTemplates.confirmReplaceTitle', { name: templateName || saveAsName })}
+        msg1={t('createShipmentTemplates.confirmReplaceMsg1')}
+        msg2={t('createShipmentTemplates.confirmReplaceMsg2')}
+        submitText={templateName || saveAsName ? t('createShipmentTemplates.replaceTemplate') : t('createShipmentTemplates.renameTemplate')}
       />
       <ConfirmModal
         open={confirmDelete}
@@ -2556,9 +2525,9 @@ const CreateShipment = ({ history, location }) => {
           deleteShipmentTemplateMutation(template.id);
           setConfirmDelete(false);
         }}
-        title={`Are you sure you want to delete the template "${template.name}"?`}
-        msg1="This action cannot be undone."
-        submitText="Delete template"
+        title={t('createShipmentTemplates.confirmDeleteTitle', { name: template.name })}
+        msg1={t('createShipmentTemplates.confirmDeleteMsg1')}
+        submitText={t('createShipmentTemplates.deleteTemplate')}
       />
       <ConfirmModal
         open={confirmLeave}
@@ -2567,8 +2536,8 @@ const CreateShipment = ({ history, location }) => {
           setTriggerExit((obj) => ({ ...obj, onOk: true }));
           setConfirmLeave(false);
         }}
-        title="Your changes are unsaved and will be discarded. Are you sure you want to leave?"
-        submitText="Yes"
+        title={t('createShipmentTemplates.confirmLeaveTitle')}
+        submitText={t('common.yes')}
       />
       <CustomFileViewer
         open={openFileViewerModal}

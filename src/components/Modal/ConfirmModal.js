@@ -7,6 +7,7 @@ import {
   DialogTitle,
   Typography,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 /**
  * ConfirmModal is a reusable modal dialog component used to prompt the user for confirmation.
@@ -30,6 +31,8 @@ const ConfirmModal = ({
   msg1, // Optional message to be displayed in the content area (line 1)
   msg2, // Optional message to be displayed in the content area (line 2)
 }) => {
+  const { t } = useTranslation();
+
   // Function to handle modal closing without confirming
   const handleClose = () => {
     setOpen(false); // Close the modal by updating the open state
@@ -78,7 +81,7 @@ const ConfirmModal = ({
             onClick={handleClose}
             color="primary"
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           {/* Confirm button - calls submitAction to proceed */}
           <Button

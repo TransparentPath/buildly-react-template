@@ -72,7 +72,11 @@ const AlertNotifications = ({
 
   useEffect(() => {
     if (!_.isEmpty(user)) {
-      setPushGrp(user.organization.organization_uuid);
+      const orgId = user.organization.organization_uuid;
+      // Only update pushGrp if it is different to avoid infinite loop
+      if (pushGrp !== orgId) {
+        setPushGrp(orgId);
+      }
     }
   }, [user]);
 
@@ -144,18 +148,24 @@ const AlertNotifications = ({
       let alertObj = {
         id: parameterType,
         color: 'green',
-        title: `${_.capitalize(parameterType)} Excursion Recovered`,
+        title: t('alertNotifications.recovered', {
+          parameter: _.capitalize(parameterType),
+        }),
       };
       if (a.severity === 'error') {
         alertObj = {
           ...alertObj,
-          title: `Maximum ${_.capitalize(parameterType)} Excursion`,
+          title: t('alertNotifications.maxExcursion', {
+            parameter: _.capitalize(parameterType),
+          }),
           color: theme.palette.error.main,
         };
       } else if (a.severity === 'info') {
         alertObj = {
           ...alertObj,
-          title: `Minimum ${_.capitalize(parameterType)} Excursion`,
+          title: t('alertNotifications.minExcursion', {
+            parameter: _.capitalize(parameterType),
+          }),
           color: theme.palette.info.main,
         };
       }
@@ -205,7 +215,7 @@ const AlertNotifications = ({
           native: true,
           duration: window.env.hide_notification,
           title: appTitle,
-          message: `Shipment: ${a.shipment_name} | ${a.alert_message} ${moment(a.alert_time).tz(timeZone).toString()}`,
+          message: `${t('alertNotifications.shipment')}: ${a.shipment_name} | ${a.alert_message} ${moment(a.alert_time).tz(timeZone).toString()}`,
           onClick: () => {
             setOpen(true);
             const seen = getViewedNotifications();
@@ -247,8 +257,13 @@ const AlertNotifications = ({
       >
         <DialogTitle>
           <Grid container alignItems="center">
-            <Typography variant="h6" flex={1}>Shipment Notifications</Typography>
-            <IconButton onClick={() => { setOpen(false); setHideAlertBadge(true); }}>
+            <Typography variant="h6" flex={1}>{t('alertNotifications.shipmentNotifications')}</Typography>
+            <IconButton
+              onClick={() => {
+                setOpen(false);
+                setHideAlertBadge(true);
+              }}
+            >
               <CloseIcon fontSize="large" />
             </IconButton>
           </Grid>
@@ -256,7 +271,7 @@ const AlertNotifications = ({
         <DialogContent>
           {notifications.length === 0 ? (
             <Grid container justifyContent="center" alignItems="center" style={{ height: '200px' }}>
-              <Typography>No new alerts</Typography>
+              <Typography>{t('alertNotifications.noNewAlerts')}</Typography>
             </Grid>
           ) : (
             notifications.map((noti, idx) => (

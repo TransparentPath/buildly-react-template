@@ -14,8 +14,11 @@ import { getProductQuery } from '@react-query/queries/items/getProductQuery';
 import { getProductTypeQuery } from '@react-query/queries/items/getProductTypeQuery';
 import { useDeleteItemMutation } from '@react-query/mutations/items/deleteItemMutation';
 import useAlert from '@hooks/useAlert';
+import { useTranslation } from 'react-i18next';
 
 const Items = ({ history, redirectTo }) => {
+  const { t } = useTranslation();
+
   // Fetch the logged-in user and their organization ID
   const user = getUser();
   const organization = user.organization.organization_uuid;
@@ -132,17 +135,18 @@ const Items = ({ history, redirectTo }) => {
               (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
             ).unit_of_measure
             : '',
+          t,
         )}
-        filename="ItemsData" // Filename for downloading the data
-        addButtonHeading="Add Item" // Heading for the add button
+        filename={t('items.filename')} // Filename for downloading the data
+        addButtonHeading={t('items.addButtonHeading')} // Heading for the add button
         onAddButtonClick={onAddButtonClick} // Trigger the onAddButtonClick function when clicked
         editAction={editItems} // Action to handle editing an item
         deleteAction={deleteItems} // Action to handle deleting an item
         openDeleteModal={openDeleteModal} // Pass modal visibility state
         setDeleteModal={setDeleteModal} // Pass the setter for closing the modal
         handleDeleteModal={handleDeleteModal} // Handle the confirmation of item deletion
-        deleteModalTitle="Are you sure you want to delete this Item?" // Modal title
-        tableHeader="Items" // Table header text
+        deleteModalTitle={t('items.deleteModalTitle')} // Modal title
+        tableHeader={t('items.tableHeader')} // Table header text
       >
         {/* Define routes for adding and editing items */}
         <Route path={`${addItemPath}`} component={AddItems} />

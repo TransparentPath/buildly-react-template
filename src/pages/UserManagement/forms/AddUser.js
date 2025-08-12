@@ -272,7 +272,7 @@ const AddUser = ({ open, setOpen }) => {
       <FormModal
         open={open}
         handleClose={closeFormModal}
-        title="Add Users"
+        title={t('addUser.title')}
         openConfirmModal={openConfirmModal}
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
@@ -301,7 +301,7 @@ const AddUser = ({ open, setOpen }) => {
                 required
                 fullWidth
                 id="user_email"
-                label="User Emails"
+                label={t('addUser.userEmails')}
                 name="user_email"
                 autoComplete="user_email"
                 error={formError.user_email && formError.user_email.error}
@@ -317,7 +317,6 @@ const AddUser = ({ open, setOpen }) => {
               <>
                 <Grid item xs={12}>
                   <TextField
-                    className="notranslate"
                     variant="outlined"
                     margin="normal"
                     fullWidth
@@ -327,15 +326,13 @@ const AddUser = ({ open, setOpen }) => {
                     }}
                     id="organization_name"
                     name="organization_name"
-                    label={(
-                      <span className="translate">Organization Name</span>
-                    )}
+                    label={t('addUser.organizationName')}
                     autoComplete="organization_name"
                     {...organization_name.bind}
                     onClick={(e) => setMainMenuOpen(!mainMenuOpen)}
                   >
                     {displayOrgs && !_.isEmpty(displayOrgs) && displayOrgs.map((org) => (
-                      <MenuItem className="notranslate" key={org.id} value={org.name} style={{ display: org.organization_type === 1 && 'none' }}>
+                      <MenuItem key={org.id} value={org.name} style={{ display: org.organization_type === 1 && 'none' }}>
                         {org.name}
                         {org.reseller_customer_orgs && (
                           <IconButton
@@ -374,13 +371,11 @@ const AddUser = ({ open, setOpen }) => {
                 select
                 id="user_role"
                 name="user_role"
-                label="User Role"
+                label={t('addUser.userRole')}
                 autoComplete="user_role"
                 {...user_role.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {!_.isEmpty(rolesData) && _.map(rolesData, (role) => (
                   <MenuItem
                     key={role.id}
@@ -402,7 +397,7 @@ const AddUser = ({ open, setOpen }) => {
                 className="addOrganizationSubmit"
                 disabled={submitDisabled()}
               >
-                Register & Send
+                {t('addUser.registerSend')}
               </Button>
             </Grid>
           </Grid>

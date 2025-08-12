@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // `useMutation` hook from React Query to handle mutations (API requests)
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to handle and display error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to delete an existing shipment template.
@@ -42,7 +43,7 @@ export const useDeleteShipmentTemplateMutation = (section, organization, display
           queryKey: ['shipmentTemplates', organization], // Query key for shipment templates related to the organization
         });
         // Display a success alert to inform the user about the successful deletion
-        displayAlert('success', 'Successfully deleted template');
+        displayAlert('success', i18n.t('api.successMessages.Successfully deleted template'));
       },
       /**
        * onError callback: This function is triggered when the mutation fails.

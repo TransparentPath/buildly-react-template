@@ -12,8 +12,11 @@ import { routes } from '@routes/routesConstants';
 import { getFormattedRecipientAddresses, getRecipientAddressColumns } from '@utils/constants';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import AddRecipientAddress from '../forms/AddRecipientAddress';
+import { useTranslation } from 'react-i18next';
 
 const RecipientAddress = ({ redirectTo, history }) => {
+  const { t } = useTranslation();
+
   // Get the current user's organization ID
   const organization = getUser().organization.organization_uuid;
 
@@ -105,16 +108,17 @@ const RecipientAddress = ({ redirectTo, history }) => {
         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
           : '',
+        t,
       )}
-      filename="RecipientAddress" // For export/download
-      addButtonHeading="Add Address"
+      filename={t('recipientAddress.filename')} // For export/download
+      addButtonHeading={t('recipientAddress.addAddress')}
       onAddButtonClick={onAddButtonClick} // Function for Add button
       editAction={editType} // Function to handle row edit
       deleteAction={deleteType} // Function to handle row delete
       openDeleteModal={openDeleteModal} // Delete modal visibility
       setDeleteModal={setDeleteModal} // Setter for modal state
       handleDeleteModal={handleDeleteModal} // Confirm delete handler
-      deleteModalTitle="Are you sure you want to Delete this Recipient Address?" // Modal title
+      deleteModalTitle={t('recipientAddress.deleteModalTitle')} // Modal title
       tableHeight="300px" // Table view height
     >
       {/* Route for adding a recipient address */}

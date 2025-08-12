@@ -6,6 +6,7 @@ import {
   Tab,
   Tabs,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { getUser } from '@context/User.context'; // Retrieve the current authenticated user
 import { checkForGlobalAdmin } from '@utils/utilMethods'; // Check if the user is a global admin
 import { routes } from '@routes/routesConstants'; // Routing constants for the application
@@ -21,11 +22,12 @@ import AddResellers from './forms/AddResellers'; // Form to add or update resell
  */
 const UserManagement = () => {
   const history = useHistory(); // React Router's history for programmatic navigation
+  const { t } = useTranslation();
 
   // Navigation sub-tabs for user management
   const subNav = [
-    { label: 'Current users', value: 'current-users' },
-    { label: 'User groups', value: 'groups' },
+    { label: t('userManagement.currentUsers'), value: 'current-users' },
+    { label: t('userManagement.userGroups'), value: 'groups' },
   ];
 
   // Determine which view should be displayed based on the current path
@@ -71,7 +73,7 @@ const UserManagement = () => {
           color="primary"
           onClick={() => setShowAddOrganization(true)} // Open the Add Organization form when clicked
         >
-          + Add Organization
+          {t('userManagement.addOrganization')}
         </Button>
       )}
 
@@ -83,7 +85,7 @@ const UserManagement = () => {
         onClick={() => setShowAddUser(true)} // Open the Add User form when clicked
         style={{ marginLeft: isSuperAdmin ? '20px' : '0px' }} // Adjust the margin if the user is a super admin
       >
-        + Add Users
+        {t('userManagement.addUsers')}
       </Button>
 
       {/* Show the "Create/Update Reseller Org." button only if the user is a super admin */}
@@ -95,7 +97,7 @@ const UserManagement = () => {
           onClick={() => setShowAddResellers(true)} // Open the Add Resellers form when clicked
           style={{ marginLeft: '20px' }}
         >
-          + Create/Update Reseller Org.
+          {t('userManagement.addResellerOrg')}
         </Button>
       )}
 

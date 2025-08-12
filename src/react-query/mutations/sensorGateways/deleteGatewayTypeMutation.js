@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for handling mutations and cache management
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for extracting error messages from API responses
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for deleting a gateway type (tracker type).
@@ -42,7 +43,7 @@ export const useDeleteGatewayTypeMutation = (displayAlert, section) => {
           queryKey: ['gatewayTypes'], // Invalidate queries related to gateway types
         });
         // Displaying a success message
-        displayAlert('success', 'Tracker type deleted successfully!');
+        displayAlert('success', i18n.t('api.successMessages.Tracker type deleted successfully!'));
       },
       /**
        * onError callback invoked when the mutation fails.

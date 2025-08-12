@@ -4,6 +4,7 @@ import { httpService } from '@modules/http/http.service'; // Custom HTTP service
 import _ from 'lodash'; // Lodash utility library for data manipulation
 import { getLocations } from '@utils/getLocations'; // Utility to get locations for carriers
 import { getErrorMessage } from '@utils/utilMethods'; // Utility to handle and display error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for editing an existing shipment.
@@ -255,7 +256,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
         await queryClient.invalidateQueries({
           queryKey: ['custodians'],
         });
-        displayAlert('success', 'Successfully edited shipment');
+        displayAlert('success', i18n.t('api.successMessages.Successfully edited shipment'));
       },
       /**
        * onError callback: This is triggered when the mutation fails.

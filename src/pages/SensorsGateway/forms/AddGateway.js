@@ -66,8 +66,8 @@ const AddGateway = ({
   const mac_address = useInput(editData.mac_address || '');
   const [custodian_uuid, setcustodian_uuid] = useState(editData.custodian_uuid || '');
 
-  const buttonText = editPage ? 'Save' : 'Add Tracker'; // Button text based on form mode
-  const formTitle = editPage ? 'Edit Tracker' : 'Add Tracker'; // Form title based on form mode
+  const buttonText = editPage ? t('addGateway.save') : t('addGateway.addTracker'); // Button text based on form mode
+  const formTitle = editPage ? t('addGateway.editTracker') : t('addGateway.addTracker'); // Form title based on form mode
 
   const user = getUser(); // Fetch the current logged-in user
   const organization = user.organization.organization_uuid; // Get the organization UUID of the logged-in user
@@ -255,7 +255,7 @@ const AddGateway = ({
                   id="gateway_name"
                   required
                   disabled={!_.isEmpty(editData)}
-                  label="Tracker Name"
+                  label={t('addGateway.trackerName')}
                   name="gateway_name"
                   autoComplete="gateway_name"
                   error={formError.gateway_name && formError.gateway_name.error}
@@ -268,12 +268,11 @@ const AddGateway = ({
             <Card variant="outlined" className="gatewayCardItems">
               <CardContent>
                 <Typography variant="h6" gutterBottom mt={1} mb={isMobile() ? 0 : 1.65}>
-                  Tracker Info
+                  {t('addGateway.trackerInfo')}
                 </Typography>
                 <Grid container spacing={isDesktop() ? 2 : 0}>
                   <Grid className="gatewayInputWithTooltip" item xs={12} sm={6}>
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       margin="normal"
                       fullWidth
@@ -281,21 +280,18 @@ const AddGateway = ({
                       disabled={!_.isEmpty(editData)}
                       id="gateway_type"
                       select
-                      label={<span className="translate">Tracker Type</span>}
+                      label={t('addGateway.trackerType')}
                       error={formError.gateway_type && formError.gateway_type.error}
                       helperText={formError.gateway_type ? formError.gateway_type.message : ''}
                       onBlur={(e) => handleBlur(e, 'required', gateway_type, 'gateway_type')}
                       {...gateway_type.bind}
                     >
-                      <MenuItem value="">
-                        <span className="notranslate">{t('select')}</span>
-                      </MenuItem>
+                      <MenuItem value="">{t('common.select')}</MenuItem>
                       {gatewayTypesData
                         && _.map(
                           gatewayTypesData,
                           (item, index) => (
                             <MenuItem
-                              className="notranslate"
                               key={`gatewayType${index}:${item.id}`}
                               value={item.url}
                             >
@@ -313,7 +309,7 @@ const AddGateway = ({
                       required
                       id="gateway_status"
                       select
-                      label="Tracker Status"
+                      label={t('addGateway.trackerStatus')}
                       error={formError.gateway_status && formError.gateway_status.error}
                       helperText={formError.gateway_status ? formError.gateway_status.message : ''}
                       onBlur={(e) => handleBlur(
@@ -324,9 +320,7 @@ const AddGateway = ({
                       )}
                       {...gateway_status.bind}
                     >
-                      <MenuItem value="">
-                        <span className="notranslate">{t('select')}</span>
-                      </MenuItem>
+                      <MenuItem value="">{t('common.select')}</MenuItem>
                       {GATEWAY_STATUS
                         && _.map(
                           GATEWAY_STATUS,
@@ -343,7 +337,7 @@ const AddGateway = ({
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <DatePickerComponent
-                      label="Activated"
+                      label={t('addGateway.activated')}
                       selectedDate={
                         moment(activation_date)
                           .tz(data)
@@ -364,7 +358,7 @@ const AddGateway = ({
                       fullWidth
                       disabled={!_.isEmpty(editData)}
                       id="sim_card_id"
-                      label="IMEI"
+                      label={t('addGateway.imei')}
                       name="sim_card_id"
                       autoComplete="sim_card_id"
                       {...sim_card_id.bind}
@@ -377,7 +371,7 @@ const AddGateway = ({
                       fullWidth
                       disabled={!_.isEmpty(editData)}
                       id="battery_level"
-                      label="Battery(%)"
+                      label={t('addGateway.battery')}
                       name="battery_level"
                       autoComplete="battery_level"
                       {...battery_level.bind}
@@ -390,7 +384,7 @@ const AddGateway = ({
                       fullWidth
                       disabled={!_.isEmpty(editData)}
                       id="mac_address"
-                      label="Mac Address"
+                      label={t('addGateway.macAddress')}
                       name="mac_address"
                       autoComplete="mac_address"
                       {...mac_address.bind}
@@ -398,13 +392,12 @@ const AddGateway = ({
                   </Grid>
                   <Grid className="gatewayInputWithTooltip" item xs={12}>
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       margin="normal"
                       id="shipper_uuid"
                       select
                       fullWidth
-                      label={<span className="translate">Shipper</span>}
+                      label={t('addGateway.shipper')}
                       disabled={viewOnly}
                       error={formError.shipper_uuid && formError.shipper_uuid.error}
                       helperText={formError.shipper_uuid ? formError.shipper_uuid.message : ''}
@@ -412,9 +405,7 @@ const AddGateway = ({
                       value={custodian_uuid}
                       onChange={onInputChange}
                     >
-                      <MenuItem value="">
-                        <span className="notranslate">{t('select')}</span>
-                      </MenuItem>
+                      <MenuItem value="">{t('common.select')}</MenuItem>
                       {custodianList
                         && _.map(
                           _.orderBy(
@@ -426,7 +417,6 @@ const AddGateway = ({
                             <MenuItem
                               key={`custodian${index}:${item.id}`}
                               value={item.custodian_uuid}
-                              className="notranslate"
                             >
                               {item.name}
                             </MenuItem>
@@ -442,7 +432,7 @@ const AddGateway = ({
                         fullWidth
                         disabled={!_.isEmpty(editData)}
                         id="last_known_location"
-                        label="Last Known Location"
+                        label={t('addGateway.lastKnownLocation')}
                         name="last_known_location"
                         autoComplete="last_known_location"
                         value={last_known_location}
@@ -498,7 +488,7 @@ const AddGateway = ({
                   onClick={discardFormData}
                   className="gatewaySubmit"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </Grid>
             </Grid>

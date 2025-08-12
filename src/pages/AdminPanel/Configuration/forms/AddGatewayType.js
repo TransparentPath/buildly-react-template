@@ -14,8 +14,11 @@ import { useAddGatewayTypeMutation } from '@react-query/mutations/sensorGateways
 import { useEditGatewayTypeMutation } from '@react-query/mutations/sensorGateways/editGatewayTypeMutation'; // Mutation hook to edit existing gateway type
 import useAlert from '@hooks/useAlert'; // Custom hook to display alerts
 import '../../AdminPanelStyles.css'; // Styling
+import { useTranslation } from 'react-i18next';
 
 const AddGatewayType = ({ history, location }) => {
+  const { t } = useTranslation();
+
   // State to manage form modal visibility
   const [openFormModal, setFormModal] = useState(true);
   // State to manage confirmation modal visibility when unsaved data exists
@@ -36,8 +39,8 @@ const AddGatewayType = ({ history, location }) => {
   const [formError, setFormError] = useState({}); // State to track form input validation errors
 
   // UI texts depending on whether it's add or edit mode
-  const buttonText = editPage ? 'Save' : 'Add Tracker Type';
-  const formTitle = editPage ? 'Edit Tracker Type' : 'Add Tracker Type';
+  const buttonText = editPage ? t('addGatewayType.save') : t('addGatewayType.addTrackerType');
+  const formTitle = editPage ? t('addGatewayType.editTrackerType') : t('addGatewayType.addTrackerType');
 
   /**
    * Closes the form modal with confirmation if there are unsaved changes
@@ -152,13 +155,12 @@ const AddGatewayType = ({ history, location }) => {
             <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid item xs={12}>
                 <TextField
-                  className="notranslate"
                   variant="outlined"
                   margin="normal"
                   fullWidth
                   required
                   id="name"
-                  label={<span className="translate">Tracker Type</span>}
+                  label={t('addGatewayType.trackerType')}
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
@@ -189,7 +191,7 @@ const AddGatewayType = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('addGatewayType.cancel')}
                   </Button>
                 </Grid>
               </Grid>

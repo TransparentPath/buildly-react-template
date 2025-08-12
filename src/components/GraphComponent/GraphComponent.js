@@ -48,16 +48,16 @@ const GraphComponent = ({
           <div className="graphLegendDiv" style={{ marginBottom: 6, marginTop: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <div className="graphNormalColor" />
-              <Typography className="notranslate" variant="body1">{t(selectedGraph)}</Typography>
+              <Typography variant="body1">{t(`graph.metrics.${selectedGraph}`, selectedGraph)}</Typography>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <div className="graphMaxColor" />
-              <Typography className="notranslate" variant="body1">{t(`max_${selectedGraph}`)}</Typography>
+              <Typography variant="body1">{t(`graph.metrics.max_${selectedGraph}`)}</Typography>
             </div>
             {_.includes(_.keysIn(data[0]), 'min') && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <div className="graphMinColor" />
-                <Typography className="notranslate" variant="body1">{t(`min_${selectedGraph}`)}</Typography>
+                <Typography variant="body1">{t(`graph.metrics.min_${selectedGraph}`)}</Typography>
               </div>
             )}
           </div>
@@ -127,7 +127,7 @@ const GraphComponent = ({
           variant="body1"
           style={{ marginTop: theme.spacing(5), textAlign: 'center' }}
         >
-          No data to display
+          {t('graph.noData')}
         </Typography>
       )}
     </div>

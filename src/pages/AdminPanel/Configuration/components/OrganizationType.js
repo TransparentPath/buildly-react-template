@@ -12,8 +12,11 @@ import { getUnitQuery } from '@react-query/queries/items/getUnitQuery'; // API f
 import { useDeleteOrganizationTypeMutation } from '@react-query/mutations/authUser/deleteOrganizationTypeMutation'; // Mutation hook to delete an organization type
 import useAlert from '@hooks/useAlert'; // Custom hook to show alert messages
 import { useStore } from '@zustand/timezone/timezoneStore'; // Zustand store to access timezone-related data
+import { useTranslation } from 'react-i18next';
 
 const OrganizationType = ({ redirectTo, history }) => {
+  const { t } = useTranslation();
+
   // State to control delete modal visibility
   const [openDeleteModal, setDeleteModal] = useState(false);
   // State to hold ID of the organization type to be deleted
@@ -96,16 +99,17 @@ const OrganizationType = ({ redirectTo, history }) => {
         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
           : '',
+        t,
       )}
-      filename="OrganizationType" // Filename for downloaded CSV/Excel
-      addButtonHeading="Organization Type" // Label for Add button
+      filename={t('organizationType.filename')} // Filename for downloaded CSV/Excel
+      addButtonHeading={t('organizationType.organizationType')} // Label for Add button
       onAddButtonClick={onAddButtonClick} // Handler for Add button
       editAction={editType} // Handler for Edit button
       deleteAction={deleteType} // Handler for Delete button
       openDeleteModal={openDeleteModal} // Boolean to control delete modal
       setDeleteModal={setDeleteModal} // Setter to toggle delete modal
       handleDeleteModal={handleDeleteModal} // Action on confirming deletion
-      deleteModalTitle="Are you sure you want to Delete this Organization Type?" // Confirmation message
+      deleteModalTitle={t('organizationType.deleteModalTitle')} // Confirmation message
       tableHeight="300px" // Fixed table height
     >
       {/* Route to AddOrganizationType form for adding */}

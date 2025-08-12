@@ -1,5 +1,6 @@
 /* eslint-disable no-else-return */
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import { Grid, Button } from '@mui/material';
 import useAlert from '@hooks/useAlert';
@@ -17,6 +18,8 @@ import { useEditGatewayMutation } from '@react-query/mutations/sensorGateways/ed
 import '../../AdminPanelStyles.css';
 
 const Devices = ({ isNewDevices }) => {
+  const { t } = useTranslation();
+
   // Initial setup: Retrieve user info and organization details
   const user = getUser();
   const org = user.organization.name;
@@ -132,7 +135,7 @@ const Devices = ({ isNewDevices }) => {
             onClick={fetchGateways} // Trigger fetching of new or reused gateways
             disabled={isFetchingNewGateway || isEditingGateway || isLoadingGateways} // Disable the button while data is being fetched
           >
-            {isNewDevices ? 'Upload New Devices' : 'Upload Reused Devices'}
+            {isNewDevices ? t('adminTrackers.uploadNewDevices') : t('adminTrackers.uploadReusedDevices')}
           </Button>
         </Grid>
       </Grid>
@@ -146,7 +149,7 @@ const Devices = ({ isNewDevices }) => {
               hideAddButton
               noOptionsIcon
               rows={rows || []} // Pass the rows (gateway data) to the table
-              columns={newGatewayColumns()} // Define the columns for the table
+              columns={newGatewayColumns(t)} // Define the columns for the table
               selectable={{
                 rows: 'multiple', // Allow multiple row selections
                 rowsHeader: true, // Allow header row selection
@@ -176,7 +179,7 @@ const Devices = ({ isNewDevices }) => {
               disabled={isFetchingNewGateway || isEditingGateway || isLoadingGateways || _.isEmpty(selectedRows) || _.isEmpty(organization)} // Disable if no rows are selected or if loading
               onClick={handleSubmit} // Trigger submit to update gateway data
             >
-              OK
+              {t('common.ok')}
             </Button>
           </Grid>
         </Grid>

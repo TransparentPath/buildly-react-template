@@ -1,5 +1,6 @@
 import React, { forwardRef, useState } from 'react';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { useTimezoneSelect, allTimezones } from 'react-timezone-select';
 import {
   Avatar,
@@ -34,6 +35,8 @@ import 'react-phone-input-2/lib/style.css';
 const Transition = forwardRef((props, ref) => <Slide direction="left" ref={ref} {...props} />);
 
 const AccountSettings = ({ open, setOpen }) => {
+  const { t } = useTranslation();
+
   // Fetch the current user's information from the context
   const user = getUser();
   const { displayAlert } = useAlert();
@@ -128,7 +131,7 @@ const AccountSettings = ({ open, setOpen }) => {
         <IconButton className="accountSettingsCloseIcon" onClick={closeAccountSettings}>
           <CloseIcon fontSize="large" />
         </IconButton>
-        Account and Settings
+        {t('accountSettings.title')}
         <Button
           type="button"
           color="secondary"
@@ -137,59 +140,59 @@ const AccountSettings = ({ open, setOpen }) => {
           onClick={handleUpdateSettings} // Trigger settings update
           sx={{ float: 'right' }}
         >
-          Update Settings
+          {t('accountSettings.updateButton')}
         </Button>
       </DialogTitle>
       <DialogContent className="accountSettingsDialogContent">
         {/* User Profile Section */}
         <Grid container display="flex" alignItems="center" className="accountSettingsUserIconName">
           <Avatar alt={user && `${user.first_name} ${user.last_name}`} src={profile} />
-          <Typography ml={2} variant="h5" fontWeight={500} className="notranslate">{user && `${user.first_name} ${user.last_name}`}</Typography>
+          <Typography ml={2} variant="h5" fontWeight={500}>{user && `${user.first_name} ${user.last_name}`}</Typography>
         </Grid>
         {/* Personal Information Display */}
         <Grid container spacing={2} className="accountSettingsPersonalNotification">
           <Grid item xs={12} mb={2}>
-            <Typography variant="h5" fontWeight={500}>Personal Information</Typography>
-            <Typography variant="caption">This information can only be changed by your account administrator</Typography>
+            <Typography variant="h5" fontWeight={500}>{t('accountSettings.personalInfo')}</Typography>
+            <Typography variant="caption">{t('accountSettings.personalInfoNote')}</Typography>
           </Grid>
           {/* Display First Name */}
           <Grid item xs={6} sm={4}>
-            <Typography variant="body1" fontWeight={500}>First Name:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.firstName')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
-            <Typography variant="body1" fontWeight={500} className="notranslate">{user && user.first_name}</Typography>
+            <Typography variant="body1" fontWeight={500}>{user && user.first_name}</Typography>
           </Grid>
           {/* Display Last Name */}
           <Grid item xs={6} sm={4}>
-            <Typography variant="body1" fontWeight={500}>Last Name:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.lastName')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
-            <Typography variant="body1" fontWeight={500} className="notranslate">{user && user.last_name}</Typography>
+            <Typography variant="body1" fontWeight={500}>{user && user.last_name}</Typography>
           </Grid>
           {/* Display Customer ID */}
           <Grid item xs={6} sm={4}>
-            <Typography variant="body1" fontWeight={500}>Customer ID:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.customerId')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
             <Typography variant="body1" fontWeight={500}>{user && user.core_user_uuid}</Typography>
           </Grid>
           {/* Display Company Name */}
           <Grid item xs={6} sm={4}>
-            <Typography variant="body1" fontWeight={500}>Company:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.company')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
-            <Typography variant="body1" fontWeight={500} className="notranslate">{user && user.organization && user.organization.name}</Typography>
+            <Typography variant="body1" fontWeight={500}>{user && user.organization && user.organization.name}</Typography>
           </Grid>
           {/* Display Email Address */}
           <Grid item xs={6} sm={4}>
-            <Typography variant="body1" fontWeight={500}>Email:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.email')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
             <Typography variant="body1" fontWeight={500}>{user && user.email}</Typography>
           </Grid>
           {/* Timezone Selection */}
           <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>Time Zone:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.timeZone')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8}>
             <TextField
@@ -212,62 +215,59 @@ const AccountSettings = ({ open, setOpen }) => {
         {/* Notification Preferences Section */}
         <Grid container spacing={2} className="accountSettingsPersonalNotification">
           <Grid item xs={12}>
-            <Typography variant="h5" fontWeight={500}>Notification Preferences</Typography>
+            <Typography variant="h5" fontWeight={500}>{t('accountSettings.notificationPreferences')}</Typography>
           </Grid>
           {/* Shipment Status Change Alerts */}
           <Grid item xs={12} className="accountSettingsStatusAlerts">
-            <Typography variant="body1" fontWeight={700}>Shipment Status Change Alerts:</Typography>
-            <Typography variant="caption">Enabling these alerts will send notifications of departure and arrival activity of your shipments.</Typography>
+            <Typography variant="body1" fontWeight={700}>{t('accountSettings.shipmentStatusAlerts')}</Typography>
+            <Typography variant="caption">{t('accountSettings.shipmentStatusAlertsNote')}</Typography>
           </Grid>
           {/* Email Alert Option */}
           <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>Email Alerts:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.emailAlerts')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8} alignSelf="center">
             <FormControlLabel
               labelPlacement="end"
-              label={geoOptions && geoOptions.email ? 'ON' : 'OFF'}
+              label={geoOptions && geoOptions.email ? t('accountSettings.on') : t('accountSettings.off')}
               control={<Switch checked={geoOptions && geoOptions.email} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, email: e.target.checked })} />}
             />
           </Grid>
           {/* WhatsApp Alert Option */}
           <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.whatsappAlerts')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8} alignSelf="center">
             <FormControlLabel
               labelPlacement="end"
-              label={geoOptions && geoOptions.whatsApp ? 'ON' : 'OFF'}
+              label={geoOptions && geoOptions.whatsApp ? t('accountSettings.on') : t('accountSettings.off')}
               control={<Switch checked={geoOptions && geoOptions.whatsApp} color="primary" onChange={(e) => setGeoOptions({ ...geoOptions, whatsApp: e.target.checked })} />}
             />
           </Grid>
           {/* Environmental Alerts */}
           <Grid item xs={12} className="accountSettingsEnvAlerts">
-            <Typography variant="body1" fontWeight={700}>Environmental Alerts:</Typography>
-            <Typography variant="caption">
-              Enabling these alerts will send notifications about excursions of your settings for
-              temperature, humidity, shock, tilt, and light exposure of your shipments.
-            </Typography>
+            <Typography variant="body1" fontWeight={700}>{t('accountSettings.envAlerts')}</Typography>
+            <Typography variant="caption">{t('accountSettings.envAlertsNote')}</Typography>
           </Grid>
           {/* Email Alert Option for Environmental Alerts */}
           <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>Email Alerts:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.emailAlerts')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8} alignSelf="center">
             <FormControlLabel
               labelPlacement="end"
-              label={envOptions && envOptions.email ? 'ON' : 'OFF'}
+              label={envOptions && envOptions.email ? t('accountSettings.on') : t('accountSettings.off')}
               control={<Switch checked={envOptions && envOptions.email} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, email: e.target.checked })} />}
             />
           </Grid>
           {/* WhatsApp Alert Option for Environmental Alerts */}
           <Grid item xs={6} sm={4} alignSelf="center">
-            <Typography variant="body1" fontWeight={500}>WhatsApp Alerts:</Typography>
+            <Typography variant="body1" fontWeight={500}>{t('accountSettings.whatsappAlerts')}</Typography>
           </Grid>
           <Grid item xs={6} sm={8} alignSelf="center">
             <FormControlLabel
               labelPlacement="end"
-              label={envOptions && envOptions.whatsApp ? 'ON' : 'OFF'}
+              label={envOptions && envOptions.whatsApp ? t('accountSettings.on') : t('accountSettings.off')}
               control={<Switch checked={envOptions && envOptions.whatsApp} color="primary" onChange={(e) => setEnvOptions({ ...envOptions, whatsApp: e.target.checked })} />}
             />
           </Grid>
@@ -277,7 +277,7 @@ const AccountSettings = ({ open, setOpen }) => {
               <PhoneInput
                 value={whatsappNumber}
                 onChange={(value) => setWhatsappNumber(value)}
-                placeholder="Send WhatsApp alerts on"
+                placeholder={t('accountSettings.whatsappPlaceholder')}
                 inputClass={whatsappFocus ? 'accountSettingPhoneInputFocused' : 'accountSettingPhoneInput'}
                 containerClass={whatsappFocus ? 'accountSettingPhoneInputContainerFocused' : 'accountSettingPhoneInputContainer'}
                 buttonClass="accountSettingFlagDropdown"
@@ -286,7 +286,7 @@ const AccountSettings = ({ open, setOpen }) => {
                 onBlur={() => setWhatsappFocus(false)}
               />
               <Typography variant="caption" className="accountSettingAddText">
-                Additional charges may apply
+                {t('accountSettings.additionalCharges')}
               </Typography>
             </Grid>
           )}

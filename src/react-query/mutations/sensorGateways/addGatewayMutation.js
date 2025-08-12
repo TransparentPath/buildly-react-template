@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for handling mutations and cache management
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for extracting error messages from API responses
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for adding a new gateway (tracker).
@@ -54,7 +55,7 @@ export const useAddGatewayMutation = (
           queryKey: ['gateways', organization], // Invalidate queries related to gateways for the specific organization
         });
         // Displaying a success message
-        displayAlert('success', 'Successfully added tracker');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added tracker'));
         // Redirecting the user if both `history` and `redirectTo` are provided
         if (history && redirectTo) {
           history.push(redirectTo);

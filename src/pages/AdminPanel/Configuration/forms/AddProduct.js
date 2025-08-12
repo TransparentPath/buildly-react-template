@@ -12,9 +12,12 @@ import { useAddProductMutation } from '@react-query/mutations/items/addProductMu
 import { useEditProductMutation } from '@react-query/mutations/items/editProductMutation';
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
+import { useTranslation } from 'react-i18next';
 
 // Main component for adding or editing a product
 const AddProduct = ({ history, location }) => {
+  const { t } = useTranslation();
+
   // Get the currently logged-in user's organization UUID
   const organization = getUser().organization.organization_uuid;
 
@@ -39,8 +42,8 @@ const AddProduct = ({ history, location }) => {
   const [formError, setFormError] = useState({});
 
   // Form button and title text based on mode
-  const buttonText = editPage ? 'Save' : 'Add Product';
-  const formTitle = editPage ? 'Edit Product' : 'Add Product';
+  const buttonText = editPage ? t('addProduct.save') : t('addProduct.addProduct');
+  const formTitle = editPage ? t('addProduct.editProduct') : t('addProduct.addProduct');
 
   /**
    * Close the form modal.
@@ -186,7 +189,7 @@ const AddProduct = ({ history, location }) => {
                   fullWidth
                   required
                   id="name"
-                  label="Name"
+                  label={t('addProduct.name')}
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
@@ -204,7 +207,7 @@ const AddProduct = ({ history, location }) => {
                   fullWidth
                   required
                   id="description"
-                  label="Description"
+                  label={t('addProduct.description')}
                   name="description"
                   autoComplete="description"
                   error={formError.description && formError.description.error}
@@ -223,7 +226,7 @@ const AddProduct = ({ history, location }) => {
                   required
                   type="number"
                   id="value"
-                  label="Value"
+                  label={t('addProduct.value')}
                   name="value"
                   autoComplete="value"
                   error={formError.value && formError.value.error}
@@ -242,7 +245,7 @@ const AddProduct = ({ history, location }) => {
                   required
                   type="number"
                   id="grossWeight"
-                  label="Gross Weight"
+                  label={t('addProduct.grossWeight')}
                   name="grossWeight"
                   autoComplete="grossWeight"
                   error={formError.grossWeight && formError.grossWeight.error}
@@ -275,7 +278,7 @@ const AddProduct = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('addProduct.cancel')}
                   </Button>
                 </Grid>
               </Grid>

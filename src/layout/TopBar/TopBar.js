@@ -90,6 +90,26 @@ const TopBar = ({
     }
   }
 
+  useEffect(() => {
+    if (!user) return;
+
+    setOrganization((prev) => {
+      if (prev == null) {
+        const orgName = user && user.organization ? user.organization.name : null;
+        return orgName != null ? orgName : null;
+      }
+      return prev;
+    });
+
+    setLanguage((prev) => {
+      if (prev == null) {
+        const userLang = _.isEmpty(user.user_language) ? 'English' : user.user_language;
+        return userLang;
+      }
+      return prev;
+    });
+  }, []);
+
   // Show "What's New" modal only once (per localStorage)
   useEffect(() => {
     setShowWhatsNewModal(_.isEmpty(localStorage.getItem('isWhatsNewShown')));
@@ -121,42 +141,6 @@ const TopBar = ({
   const { mutate: updateUserMutation, isLoading: isUpdateUser } = useUpdateUserMutation(history, displayAlert, 'Top bar');
 
   /**
-   * Sets the Google Translate cookie based on user language preference.
-   * Ensures consistency across reloads and domains.
-   */
-  const setGoogleTrans = () => {
-    // remove cookies
-    document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    if (!_.isEqual(document.cookie.search('googtrans'), -1)) {
-      // remove cookies
-      document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-      document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Domain=.transparentpath.com';
-
-      // set new googtrans cookies
-      const googtransLng = document.cookie.split('googtrans')[1].split(';')[0].split('/')[2];
-      const lng = LANGUAGES.find((item) => _.isEqual(item.value, googtransLng));
-      if (user && lng && !_.isEqual(user.user_language, lng.label)) {
-        const newLng = LANGUAGES.find((item) => _.isEqual(item.label, user.user_language));
-        document.cookie = `googtrans=/auto/${newLng.value}; Path=/; Domain=${window.location.hostname}`;
-      }
-    } else if (user && user.user_language) {
-      const isReloaded = sessionStorage.getItem('isReloaded');
-      const newLng = LANGUAGES.find((item) => _.isEqual(item.label, user.user_language));
-      document.cookie = `googtrans=/auto/${newLng.value}; Path=/; Domain=${window.location.hostname}`;
-      if (!isReloaded && !_.isEqual(user.user_language, 'English')) {
-        sessionStorage.setItem('isReloaded', 'true');
-      }
-    } else {
-      document.cookie = `googtrans=/auto/en; Path=/; Domain=${window.location.hostname}`;
-    }
-  };
-
-  // Run Google Translate cookie logic on language change
-  useEffect(() => {
-    setGoogleTrans();
-  }, [language]);
-
-  /**
    * Handler: switch active organization for user.
    */
   const handleOrganizationChange = (e) => {
@@ -185,8 +169,6 @@ const TopBar = ({
     const selected_language = e.target.value;
     if (!_.isEqual(language, selected_language)) {
       setLanguage(selected_language);
-      const langObj = LANGUAGES.find((item) => item.label === selected_language);
-      i18n.changeLanguage(langObj.value);
       const updateData = {
         id: user.id,
         organization_uuid: user.organization.organization_uuid,
@@ -258,7 +240,7 @@ const TopBar = ({
           edge="start"
           className="topbarMenuButton"
           onClick={() => setNavHidden(!navHidden)}
-          aria-label="menu"
+          aria-label={t('topbar.menu')}
           sx={{
             display: {
               xs: 'block',
@@ -272,7 +254,7 @@ const TopBar = ({
         <img
           src={logo}
           className="topbarLogo"
-          alt="Company text logo"
+          alt={t('topbar.companyLogoAlt')}
         />
         {/* Right side content: language, timezone, org, notifications, user */}
         <div className="topbarMenuRight">
@@ -282,14 +264,14 @@ const TopBar = ({
             variant="outlined"
             fullWidth
             id="language"
-            label="Language"
+            label={t('topbar.language')}
             select
             value={language}
             onChange={handleLanguageChange}
           >
             {_.map(LANGUAGES, (item, index) => (
               <MenuItem key={`${item.value}-${index}`} value={item.label}>
-                <span className="notranslate">{t(item.label)}</span>
+                {t(`languages.${item.label}`)}
               </MenuItem>
             ))}
           </TextField>
@@ -299,7 +281,7 @@ const TopBar = ({
             variant="outlined"
             fullWidth
             id="timezone"
-            label="Time Zone"
+            label={t('topbar.timezone')}
             select
             value={data}
             onChange={(e) => setTimezone(e.target.value)}
@@ -323,7 +305,7 @@ const TopBar = ({
           )}
           {/* Notifications icon */}
           <IconButton
-            aria-label="notifications"
+            aria-label={t('topbar.notifications')}
             aria-controls="menu-appbar"
             aria-haspopup="true"
             color="primary"
@@ -343,7 +325,7 @@ const TopBar = ({
           {/* Admin settings icon */}
           {(isAdmin || isSuperAdmin) && (
             <IconButton
-              aria-label="admin section"
+              aria-label={t('topbar.adminSection')}
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={settingMenu}
@@ -361,7 +343,7 @@ const TopBar = ({
           />
           {/* User avatar & menu */}
           <IconButton
-            aria-label="account of current user"
+            aria-label={t('topbar.account')}
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleMenu}
