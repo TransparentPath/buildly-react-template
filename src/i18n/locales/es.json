@@ -1118,11 +1118,27 @@
       "clustered": "Agrupado"
     }
   },
+  "createShipmentTemplates": {
+    "allTemplates": "Todas las Plantillas",
+    "saveTemplateAs": "Guardar plantilla como...",
+    "templateName": "Nombre de la Plantilla",
+    "placeholderMaxChars": "Máximo {{max}} caracteres",
+    "helperMaxChars": "Hay un límite de {{max}} caracteres para los nombres de plantillas",
+    "confirmReplaceTitle": "\"{{name}}\" ya existe. ¿Desea reemplazarlo?",
+    "confirmReplaceMsg1": "Ya existe una plantilla con el mismo nombre.",
+    "confirmReplaceMsg2": "Reemplazarla sobrescribirá su contenido actual.",
+    "replaceTemplate": "Reemplazar plantilla",
+    "renameTemplate": "Renombrar plantilla",
+    "confirmDeleteTitle": "¿Está seguro de que desea eliminar la plantilla \"{{name}}\"?",
+    "confirmDeleteMsg1": "Esta acción no se puede deshacer.",
+    "deleteTemplate": "Eliminar plantilla",
+    "confirmLeaveTitle": "Sus cambios no se han guardado y se perderán. ¿Está seguro de que desea salir?"
+  },
   "createShipment": {
     "createShipment": "Crear envío",
     "updateShipment": "Actualizar envío",
-    "fileTypeNotSupported": "Tipo de archivo no compatible.",
-    "fileTooLarge": "El tamaño del archivo es mayor que {{maxSize}}. Por favor, suba otro archivo.",
+    "fileTypeNotSupportedWithName": "{{name}}: El tipo de archivo no es compatible.",
+    "fileTooLargeWithName": "{{name}}: El tamaño del archivo es mayor que {{maxSize}}. Por favor, cargue otro archivo.",
     "selectPlaceholder": "Seleccionar...",
     "templates": "Plantillas",
     "seeAllTemplates": "Ver todas las plantillas...",
@@ -1190,8 +1206,11 @@
       "30m": "30 minutos = <1 mes",
       "1h": "1 hora = <2 meses",
       "2h": "2 horas = <3 meses",
+      "4h": "4 horas = <3,5 meses",
       "6h": "6 horas = <4 meses",
-      "12h": "12 horas = <6 meses"
+      "12h": "12 horas = <6 meses",
+      "18h": "18 horas = <8 meses",
+      "24h": "24 horas = <1 año"
     },
     "intervalGuidanceNote": "Nota: los números anteriores se basan en una batería cargada al 100%, batería no de litio, en un entorno de temperatura de 0°C-10°C (32°F-50°F).",
     "batteryLevel": "Nivel de batería:",

@@ -1118,11 +1118,27 @@
       "clustered": "Groupé"
     }
   },
+  "createShipmentTemplates": {
+    "allTemplates": "Tous les Modèles",
+    "saveTemplateAs": "Enregistrer le modèle sous...",
+    "templateName": "Nom du Modèle",
+    "placeholderMaxChars": "{{max}} caractères maximum",
+    "helperMaxChars": "Il y a une limite de {{max}} caractères pour les noms de modèles",
+    "confirmReplaceTitle": "\"{{name}}\" existe déjà. Voulez-vous le remplacer ?",
+    "confirmReplaceMsg1": "Un modèle portant le même nom existe déjà.",
+    "confirmReplaceMsg2": "Le remplacer écrasera son contenu actuel.",
+    "replaceTemplate": "Remplacer le modèle",
+    "renameTemplate": "Renommer le modèle",
+    "confirmDeleteTitle": "Êtes-vous sûr de vouloir supprimer le modèle \"{{name}}\" ?",
+    "confirmDeleteMsg1": "Cette action est irréversible.",
+    "deleteTemplate": "Supprimer le modèle",
+    "confirmLeaveTitle": "Vos modifications ne sont pas enregistrées et seront perdues. Êtes-vous sûr de vouloir quitter ?"
+  },
   "createShipment": {
     "createShipment": "Créer un envoi",
     "updateShipment": "Mettre à jour l’envoi",
-    "fileTypeNotSupported": "Type de fichier non pris en charge.",
-    "fileTooLarge": "La taille du fichier dépasse {{maxSize}}. Veuillez télécharger un autre fichier.",
+    "fileTypeNotSupportedWithName": "{{name}} : Type de fichier non pris en charge.",
+    "fileTooLargeWithName": "{{name}} : La taille du fichier dépasse {{maxSize}}. Veuillez télécharger un autre fichier.",
     "selectPlaceholder": "Sélectionner...",
     "templates": "Modèles",
     "seeAllTemplates": "Voir tous les modèles...",
@@ -1190,8 +1206,11 @@
       "30m": "30 minutes = <1 mois",
       "1h": "1 heure = <2 mois",
       "2h": "2 heures = <3 mois",
+      "4h": "4 heures = <3,5 mois",
       "6h": "6 heures = <4 mois",
-      "12h": "12 heures = <6 mois"
+      "12h": "12 heures = <6 mois",
+      "18h": "18 heures = <8 mois",
+      "24h": "24 heures = <1 an"
     },
     "intervalGuidanceNote": "Remarque : chiffres ci-dessus basés sur une batterie chargée à 100 %, batterie non lithium, dans un environnement de 0°C à 10°C (32°F à 50°F).",
     "batteryLevel": "Niveau de batterie :",

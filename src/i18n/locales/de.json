@@ -1118,11 +1118,27 @@
       "clustered": "Gruppiert"
     }
   },
+  "createShipmentTemplates": {
+    "allTemplates": "Alle Vorlagen",
+    "saveTemplateAs": "Vorlage speichern unter...",
+    "templateName": "Vorlagenname",
+    "placeholderMaxChars": "Maximal {{max}} Zeichen",
+    "helperMaxChars": "Es gibt ein Limit von {{max}} Zeichen für Vorlagennamen",
+    "confirmReplaceTitle": "\"{{name}}\" existiert bereits. Möchten Sie sie ersetzen?",
+    "confirmReplaceMsg1": "Eine Vorlage mit demselben Namen existiert bereits.",
+    "confirmReplaceMsg2": "Das Ersetzen wird den aktuellen Inhalt überschreiben.",
+    "replaceTemplate": "Vorlage ersetzen",
+    "renameTemplate": "Vorlage umbenennen",
+    "confirmDeleteTitle": "Möchten Sie die Vorlage \"{{name}}\" wirklich löschen?",
+    "confirmDeleteMsg1": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteTemplate": "Vorlage löschen",
+    "confirmLeaveTitle": "Ihre Änderungen wurden nicht gespeichert und gehen verloren. Möchten Sie wirklich verlassen?"
+  },
   "createShipment": {
     "createShipment": "Sendung erstellen",
     "updateShipment": "Sendung aktualisieren",
-    "fileTypeNotSupported": "Dateityp wird nicht unterstützt.",
-    "fileTooLarge": "Dateigröße ist größer als {{maxSize}}. Bitte laden Sie eine andere Datei hoch.",
+    "fileTypeNotSupportedWithName": "{{name}}: Dateityp wird nicht unterstützt.",
+    "fileTooLargeWithName": "{{name}}: Die Dateigröße ist größer als {{maxSize}}. Bitte laden Sie eine andere Datei hoch.",
     "selectPlaceholder": "Auswählen...",
     "templates": "Vorlagen",
     "seeAllTemplates": "Alle Vorlagen anzeigen...",
@@ -1190,8 +1206,11 @@
       "30m": "30 Minuten = <1 Monat",
       "1h": "1 Stunde = <2 Monate",
       "2h": "2 Stunden = <3 Monate",
+      "4h": "4 Stunden = <3,5 Monate",
       "6h": "6 Stunden = <4 Monate",
-      "12h": "12 Stunden = <6 Monate"
+      "12h": "12 Stunden = <6 Monate",
+      "18h": "18 Stunden = <8 Monate",
+      "24h": "24 Stunden = <1 Jahr"
     },
     "intervalGuidanceNote": "Hinweis: Die obigen Zahlen basieren auf einer 100%igen Batterieladung, keiner Lithiumbatterie, in einer Umgebungstemperatur von 0°C-10°C (32°F-50°F).",
     "batteryLevel": "Batteriestand:",

@@ -1118,11 +1118,27 @@
       "clustered": "クラスタ化"
     }
   },
+  "createShipmentTemplates": {
+    "allTemplates": "すべてのテンプレート",
+    "saveTemplateAs": "テンプレートに名前を付けて保存...",
+    "templateName": "テンプレート名",
+    "placeholderMaxChars": "最大 {{max}} 文字",
+    "helperMaxChars": "テンプレート名は最大 {{max}} 文字までです",
+    "confirmReplaceTitle": "\"{{name}}\" はすでに存在します。置き換えますか？",
+    "confirmReplaceMsg1": "同じ名前のテンプレートがすでに存在します。",
+    "confirmReplaceMsg2": "置き換えると現在の内容が上書きされます。",
+    "replaceTemplate": "テンプレートを置き換える",
+    "renameTemplate": "テンプレート名を変更する",
+    "confirmDeleteTitle": "テンプレート \"{{name}}\" を削除してもよろしいですか？",
+    "confirmDeleteMsg1": "この操作は元に戻せません。",
+    "deleteTemplate": "テンプレートを削除",
+    "confirmLeaveTitle": "変更は保存されず、破棄されます。終了してもよろしいですか？"
+  },
   "createShipment": {
     "createShipment": "出荷を作成",
     "updateShipment": "出荷を更新",
-    "fileTypeNotSupported": "サポートされていないファイルタイプです。",
-    "fileTooLarge": "ファイルサイズが{{maxSize}}を超えています。別のファイルをアップロードしてください。",
+    "fileTypeNotSupportedWithName": "{{name}}：このファイル形式はサポートされていません。",
+    "fileTooLargeWithName": "{{name}}：ファイルサイズが{{maxSize}}を超えています。別のファイルをアップロードしてください。",
     "selectPlaceholder": "選択...",
     "templates": "テンプレート",
     "seeAllTemplates": "すべてのテンプレートを見る...",
@@ -1190,8 +1206,11 @@
       "30m": "30分 = 1か月未満",
       "1h": "1時間 = 2か月未満",
       "2h": "2時間 = 3か月未満",
+      "4h": "4時間 = 3.5か月未満",
       "6h": "6時間 = 4か月未満",
-      "12h": "12時間 = 6か月未満"
+      "12h": "12時間 = 6か月未満",
+      "18h": "18時間 = 8か月未満",
+      "24h": "24時間 = 1年未満"
     },
     "intervalGuidanceNote": "注意: 上記の数値は、100%充電の非リチウムバッテリーを0°C〜10°C（32°F〜50°F）の環境で使用した場合の目安です。",
     "batteryLevel": "バッテリー残量:",

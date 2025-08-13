@@ -1118,11 +1118,27 @@
       "clustered": "Clustered"
     }
   },
+  "createShipmentTemplates": {
+    "allTemplates": "All Templates",
+    "saveTemplateAs": "Save template as...",
+    "templateName": "Template Name",
+    "placeholderMaxChars": "{{max}} characters maximum",
+    "helperMaxChars": "There is a {{max}}-character limit on template names",
+    "confirmReplaceTitle": "\"{{name}}\" already exists. Do you want to replace it?",
+    "confirmReplaceMsg1": "A template with the same name already exists.",
+    "confirmReplaceMsg2": "Replacing it will overwrite its current contents.",
+    "replaceTemplate": "Replace template",
+    "renameTemplate": "Rename template",
+    "confirmDeleteTitle": "Are you sure you want to delete the template \"{{name}}\"?",
+    "confirmDeleteMsg1": "This action cannot be undone.",
+    "deleteTemplate": "Delete template",
+    "confirmLeaveTitle": "Your changes are unsaved and will be discarded. Are you sure you want to leave?"
+  },
   "createShipment": {
     "createShipment": "Create Shipment",
     "updateShipment": "Update Shipment",
-    "fileTypeNotSupported": "File type is not supported.",
-    "fileTooLarge": "File size is more than {{maxSize}}. Please upload another file.",
+    "fileTypeNotSupportedWithName": "{{name}}: File type is not supported.",
+    "fileTooLargeWithName": "{{name}}: File size is more than {{maxSize}}. Please upload another file.",
     "selectPlaceholder": "Select...",
     "templates": "Templates",
     "seeAllTemplates": "See all templates...",
@@ -1190,8 +1206,11 @@
       "30m": "30 minutes = <1 month",
       "1h": "1 hour = <2 months",
       "2h": "2 hours = <3 months",
+      "4h": "4 hours = <3.5 months",
       "6h": "6 hours = <4 months",
-      "12h": "12 hours = <6 months"
+      "12h": "12 hours = <6 months",
+      "18h": "18 hours = <9 months",
+      "24h": "24 hours = <1 year"
     },
     "intervalGuidanceNote": "Note: numbers above based on 100% battery charge, non-lithium battery, in 0C-10C (32F-50F) temperature environment.",
     "batteryLevel": "Battery Level:",

@@ -1119,11 +1119,27 @@
       "clustered": "مجمّعة"
     }
   },
+  "createShipmentTemplates": {
+    "allTemplates": "جميع القوالب",
+    "saveTemplateAs": "حفظ القالب باسم...",
+    "templateName": "اسم القالب",
+    "placeholderMaxChars": "بحد أقصى {{max}} حرفًا",
+    "helperMaxChars": "يوجد حد أقصى {{max}} حرفًا لأسماء القوالب",
+    "confirmReplaceTitle": "\"{{name}}\" موجود بالفعل. هل تريد استبداله؟",
+    "confirmReplaceMsg1": "يوجد قالب بنفس الاسم بالفعل.",
+    "confirmReplaceMsg2": "سيؤدي استبداله إلى الكتابة فوق المحتوى الحالي.",
+    "replaceTemplate": "استبدال القالب",
+    "renameTemplate": "إعادة تسمية القالب",
+    "confirmDeleteTitle": "هل أنت متأكد أنك تريد حذف القالب \"{{name}}\"؟",
+    "confirmDeleteMsg1": "لا يمكن التراجع عن هذا الإجراء.",
+    "deleteTemplate": "حذف القالب",
+    "confirmLeaveTitle": "لم يتم حفظ التغييرات وسيتم تجاهلها. هل أنت متأكد أنك تريد المغادرة؟"
+  },
   "createShipment": {
     "createShipment": "إنشاء شحنة",
     "updateShipment": "تحديث الشحنة",
-    "fileTypeNotSupported": "نوع الملف غير مدعوم.",
-    "fileTooLarge": "حجم الملف أكبر من {{maxSize}}. يرجى تحميل ملف آخر.",
+    "fileTypeNotSupportedWithName": "{{name}}: نوع الملف غير مدعوم.",
+    "fileTooLargeWithName": "{{name}}: حجم الملف أكبر من {{maxSize}}. يرجى تحميل ملف آخر.",
     "selectPlaceholder": "اختر...",
     "templates": "القوالب",
     "seeAllTemplates": "عرض جميع القوالب...",
@@ -1191,8 +1207,11 @@
       "30m": "30 دقيقة = أقل من شهر",
       "1h": "ساعة واحدة = أقل من شهرين",
       "2h": "ساعتان = أقل من 3 أشهر",
+      "4h": "4 ساعات = أقل من 3.5 أشهر",
       "6h": "6 ساعات = أقل من 4 أشهر",
-      "12h": "12 ساعة = أقل من 6 أشهر"
+      "12h": "12 ساعة = أقل من 6 أشهر",
+      "18h": "18 ساعة = أقل من 8 أشهر",
+      "24h": "24 ساعة = أقل من سنة واحدة"
     },
     "intervalGuidanceNote": "ملاحظة: الأرقام أعلاه تعتمد على بطارية مشحونة بنسبة 100%، وبطارية غير ليثيوم، وفي بيئة بدرجة حرارة من 0°م إلى 10°م (32°F إلى 50°F).",
     "batteryLevel": "مستوى البطارية:",

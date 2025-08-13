@@ -1118,11 +1118,27 @@
       "clustered": "Raggruppato"
     }
   },
+  "createShipmentTemplates": {
+    "allTemplates": "Tutti i Modelli",
+    "saveTemplateAs": "Salva modello come...",
+    "templateName": "Nome del Modello",
+    "placeholderMaxChars": "{{max}} caratteri massimo",
+    "helperMaxChars": "C'è un limite di {{max}} caratteri per i nomi dei modelli",
+    "confirmReplaceTitle": "\"{{name}}\" esiste già. Vuoi sostituirlo?",
+    "confirmReplaceMsg1": "Esiste già un modello con lo stesso nome.",
+    "confirmReplaceMsg2": "Sostituendolo, sovrascriverai il contenuto attuale.",
+    "replaceTemplate": "Sostituisci modello",
+    "renameTemplate": "Rinomina modello",
+    "confirmDeleteTitle": "Sei sicuro di voler eliminare il modello \"{{name}}\"?",
+    "confirmDeleteMsg1": "Questa azione non può essere annullata.",
+    "deleteTemplate": "Elimina modello",
+    "confirmLeaveTitle": "Le modifiche non salvate verranno eliminate. Sei sicuro di voler uscire?"
+  },
   "createShipment": {
     "createShipment": "Crea spedizione",
     "updateShipment": "Aggiorna spedizione",
-    "fileTypeNotSupported": "Tipo di file non supportato.",
-    "fileTooLarge": "La dimensione del file supera {{maxSize}}. Caricare un altro file.",
+    "fileTypeNotSupportedWithName": "{{name}}: Tipo di file non supportato.",
+    "fileTooLargeWithName": "{{name}}: La dimensione del file è superiore a {{maxSize}}. Caricare un altro file.",
     "selectPlaceholder": "Seleziona...",
     "templates": "Modelli",
     "seeAllTemplates": "Vedi tutti i modelli...",
@@ -1190,8 +1206,11 @@
       "30m": "30 minuti = <1 mese",
       "1h": "1 ora = <2 mesi",
       "2h": "2 ore = <3 mesi",
+      "4h": "4 ore = <3,5 mesi",
       "6h": "6 ore = <4 mesi",
-      "12h": "12 ore = <6 mesi"
+      "12h": "12 ore = <6 mesi",
+      "18h": "18 ore = <8 mesi",
+      "24h": "24 ore = <1 anno"
     },
     "intervalGuidanceNote": "Nota: i valori sopra indicati si basano su batteria carica al 100%, batteria non al litio, in un ambiente con temperatura di 0°C-10°C (32°F-50°F).",
     "batteryLevel": "Livello batteria:",

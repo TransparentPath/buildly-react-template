@@ -1118,11 +1118,27 @@
       "clustered": "Agrupado"
     }
   },
+  "createShipmentTemplates": {
+    "allTemplates": "Todos os Modelos",
+    "saveTemplateAs": "Salvar modelo como...",
+    "templateName": "Nome do Modelo",
+    "placeholderMaxChars": "{{max}} caracteres no máximo",
+    "helperMaxChars": "Há um limite de {{max}} caracteres para nomes de modelos",
+    "confirmReplaceTitle": "\"{{name}}\" já existe. Deseja substituí-lo?",
+    "confirmReplaceMsg1": "Um modelo com o mesmo nome já existe.",
+    "confirmReplaceMsg2": "Substituí-lo sobrescreverá seu conteúdo atual.",
+    "replaceTemplate": "Substituir modelo",
+    "renameTemplate": "Renomear modelo",
+    "confirmDeleteTitle": "Tem certeza de que deseja excluir o modelo \"{{name}}\"?",
+    "confirmDeleteMsg1": "Esta ação não pode ser desfeita.",
+    "deleteTemplate": "Excluir modelo",
+    "confirmLeaveTitle": "Suas alterações não foram salvas e serão descartadas. Tem certeza de que deseja sair?"
+  },
   "createShipment": {
     "createShipment": "Criar Remessa",
     "updateShipment": "Atualizar Remessa",
-    "fileTypeNotSupported": "Tipo de arquivo não suportado.",
-    "fileTooLarge": "O tamanho do arquivo é maior que {{maxSize}}. Carregue outro arquivo.",
+    "fileTypeNotSupportedWithName": "{{name}}: Tipo de arquivo não é suportado.",
+    "fileTooLargeWithName": "{{name}}: O tamanho do arquivo é maior que {{maxSize}}. Por favor, envie outro arquivo.",
     "selectPlaceholder": "Selecionar...",
     "templates": "Modelos",
     "seeAllTemplates": "Ver todos os modelos...",
@@ -1190,8 +1206,11 @@
       "30m": "30 minutos = <1 mês",
       "1h": "1 hora = <2 meses",
       "2h": "2 horas = <3 meses",
+      "4h": "4 horas = <3,5 meses",
       "6h": "6 horas = <4 meses",
-      "12h": "12 horas = <6 meses"
+      "12h": "12 horas = <6 meses",
+      "18h": "18 horas = <8 meses",
+      "24h": "24 horas = <1 ano"
     },
     "intervalGuidanceNote": "Observação: números acima baseados em carga de bateria de 100%, bateria não-lítio, em ambiente de temperatura de 0°C-10°C (32°F-50°F).",
     "batteryLevel": "Nível da Bateria:",

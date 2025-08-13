@@ -43,6 +43,18 @@ const CustomFileViewer = ({ open, closeFileView, selectedFile }) => {
   const renderViewer = () => {
     if (!fileURL) return null;
 
+    if (['txt'].includes(extension)) {
+      return (
+        <iframe
+          src={fileURL}
+          title={fileName}
+          width="100%"
+          height="100%"
+          style={{ border: 'none' }}
+        />
+      );
+    }
+
     if (['pdf'].includes(extension)) {
       return (
         <iframe

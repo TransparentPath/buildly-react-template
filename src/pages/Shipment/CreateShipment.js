@@ -268,7 +268,7 @@ const CreateShipment = ({ history, location }) => {
   // Shipment metadata
   const shipmentName = useInput((!_.isEmpty(editData) && editData.order_number) || '');
   const purchaseOrderNumber = useInput((!_.isEmpty(editData) && editData.purchase_order_number) || '');
-  const billOfLading = useInput((!_.isEmpty(editData) && editData.bill_of_lading) || '');
+  const billOfLading = useInput((!_.isEmpty(editData) && editData.shipper_number) || '');
   const [files, setFiles] = useState([]);
   const [attachedFiles, setAttachedFiles] = useState((!_.isEmpty(editData) && editData.uploaded_pdf) || []);
   const [showNote, setShowNote] = useState(!_.isEmpty(editData) && !!editData.note);
@@ -842,40 +842,57 @@ const CreateShipment = ({ history, location }) => {
     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     'video/mp4',
     'video/quicktime',
+    'text/plain',
+    'application/zip',
+    'application/x-zip-compressed',
   ];
 
   const fileChange = (event) => {
-    const maxSizeVideo = 10 * 1024 * 1024; // 10 MB
-    const maxSizeOthers = 5 * 1024 * 1024; // 5 MB
-    let error = false;
+    const maxSizeVideo = 10 * 1024 * 1024;
+    const maxSizeOthers = 5 * 1024 * 1024;
 
-    const videoTypes = [
-      'video/mp4',
-      'video/quicktime',
-    ];
+    const videoTypes = ['video/mp4', 'video/quicktime'];
 
-    const newFiles = Array.from(event.target.files).filter((file) => {
+    const incomingFiles = Array.from(event.target.files);
+    const validFiles = [];
+    const rejectedMessages = [];
+
+    incomingFiles.forEach((file) => {
       if (!allowedTypes.includes(file.type)) {
-        error = true;
-        alert(t('createShipment.fileTypeNotSupported'));
-        return false;
+        rejectedMessages.push(
+          t('createShipment.fileTypeNotSupportedWithName', { name: file.name }),
+        );
+        return;
       }
 
       const isVideo = videoTypes.includes(file.type);
       const maxAllowedSize = isVideo ? maxSizeVideo : maxSizeOthers;
 
       if (file.size > maxAllowedSize) {
-        error = true;
-        alert('createShipment.fileTooLarge', {
-          maxSize: isVideo ? '10MB' : '5MB',
-        });
-        return false;
+        rejectedMessages.push(
+          t('createShipment.fileTooLargeWithName', {
+            name: file.name,
+            maxSize: isVideo ? '10MB' : '5MB',
+          }),
+        );
+        return;
       }
-      return true;
+      validFiles.push(file);
     });
 
-    if (!error) {
-      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    if (validFiles.length) {
+      setFiles((prev) => {
+        const map = new Map();
+        [...prev, ...validFiles].forEach((f) => {
+          const key = `${f.name}|${f.size}|${f.lastModified}`;
+          if (!map.has(key)) map.set(key, f);
+        });
+        return Array.from(map.values());
+      });
+    }
+
+    if (rejectedMessages.length) {
+      alert(rejectedMessages.join('\n'));
     }
   };
 
@@ -973,6 +990,7 @@ const CreateShipment = ({ history, location }) => {
       ...editData,
       name: shipName,
       purchase_order_number: purchaseOrderNumber.value,
+      shipper_number: billOfLading.value,
       order_number: shipmentName.value,
       status: status.value,
       estimated_time_of_arrival: arrivalDateTime,
@@ -2191,8 +2209,11 @@ const CreateShipment = ({ history, location }) => {
                       <li>{t('createShipment.intervalGuidance.30m')}</li>
                       <li>{t('createShipment.intervalGuidance.1h')}</li>
                       <li>{t('createShipment.intervalGuidance.2h')}</li>
+                      <li>{t('createShipment.intervalGuidance.4h')}</li>
                       <li>{t('createShipment.intervalGuidance.6h')}</li>
                       <li>{t('createShipment.intervalGuidance.12h')}</li>
+                      <li>{t('createShipment.intervalGuidance.18h')}</li>
+                      <li>{t('createShipment.intervalGuidance.24h')}</li>
                     </ul>
                   </Typography>
                   <Typography variant="caption" component="div" fontStyle="italic" color={theme.palette.background.light}>
@@ -2335,7 +2356,7 @@ const CreateShipment = ({ history, location }) => {
             <Grid item xs={12} mt={1}>
               <Typography variant="caption" component="div" textAlign="center" fontStyle="italic" color={theme.palette.background.light}>
                 {t('createShipment.autoShipmentNumberLine1')}
-                <br />
+                {' '}
                 {t('createShipment.autoShipmentNumberLine2')}
               </Typography>
             </Grid>
