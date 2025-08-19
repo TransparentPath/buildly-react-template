@@ -49,7 +49,7 @@ import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
 import { TIVE_GATEWAY_TIMES } from '@utils/mock';
 import { calculateLatLngBounds } from '@utils/utilMethods';
-import CustomFileViewer from './CustomFileViewer';
+import UniversalFileViewer from '@components/UniversalFileViewer/UniversalFileViewer';
 import { useTranslation } from 'react-i18next'; // For internationalization support
 
 /**
@@ -1080,7 +1080,7 @@ const Shipment = ({ history }) => {
           />
         </Grid>
       </Grid>
-      <CustomFileViewer
+      <UniversalFileViewer
         open={openFileViewerModal}
         closeFileView={closeFileView}
         selectedFile={selectedFile}

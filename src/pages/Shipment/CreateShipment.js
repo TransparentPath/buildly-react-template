@@ -93,7 +93,7 @@ import useAlert from '@hooks/useAlert';
 import { useStore } from '@zustand/timezone/timezoneStore';
 import './ShipmentStyles.css';
 import { isMobile } from '@utils/mediaQuery';
-import CustomFileViewer from './CustomFileViewer';
+import UniversalFileViewer from '@components/UniversalFileViewer/UniversalFileViewer';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -2561,7 +2561,7 @@ const CreateShipment = ({ history, location }) => {
         title={t('createShipmentTemplates.confirmLeaveTitle')}
         submitText={t('common.yes')}
       />
-      <CustomFileViewer
+      <UniversalFileViewer
         open={openFileViewerModal}
         closeFileView={closeFileView}
         selectedFile={selectedFile}
