@@ -48,7 +48,11 @@ export const TiltIcon = (color) => (
     viewBox="0 0 24 24"
   >
     <path
-      d="M 23.726562 22.398438 L 1.601562 0.273438 C 1.234375 -0.0898438 0.640625 -0.0898438 0.273438 0.273438 C -0.0898438 0.640625 -0.0898438 1.234375 0.273438 1.601562 L 4.078125 5.402344 L 0.269531 13.394531 L 0.265625 13.402344 C -0.230469 14.457031 -0.0117188 15.730469 0.804688 16.5625 L 7.257812 23.15625 C 7.796875 23.707031 8.53125 24 9.273438 24 C 9.660156 24 10.050781 23.917969 10.421875 23.753906 L 18.75 20.078125 L 22.398438 23.726562 C 22.582031 23.910156 22.824219 24 23.0625 24 C 23.300781 24 23.542969 23.910156 23.726562 23.726562 C 24.089844 23.359375 24.089844 22.765625 23.726562 22.398438 Z M 9.007812 10.332031 L 2.371094 13.335938 L 5.484375 6.808594 Z M 9.660156 22.039062 L 9.652344 22.042969 C 9.296875 22.203125 8.871094 22.125 8.597656 21.84375 L 2.3125 15.421875 L 10.421875 11.75 L 17.328125 18.65625 Z M 7.585938 4.003906 C 7.367188 3.535156 7.574219 2.976562 8.042969 2.757812 L 13.402344 0.265625 C 14.457031 -0.230469 15.730469 -0.0117188 16.5625 0.804688 L 23.15625 7.257812 C 23.996094 8.082031 24.234375 9.351562 23.75 10.421875 L 21.292969 15.945312 C 21.136719 16.292969 20.796875 16.5 20.4375 16.5 C 20.308594 16.5 20.179688 16.472656 20.054688 16.417969 C 19.582031 16.207031 19.371094 15.652344 19.582031 15.179688 L 22.042969 9.652344 C 22.203125 9.296875 22.125 8.871094 21.84375 8.597656 L 15.421875 2.3125 L 13.089844 7.464844 C 12.929688 7.8125 12.589844 8.015625 12.234375 8.015625 C 12.105469 8.015625 11.972656 7.988281 11.847656 7.933594 C 11.375 7.71875 11.167969 7.164062 11.378906 6.691406 L 13.34375 2.359375 L 8.832031 4.460938 C 8.363281 4.679688 7.804688 4.472656 7.585938 4.003906 Z M 7.585938 4.003906 "
+      d="M7 5h14v14H5V5z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(15, 12, 12)"
     />
   </SvgIcon>
 );
@@ -1647,6 +1651,37 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
         ),
       },
     },
+    // Tilt column is hidden by default
+    {
+      name: 'tilt',
+      label: t('sensorReport.columns.tilt'),
+      options: {
+        sort: true,
+        sortThirdClickReset: true,
+        filter: true,
+        display: false,
+        setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
+        customBodyRender: (value, tableMeta) => (
+          <div style={getCellStyle(tableMeta)}>
+            {(!_.isEmpty(value)
+              ? (
+                <div>
+                  <div>
+                    Pitch:
+                    {_.round(_.toNumber(value.pitch), 2)}
+                  </div>
+                  <div>
+                    Roll:
+                    {_.round(_.toNumber(value.roll), 2)}
+                  </div>
+                </div>
+              )
+              : ''
+            )}
+          </div>
+        ),
+      },
+    },
     {
       name: 'battery',
       label: t('sensorReport.columns.batteryWithIntervals'),
@@ -1684,19 +1719,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
         },
       },
     },
-    // Tilt and Pressure columns are hidden by default
-    {
-      name: 'tilt',
-      label: t('sensorReport.columns.tilt'),
-      options: {
-        sort: true,
-        sortThirdClickReset: true,
-        filter: true,
-        display: false,
-        setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
-        customBodyRender: (value) => (!_.isNil(value) ? _.round(_.toNumber(value), 2) : ''),
-      },
-    },
+    // Pressure and Probe columns are hidden by default
     {
       name: 'pressure',
       label: t('sensorReport.columns.pressure'),

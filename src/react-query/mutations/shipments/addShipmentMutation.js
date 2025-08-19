@@ -32,7 +32,7 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
     async (shipmentData) => {
       // Destructuring the input data to get relevant details
       const {
-        start_custody, end_custody, files, carriers, updateGateway, isWarehouse,
+        start_custody, end_custody, files, carriers, updateGateway, isWarehouse, orgData,
       } = shipmentData;
       let shipmentPayload = shipmentData.shipment; // Shipment details
       let uploadFile = null; // Variable to store the file data for uploading
@@ -144,6 +144,17 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
             shipmentPayload, // Shipment payload with the updated gateway details
           );
           if (shipment && shipment.data) {
+            let transmissionInterval = shipment.data.transmission_time; // Default transmission interval
+            let measurementInterval = shipment.data.measurement_time; // Default measurement interval
+
+            if (_.isEqual(_.toLower(shipment.data.status), 'planned')) {
+              transmissionInterval = orgData.default_pre_transit_transmission_interval;
+              measurementInterval = orgData.default_pre_transit_measurement_interval;
+            } else if (_.isEqual(_.toLower(shipment.data.status), 'arrived') && !isWarehouse) {
+              transmissionInterval = orgData.default_post_transit_transmission_interval;
+              measurementInterval = orgData.default_post_transit_measurement_interval;
+            }
+
             // Preparing payload to update the gateway
             const gatewayPayload = {
               ...updateGateway,
@@ -156,8 +167,8 @@ export const useAddShipmentMutation = (organization, history, redirectTo, displa
             const configureGatewayPayload = {
               platform_type: shipment.data.platform_name,
               gateway: updateGateway.imei_number, // Gateway IMEI number
-              transmission_interval: _.isEqual(_.toLower(shipment.data.status), 'planned') || (_.isEqual(_.toLower(shipment.data.status), 'arrived') && !isWarehouse) ? 5 : shipment.data.transmission_time, // Transmission interval for the gateway
-              measurement_interval: _.isEqual(_.toLower(shipment.data.status), 'planned') || (_.isEqual(_.toLower(shipment.data.status), 'arrived') && !isWarehouse) ? 5 : shipment.data.measurement_time, // Measurement interval for the gateway
+              transmission_interval: transmissionInterval, // Transmission interval for the gateway
+              measurement_interval: measurementInterval, // Measurement interval for the gateway
             };
             // Updating the gateway with the new details
             await httpService.makeRequest(

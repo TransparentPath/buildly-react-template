@@ -1078,6 +1078,7 @@ const CreateShipment = ({ history, location }) => {
       carriers,
       fujitsuVerification: organization.enable_fujitsu_verification,
       isWarehouse: !!(_.find(destinationList, { url: destinationCustodian }) && (_.toLower(_.find(destinationList, { url: destinationCustodian }).type) === 'warehouse')),
+      orgData: organization,
     };
 
     // Include gateway update info only when shipment is not a draft and meets conditions
