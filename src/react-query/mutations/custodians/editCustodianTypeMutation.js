@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for mutation and cache handling
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for error handling
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for editing a custodian type.
@@ -41,7 +42,7 @@ export const useEditCustodianTypeMutation = (history, redirectTo, displayAlert, 
           queryKey: ['custodianTypes'],
         });
         // Show success message
-        displayAlert('success', 'Custodian type successfully edited!');
+        displayAlert('success', i18n.t('api.successMessages.Custodian type successfully edited!'));
         // Navigate to the redirectTo path if provided
         if (history && redirectTo) {
           history.push(redirectTo);

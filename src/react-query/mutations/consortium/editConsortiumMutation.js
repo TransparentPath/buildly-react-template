@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks
 import { httpService } from '@modules/http/http.service'; // Custom HTTP request service
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to handle errors
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to edit an existing consortium.
@@ -47,7 +48,7 @@ export const useEditConsortiumMutation = (history, redirectTo, displayAlert, sec
           queryKey: ['consortiums'],
         });
         // Display a success alert to notify the user of the successful consortium update
-        displayAlert('success', 'Successfully edited consortium');
+        displayAlert('success', i18n.t('api.successMessages.Successfully edited consortium'));
         // Redirect the user to the specified route if provided
         if (history && redirectTo) {
           history.push(redirectTo);

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for handling mutations and cache management
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for extracting error messages from API responses
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for editing a recipient address.
@@ -47,7 +48,7 @@ export const useEditRecipientAddressMutation = (history, redirectTo, displayAler
           queryKey: ['recipientAddresses'],
         });
         // Displaying a success message
-        displayAlert('success', 'Recipient address successfully edited!');
+        displayAlert('success', i18n.t('api.successMessages.Recipient address successfully edited!'));
         // Redirecting the user if both `history` and `redirectTo` are provided
         if (history && redirectTo) {
           history.push(redirectTo);

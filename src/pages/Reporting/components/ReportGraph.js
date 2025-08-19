@@ -39,15 +39,15 @@ const ReportGraph = forwardRef((props, ref) => {
           {
             // Display shipment name dynamically if available
             !_.isEmpty(selectedShipment) && selectedShipment.name
-              ? `Graph View - Shipment: ${selectedShipment.name}`
-              : 'Graph View'
+              ? `{t('reportGraph.title.shipmentPrefix')} ${selectedShipment.name}`
+              : t('reportGraph.title.base')
           }
         </Typography>
       </div>
 
       {/* Sidebar with vertical list of icons representing different graph types */}
       <Grid item xs={2} sm={1}>
-        <List component="nav" aria-label="main graph-type" className="reportingGraphIconBar">
+        <List component="nav" aria-label={t('reportGraph.aria.mainGraphType')} className="reportingGraphIconBar">
           {
             _.isArray(reportTypes) && reportTypes.length > 0 ? (
               _.map(reportTypes, (item, index) => {
@@ -55,7 +55,7 @@ const ReportGraph = forwardRef((props, ref) => {
                 try {
                   iconElement = getIcon({ ...item, color: theme?.palette?.background?.dark || '#000' }, t);
                 } catch (e) {
-                  iconElement = <Typography color="error">Icon Error</Typography>;
+                  iconElement = <Typography color="error">{t('reportGraph.iconError')}</Typography>;
                 }
 
                 return (
@@ -70,7 +70,7 @@ const ReportGraph = forwardRef((props, ref) => {
               })
             ) : (
               <Typography variant="body2" color="error" sx={{ pl: 2, pt: 2 }}>
-                No graph types available.
+                {t('reportGraph.noTypes')}
               </Typography>
             )
           }
@@ -82,7 +82,7 @@ const ReportGraph = forwardRef((props, ref) => {
         {
           !graphType || !data ? (
             <Typography variant="body1" color="error" sx={{ mt: 2 }}>
-              Graph data is not available.
+              {t('reportGraph.noTypes')}
             </Typography>
           ) : hasValidGraphData ? (
             <GraphComponent
@@ -92,10 +92,10 @@ const ReportGraph = forwardRef((props, ref) => {
             />
           ) : (
             <Typography variant="body1" color="error" sx={{ mt: 2 }}>
-              No data found for selected graph type:
+              {t('reportGraph.noDataForTypePrefix')}
               {' '}
               <strong>{graphType}</strong>
-              .
+              {t('reportGraph.noDataForTypeSuffix')}
             </Typography>
           )
         }

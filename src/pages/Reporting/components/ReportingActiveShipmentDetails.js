@@ -13,6 +13,7 @@ import {
 // Custom context and constants
 import { getUser } from '@context/User.context'; // Get user data (like language)
 import { SHIPMENT_OVERVIEW_COLUMNS } from '@utils/constants'; // Column definitions for shipment details
+import { useTranslation } from 'react-i18next';
 
 import '../ReportingStyles.css'; // Custom CSS for this component
 
@@ -24,6 +25,7 @@ const ReportingActiveShipmentDetails = ({
 }) => {
   // Extract user's language from context to apply translation logic later
   const userLanguage = getUser().user_language;
+  const { t } = useTranslation();
 
   return (
     <div className="reportingInfoContainer">
@@ -49,7 +51,7 @@ const ReportingActiveShipmentDetails = ({
                       >
                         {/* Column title */}
                         <Typography variant="h6">
-                          {column.label}
+                          {t(`reportingActive.columns.${column.label}`)}
                         </Typography>
 
                         {
@@ -65,11 +67,10 @@ const ReportingActiveShipmentDetails = ({
                               >
                                 {/* Display custodian name with notranslate class if available */}
                                 <Typography variant="body1">
-                                  Name:
+                                  {t('reportingActive.custody.name')}
                                   {' '}
                                   <span className={
                                     _.find(selectedShipment[column.name], { has_current_custody: true })
-                                    && 'notranslate'
                                   }
                                   >
                                     {
@@ -84,7 +85,7 @@ const ReportingActiveShipmentDetails = ({
                                 {/* Show custodian address using matching index in contact_info */}
                                 <Typography variant="body1">
                                   {
-                                    `Custodian Address: ${selectedShipment.contact_info[
+                                    `${t('reportingActive.custody.address')} ${selectedShipment.contact_info[
                                       _.findIndex(selectedShipment[column.name], { has_current_custody: true })
                                     ]
                                       ? selectedShipment.contact_info[
@@ -97,18 +98,7 @@ const ReportingActiveShipmentDetails = ({
                               </div>
                             ) : (
                               // Default case: Render the value using the provided `getShipmentValue` function
-                              <Typography
-                                variant="body1"
-                                className={
-                                  column.className
-                                    ? column.className
-                                    : column.name === 'status'
-                                      ? _.lowerCase(userLanguage) !== 'english'
-                                        ? 'translate'
-                                        : 'notranslate'
-                                      : null
-                                }
-                              >
+                              <Typography variant="body1">
                                 {getShipmentValue(column.name)}
                               </Typography>
                             )
@@ -120,7 +110,7 @@ const ReportingActiveShipmentDetails = ({
                 : (
                   // Fallback message when no shipment is selected
                   <Typography variant="h6" align="center">
-                    Select a shipment to view reporting data
+                    {t('reportingActive.selectPrompt')}
                   </Typography>
                 )
             }

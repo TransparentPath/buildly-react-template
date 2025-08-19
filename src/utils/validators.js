@@ -1,4 +1,5 @@
 import _ from 'lodash'; // Import lodash for utility functions
+import i18n from '../i18n/index';
 
 /**
  * Validates if a required field is filled.
@@ -11,7 +12,7 @@ const requiredValidator = (input) => {
   if (!value && required) {
     return {
       error: true,
-      message: 'This field is required',
+      message: i18n.t('validation.required'),
     };
   }
   // Otherwise, it's valid
@@ -31,14 +32,14 @@ const emailValidator = (input) => {
   if (!value && required) {
     return {
       error: true,
-      message: 'This field is required',
+      message: i18n.t('validation.required'),
     };
   }
   // Check if value exists and is not a valid email
   if (value && !pattern.test(value)) {
     return {
       error: true,
-      message: 'You have entered an invalid email address!',
+      message: i18n.t('validation.invalidEmail'),
     };
   }
   // Otherwise, valid
@@ -56,14 +57,14 @@ const confirmValidator = (input) => {
   if (!value && required) {
     return {
       error: true,
-      message: 'This field is required',
+      message: i18n.t('validation.required'),
     };
   }
   // Value exists but doesn't match original
   if (value && value !== password) {
     return {
       error: true,
-      message: 'Field does not match!',
+      message: i18n.t('validation.fieldMismatch'),
     };
   }
   return { error: false, message: '' };
@@ -87,14 +88,14 @@ const duplicateEmailValidator = (input) => {
   if (value[0] === '' && required) {
     return {
       error: true,
-      message: 'This field is required',
+      message: i18n.t('validation.required'),
     };
   }
   // Check for invalid emails
   if (value.some((element) => !pattern.test(element))) {
     return {
       error: true,
-      message: 'You have entered an invalid email address!',
+      message: i18n.t('validation.invalidEmail'),
     };
   }
   // Normalize all emails to lowercase
@@ -107,13 +108,13 @@ const duplicateEmailValidator = (input) => {
   if (hasDuplicateInValue) {
     return {
       error: true,
-      message: 'Duplicate email found within the entered values!',
+      message: i18n.t('validation.duplicateEmail'),
     };
   }
   if (hasDuplicateInExtra) {
     return {
       error: true,
-      message: 'User already registered with entered email!',
+      message: i18n.t('validation.emailAlreadyRegistered'),
     };
   }
   return { error: false, message: '' };
@@ -130,14 +131,14 @@ const duplicateOrgNameValidator = (input) => {
   if (!value && required) {
     return {
       error: true,
-      message: 'This field is required',
+      message: i18n.t('validation.required'),
     };
   }
   // Check if value is already in existing names
   if (_.includes(extra, value.value)) {
     return {
       error: true,
-      message: 'Duplicate organization name!',
+      message: i18n.t('validation.duplicateOrgName'),
     };
   }
   return { error: false, message: '' };
@@ -154,14 +155,14 @@ const duplicateOrgAbbValidator = (input) => {
   if (!value && required) {
     return {
       error: true,
-      message: 'This field is required',
+      message: i18n.t('validation.required'),
     };
   }
   // Check if abbreviation already exists
   if (_.includes(extra, value.value)) {
     return {
       error: true,
-      message: 'Duplicate organization abbreviation!',
+      message: i18n.t('validation.duplicateOrgAbb'),
     };
   }
   return { error: false, message: '' };

@@ -13,6 +13,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import logo from '@assets/tp-logo.png';
 import Copyright from '@components/Copyright/Copyright';
 import Loader from '@components/Loader/Loader';
@@ -24,6 +25,7 @@ import { useResetPasswordConfirmMutation } from '@react-query/mutations/authUser
 import './ResetPasswordStyles.css';
 
 const NewPassword = ({ history, location }) => {
+  const { t } = useTranslation();
   // State for new password field
   const [password, setPassword] = useState('');
 
@@ -73,7 +75,6 @@ const NewPassword = ({ history, location }) => {
         uid: restPathArr[1],
         token: restPathArr[2],
       };
-
       // Call mutation with new password data
       resetPasswordConfirmMutation(registerFormValue);
     }
@@ -141,10 +142,8 @@ const NewPassword = ({ history, location }) => {
       <Card variant="outlined">
         <CardContent>
           <div className="resetPasswordPaper">
-            <img src={logo} className="resetPasswordLogo" alt="Company logo" />
-            <Typography component="h1" variant="h5">
-              Reset your Password
-            </Typography>
+            <img src={logo} className="resetPasswordLogo" alt={t('newPassword.companyLogoAlt')} />
+            <Typography component="h1" variant="h5">{t('newPassword.resetYourPassword')}</Typography>
             <form className="resetPasswordForm" noValidate onSubmit={handleSubmit}>
               {/* New Password Field */}
               <TextField
@@ -153,7 +152,7 @@ const NewPassword = ({ history, location }) => {
                 required
                 fullWidth
                 name="password"
-                label="New Password"
+                label={t('newPassword.newPassword')}
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 autoComplete="current-password"
@@ -180,24 +179,23 @@ const NewPassword = ({ history, location }) => {
               <Typography mt={-3} className={validations.length ? 'resetPasswordValidText' : 'resetPasswordInvalidText'}>
                 {validations.length ? '✓' : '✗'}
                 {' '}
-                10-alphanumeric character length
+                {t('newPassword.validation.length')}
               </Typography>
               <Typography className={validations.upperCase && validations.lowerCase ? 'resetPasswordValidText' : 'resetPasswordInvalidText'}>
                 {validations.upperCase && validations.lowerCase ? '✓' : '✗'}
                 {' '}
-                Uppercase and lowercase letters
+                {t('newPassword.validation.upperLower')}
               </Typography>
               <Typography className={validations.digit ? 'resetPasswordValidText' : 'resetPasswordInvalidText'}>
                 {validations.digit ? '✓' : '✗'}
                 {' '}
-                At least 1 digit number
+                {t('newPassword.validation.digit')}
               </Typography>
               <Typography className={validations.special ? 'resetPasswordValidText' : 'resetPasswordInvalidText'}>
                 {validations.special ? '✓' : '✗'}
                 {' '}
-                At least 1 special character (!@#$%^&*, etc.)
+                {t('newPassword.validation.special')}
               </Typography>
-
               {/* Confirm Password Field */}
               <TextField
                 variant="outlined"
@@ -205,7 +203,7 @@ const NewPassword = ({ history, location }) => {
                 required
                 fullWidth
                 id="re_password"
-                label="Confirm Password"
+                label={t('newPassword.confirmPassword')}
                 name="re_password"
                 type={showConfirmPassword ? 'text' : 'password'}
                 autoComplete="re_password"
@@ -227,7 +225,6 @@ const NewPassword = ({ history, location }) => {
                   ),
                 }}
               />
-
               {/* Submit Button */}
               <Button
                 type="submit"
@@ -237,14 +234,13 @@ const NewPassword = ({ history, location }) => {
                 style={{ marginTop: 8, marginBottom: 16 }}
                 disabled={isResetPasswordConfirm || submitDisabled()}
               >
-                Submit
+                {t('newPassword.submit')}
               </Button>
-
               {/* Navigation Link */}
               <Grid container>
                 <Grid item>
                   <Link to={routes.LOGIN} variant="body2" color="primary">
-                    Go back to Sign in
+                    {t('newPassword.goBackToSignIn')}
                   </Link>
                 </Grid>
               </Grid>

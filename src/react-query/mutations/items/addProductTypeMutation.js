@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for adding a new product type.
@@ -50,7 +51,7 @@ export const useAddProductTypeMutation = (organization, history, redirectTo, dis
         await queryClient.invalidateQueries({
           queryKey: ['productTypes', organization], // Ensures fresh data is fetched
         });
-        displayAlert('success', 'Successfully added product type');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added product type'));
         if (history && redirectTo) {
           history.push(redirectTo); // Navigate to the specified path
         }

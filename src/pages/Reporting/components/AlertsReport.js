@@ -69,18 +69,30 @@ const AlertsReport = forwardRef((props, ref) => {
 
         // Handle recovered alerts
         if (alert.recovered_alert_id !== null) {
-          alertObj = { id: alert.parameter_type, color: 'green', title: `${_.capitalize(alert.parameter_type)} Excursion Recovered` };
+          alertObj = {
+            id: alert.parameter_type,
+            color: 'green',
+            title: t('alertsReport.alert.recoveredTitle', { param: _.capitalize(alert.parameter_type) }),
+          };
         } else if (alert) {
           // Handle different types of alert based on alert_type
           switch (true) {
             case _.includes(_.toLower(alert.alert_type), 'max'):
             case _.includes(_.toLower(alert.alert_type), 'shock'):
             case _.includes(_.toLower(alert.alert_type), 'light'):
-              alertObj = { id: alert.parameter_type, color: theme.palette.error.main, title: `Maximum ${_.capitalize(alert.parameter_type)} Excursion` };
+              alertObj = {
+                id: alert.parameter_type,
+                color: theme.palette.error.main,
+                title: t('alertsReport.alert.titleMax', { param: _.capitalize(alert.parameter_type) }),
+              };
               break;
 
             case _.includes(_.toLower(alert.alert_type), 'min'):
-              alertObj = { id: alert.parameter_type, color: theme.palette.info.main, title: `Minimum ${_.capitalize(alert.parameter_type)} Excursion` };
+              alertObj = {
+                id: alert.parameter_type,
+                color: theme.palette.info.main,
+                title: t('alertsReport.alert.titleMin', { param: _.capitalize(alert.parameter_type) }),
+              };
               break;
 
             default:
@@ -127,10 +139,10 @@ const AlertsReport = forwardRef((props, ref) => {
 
     // Generate the CSV header based on column labels, adjusting for date/time format
     const csvHeader = columns.map((col) => {
-      if (col.label === 'DATE/TIME STAMP') {
+      if (col.name === 'create_date') {
         const timeArray = _.split(timeFormat, ' '); // Split time format to check for 12-hour or 24-hour
         const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour'; // Determine time period
-        const formattedLabel = `${col.label} (${getTimezone(new Date(), timezone)}) (${dateFormat} ${timePeriod})`; // Format the label
+        const formattedLabel = `${t('alertsReport.columns.dateTimeStamp')} (${getTimezone(new Date(), timezone)}) (${dateFormat} ${timePeriod})`; // Format the label
         return escapeCSV(formattedLabel); // Escape and return the formatted label
       }
       return escapeCSV(col.label); // Escape and return other column labels
@@ -139,7 +151,7 @@ const AlertsReport = forwardRef((props, ref) => {
     // Generate the CSV body based on the data and columns
     const csvBody = data.map(({ data: row }) => row.map((cell, index) => {
       const column = columns[index];
-      if (column.label === 'DATE/TIME STAMP' && !_.isEmpty(cell)) {
+      if (column.name === 'create_date' && !_.isEmpty(cell)) {
         // Format the date/time field based on timezone
         return escapeCSV(moment(cell).tz(timezone).format(`${dateFormat} ${timeFormat}`));
       }
@@ -167,12 +179,9 @@ const AlertsReport = forwardRef((props, ref) => {
         <div className="reportingAlertTooltip">
           <Typography className="reportingAlertTitle" variant="h5">
             {/* Render the shipment name in the title if provided */}
-            {shipmentName ? (
-              <>
-                <span>Alerts Report - Shipment: </span>
-                <span className="notranslate">{shipmentName}</span>
-              </>
-            ) : 'Alerts Report'}
+            {shipmentName
+              ? `${t('alertsReport.title.shipmentPrefix')} ${shipmentName}`
+              : t('alertsReport.title.base')}
           </Typography>
         </div>
         {/* Render the DataTableWrapper component with the alert data and CSV export functionality */}
@@ -180,7 +189,7 @@ const AlertsReport = forwardRef((props, ref) => {
           className="reportingAlertDataTable"
           noSpace
           hideAddButton
-          filename="ShipmentAlerts" // Filename for the exported CSV file
+          filename={t('alertsReport.export.filename')} // Filename for the exported CSV file
           rows={rows} // The alert rows to display in the table
           columns={getAlertsReportColumns(
             sensorReport,

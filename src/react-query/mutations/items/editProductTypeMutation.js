@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 // Utility function to handle and display error messages
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to edit an existing product type.
@@ -56,7 +57,7 @@ export const useEditProductTypeMutation = (
         await queryClient.invalidateQueries({
           queryKey: ['productTypes', organization], // Invalidates the product types cache for the given organization
         });
-        displayAlert('success', 'Product type successfully edited!'); // Show success alert
+        displayAlert('success', i18n.t('api.successMessages.Product type successfully edited!')); // Show success alert
         if (history && redirectTo) {
           history.push(redirectTo); // Redirect to the specified path
         }

@@ -13,6 +13,7 @@ import useAlert from '@hooks/useAlert'; // Custom hook for alert display
 import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods'; // Utility methods for role checks
 import { useQuery } from 'react-query'; // React query hook for data fetching
 import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery'; // Query function to get organizations
+import { useTranslation } from 'react-i18next';
 import './OrganizationSelectorStyles.css'; // Custom CSS for styling
 
 const OrganizationSelector = ({
@@ -23,6 +24,7 @@ const OrganizationSelector = ({
   submenuAnchorEl, // Anchor element for positioning the submenu (sub-level dropdown)
   setSubmenuAnchorEl, // Function to update the anchor element for submenu
 }) => {
+  const { t } = useTranslation();
   const user = getUser(); // Retrieve current user context
   const isAdmin = checkForAdmin(user); // Check if the current user is an Admin
   const isSuperAdmin = checkForGlobalAdmin(user); // Check if the current user is a Super Admin
@@ -93,11 +95,11 @@ const OrganizationSelector = ({
     <>
       {/* Main TextField used to select organization */}
       <TextField
-        className="organizationSelectorInput notranslate"
+        className="organizationSelectorInput"
         variant="outlined"
         fullWidth
         id="org"
-        label={<span className="translate">Organization</span>}
+        label={t('organizationSelector.organization')}
         select
         value={selectedOrg}
         onChange={(e) => {
@@ -112,7 +114,6 @@ const OrganizationSelector = ({
         {/* Render organizations dynamically */}
         {!_.isEmpty(displayOrgs) && [...displayOrgs, ...custOrgs].map((org) => (
           <MenuItem
-            className="notranslate"
             key={org.id}
             value={org.name}
             style={{ display: custOrgs.includes(org) && 'none' }} // Hide customer orgs in the main list
@@ -143,7 +144,6 @@ const OrganizationSelector = ({
               ? orgData.filter((org) => submenuOrg.reseller_customer_orgs.includes(org.organization_uuid))
                 .map((org) => (
                   <MenuItem
-                    className="notranslate"
                     key={org.organization_uuid}
                     onClick={() => handleOrganizationChange(org.name)} // Change organization on click
                   >
@@ -153,7 +153,6 @@ const OrganizationSelector = ({
               : !_.isEmpty(JSON.parse(localStorage.getItem('adminOrgs'))) && JSON.parse(localStorage.getItem('adminOrgs')).filter((org) => submenuOrg.reseller_customer_orgs.includes(org.organization_uuid))
                 .map((org) => (
                   <MenuItem
-                    className="notranslate"
                     key={org.organization_uuid}
                     onClick={() => handleOrganizationChange(org.name)} // Change organization for admin
                   >

@@ -2,6 +2,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-alert */
 /* eslint-disable no-console */
+import i18n from './i18n/index';
 
 /**
  * Displays a UI alert to the user indicating a new version of the application is available.
@@ -12,8 +13,7 @@
 
 const showRefreshUI = (registration) => {
   // Show an alert notifying the user about the new version
-  alert('New version available for the application. It will automatically reload the page to move to the latest version of the application.');
-
+  alert(i18n.t('alerts.newVersionAlert'));
   // Force the page to reload and fetch the updated service worker
   window.location.reload(true);
 };

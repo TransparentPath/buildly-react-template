@@ -48,7 +48,11 @@ export const TiltIcon = (color) => (
     viewBox="0 0 24 24"
   >
     <path
-      d="M 23.726562 22.398438 L 1.601562 0.273438 C 1.234375 -0.0898438 0.640625 -0.0898438 0.273438 0.273438 C -0.0898438 0.640625 -0.0898438 1.234375 0.273438 1.601562 L 4.078125 5.402344 L 0.269531 13.394531 L 0.265625 13.402344 C -0.230469 14.457031 -0.0117188 15.730469 0.804688 16.5625 L 7.257812 23.15625 C 7.796875 23.707031 8.53125 24 9.273438 24 C 9.660156 24 10.050781 23.917969 10.421875 23.753906 L 18.75 20.078125 L 22.398438 23.726562 C 22.582031 23.910156 22.824219 24 23.0625 24 C 23.300781 24 23.542969 23.910156 23.726562 23.726562 C 24.089844 23.359375 24.089844 22.765625 23.726562 22.398438 Z M 9.007812 10.332031 L 2.371094 13.335938 L 5.484375 6.808594 Z M 9.660156 22.039062 L 9.652344 22.042969 C 9.296875 22.203125 8.871094 22.125 8.597656 21.84375 L 2.3125 15.421875 L 10.421875 11.75 L 17.328125 18.65625 Z M 7.585938 4.003906 C 7.367188 3.535156 7.574219 2.976562 8.042969 2.757812 L 13.402344 0.265625 C 14.457031 -0.230469 15.730469 -0.0117188 16.5625 0.804688 L 23.15625 7.257812 C 23.996094 8.082031 24.234375 9.351562 23.75 10.421875 L 21.292969 15.945312 C 21.136719 16.292969 20.796875 16.5 20.4375 16.5 C 20.308594 16.5 20.179688 16.472656 20.054688 16.417969 C 19.582031 16.207031 19.371094 15.652344 19.582031 15.179688 L 22.042969 9.652344 C 22.203125 9.296875 22.125 8.871094 21.84375 8.597656 L 15.421875 2.3125 L 13.089844 7.464844 C 12.929688 7.8125 12.589844 8.015625 12.234375 8.015625 C 12.105469 8.015625 11.972656 7.988281 11.847656 7.933594 C 11.375 7.71875 11.167969 7.164062 11.378906 6.691406 L 13.34375 2.359375 L 8.832031 4.460938 C 8.363281 4.679688 7.804688 4.472656 7.585938 4.003906 Z M 7.585938 4.003906 "
+      d="M7 5h14v14H5V5z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(15, 12, 12)"
     />
   </SvgIcon>
 );
@@ -140,10 +144,10 @@ export const FlightUnsafeIcon = () => (
  * @param {string} timeFormat - Preferred display format for time.
  * @returns {Array<Object>} Array of column definitions for use in a data table.
  */
-export const getColumns = (timezone, dateFormat, timeFormat) => ([
+export const getColumns = (timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'name',
-    label: 'Name',
+    label: t('generic.name'),
     options: {
       sort: true, // Enable sorting
       sortThirdClickReset: true, // Third click on column header removes sort
@@ -152,7 +156,7 @@ export const getColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'create_date',
-    label: 'Created At',
+    label: t('generic.createdAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -162,7 +166,7 @@ export const getColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'edit_date',
-    label: 'Last Edited At',
+    label: t('generic.lastEditedAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -180,10 +184,10 @@ export const getColumns = (timezone, dateFormat, timeFormat) => ([
  * @param {string} timeFormat - Preferred display format for time.
  * @returns {Array<Object>} Array of column definitions for tracker type table.
  */
-export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
+export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'name',
-    label: 'Name',
+    label: t('generic.name'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -195,7 +199,7 @@ export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'create_date',
-    label: 'Created At',
+    label: t('generic.createdAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -205,7 +209,7 @@ export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'edit_date',
-    label: 'Last Edited At',
+    label: t('generic.lastEditedAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -224,10 +228,10 @@ export const getTrackerTypeColumns = (timezone, dateFormat, timeFormat) => ([
  * @param {string} timeFormat - Preferred display format for time.
  * @returns {Array<Object>} Array of column definitions for product table.
  */
-export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
+export const getProductColumns = (timezone, uomw, dateFormat, timeFormat, t) => ([
   {
     name: 'name',
-    label: 'Name',
+    label: t('generic.name'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -236,7 +240,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   },
   {
     name: 'description',
-    label: 'Description',
+    label: t('product.description'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -245,7 +249,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   },
   {
     name: 'value',
-    label: 'Value',
+    label: t('product.value'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -255,7 +259,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   },
   {
     name: 'gross_weight',
-    label: 'Gross Weight',
+    label: t('product.grossWeight'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -265,7 +269,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   },
   {
     name: 'name',
-    label: 'Unit of Measure',
+    label: t('product.unitOfMeasure'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -275,7 +279,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   },
   {
     name: 'create_date',
-    label: 'Created At',
+    label: t('generic.createdAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -285,7 +289,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
   },
   {
     name: 'edit_date',
-    label: 'Last Edited At',
+    label: t('generic.lastEditedAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -300,10 +304,10 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat) => ([
  * @param {Array} allOrgs - List of all organizations for lookup.
  * @returns {Array} Column definitions for the data table.
  */
-export const getMappingOrg = (allOrgs) => ([
+export const getMappingOrg = (allOrgs, t) => ([
   {
     name: 'name',
-    label: 'Custodian Name',
+    label: t('mappingOrg.custodianName'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -312,7 +316,7 @@ export const getMappingOrg = (allOrgs) => ([
   },
   {
     name: 'custody_org_uuid',
-    label: 'Mapped Organization',
+    label: t('mappingOrg.mappedOrganization'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -338,10 +342,10 @@ export const getMappingOrg = (allOrgs) => ([
 /**
  * Returns columns for displaying consortium information with formatted dates.
  */
-export const getConsortiumColumns = (timezone, dateFormat, timeFormat) => ([
+export const getConsortiumColumns = (timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'name',
-    label: 'Name',
+    label: t('consortium.name'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -350,7 +354,7 @@ export const getConsortiumColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'create_date',
-    label: 'Created At',
+    label: t('consortium.createdAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -365,7 +369,7 @@ export const getConsortiumColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'edit_date',
-    label: 'Last Edited At',
+    label: t('consortium.lastEditedAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -382,34 +386,28 @@ export const getConsortiumColumns = (timezone, dateFormat, timeFormat) => ([
 /**
  * Column definitions for the custodians data table.
  */
-export const custodianColumns = [
+export const custodianColumns = (t) => [
   {
     name: 'name',
-    label: 'Name',
+    label: t('custodianColumns.name'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'abbrevation',
-    label: 'Abbrevation',
+    label: t('custodianColumns.abbrevation'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'type',
-    label: 'Custodian Type',
+    label: t('custodianColumns.type'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -418,7 +416,7 @@ export const custodianColumns = [
   },
   {
     name: 'location',
-    label: 'Location',
+    label: t('custodianColumns.location'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -426,13 +424,12 @@ export const custodianColumns = [
       // Applies custom styling for long content
       setCellProps: () => ({
         style: { maxWidth: '300px', wordWrap: 'break-word' },
-        className: 'notranslate',
       }),
     },
   },
   {
     name: 'custodian_glns',
-    label: 'GLN',
+    label: t('custodianColumns.gln'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -533,22 +530,19 @@ export const getFormattedCustodyRows = (custodyData, custodianData) => {
 /**
  * Returns column definitions for displaying item data, with optional currency unit.
  */
-export const itemColumns = (currUnit) => ([
+export const itemColumns = (currUnit, t) => ([
   {
     name: 'name',
-    label: 'Item Name',
+    label: t('itemColumns.itemName'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'number_of_units',
-    label: '# of Units',
+    label: t('itemColumns.numberOfUnits'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -557,19 +551,16 @@ export const itemColumns = (currUnit) => ([
   },
   {
     name: 'item_type_value',
-    label: 'Item Type',
+    label: t('itemColumns.itemType'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'value',
-    label: 'Value',
+    label: t('itemColumns.value'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -584,7 +575,7 @@ export const itemColumns = (currUnit) => ([
   },
   {
     name: 'gross_weight',
-    label: 'Gross Weight',
+    label: t('itemColumns.grossWeight'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -598,7 +589,7 @@ export const itemColumns = (currUnit) => ([
   },
   {
     name: 'unitMeasure',
-    label: 'Unit of Measure',
+    label: t('itemColumns.unitOfMeasure'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -652,15 +643,15 @@ export const getItemFormattedRow = (data, itemTypeList, unitOfMeasure) => {
  * Table column definitions for the shipment overview table.
  */
 export const SHIPMENT_OVERVIEW_COLUMNS = [
-  { name: 'name', label: 'Shipment Name', className: 'notranslate' },
+  { name: 'name', label: 'Shipment Name' },
   { name: 'status', label: 'Shipment Status' },
   { name: 'estimated_time_of_departure', label: 'Estimated Pickup Time' },
   { name: 'actual_time_of_departure', label: 'Actual Pickup Time' },
   { name: 'estimated_time_of_arrival', label: 'Estimated Arrival Time' },
   { name: 'actual_time_of_arrival', label: 'Actual Arrival Time' },
   { name: 'had_alert', label: 'Had Alerts(s)' },
-  { name: 'tracker', label: 'Tracker', className: 'notranslate' },
-  { name: 'custodian_name', label: 'Custodian Name', className: 'notranslate' },
+  { name: 'tracker', label: 'Tracker' },
+  { name: 'custodian_name', label: 'Custodian Name' },
   { name: 'custody_info', label: 'Custody Details (Current)' },
 ];
 
@@ -1492,7 +1483,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
   return ([
     {
       name: 'allAlerts',
-      label: 'ALERTS',
+      label: t('sensorReport.columns.alerts'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1516,7 +1507,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'timestamp',
-      label: 'DATE TIME',
+      label: t('sensorReport.columns.dateTime'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1532,7 +1523,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'location',
-      label: 'LOCATION',
+      label: t('sensorReport.columns.location'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1545,7 +1536,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
         customBodyRender: (value) => (
           <div>
             {!_.isNil(value) && !_.isEqual(value, 'Error retrieving address')
-              ? value : <span className="notranslate">N/A</span>}
+              ? value : 'N/A'}
           </div>
         ),
       },
@@ -1553,7 +1544,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     // Latitude column with custom rendering based on location
     {
       name: 'lat',
-      label: 'LATITUDE',
+      label: t('sensorReport.columns.latitude'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1567,8 +1558,8 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
           return (
             <div>
               {!_.isEqual(locationValue, 'N/A')
-                ? (!_.isNil(value) ? value : <span className="notranslate">N/A</span>)
-                : <span className="notranslate">N/A</span>}
+                ? !_.isNil(value) ? value : 'N/A'
+                : 'N/A'}
             </div>
           );
         },
@@ -1577,7 +1568,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     // Longitude column with custom rendering based on location
     {
       name: 'lng',
-      label: 'LONGITUDE',
+      label: t('sensorReport.columns.longitude'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1591,8 +1582,8 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
           return (
             <div>
               {!_.isEqual(locationValue, 'N/A')
-                ? (!_.isNil(value) ? value : <span className="notranslate">N/A</span>)
-                : <span className="notranslate">N/A</span>}
+                ? !_.isNil(value) ? value : 'N/A'
+                : 'N/A'}
             </div>
           );
         },
@@ -1600,7 +1591,9 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'temperature',
-      label: `TEMPERATURE (${tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))})`,
+      label: t('sensorReport.columns.temperature', {
+        unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))),
+      }),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1615,7 +1608,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'humidity',
-      label: 'HUMIDITY (%)',
+      label: t('sensorReport.columns.humidity'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1630,7 +1623,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'shock',
-      label: 'SHOCK (G)',
+      label: t('sensorReport.columns.shock'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1645,7 +1638,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'light',
-      label: 'LIGHT (LUX)',
+      label: t('sensorReport.columns.light'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1658,9 +1651,40 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
         ),
       },
     },
+    // Tilt column is hidden by default
+    {
+      name: 'tilt',
+      label: t('sensorReport.columns.tilt'),
+      options: {
+        sort: true,
+        sortThirdClickReset: true,
+        filter: true,
+        display: false,
+        setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
+        customBodyRender: (value, tableMeta) => (
+          <div style={getCellStyle(tableMeta)}>
+            {(!_.isEmpty(value)
+              ? (
+                <div>
+                  <div>
+                    Pitch:
+                    {_.round(_.toNumber(value.pitch), 2)}
+                  </div>
+                  <div>
+                    Roll:
+                    {_.round(_.toNumber(value.roll), 2)}
+                  </div>
+                </div>
+              )
+              : ''
+            )}
+          </div>
+        ),
+      },
+    },
     {
       name: 'battery',
-      label: 'BATTERY (%) WITH INTERVALS',
+      label: t('sensorReport.columns.batteryWithIntervals'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1681,12 +1705,12 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
                   <Typography variant="body1">
                     T:
                     {' '}
-                    {tTime ? tTime.short_label : <span className="notranslate">N/A</span>}
+                    {tTime ? tTime.short_label : 'N/A'}
                   </Typography>
                   <Typography variant="body1">
                     M:
                     {' '}
-                    {mTime ? mTime.short_label : <span className="notranslate">N/A</span>}
+                    {mTime ? mTime.short_label : 'N/A'}
                   </Typography>
                 </Grid>
               )}
@@ -1695,22 +1719,10 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
         },
       },
     },
-    // Tilt and Pressure columns are hidden by default
-    {
-      name: 'tilt',
-      label: 'TILT (°)',
-      options: {
-        sort: true,
-        sortThirdClickReset: true,
-        filter: true,
-        display: false,
-        setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
-        customBodyRender: (value) => (!_.isNil(value) ? _.round(_.toNumber(value), 2) : ''),
-      },
-    },
+    // Pressure and Probe columns are hidden by default
     {
       name: 'pressure',
-      label: 'PRESS (Pa)',
+      label: t('sensorReport.columns.pressure'),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1722,7 +1734,9 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
     },
     {
       name: 'probe',
-      label: `PROBE TEMPERATURE (${tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))})`,
+      label: t('sensorReport.columns.probeTemperature', {
+        unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))),
+      }),
       options: {
         sort: true,
         sortThirdClickReset: true,
@@ -1739,7 +1753,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
 export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'alertObj',
-    label: 'CONDITION',
+    label: t('alertsReport.columns.condition'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1759,7 +1773,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'parameter_value',
-    label: 'VALUE',
+    label: t('alertsReport.columns.value'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1782,7 +1796,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'create_date',
-    label: 'DATE/TIME STAMP',
+    label: t('alertsReport.columns.dateTimeStamp'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1796,7 +1810,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'location',
-    label: 'LOCATION',
+    label: t('alertsReport.columns.location'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1807,7 +1821,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'latitude',
-    label: 'LATITUDE',
+    label: t('alertsReport.columns.latitude'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1815,8 +1829,8 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
       customBodyRender: (value, tableMeta) => {
         const locationValue = tableMeta.rowData[tableMeta.columnIndex - 1];
         const displayValue = !_.isEqual(locationValue, 'N/A')
-          ? (!_.isNil(value) ? value : <span className="notranslate">N/A</span>)
-          : <span className="notranslate">N/A</span>;
+          ? (!_.isNil(value) ? value : 'N/A')
+          : 'N/A';
         return <div>{displayValue}</div>;
       },
       setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
@@ -1824,7 +1838,7 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
   },
   {
     name: 'longitude',
-    label: 'LONGITUDE',
+    label: t('alertsReport.columns.longitude'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1832,8 +1846,8 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
       customBodyRender: (value, tableMeta) => {
         const locationValue = tableMeta.rowData[tableMeta.columnIndex - 2];
         const displayValue = !_.isEqual(locationValue, 'N/A')
-          ? (!_.isNil(value) ? value : <span className="notranslate">N/A</span>)
-          : <span className="notranslate">N/A</span>;
+          ? (!_.isNil(value) ? value : 'N/A')
+          : 'N/A';
         return <div>{displayValue}</div>;
       },
       setCellProps: () => ({ style: { maxWidth: '300px', wordWrap: 'break-word' } }),
@@ -1843,10 +1857,10 @@ export const getAlertsReportColumns = (sensorReport, timezone, dateFormat, timeF
 
 // Column definitions for rendering gateway data in a table.
 // Accepts timezone, dateFormat, and MUI theme to customize rendering of date/time and styles.
-export const gatewayColumns = (timezone, dateFormat, theme) => ([
+export const gatewayColumns = (timezone, dateFormat, theme, t) => ([
   {
     name: 'is_active',
-    label: 'Power',
+    label: t('gateway.columns.power'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1878,13 +1892,13 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
           <span style={containerStyle}>
             {value ? (
               <>
-                <span style={textStyle}>ON</span>
+                <span style={textStyle}>{t('gateway.columns.on')}</span>
                 <span style={circleStyle} />
               </>
             ) : (
               <>
                 <span style={circleStyle} />
-                <span style={textStyle}>OFF</span>
+                <span style={textStyle}>{t('gateway.columns.off')}</span>
               </>
             )}
           </span>
@@ -1894,31 +1908,25 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
   },
   {
     name: 'name',
-    label: 'Tracker Identifier',
+    label: t('gateway.columns.tracker_identifier'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate', // Prevents Google Translate from modifying the cell
-      }),
     },
   },
   {
     name: 'gateway_type_value',
-    label: 'Type',
+    label: t('gateway.columns.type'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'last_known_battery_level',
-    label: 'Battery (%)',
+    label: t('gateway.columns.battery'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1928,7 +1936,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
   },
   {
     name: 'gateway_status',
-    label: 'Status',
+    label: t('gateway.columns.status'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1980,7 +1988,7 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
   },
   {
     name: 'shipment',
-    label: 'Shipments',
+    label: t('gateway.columns.shipments'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -1991,13 +1999,12 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       ),
       setCellProps: () => ({
         style: { maxWidth: '200px', wordWrap: 'break-word' },
-        className: 'notranslate',
       }),
     },
   },
   {
     name: 'custodian',
-    label: 'Shipper',
+    label: t('gateway.columns.shipper'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2006,14 +2013,11 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
       customBodyRender: (value) => (
         value && value !== '-' ? _.join(value, ', ') : value
       ),
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'activation_date',
-    label: 'Activation',
+    label: t('gateway.columns.activation'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2024,14 +2028,11 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
           ? moment(value).tz(timezone).format(`${dateFormat}`)
           : value
       ),
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'calibration_certificate',
-    label: 'Certificate of Calibration',
+    label: t('gateway.columns.calibration_certificate'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2065,17 +2066,14 @@ export const gatewayColumns = (timezone, dateFormat, theme) => ([
 ]);
 
 // Returns minimal column definition for new gateways view
-export const newGatewayColumns = () => ([
+export const newGatewayColumns = (t) => ([
   {
     name: 'name',
-    label: 'Tracker Identifier',
+    label: t('adminTrackers.trackerIdentifier'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
 ]);
@@ -2165,20 +2163,16 @@ export const GATEWAY_STATUS = [
 export const shipmentColumns = (timezone, dateFormat, language, muiTheme, t) => ([
   {
     name: 'status',
-    label: 'Status',
+    label: t('shipment.status'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      // Dynamically apply class for translation behavior based on language
-      setCellProps: () => ({
-        className: _.lowerCase(language) === 'english' ? 'notranslate' : 'translate',
-      }),
     },
   },
   {
     name: 'estimated_time_of_departure',
-    label: 'Depart',
+    label: t('shipment.depart'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2195,26 +2189,20 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme, t) => 
           ) : value
         );
       },
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'origin',
-    label: 'Origin',
+    label: t('shipment.origin'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'estimated_time_of_arrival',
-    label: 'Arrive',
+    label: t('shipment.arrive'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2226,26 +2214,20 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme, t) => 
             .format(`${dateFormat}`)
           : value
       ),
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'destination',
-    label: 'Destination',
+    label: t('shipment.destination'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'alerts',
-    label: 'Alerts',
+    label: t('shipment.alerts'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2275,14 +2257,11 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme, t) => 
   },
   {
     name: 'itemNames',
-    label: 'Items',
+    label: t('shipment.items'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
       // Show item names with line breaks and max width
       customBodyRender: (value) => (
         <Typography sx={{ whiteSpace: 'break-spaces', maxWidth: '400px' }}>
@@ -2293,19 +2272,16 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme, t) => 
   },
   {
     name: 'tracker',
-    label: 'Tracker',
+    label: t('shipment.tracker'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'delayed',
-    label: 'Delayed',
+    label: t('shipment.delayed'),
     // Hidden column used for delay logic
     options: {
       display: false,
@@ -2503,10 +2479,10 @@ export const getTemplateFormattedRow = (templates, custodianData, itemData) => {
 };
 
 // Returns column definitions for the template data table
-export const templateColumns = (timezone, dateFormat) => ([
+export const templateColumns = (timezone, dateFormat, t) => ([
   {
     name: 'create_date',
-    label: 'Created',
+    label: t('template.created'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2520,38 +2496,29 @@ export const templateColumns = (timezone, dateFormat) => ([
   },
   {
     name: 'origin_name',
-    label: 'Origin',
+    label: t('template.origin'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'destination_name',
-    label: 'Destination',
+    label: t('template.destination'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'item_name',
-    label: 'Items',
+    label: t('template.items'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
 ]);
@@ -2569,46 +2536,37 @@ export const getUserFormattedRows = (userData) => {
 };
 
 // Returns column definitions for the user table
-export const userColumns = () => ([
+export const userColumns = (t) => ([
   {
     name: 'full_name',
-    label: 'Full Name',
+    label: t('users.fullName'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'username',
-    label: 'User Name',
+    label: t('users.userName'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'email',
-    label: 'Email',
+    label: t('users.email'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
   {
     name: 'last_activity',
-    label: 'Last Activity',
+    label: t('users.lastActivity'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2617,14 +2575,11 @@ export const userColumns = () => ([
   },
   {
     name: 'org_display_name',
-    label: 'Organization',
+    label: t('users.organization'),
     options: {
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      setCellProps: () => ({
-        className: 'notranslate',
-      }),
     },
   },
 ]);
@@ -2660,7 +2615,7 @@ export const getGroupsFormattedRow = (groups, orgs) => {
 export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'alertObj',
-    label: 'Condition',
+    label: t('alertNotifications.columns.condition'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2680,7 +2635,7 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat, t
   },
   {
     name: 'parameterValue',
-    label: 'Value',
+    label: t('alertNotifications.columns.value'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2702,7 +2657,7 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat, t
   },
   {
     name: 'alert_time',
-    label: 'Date/Time stamp',
+    label: t('alertNotifications.columns.dateTimeStamp'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2716,7 +2671,7 @@ export const getAlertNotificationsColumns = (timezone, dateFormat, timeFormat, t
   },
   {
     name: 'location',
-    label: 'Location',
+    label: t('alertNotifications.columns.location'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2742,10 +2697,10 @@ export const getFormattedRecipientAddresses = (recipientAddresses) => {
 };
 
 // Returns column definitions for recipient address table
-export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => ([
+export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'name',
-    label: 'Name',
+    label: t('generic.name'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2757,7 +2712,7 @@ export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => 
   },
   {
     name: 'formattedAddress',
-    label: 'Address',
+    label: t('recipientAddress.address'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2769,7 +2724,7 @@ export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => 
   },
   {
     name: 'create_date',
-    label: 'Created At',
+    label: t('generic.createdAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2779,7 +2734,7 @@ export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => 
   },
   {
     name: 'edit_date',
-    label: 'Last Edited At',
+    label: t('generic.lastEditedAt'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2790,10 +2745,10 @@ export const getRecipientAddressColumns = (timezone, dateFormat, timeFormat) => 
 ]);
 
 // Returns column definitions for tracker order table
-export const getTrackerOrderColumns = (timezone, dateFormat, timeFormat) => ([
+export const getTrackerOrderColumns = (timezone, dateFormat, timeFormat, t) => ([
   {
     name: 'order_date',
-    label: 'Order Date',
+    label: t('trackerOrder.orderDate'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2803,7 +2758,7 @@ export const getTrackerOrderColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'order_quantity',
-    label: 'Quantity',
+    label: t('trackerOrder.quantity'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2813,7 +2768,7 @@ export const getTrackerOrderColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'order_type',
-    label: 'Type',
+    label: t('trackerOrder.type'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2826,7 +2781,7 @@ export const getTrackerOrderColumns = (timezone, dateFormat, timeFormat) => ([
   },
   {
     name: 'order_recipient',
-    label: 'Recipient',
+    label: t('trackerOrder.recipient'),
     options: {
       sort: true,
       sortThirdClickReset: true,

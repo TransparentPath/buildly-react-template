@@ -9,7 +9,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-
+import { useTranslation } from 'react-i18next';
 import './ResetPasswordStyles.css';
 import logo from '@assets/tp-logo.png'; // Company logo
 import Copyright from '@components/Copyright/Copyright'; // Footer copyright
@@ -20,6 +20,8 @@ import { routes } from '@routes/routesConstants'; // Centralized route constants
 
 // Component to show email verification status and handle resending password reset emails
 const Verification = ({ location }) => {
+  const { t } = useTranslation();
+
   // Disable resend button initially
   const [isDisabled, setIsDisabled] = useState(true);
 
@@ -87,26 +89,23 @@ const Verification = ({ location }) => {
       {/* Show loader if mutation is in progress */}
       {isResetPassword && <Loader open={isResetPassword} />}
       <CssBaseline />
-
       <Card variant="outlined">
         <CardContent>
           <div className="verificationPaper">
             {/* Logo */}
-            <img src={logo} className="resetPasswordLogo" alt="Company logo" />
-
+            <img
+              src={logo}
+              className="resetPasswordLogo"
+              alt={t('verification.companyLogoAlt')}
+            />
             {/* Title */}
             <Typography component="h1" variant="h5" gutterBottom textAlign="center">
-              Email Sent Successfully
+              {t('verification.emailSentSuccessfully')}
             </Typography>
-
             {/* Description */}
             <Typography variant="body" gutterBottom textAlign="center">
-              An email has been sent for verification. Click on the link in the email to change
-              your 'Password'. If no email was received, check your junk/spam mail and add
-              'alerts@transparentpath.com' to your safe sender list (check with your email provider
-              on the proper method to enable this).
+              {t('verification.description')}
             </Typography>
-
             {/* Resend Email Button */}
             <Button
               type="submit"
@@ -117,15 +116,14 @@ const Verification = ({ location }) => {
               onClick={handleResendVerification}
               disabled={isDisabled || attempts <= 0}
             >
-              Resend Verification Email
+              {t('verification.resendVerificationEmail')}
             </Button>
-
             {/* Remaining attempts and countdown timer */}
             <Grid container>
               <Grid item xs={11}>
                 <Typography variant="body" fontSize={11} textAlign="left">
-                  Total Attempts Remaining:
-                  {' '}
+                  {t('verification.totalAttemptsRemaining')}
+                  {': '}
                   {attempts}
                 </Typography>
               </Grid>
@@ -137,19 +135,17 @@ const Verification = ({ location }) => {
                 )}
               </Grid>
             </Grid>
-
             {/* Link to go back to login page */}
             <Grid container mt={1}>
               <Grid item xs>
                 <Link to={routes.LOGIN} variant="body2" color="primary">
-                  Go back to Sign in
+                  {t('verification.goBackToSignIn')}
                 </Link>
               </Grid>
             </Grid>
           </div>
         </CardContent>
       </Card>
-
       {/* Footer */}
       <Copyright />
     </Container>

@@ -255,7 +255,7 @@ const Gateway = ({ history, redirectTo }) => {
       <Grid container spacing={1} mt={4.3} className="gatewayContainer">
         <Grid item xs={12} className="gatewayHeaderContainer">
           <div className="gatewayHeader">
-            <Typography variant="h4" mr={2}>Trackers</Typography>
+            <Typography variant="h4" mr={2}>{t('gateway.trackers')}</Typography>
             <Tooltip placement="bottom" title={t('sync_trackers')}>
               <SyncIcon className="gatewaySyncIcon" onClick={handleSyncGateways} />
             </Tooltip>
@@ -278,7 +278,7 @@ const Gateway = ({ history, redirectTo }) => {
               onClick={() => setShowAddShipper(true)}
             >
               <AddIcon />
-              Add Shipper
+              {t('gateway.add_shipper')}
             </Button>
           )}
         </Grid>
@@ -296,7 +296,7 @@ const Gateway = ({ history, redirectTo }) => {
       <Grid container mt={3} pb={4}>
         {/* Display message if no shippers are available */}
         {_.isEmpty(shippers) && (
-          <Typography className="gatewayEmptyText">No data to display</Typography>
+          <Typography className="gatewayEmptyText">{t('gateway.no_data')}</Typography>
         )}
 
         {/* Display shippers and their associated trackers */}
@@ -309,15 +309,15 @@ const Gateway = ({ history, redirectTo }) => {
                   aria-controls={_.isEqual(custodianName, '-') ? 'unassigned-content' : `${custodianName}-content`}
                   id={_.isEqual(custodianName, '-') ? 'unassigned-header' : `${custodianName}-header`}
                 >
-                  <Typography className="gatewayAccordingHeading notranslate">
-                    {_.isEqual(custodianName, '-') ? 'UNASSIGNED TRACKERS' : custodianName.toUpperCase()}
+                  <Typography className="gatewayAccordingHeading">
+                    {_.isEqual(custodianName, '-') ? t('gateway.unassigned_trackers') : custodianName.toUpperCase()}
                   </Typography>
                 </AccordionSummary>
 
                 <AccordionDetails>
                   <DataTableWrapper
                     hideAddButton
-                    filename={_.isEqual(custodianName, '-') ? 'Unassigned Trackers' : `${custodianName} Trackers`}
+                    filename={_.isEqual(custodianName, '-') ? t('gateway.unassigned_trackers') : `${custodianName} ${t('gateway.trackers').toLowerCase()}`}
                     rows={rows.filter((row) => row.custodian.toString() === custodianName) || []}
                     columns={gatewayColumns(
                       data,
@@ -331,6 +331,7 @@ const Gateway = ({ history, redirectTo }) => {
                         ).unit_of_measure
                         : '',
                       theme,
+                      t,
                     )}
                     selectable={{
                       rows: isSuperAdmin ? 'multiple' : 'none',
@@ -387,13 +388,13 @@ const Gateway = ({ history, redirectTo }) => {
                   {!_.isEqual(custodianName, '-')
                     ? (
                       <Box className="inventoryContainer">
-                        <Typography className="inventoryTitle notranslate">{custodianName.toUpperCase()}</Typography>
+                        <Typography className="inventoryTitle">{custodianName.toUpperCase()}</Typography>
                         {availableCount > 0 && (
                           <Box className="inventorySubContainer inventoryAvailable">
                             <div className="inventoryCountContainer">
                               <Typography>{availableCount}</Typography>
                             </div>
-                            <Typography className="inventoryText">Available</Typography>
+                            <Typography className="inventoryText">{t('gateway.available')}</Typography>
                           </Box>
                         )}
                         {assignedCount > 0 && (
@@ -401,7 +402,7 @@ const Gateway = ({ history, redirectTo }) => {
                             <div className="inventoryCountContainer">
                               <Typography>{assignedCount}</Typography>
                             </div>
-                            <Typography className="inventoryText">Assigned</Typography>
+                            <Typography className="inventoryText">{t('gateway.assigned')}</Typography>
                           </Box>
                         )}
                         {inTransitCount > 0 && (
@@ -409,7 +410,7 @@ const Gateway = ({ history, redirectTo }) => {
                             <div className="inventoryCountContainer">
                               <Typography>{inTransitCount}</Typography>
                             </div>
-                            <Typography className="inventoryText">In Transit</Typography>
+                            <Typography className="inventoryText">{t('gateway.in_transit')}</Typography>
                           </Box>
                         )}
                         {unavailableCount > 0 && (
@@ -417,13 +418,13 @@ const Gateway = ({ history, redirectTo }) => {
                             <div className="inventoryCountContainer">
                               <Typography>{unavailableCount}</Typography>
                             </div>
-                            <Typography className="inventoryText">Unavailable</Typography>
+                            <Typography className="inventoryText">{t('gateway.unavailable')}</Typography>
                           </Box>
                         )}
                       </Box>
                     ) : (
                       <Box className="inventoryContainer">
-                        <Typography>UNASSIGNED</Typography>
+                        <Typography>{t('gateway.unassigned')}</Typography>
                         <Typography className="inventoryUnassignedText">{_.size(trackers)}</Typography>
                       </Box>
                     )}

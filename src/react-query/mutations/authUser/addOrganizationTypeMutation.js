@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for performing and managing server state mutations
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility to extract and display readable error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to perform a mutation for adding a new organization type.
@@ -34,7 +35,7 @@ export const useAddOrganizationTypeMutation = (history, redirectTo, displayAlert
           queryKey: ['organizationTypes'], // Query key associated with the organization types list
         });
         // Show a success alert to the user
-        displayAlert('success', 'Successfully added organization type');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added organization type'));
         // Redirect the user to a new route if history and redirectTo are provided
         if (history && redirectTo) {
           history.push(redirectTo);

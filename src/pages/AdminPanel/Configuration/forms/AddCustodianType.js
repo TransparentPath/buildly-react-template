@@ -10,12 +10,15 @@ import { useEditCustodianTypeMutation } from '@react-query/mutations/custodians/
 import { validators } from '@utils/validators'; // Utility for validating form input
 import { isDesktop } from '@utils/mediaQuery'; // Utility to check if screen is desktop
 import '../../AdminPanelStyles.css'; // Styles shared across admin panel
+import { useTranslation } from 'react-i18next';
 
 /**
  * Component to add or edit a custodian type.
  * Displays a form inside a modal with validations and mutation calls.
  */
 const AddCustodianType = ({ history, location }) => {
+  const { t } = useTranslation();
+
   // Form modal open state
   const [openFormModal, setFormModal] = useState(true);
   // Confirmation modal for unsaved changes
@@ -32,9 +35,9 @@ const AddCustodianType = ({ history, location }) => {
   // Object to track form validation errors
   const [formError, setFormError] = useState({});
   // Button label depending on whether it's an add or edit page
-  const buttonText = editPage ? 'Save' : 'Add Custodian Type';
+  const buttonText = editPage ? t('addCustodianType.save') : t('addCustodianType.addCustodianType');
   // Modal title depending on mode
-  const formTitle = editPage ? 'Edit Custodian Type' : 'Add Custodian Type';
+  const formTitle = editPage ? t('addCustodianType.editCustodianType') : t('addCustodianType.addCustodianType');
 
   /**
    * Handle form modal close.
@@ -156,7 +159,7 @@ const AddCustodianType = ({ history, location }) => {
                   fullWidth
                   required
                   id="name"
-                  label="Custodian Type"
+                  label={t('addCustodianType.custodianType')}
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
@@ -190,7 +193,7 @@ const AddCustodianType = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('addCustodianType.cancel')}
                   </Button>
                 </Grid>
               </Grid>

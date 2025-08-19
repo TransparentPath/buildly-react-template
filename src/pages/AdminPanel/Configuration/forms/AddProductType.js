@@ -12,9 +12,12 @@ import { useAddProductTypeMutation } from '@react-query/mutations/items/addProdu
 import { useEditProductTypeMutation } from '@react-query/mutations/items/editProductTypeMutation';
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
+import { useTranslation } from 'react-i18next';
 
 // Main component for adding or editing a product type
 const AddProductType = ({ history, location }) => {
+  const { t } = useTranslation();
+
   // Get the organization UUID from the logged-in user context
   const organization = getUser().organization.organization_uuid;
 
@@ -40,8 +43,8 @@ const AddProductType = ({ history, location }) => {
   const [formError, setFormError] = useState({});
 
   // Dynamic button and modal title text based on mode
-  const buttonText = editPage ? 'Save' : 'Add Product Type';
-  const formTitle = editPage ? 'Edit Product Type' : 'Add Product Type';
+  const buttonText = editPage ? t('addProductType.save') : t('addProductType.addProductType');
+  const formTitle = editPage ? t('addProductType.editProductType') : t('addProductType.addProductType');
 
   /**
    * Function to close the form modal.
@@ -175,7 +178,7 @@ const AddProductType = ({ history, location }) => {
                   fullWidth
                   required
                   id="name"
-                  label="Product Type"
+                  label={t('addProductType.productType')}
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
@@ -208,7 +211,7 @@ const AddProductType = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('addProductType.cancel')}
                   </Button>
                 </Grid>
               </Grid>

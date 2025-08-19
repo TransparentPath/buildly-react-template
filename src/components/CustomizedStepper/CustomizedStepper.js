@@ -62,7 +62,6 @@ const CustomizedSteppers = ({ steps }) => {
             {/* Optional title icon */}
             {step.titleIcon}
             <Typography
-              className={step.titleIcon ? '' : 'notranslate'} // Prevent translation if plain text
               textAlign="center"
               fontWeight={700}
               pb={2}
@@ -82,7 +81,6 @@ const CustomizedSteppers = ({ steps }) => {
             <StepLabel>{step.label}</StepLabel>
             {/* Main content of the step (usually a description or message) */}
             <Typography
-              className="notranslate"
               textAlign="center"
               fontSize={14}
               style={{ width: 'max-content', margin: 'auto' }}

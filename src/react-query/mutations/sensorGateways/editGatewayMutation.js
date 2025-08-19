@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for handling mutations and cache management
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for extracting error messages from API responses
-
+import i18n from '../../../i18n/index';
 /**
  * Custom hook for editing a gateway or multiple gateways.
  *
@@ -72,7 +72,7 @@ export const useEditGatewayMutation = (
         await queryClient.invalidateQueries({
           queryKey: ['gateways', organization], // Invalidates the 'gateways' cache for the specified organization
         });
-        displayAlert('success', 'Tracker(s) successfully edited!');
+        displayAlert('success', i18n.t('api.successMessages.Tracker(s) successfully edited!'));
         if (history && redirectTo) {
           history.push(redirectTo); // Redirects if a route is provided
         }

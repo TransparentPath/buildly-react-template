@@ -297,13 +297,13 @@ const Reporting = () => {
           .tz(timeZone).format(`${dateFormat} ${timeFormat}`);
       } else if (typeof (selectedShipment[value]) !== 'object') {
         if (value === 'had_alert') {
-          returnValue = selectedShipment[value] ? 'YES' : 'NO';
+          returnValue = selectedShipment[value] ? t('reporting.common.yes') : t('reporting.common.no');
         } else {
           returnValue = selectedShipment[value];
         }
       }
     } else {
-      returnValue = <span className="notranslate">N/A</span>;
+      returnValue = 'N/A';
     }
     return returnValue;
   };
@@ -332,7 +332,7 @@ const Reporting = () => {
   // Function to download CSV report
   const downloadCSV = () => {
     // Define the columns to be included in the CSV, filtering out those marked as not displayable
-    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false, null);
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment, t).filter((col) => col.options.display !== false, null);
 
     // Sort the reports data in descending order based on the timestamp
     const data = _.orderBy(
@@ -349,7 +349,7 @@ const Reporting = () => {
 
     // Generate the CSV header row by mapping over the columns
     const csvHeader = columns.map((col) => {
-      if (col.label === 'DATE TIME') {
+      if (col.name === 'timestamp') {
         // Format the Date Time column header with timezone and date/time format
         const timeArray = _.split(timeFormat, ' ');
         const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour';
@@ -358,18 +358,19 @@ const Reporting = () => {
         return escapeCSV(formattedLabel);
       }
       if (col.name === 'temperature') {
+        const unit = tempUnit(_.find(unitData, (u) => _.isEqual(_.toLower(u.unit_of_measure_for), 'temperature')));
         // Format the temperature column header with the appropriate unit
-        return escapeCSV(`TEMPERATURE (${tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))})`);
+        return escapeCSV(t('reporting.csv.headers.temperature', { unit }));
       }
       if (col.name === 'battery') {
         // Format the battery column header
-        return escapeCSV('BATTERY (%)');
+        return escapeCSV(t('reporting.csv.headers.battery'));
       }
       return escapeCSV(col.label); // Default case for other columns
     }).join(',');
 
     // Find the index of the Date Time column
-    const dateTimeColumnIndex = columns.findIndex((col) => col.label === 'DATE TIME');
+    const dateTimeColumnIndex = columns.findIndex((col) => col.name === 'timestamp');
 
     // Format the departure and arrival times for filtering rows within the time range
     const departureTime = moment(selectedShipment.actual_time_of_departure).tz(timeZone).format(`${dateFormat} ${timeFormat}`);
@@ -394,9 +395,9 @@ const Reporting = () => {
       const firstRowIndex = rows.findIndex((row) => row === rowsWithinTimeRange[0]);
       const lastRowIndex = rows.findIndex((row) => row === rowsWithinTimeRange[_.size(rowsWithinTimeRange) - 1]);
       if (formattedArrivalTime) {
-        rows[firstRowIndex].allAlerts.push({ title: 'Arrived', color: '#000' });
+        rows[firstRowIndex].allAlerts.push({ title: t('reporting.status.arrived'), color: '#000' });
       }
-      rows[lastRowIndex].allAlerts.push({ title: 'En route', color: '#000' });
+      rows[lastRowIndex].allAlerts.push({ title: t('reporting.status.enRoute'), color: '#000' });
     }
 
     // Generate the CSV body by mapping over the rows and columns
@@ -533,7 +534,7 @@ const Reporting = () => {
     };
 
     // Filter columns to only include those marked for display
-    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment).filter((col) => col.options.display !== false, null);
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment, t).filter((col) => col.options.display !== false, null);
 
     // Sort report data by timestamp in descending order (newest first)
     const data = _.orderBy(
@@ -556,17 +557,24 @@ const Reporting = () => {
      */
     const custodiansArray = selectedShipment.custody_info.map((info) => {
       const custodianContact = selectedShipment.contact_info.find((contact) => info.custodian_data.contact_data.includes(contact.url)) || {};
+      const type = info.custodian_data.custodian_type.includes(1)
+        ? t('reporting.excel.custodianTypes.shipper')
+        : info.custodian_data.custodian_type.includes(2)
+          ? t('reporting.excel.custodianTypes.logisticsProvider')
+          : info.custodian_data.custodian_type.includes(3)
+            ? t('reporting.excel.custodianTypes.warehouse')
+            : t('reporting.excel.custodianTypes.receiver');
       return {
         custodian_name: info.custodian_name,
-        custodian_type: info.custodian_data.custodian_type.includes(1) ? 'Shipper' : info.custodian_data.custodian_type.includes(2) ? 'Logistics Provider' : info.custodian_data.custodian_type.includes(3) ? 'Warehouse' : 'Receiver',
+        custodian_type: type,
         custodian_address: `${custodianContact.address1}, ${custodianContact.city}, ${custodianContact.state}, ${custodianContact.country}, ${custodianContact.postal_code}`,
       };
     });
 
     // Sort custodians by type: Shipper first, Receiver last, others in between
     const sortedCustodiansArray = _.sortBy(custodiansArray, (custodian) => {
-      if (custodian.custodian_type === 'Shipper') return 0;
-      if (custodian.custodian_type === 'Receiver') return 2;
+      if (custodian.custodian_type === t('reporting.excel.custodianTypes.shipper')) return 0;
+      if (custodian.custodian_type === t('reporting.excel.custodianTypes.receiver')) return 2;
       return 1;
     });
 
@@ -582,17 +590,17 @@ const Reporting = () => {
 
     // Add description header row with column labels
     const descriptionRow = worksheet.addRow([
-      'Color Key',
-      'Tracker ID',
-      'Shipment Name',
-      'Item Name(s)',
-      'Custodian Type',
-      'Custodian Name',
-      'Custodian Address',
-      'Tracker Intervals',
-      'Max. / Min. Thresholds',
-      'Excursions',
-      'Shipment Status',
+      t('reporting.excel.headers.colorKey'),
+      t('reporting.excel.headers.trackerId'),
+      t('reporting.excel.headers.shipmentName'),
+      t('reporting.excel.headers.itemNames'),
+      t('reporting.excel.headers.custodianType'),
+      t('reporting.excel.headers.custodianName'),
+      t('reporting.excel.headers.custodianAddress'),
+      t('reporting.excel.headers.trackerIntervals'),
+      t('reporting.excel.headers.thresholds'),
+      t('reporting.excel.headers.excursions'),
+      t('reporting.excel.headers.shipmentStatus'),
     ]);
 
     // Apply bold font to all cells in the description row
@@ -614,7 +622,7 @@ const Reporting = () => {
       sortedCustodiansArray[0].custodian_type,
       sortedCustodiansArray[0].custodian_name,
       formattedCustodianAddress,
-      `Transmission: ${selectedShipment.transmission_time} min.`,
+      t('reporting.excel.labels.transmission', { minutes: selectedShipment.transmission_time }),
       '',
       '',
       selectedShipment.status,
@@ -623,15 +631,15 @@ const Reporting = () => {
     // Add color key explanation with rich text formatting for different colors
     descriptionRow1.getCell(1).value = {
       richText: [
-        { text: 'Red', font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
-        { text: ', ', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
-        { text: 'Blue', font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
-        { text: ' indicate Excursions', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        { text: t('reporting.excel.colors.red'), font: { color: { argb: theme.palette.error.main.replace('#', '') } } },
+        { text: t('reporting.excel.punctuation.commaSpace'), font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        { text: t('reporting.excel.colors.blue'), font: { color: { argb: theme.palette.info.main.replace('#', '') } } },
+        { text: ` ${t('reporting.excel.labels.indicateExcursions')}`, font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
       ],
     };
 
     // Add temperature threshold values using helper function
-    descriptionRow1.getCell(9).value = { richText: setThresholdsValues('Temperature', selectedShipment.max_excursion_temp, selectedShipment.min_excursion_temp, tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))) };
+    descriptionRow1.getCell(9).value = { richText: setThresholdsValues(t('temperature'), selectedShipment.max_excursion_temp, selectedShipment.min_excursion_temp, tempUnit(_.find(unitData, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature'))))) };
 
     // Apply styling to all cells in the first description row
     descriptionRow1.eachCell((cell) => {
@@ -654,19 +662,19 @@ const Reporting = () => {
       sortedCustodiansArray[1].custodian_type,
       sortedCustodiansArray[1].custodian_name,
       formattedCustodian2Address,
-      `Measurement: ${selectedShipment.measurement_time} min.`,
+      t('reporting.excel.labels.measurement', { minutes: selectedShipment.measurement_time }),
     ]);
 
     // Add green color key explanation for recovery indicators
     descriptionRow2.getCell(1).value = {
       richText: [
-        { text: 'Green', font: { color: { argb: theme.palette.success.main.replace('#', '') } } },
-        { text: ' indicates Recovery', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+        { text: t('reporting.excel.colors.green'), font: { color: { argb: theme.palette.success.main.replace('#', '') } } },
+        { text: ` ${t('reporting.excel.labels.indicatesRecovery')}`, font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
       ],
     };
 
     // Add humidity threshold values
-    descriptionRow2.getCell(9).value = { richText: setThresholdsValues('Humidity', selectedShipment.max_excursion_humidity, selectedShipment.min_excursion_humidity, '%') };
+    descriptionRow2.getCell(9).value = { richText: setThresholdsValues(t('humidity'), selectedShipment.max_excursion_humidity, selectedShipment.min_excursion_humidity, '%') };
 
     // Apply styling to all cells in the second description row
     descriptionRow2.eachCell((cell) => {
@@ -682,7 +690,7 @@ const Reporting = () => {
 
     // Add third description row with grey color key for transit and additional custodian if available
     const descriptionRow3 = worksheet.addRow([
-      'Grey indicates Transit',
+      t('reporting.excel.labels.greyIndicatesTransit'),
       '',
       '',
       '',
@@ -703,7 +711,7 @@ const Reporting = () => {
     });
 
     // Add shock threshold values
-    descriptionRow3.getCell(9).value = { richText: setThresholdsValues('Shock', selectedShipment.shock_threshold, null, 'G') };
+    descriptionRow3.getCell(9).value = { richText: setThresholdsValues(t('shock'), selectedShipment.shock_threshold, null, 'G') };
 
     // Apply styling to all cells in the third description row
     descriptionRow3.eachCell((cell) => {
@@ -726,7 +734,7 @@ const Reporting = () => {
     descriptionRow4.getCell(7).value = _.size(sortedCustodiansArray) > 3 ? formattedCustodianAddress : '';
 
     // Add light threshold values
-    descriptionRow4.getCell(9).value = { richText: setThresholdsValues('Light', selectedShipment.light_threshold, null, 'LUX') };
+    descriptionRow4.getCell(9).value = { richText: setThresholdsValues(t('light'), selectedShipment.light_threshold, null, 'LUX') };
 
     // Apply styling to all cells in the fourth description row
     descriptionRow4.eachCell((cell) => {
@@ -760,15 +768,15 @@ const Reporting = () => {
      * - Other columns use their standard labels
      */
     const headerRow = worksheet.addRow(columns.map((col) => {
-      if (col.label === 'DATE TIME') {
+      if (col.name === 'timestamp') {
         const timeArray = _.split(timeFormat, ' ');
         const timePeriod = _.size(timeArray) === 1 ? '24-hour' : '12-hour';
         const filteredTimeZone = _.find(tzOptions, (option) => option.value === timeZone);
-        const formattedLabel = `DATE TIME (${filteredTimeZone.abbrev}) (${dateFormat} ${timePeriod})`;
+        const formattedLabel = `${col.label} (${filteredTimeZone.abbrev}) (${dateFormat} ${timePeriod})`;
         return formattedLabel;
       }
       if (col.name === 'battery') {
-        return 'BATTERY (%)';
+        return t('reporting.excel.headers.battery');
       }
       return col.label;
     }));
@@ -791,7 +799,7 @@ const Reporting = () => {
     });
 
     // Determine the column index for the date/time column
-    const dateTimeColIndex = columns.findIndex((col) => col.label === 'DATE TIME') + 1;
+    const dateTimeColIndex = columns.findIndex((col) => col.name === 'timestamp') + 1;
 
     // Format departure and arrival times for the shipment in the selected timezone
     const departureTime = moment(selectedShipment.actual_time_of_departure).tz(timeZone).format(`${dateFormat} ${timeFormat}`);
@@ -930,7 +938,7 @@ const Reporting = () => {
       }
 
       // Update temperature excursion count in the summary area
-      const tempRichText = [{ text: 'Temperature:' }];
+      const tempRichText = [{ text: `${t('temperature')}:` }];
       if (maxTempExcursionsCount > 0) {
         tempRichText.push({
           text: ` ${maxTempExcursionsCount} `,
@@ -946,7 +954,7 @@ const Reporting = () => {
       descriptionRow1.getCell(10).value = { richText: tempRichText };
 
       // Update humidity excursion count in the summary area
-      const humRichText = [{ text: 'Humidity:' }];
+      const humRichText = [{ text: `${t('humidity')}:` }];
       if (maxHumExcursionsCount > 0) {
         humRichText.push({
           text: ` ${maxHumExcursionsCount} `,
@@ -962,7 +970,7 @@ const Reporting = () => {
       descriptionRow2.getCell(10).value = { richText: humRichText };
 
       // Update shock excursion count in the summary area
-      const shockRichText = [{ text: 'Shock:' }];
+      const shockRichText = [{ text: `${t('shock')}:` }];
       if (maxShockExcursionsCount > 0) {
         shockRichText.push({
           text: ` ${maxShockExcursionsCount} `,
@@ -978,7 +986,7 @@ const Reporting = () => {
       descriptionRow3.getCell(10).value = { richText: shockRichText };
 
       // Update light excursion count in the summary area
-      const lightRichText = [{ text: 'Light:' }];
+      const lightRichText = [{ text: `${t('light')}:` }];
       if (maxLightExcursionsCount > 0) {
         lightRichText.push({
           text: ` ${maxLightExcursionsCount} `,
@@ -1045,13 +1053,13 @@ const Reporting = () => {
           firstGreyRowRichText = [
             ...firstGreyRowRichText,
             {
-              text: ', Arrived',
+              text: `, ${t('reporting.status.arrived')}`,
               font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
             },
           ];
         } else {
           firstGreyRowRichText = [
-            { text: 'Arrived', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+            { text: t('reporting.status.arrived'), font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
           ];
         }
       }
@@ -1061,13 +1069,13 @@ const Reporting = () => {
         lastGreyRowRichText = [
           ...lastGreyRowRichText,
           {
-            text: ', En route',
+            text: `, ${t('reporting.status.enRoute')}`,
             font: { color: { argb: theme.palette.background.black2.replace('#', '') } },
           },
         ];
       } else {
         lastGreyRowRichText = [
-          { text: 'En route', font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
+          { text: t('reporting.status.enRoute'), font: { color: { argb: theme.palette.background.black2.replace('#', '') } } },
         ];
       }
 
@@ -1156,7 +1164,7 @@ const Reporting = () => {
       {/* Header section with title and conditional report button */}
       <Box className="reportingDashboardContainer">
         <Typography className="reportingDashboardHeading" variant="h4">
-          Reporting
+          {t('reporting.title')}
         </Typography>
 
         {/* Show "Insights Report" button only if shipment filter is not empty and not 'Active' */}
@@ -1169,9 +1177,9 @@ const Reporting = () => {
             onClick={() => setShowGenerateReport(true)}
             disabled={isReportPDFDownloading || _.isEmpty(selectedShipment)}
           >
-            Insights Report
+            {t('reporting.buttons.insightsReport')}
             {/* Tooltip explaining report is in beta */}
-            <Tooltip placement="bottom" title={t('insights_report')}>
+            <Tooltip placement="bottom" title={t('reporting.tooltips.insightsReport')}>
               <InfoIcon fontSize="small" className="reportingDashboardButtonIcon" />
             </Tooltip>
           </Button>
@@ -1190,17 +1198,21 @@ const Reporting = () => {
               fullWidth
             >
               {/* Filters for different shipment statuses */}
-              {['Active', 'Completed', 'Battery Depleted', 'Damaged'].map((status) => (
-                <ToggleButton
-                  key={status}
-                  value={status}
-                  size="medium"
-                  selected={shipmentFilter === status}
-                  onClick={(event, value) => makeFilterSelection(value)}
-                >
-                  {status}
-                </ToggleButton>
-              ))}
+              {[t('reporting.filters.active'), t('reporting.filters.completed'), t('reporting.filters.batteryDepleted'), t('reporting.filters.damaged')].map((statusKeyLabel, idx) => {
+                const valueMap = ['Active', 'Completed', 'Battery Depleted', 'Damaged'];
+                const value = valueMap[idx];
+                return (
+                  <ToggleButton
+                    key={value}
+                    value={value}
+                    size="medium"
+                    selected={shipmentFilter === value}
+                    onClick={(event) => makeFilterSelection(value)}
+                  >
+                    {statusKeyLabel}
+                  </ToggleButton>
+                );
+              })}
             </ToggleButtonGroup>
           </div>
 
@@ -1220,8 +1232,7 @@ const Reporting = () => {
               renderOption={(props, option) => (
                 <li
                   {...props}
-                  className={`${props.className} notranslate`}
-                  data-no-translate="true"
+                  className={`${props.className}`}
                 >
                   {option.name}
                 </li>
@@ -1229,11 +1240,10 @@ const Reporting = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  className="notranslate"
                   variant="outlined"
                   required
                   margin="normal"
-                  label={<span className="translate">Shipment Name</span>}
+                  label={t('reporting.fields.shipmentName')}
                 />
               )}
             />
@@ -1270,10 +1280,10 @@ const Reporting = () => {
             <Typography className="reportingSectionTitleHeading" variant="h5">
               {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
                 <>
-                  <span>Map View - Shipment: </span>
-                  <span className="notranslate">{selectedShipment.name}</span>
+                  <span>{t('reporting.map.titleWithNamePrefix')}</span>
+                  <span>{selectedShipment.name}</span>
                 </>
-              ) : 'Map View'}
+              ) : t('reporting.map.title')}
             </Typography>
           </div>
 
@@ -1299,10 +1309,10 @@ const Reporting = () => {
           <Typography className="reportingSectionTitleHeading" variant="h5">
             {!_.isEmpty(selectedShipment) && selectedShipment.name ? (
               <>
-                <span>Graph View - Shipment: </span>
-                <span className="notranslate">{selectedShipment.name}</span>
+                <span>{t('reporting.graph.titleWithNamePrefix')}</span>
+                <span>{selectedShipment.name}</span>
               </>
-            ) : 'Graph View'}
+            ) : t('reporting.graph.title')}
           </Typography>
         </div>
 
@@ -1333,7 +1343,7 @@ const Reporting = () => {
               />
             ) : (
               <Typography variant="h6" align="center">
-                Select a shipment to view reporting data
+                {t('reporting.graph.noDataPrompt')}
               </Typography>
             )}
         </Grid>

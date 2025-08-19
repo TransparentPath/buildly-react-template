@@ -56,7 +56,7 @@ export const MapComponent = (props) => {
   const [mapZoom, setMapZoom] = useState(zoom); // Dynamic zoom level
   const [showInfoIndex, setShowInfoIndex] = useState({}); // Which marker's InfoWindow is visible
   const [polygon, setPolygon] = useState({}); // Polygon coordinates for geofence
-  // const [selectedLanguage, setSelectedLanguage] = useState('en'); // Language setting
+
   // Extract country unit from unitOfMeasure
   const country = _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country'))
     ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'country')).unit_of_measure
@@ -65,12 +65,6 @@ export const MapComponent = (props) => {
   const theme = useTheme();
 
   const user = getUser(); // Get current logged-in user object
-
-  // useEffect(() => {
-  //   if (user && user.user_language) { // Check if user language is set
-  //     setSelectedLanguage(_.find(LANGUAGES, { label: user.user_language }).value); // Set the selected language based on user preference
-  //   }
-  // }, [user]);
 
   /**
    * useEffect to re-center the map if screenshot mode is active.
@@ -450,11 +444,14 @@ export const MapComponent = (props) => {
               />
               <InfoWindow>
                 <div style={{ color: theme.palette.background.dark }}>
-                  {`Geofence of ${mark.radius} ${_.toLower(
-                    _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
-                      ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
-                      : '',
-                  )}`}
+                  {t('map.geofence.of', {
+                    radius: mark.radius,
+                    unit: _.toLower(
+                      _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance'))
+                        ? _.find(unitOfMeasure, (unit) => (_.toLower(unit.unit_of_measure_for) === 'distance')).unit_of_measure
+                        : '',
+                    ),
+                  })}
                 </div>
               </InfoWindow>
             </Marker>
@@ -473,7 +470,7 @@ export const MapComponent = (props) => {
             >
               <InfoWindow>
                 <div style={{ color: theme.palette.background.dark }}>
-                  Configure radius for geofence
+                  {t('map.geofence.configureRadius')}
                 </div>
               </InfoWindow>
             </Marker>

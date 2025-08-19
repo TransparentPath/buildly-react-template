@@ -12,8 +12,11 @@ import { getUnitQuery } from '@react-query/queries/items/getUnitQuery'; // API c
 import { useDeleteItemTypeMutation } from '@react-query/mutations/items/deleteItemTypeMutation'; // Mutation hook to delete item type
 import useAlert from '@hooks/useAlert'; // Custom hook for displaying alerts
 import { useStore } from '@zustand/timezone/timezoneStore'; // Custom hook for accessing timezone store
+import { useTranslation } from 'react-i18next';
 
 const ItemType = ({ redirectTo, history }) => {
+  const { t } = useTranslation();
+
   // Retrieve organization ID from the user context
   const organization = getUser().organization.organization_uuid;
 
@@ -93,16 +96,17 @@ const ItemType = ({ redirectTo, history }) => {
         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
           : '', // Find unit for 'time' and pass it for column configuration
+        t,
       )}
-      filename="ItemType" // Filename for the downloadable table data
-      addButtonHeading="Item Type" // Heading for the "Add" button
+      filename={t('itemType.filename')} // Filename for the downloadable table data
+      addButtonHeading={t('itemType.itemType')} // Heading for the "Add" button
       onAddButtonClick={onAddButtonClick} // Action for "Add" button click
       editAction={editType} // Action for editing an item type
       deleteAction={deleteType} // Action for deleting an item type
       openDeleteModal={openDeleteModal} // Boolean for controlling delete modal visibility
       setDeleteModal={setDeleteModal} // Function to control the delete modal visibility
       handleDeleteModal={handleDeleteModal} // Function to handle the delete action
-      deleteModalTitle="Are you sure you want to Delete this Item Type?" // Title of the delete confirmation modal
+      deleteModalTitle={t('itemType.deleteModalTitle')} // Title of the delete confirmation modal
       tableHeight="300px" // Set table height
     >
       {/* Route for the AddItemType form */}

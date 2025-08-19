@@ -1,19 +1,21 @@
 import React, { useContext } from 'react';
 import { Link, Typography } from '@mui/material'; // MUI components for UI text and links
 import { AppContext } from '@context/App.context'; // Custom app-wide context to access global properties (like the app title)
+import { useTranslation } from 'react-i18next';
 
 const Copyright = () => {
   // Access the `title` value from the global application context
   const { title } = useContext(AppContext);
+  const { t } = useTranslation();
 
   return (
     // Typography component used to render styled text
     <Typography variant="body2" align="center" mt={8} mb={1}>
       {/* Static text prefix */}
-      {'Copyright © '}
+      {t('common.copyright')}
+      {' © '}
       {/* Link to the application website (opens in a new tab) */}
       <Link
-        className="notranslate" // Prevents browser from auto-translating the name
         color="primary" // Uses theme's primary color
         href="https://xparent.io/" // Target URL for the link
         target="_blank" // Opens link in a new browser tab

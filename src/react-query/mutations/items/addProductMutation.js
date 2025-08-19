@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to handle the creation of a new product via API.
@@ -52,7 +53,7 @@ export const useAddProductMutation = (organization, history, redirectTo, display
           queryKey: ['products', organization],
         });
         // Show a success alert to the user
-        displayAlert('success', 'Successfully added product');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added product'));
         // Redirect if routing info is provided
         if (history && redirectTo) {
           history.push(redirectTo);

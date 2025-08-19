@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Accordion,
   AccordionSummary,
@@ -28,6 +29,7 @@ import '../AdminPanelStyles.css';
  * based on the user's role (Admin or Super Admin).
  */
 const Configuration = (props) => {
+  const { t } = useTranslation();
   // Determine if the current user is an Admin
   const isAdmin = checkForAdmin(getUser());
   // Determine if the current user is a Global Admin (Super Admin)
@@ -45,7 +47,7 @@ const Configuration = (props) => {
               aria-controls="organization-setting-content"
               id="organization-setting-header"
             >
-              <Typography variant="h5">Organization Settings</Typography>
+              <Typography variant="h5">{t('configuration.organizationSettings')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <OrganizationSettings {...props} />
@@ -58,7 +60,7 @@ const Configuration = (props) => {
               aria-controls="recipient-address-content"
               id="recipient-address-header"
             >
-              <Typography variant="h5">Recipient Address</Typography>
+              <Typography variant="h5">{t('configuration.recipientAddress')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <RecipientAddress {...props} />
@@ -76,7 +78,7 @@ const Configuration = (props) => {
               aria-controls="organization-setting-content"
               id="organization-setting-header"
             >
-              <Typography variant="h5">Organization Settings</Typography>
+              <Typography variant="h5">{t('configuration.organizationSettings')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <OrganizationSettings {...props} />
@@ -89,7 +91,7 @@ const Configuration = (props) => {
               aria-controls="recipient-address-content"
               id="recipient-address-header"
             >
-              <Typography variant="h5">Recipient Address</Typography>
+              <Typography variant="h5">{t('configuration.recipientAddress')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <RecipientAddress {...props} />
@@ -102,7 +104,7 @@ const Configuration = (props) => {
               aria-controls="custodian-type-content"
               id="custodian-type-header"
             >
-              <Typography variant="h5">Custodian Type</Typography>
+              <Typography variant="h5">{t('configuration.custodianType')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <CustodianType {...props} />
@@ -115,7 +117,7 @@ const Configuration = (props) => {
               aria-controls="gateway-type-content"
               id="gateway-type-header"
             >
-              <Typography variant="h5">Tracker Type</Typography>
+              <Typography variant="h5">{t('configuration.trackerType')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <GatewayType {...props} />
@@ -128,7 +130,7 @@ const Configuration = (props) => {
               aria-controls="item-type-content"
               id="item-type-header"
             >
-              <Typography variant="h5">Item Type</Typography>
+              <Typography variant="h5">{t('configuration.itemType')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <ItemType {...props} />
@@ -141,7 +143,7 @@ const Configuration = (props) => {
               aria-controls="organization-type-content"
               id="organization-type-header"
             >
-              <Typography variant="h5">Organization Type</Typography>
+              <Typography variant="h5">{t('configuration.organizationType')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <OrganizationType {...props} />
@@ -154,7 +156,7 @@ const Configuration = (props) => {
               aria-controls="product-content"
               id="product-header"
             >
-              <Typography variant="h5">Products</Typography>
+              <Typography variant="h5">{t('configuration.products')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Product {...props} />
@@ -167,7 +169,7 @@ const Configuration = (props) => {
               aria-controls="product-type-content"
               id="product-type-header"
             >
-              <Typography variant="h5">Product Type</Typography>
+              <Typography variant="h5">{t('configuration.productType')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <ProductType {...props} />

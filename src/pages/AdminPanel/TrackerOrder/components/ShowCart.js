@@ -145,13 +145,13 @@ const ShowCart = ({ history, location }) => {
             {/* Cart content layout */}
             <Grid container className="cartContainer">
               <Grid item xs={12} textAlign="center">
-                <Typography className="cartTitle">Cart</Typography>
+                <Typography className="cartTitle">{t('cart.title')}</Typography>
               </Grid>
 
               {/* Display message if the cart is empty */}
               {_.isEmpty(cartData) && (
                 <Grid item xs={12} textAlign="center">
-                  <Typography className="cartNoOrder">No orders to place</Typography>
+                  <Typography className="cartNoOrder">{t('cart.noOrders')}</Typography>
                 </Grid>
               )}
 
@@ -195,15 +195,19 @@ const ShowCart = ({ history, location }) => {
 
                             <Typography>
                               <span className="trackerOrderBold">
-                                Type:
+                                {t('cart.type')}
+                                :
                               </span>
                               {' '}
-                              <span className="notranslate">{cdot}</span>
+                              <span>{cdot}</span>
                             </Typography>
 
                             {/* Quantity display and update */}
                             <Grid item className="cartQuantityDisplay">
-                              <Typography className="trackerOrderBold">Quantity:</Typography>
+                              <Typography className="trackerOrderBold">
+                                {t('cart.quantity')}
+                                :
+                              </Typography>
 
                               <TextField
                                 variant="outlined"
@@ -217,7 +221,7 @@ const ShowCart = ({ history, location }) => {
                                 onChange={(e) => updateOrderQuantity(index, idx, e.target.value)}
                               >
                                 <MenuItem value={0}>
-                                  <span className="notranslate">{t('select')}</span>
+                                  <span>{t('common.select')}</span>
                                 </MenuItem>
                                 {/* Options for quantity selection */}
                                 {_.map([25, 50, 75, 100], (quant, qidx) => (
@@ -237,7 +241,7 @@ const ShowCart = ({ history, location }) => {
                               className="cartRemoveButton"
                               onClick={(e) => removeType(index, idx)}
                             >
-                              Remove
+                              {t('cart.remove')}
                             </Button>
                           </Grid>
                         </Grid>
@@ -246,17 +250,19 @@ const ShowCart = ({ history, location }) => {
 
                     {/* Shipping information */}
                     <Grid item xs={6}>
-                      <Typography className="trackerOrderBold">Shipping Information</Typography>
+                      <Typography className="trackerOrderBold">{t('cart.shippingInfo')}</Typography>
                       <Typography className="cartMarginTop32">
                         <span className="trackerOrderBold">
-                          Date:
+                          {t('cart.date')}
+                          :
                         </span>
                         {' '}
                         {moment(cd.order_date).tz(timeZone).format(`${dateFormat} ${timeFormat}`)}
                       </Typography>
                       <Typography>
                         <span className="trackerOrderBold">
-                          Total Quantity:
+                          {t('cart.totalQuantity')}
+                          :
                         </span>
                         {' '}
                         {_.sum(cd.order_quantity)}
@@ -264,22 +270,25 @@ const ShowCart = ({ history, location }) => {
 
                       <Typography className="cartMarginTop16">
                         <span className="trackerOrderBold">
-                          Recipient:
+                          {t('cart.recipient')}
+                          :
                         </span>
                         {' '}
-                        <span className="notranslate">{cd.order_recipient}</span>
+                        <span>{cd.order_recipient}</span>
                       </Typography>
                       <Typography>
                         <span className="trackerOrderBold">
-                          Customer:
+                          {t('cart.customer')}
+                          :
                         </span>
                         {' '}
-                        <span className="notranslate">{name}</span>
+                        <span>{name}</span>
                       </Typography>
 
                       <Typography className="cartMarginTop16">
                         <span className="trackerOrderBold">
-                          Recipient Address:
+                          {t('cart.recipientAddress')}
+                          :
                         </span>
                         {' '}
                         <span>{cd.order_address}</span>
@@ -301,7 +310,7 @@ const ShowCart = ({ history, location }) => {
                   size="small"
                   disabled={_.isEmpty(cartData)} // Disable submit button if cart is empty
                 >
-                  Submit
+                  {t('cart.submit')}
                 </Button>
               </Grid>
 
@@ -314,7 +323,7 @@ const ShowCart = ({ history, location }) => {
                   size="small"
                   onClick={closeCart}
                 >
-                  Cancel
+                  {t('cart.cancel')}
                 </Button>
               </Grid>
             </Grid>

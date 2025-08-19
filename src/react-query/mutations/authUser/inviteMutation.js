@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for mutation handling and cache control
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service abstraction
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to handle and display error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to invite users and create a new organization.
@@ -47,7 +48,7 @@ export const useInviteMutation = (discardFormData, displayAlert, section) => {
           queryKey: ['coregroup'],
         });
         // Display a success alert to the user
-        displayAlert('success', 'Invitations sent and organization created successfully');
+        displayAlert('success', i18n.t('api.successMessages.Invitations sent and organization created successfully'));
         // Reset the form or clear data as needed
         discardFormData();
       },

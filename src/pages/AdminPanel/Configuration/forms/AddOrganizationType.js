@@ -10,8 +10,11 @@ import { useAddOrganizationTypeMutation } from '@react-query/mutations/authUser/
 import { useEditOrganizationTypeMutation } from '@react-query/mutations/authUser/editOrganizationTypeMutation'; // React Query mutation to edit existing organization type
 import useAlert from '@hooks/useAlert'; // Custom hook for showing alerts
 import '../../AdminPanelStyles.css'; // Custom styles for the admin panel
+import { useTranslation } from 'react-i18next';
 
 const AddOrganizationType = ({ history, location }) => {
+  const { t } = useTranslation();
+
   // State to control the visibility of the main form modal
   const [openFormModal, setFormModal] = useState(true);
 
@@ -36,10 +39,10 @@ const AddOrganizationType = ({ history, location }) => {
   const [formError, setFormError] = useState({});
 
   // Dynamic text for the submit button based on mode
-  const buttonText = editPage ? 'Save' : 'Add Organization Type';
+  const buttonText = editPage ? t('addOrganizationType.save') : t('addOrganizationType.addOrganizationType');
 
   // Dynamic title for the modal form based on mode
-  const formTitle = editPage ? 'Edit Organization Type' : 'Add Organization Type';
+  const formTitle = editPage ? t('addOrganizationType.editOrganizationType') : t('addOrganizationType.addOrganizationType');
 
   /**
    * Handler for closing the form modal.
@@ -171,7 +174,7 @@ const AddOrganizationType = ({ history, location }) => {
                   fullWidth
                   required
                   id="name"
-                  label="Organization Type"
+                  label={t('addOrganizationType.organizationType')}
                   name="name"
                   autoComplete="name"
                   error={formError.name && formError.name.error}
@@ -202,7 +205,7 @@ const AddOrganizationType = ({ history, location }) => {
                     onClick={discardFormData}
                     className="adminPanelSubmit"
                   >
-                    Cancel
+                    {t('addOrganizationType.cancel')}
                   </Button>
                 </Grid>
               </Grid>

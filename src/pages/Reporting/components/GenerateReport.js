@@ -28,6 +28,7 @@ import { getUser } from '@context/User.context';
 import { REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
+import { useTranslation } from 'react-i18next';
 
 // Main component for generating and downloading shipment reports
 const GenerateReport = ({
@@ -46,6 +47,7 @@ const GenerateReport = ({
   reportPDFDownloadMutation, // Mutation function to upload base64 images for PDF generation
   selectedShipment, // Current selected shipment object
 }) => {
+  const { t } = useTranslation();
   const user = getUser(); // Get current user info
   const theme = useTheme(); // Access MUI theme object
   const [openConfirmModal, setConfirmModal] = useState(false); // Confirmation modal state
@@ -166,7 +168,7 @@ const GenerateReport = ({
       <FormModal
         open={open}
         handleClose={closeFormModal}
-        title="Insights Report"
+        title={t('generateReport.title')}
         openConfirmModal={openConfirmModal}
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
@@ -178,7 +180,7 @@ const GenerateReport = ({
           <Grid container spacing={isDesktop() ? 2 : 0}>
             <Grid className="itemInputWithTooltip" item xs={12}>
               <Typography fontSize={18} fontWeight="500">
-                Choose option(s) for which you want to download:
+                {t('generateReport.prompt')}
               </Typography>
             </Grid>
           </Grid>
@@ -196,7 +198,7 @@ const GenerateReport = ({
                         name="csv"
                       />
                     )}
-                    label="CSV File"
+                    label={t('generateReport.formats.csv')}
                   />
                   <FormControlLabel
                     control={(
@@ -206,7 +208,7 @@ const GenerateReport = ({
                         name="excel"
                       />
                     )}
-                    label="Excel File"
+                    label={t('generateReport.formats.excel')}
                   />
                   {/* Show PDF option only if report download URL exists */}
                   {!_.isEmpty(selectedShipment) && !_.isEmpty(selectedShipment.report_download_url) && (
@@ -218,7 +220,7 @@ const GenerateReport = ({
                           name="pdf"
                         />
                       )}
-                      label="PDF File"
+                      label={t('generateReport.formats.pdf')}
                     />
                   )}
                 </FormGroup>
@@ -237,7 +239,7 @@ const GenerateReport = ({
                 className="generateReportButton"
                 onClick={generatePdfReport}
               >
-                Generate PDF Report
+                {t('generateReport.actions.generatePdf')}
               </Button>
             </Grid>
             {!_.isEmpty(selectedShipment) && (
@@ -253,7 +255,7 @@ const GenerateReport = ({
                     !(selectedFormats.csv || selectedFormats.excel || selectedFormats.pdf)
                   }
                 >
-                  Download
+                  {t('generateReport.actions.download')}
                 </Button>
               </Grid>
             )}
@@ -266,7 +268,7 @@ const GenerateReport = ({
                 className="generateReportButton"
                 onClick={discardFormData}
               >
-                Cancel
+                {t('generateReport.actions.cancel')}
               </Button>
             </Grid>
           </Grid>

@@ -2,6 +2,7 @@
 import { useMutation } from 'react-query'; // React Query hook for managing mutations (like form submissions)
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for displaying user-friendly error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to handle user registration logic.
@@ -39,7 +40,7 @@ export const useRegisterMutation = (
      * - Redirects the user to a different route (e.g. login page or dashboard).
      */
     onSuccess: async () => {
-      displayAlert('success', 'Registration was successful'); // Show success alert
+      displayAlert('success', i18n.t('api.successMessages.Registration was successful')); // Show success alert
       history.push(redirectTo); // Redirect user to the specified route
     },
     /**

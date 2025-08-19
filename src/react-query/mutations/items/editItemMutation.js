@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 // Import a utility function to extract and display error messages
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom React hook to handle editing an existing item.
@@ -56,7 +57,7 @@ export const useEditItemMutation = (
         await queryClient.invalidateQueries({
           queryKey: ['items', organization],
         });
-        displayAlert('success', 'Item successfully edited!');
+        displayAlert('success', i18n.t('api.successMessages.Item successfully edited!'));
         if (history && redirectTo) {
           history.push(redirectTo);
         }

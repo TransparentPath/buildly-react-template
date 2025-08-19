@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for handling mutations and caching
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service abstraction for API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility for formatting and displaying error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to edit an existing organization type using a PATCH request.
@@ -42,7 +43,7 @@ export const useEditOrganizationTypeMutation = (history, redirectTo, displayAler
         await queryClient.invalidateQueries({
           queryKey: ['organizationTypes'], // Refetch organization types list to reflect updates
         });
-        displayAlert('success', 'Organization type successfully edited!');
+        displayAlert('success', i18n.t('api.successMessages.Organization type successfully edited!'));
         if (history && redirectTo) {
           history.push(redirectTo); // Navigate to the specified route
         }

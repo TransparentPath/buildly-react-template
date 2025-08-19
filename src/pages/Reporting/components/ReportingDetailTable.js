@@ -162,11 +162,11 @@ const ReportingDetailTable = forwardRef((props, ref) => {
         let title = '';
         if (_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) {
           color = theme.palette.error.main;
-          title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
+          title = t('reportingDetail.alert.titleMax', { param: _.capitalize(alert.parameter_type) });
         }
         if (_.includes(alert.alert_type, 'min')) {
           color = theme.palette.info.main;
-          title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
+          title = t('reportingDetail.alert.titleMin', { param: _.capitalize(alert.parameter_type) });
         }
         const alertObj = { id: alert.parameter_type, color, title };
         const objFound = _.find(processedTransitAlerts, (obj) => obj.title === alertObj.title);
@@ -184,11 +184,11 @@ const ReportingDetailTable = forwardRef((props, ref) => {
         let title = '';
         if (_.includes(alert.alert_type, 'max') || _.includes(alert.alert_type, 'shock') || _.includes(alert.alert_type, 'light')) {
           color = theme.palette.error.main;
-          title = `Maximum ${_.capitalize(alert.parameter_type)} Excursion`;
+          title = t('reportingDetail.alert.titleMax', { param: _.capitalize(alert.parameter_type) });
         }
         if (_.includes(alert.alert_type, 'min')) {
           color = theme.palette.info.main;
-          title = `Minimum ${_.capitalize(alert.parameter_type)} Excursion`;
+          title = t('reportingDetail.alert.titleMin', { param: _.capitalize(alert.parameter_type) });
         }
         const alertObj = { id: alert.parameter_type, color, title };
         const objFound = _.find(processedStorageAlerts, (obj) => obj.title === alertObj.title);
@@ -393,10 +393,16 @@ const ReportingDetailTable = forwardRef((props, ref) => {
       <Typography fontWeight={700}>
         {`${title}: `}
         <span style={{ fontWeight: 500 }} className={spanClass}>
-          {`${days} days, ${hours} hrs., ${minutes} min. `}
+          {`${days} ${t('reportingDetail.time.days')}, ${hours} ${t('reportingDetail.time.hoursAbbrev')}, ${minutes} ${t('reportingDetail.time.minutesAbbrev')} `}
           {_.includes(title, 'Storage')
-            ? `(${value ? storagePercentage.toFixed(2) : 0}% of Post-Transit/Storage)`
-            : `(${value ? transitPercentage.toFixed(2) : 0}% of Transit)`}
+            ? `(${value ? storagePercentage.toFixed(2) : 0}% ${t('reportingDetail.time.ofPostTransitStorage')}`
+            : `(${value ? transitPercentage.toFixed(2) : 0}% ${t('reportingDetail.time.ofTransit')})`}
+        </span>
+        <span style={{ fontWeight: 500 }} className={spanClass}>
+          {`${days} ${t('reportingDetail.time.days')}, ${hours} ${t('reportingDetail.time.hoursAbbrev')}, ${minutes} ${t('reportingDetail.time.minutesAbbrev')} `}
+          {_.includes(title, t('reportingDetail.time.postWithinTemp')) || _.includes(title, t('reportingDetail.time.postOutsideTemp'))
+            ? `(${(storagePercentage || 0).toFixed(2)}% ${t('reportingDetail.time.ofPostTransitStorage')})`
+            : `(${(transitPercentage || 0).toFixed(2)}% ${t('reportingDetail.time.ofTransit')})`}
         </span>
       </Typography>
     );
@@ -407,15 +413,14 @@ const ReportingDetailTable = forwardRef((props, ref) => {
    * @param {string} title - Display title
    * @param {string} value - Display value
    * @param {string} spanClass - CSS class for styling
-   * @param {string} translateClass - Translation class
    * @returns {JSX.Element} Formatted text display component
    */
-  const displayItemText = (title, value, spanClass, translateClass) => (
+  const displayItemText = (title, value, spanClass) => (
     <Typography fontWeight={700}>
       {`${title}: `}
       {_.includes(value, null) || _.includes(value, undefined)
-        ? <span style={{ fontWeight: 400 }} className="notranslate">N/A</span>
-        : <span style={{ fontWeight: spanClass ? 500 : 400 }} className={`${!!spanClass && spanClass} ${!!translateClass && translateClass}`}>{value}</span>}
+        ? <span style={{ fontWeight: 400 }}>N/A</span>
+        : <span style={{ fontWeight: spanClass ? 500 : 400 }} className={`${!!spanClass && spanClass}`}>{value}</span>}
     </Typography>
   );
 
@@ -438,34 +443,38 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           {/* Table header with shipment name and tracker info */}
           <Grid container className="reportingDetailTableHeader">
             <Grid item xs={6} sm={4} md={3} id="itemText">
-              {displayItemText('Shipment Name', selectedShipment.name, null, 'notranslate')}
+              {displayItemText(t('reportingDetail.header.shipmentName'), selectedShipment.name, null)}
             </Grid>
             {!isMobileDevice && <Grid item sm={4} md={6} />}
             <Grid item xs={6} sm={4} md={3} id="itemText">
               <Typography fontWeight={700}>
-                Tracker ID:
+                {t('reportingDetail.header.trackerId')}
                 {' '}
-                <span className="notranslate" style={{ fontWeight: 400 }}>{selectedShipment.tracker}</span>
-                {' T: '}
-                <span style={{ fontWeight: 400 }}>{`${selectedShipment.transmission_time} Min.`}</span>
-                {' M: '}
-                <span style={{ fontWeight: 400 }}>{`${selectedShipment.measurement_time} Min.`}</span>
+                <span style={{ fontWeight: 400 }}>{selectedShipment.tracker}</span>
+                {' '}
+                {t('reportingDetail.header.transmissionAbbrev')}
+                {' '}
+                <span style={{ fontWeight: 400 }}>{`${selectedShipment.transmission_time} ${t('reportingDetail.header.minutesAbbrev')}`}</span>
+                {' '}
+                {t('reportingDetail.header.measurementAbbrev')}
+                {' '}
+                <span style={{ fontWeight: 400 }}>{`${selectedShipment.measurement_time} ${t('reportingDetail.header.minutesAbbrev')}`}</span>
               </Typography>
-              {displayItemText('Activated', trackerActivationDate)}
+              {displayItemText(t('reportingDetail.header.activated'), trackerActivationDate)}
             </Grid>
           </Grid>
 
           {/* Shipment status and excursions */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Shipment Status', selectedShipment.status, null, _.lowerCase(userLanguage) !== 'english' ? 'translate' : 'notranslate')}
+              {displayItemText(t('reportingDetail.status.shipmentStatus'), selectedShipment.status, null)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Pre-Transit Excursions', 'None')}
+              {displayItemText(t('reportingDetail.status.preTransit'), t('reportingDetail.status.none'))}
             </Grid>
             <Grid item xs={6} md={3} display="flex" flexWrap="wrap" id="itemText">
               <Typography fontWeight={700} marginRight={1}>
-                Transit Excursions:
+                {t('reportingDetail.status.transitExcursions')}
               </Typography>
               <span style={{ fontWeight: 400, display: 'flex', flexWrap: 'wrap' }}>
                 {!_.isEmpty(updatedTransitAlerts)
@@ -475,12 +484,12 @@ const ReportingDetailTable = forwardRef((props, ref) => {
                       {_.isEqual(idx, _.size(updatedTransitAlerts) - 1) ? ' ' : ', '}
                     </span>
                   ))
-                  : 'None'}
+                  : t('reportingDetail.status.none')}
               </span>
             </Grid>
             <Grid item xs={6} md={3} display="flex" flexWrap="wrap" id="itemText">
               <Typography fontWeight={700} marginRight={1}>
-                Post-Transit/Storage Excursions:
+                {t('reportingDetail.status.postTransit')}
               </Typography>
               <span style={{ fontWeight: 400, display: 'flex', flexWrap: 'wrap' }}>
                 {!_.isEmpty(updatedStorageAlerts)
@@ -490,7 +499,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
                       {_.isEqual(idx, _.size(updatedStorageAlerts) - 1) ? ' ' : ', '}
                     </span>
                   ))
-                  : 'None'}
+                  : t('reportingDetail.status.none')}
               </span>
             </Grid>
           </Grid>
@@ -498,145 +507,145 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           {/* Origin custodian information */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} sm={4} md={3} id="itemText">
-              {displayItemText('Shipment Origin Custodian', originCustodianName, null, 'notranslate')}
+              {displayItemText(t('reportingDetail.origin.custodian'), originCustodianName, null)}
             </Grid>
             {!isMobileDevice && <Grid item sm={4} md={6} />}
             <Grid item xs={6} sm={4} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(originCustodianLocation) ? displayItemText('Shipment Origin Location', `${originCustodianLocation.address1}, ${originCustodianLocation.city}, ${originCustodianLocation.state}, ${originCustodianLocation.country}, ${originCustodianLocation.postal_code}`) : 'Shipment Origin Location'}
+              {!_.isEmpty(originCustodianLocation) ? displayItemText(t('reportingDetail.origin.location'), `${originCustodianLocation.address1}, ${originCustodianLocation.city}, ${originCustodianLocation.state}, ${originCustodianLocation.country}, ${originCustodianLocation.postal_code}`) : t('reportingDetail.origin.location')}
             </Grid>
           </Grid>
 
           {/* Destination custodian information */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} sm={4} md={3} id="itemText">
-              {displayItemText('Shipment Destination Custodian', destinationCustodianName, null, 'notranslate')}
+              {displayItemText(t('reportingDetail.destination.custodian'), destinationCustodianName, null)}
             </Grid>
             {!isMobileDevice && <Grid item sm={4} md={6} />}
             <Grid item xs={6} sm={4} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(destinationCustodianLocation) ? displayItemText('Shipment Destination/Last Location', `${destinationCustodianLocation.address1}, ${destinationCustodianLocation.city}, ${destinationCustodianLocation.state}, ${destinationCustodianLocation.country}, ${destinationCustodianLocation.postal_code}`) : 'Shipment Destination/Last Location'}
+              {!_.isEmpty(destinationCustodianLocation) ? displayItemText(t('reportingDetail.destination.location'), `${destinationCustodianLocation.address1}, ${destinationCustodianLocation.city}, ${destinationCustodianLocation.state}, ${destinationCustodianLocation.country}, ${destinationCustodianLocation.postal_code}`) : t('reportingDetail.destination.location')}
             </Grid>
           </Grid>
 
           {/* Timestamps */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Departure Timestamp', `${formatDate((selectedShipment.actual_time_of_departure || selectedShipment.estimated_time_of_departure), timeZone, `${dateFormat} ${timeFormat} z`)} ${selectedShipment.actual_time_of_departure ? '(Actual)' : '(Estimated)'}`)}
+              {displayItemText(t('reportingDetail.timestamps.departure'), `${formatDate((selectedShipment.actual_time_of_departure || selectedShipment.estimated_time_of_departure), timeZone, `${dateFormat} ${timeFormat} z`)} ${selectedShipment.actual_time_of_departure ? t('reportingDetail.timestamps.actual') : t('reportingDetail.timestamps.estimated')}`)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Arrival/Last Location Timestamp', `${formatDate((selectedShipment.actual_time_of_arrival || selectedShipment.estimated_time_of_arrival), timeZone, `${dateFormat} ${timeFormat} z`)} ${selectedShipment.actual_time_of_arrival ? '(Actual)' : '(Estimated)'}`)}
+              {displayItemText(t('reportingDetail.timestamps.arrivalLast'), `${formatDate((selectedShipment.actual_time_of_arrival || selectedShipment.estimated_time_of_arrival), timeZone, `${dateFormat} ${timeFormat} z`)} ${selectedShipment.actual_time_of_arrival ? t('reportingDetail.timestamps.actual') : t('reportingDetail.timestamps.estimated')}`)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Shipment End Timestamp', formatDate((selectedShipment.actual_time_of_completion || selectedShipment.edit_date), timeZone, `${dateFormat} ${timeFormat} z`))}
+              {displayItemText(t('reportingDetail.timestamps.end'), formatDate((selectedShipment.actual_time_of_completion || selectedShipment.edit_date), timeZone, `${dateFormat} ${timeFormat} z`))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Shipment Total Timestamp', dateDifference(selectedShipment.create_date, selectedShipment.actual_time_of_completion || selectedShipment.edit_date))}
+              {displayItemText(t('reportingDetail.timestamps.total'), dateDifference(selectedShipment.create_date, selectedShipment.actual_time_of_completion || selectedShipment.edit_date))}
             </Grid>
           </Grid>
 
-          {/* Temperature thresholds and transit times */}
+          {/* Temp thresholds + durations */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Maximum Temperature Threshold', `${displayThresholdData(selectedShipment.max_excursion_temp, tempDisplayUnit)}`)}
+              {displayItemText(t('reportingDetail.thresholds.maxTemp'), `${displayThresholdData(selectedShipment.max_excursion_temp, tempDisplayUnit)}`)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Transit Time', dateDifference(selectedShipment.actual_time_of_departure, selectedShipment.actual_time_of_arrival))}
+              {displayItemText(t('reportingDetail.time.transit'), dateDifference(selectedShipment.actual_time_of_departure, selectedShipment.actual_time_of_arrival))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Post-Transit/Storage Time', dateDifference(selectedShipment.actual_time_of_arrival, selectedShipment.actual_time_of_completion || selectedShipment.edit_date))}
+              {displayItemText(t('reportingDetail.time.postTransitStorage'), dateDifference(selectedShipment.actual_time_of_arrival, selectedShipment.actual_time_of_completion || selectedShipment.edit_date))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Minimum Temperature Threshold', `${displayThresholdData(selectedShipment.min_excursion_temp, tempDisplayUnit)}`)}
+              {displayItemText(t('reportingDetail.thresholds.minTemp'), `${displayThresholdData(selectedShipment.min_excursion_temp, tempDisplayUnit)}`)}
             </Grid>
           </Grid>
 
           {/* Temperature measurements */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Transit Max. Temp.', displayTempValues(maxTransitTempEntry), displayTextColor(maxTransitTempEntry, 'temp'))}
+              {displayItemText(t('reportingDetail.temps.transitMax'), displayTempValues(maxTransitTempEntry), displayTextColor(maxTransitTempEntry, 'temp'))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Transit Min. Temp.', displayTempValues(minTransitTempEntry), displayTextColor(minTransitTempEntry, 'temp'))}
+              {displayItemText(t('reportingDetail.temps.transitMin'), displayTempValues(minTransitTempEntry), displayTextColor(minTransitTempEntry, 'temp'))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Post-Transit/Storage Max. Temp.', displayTempValues(maxStorageTempEntry), displayTextColor(maxStorageTempEntry, 'temp'))}
+              {displayItemText(t('reportingDetail.temps.postMax'), displayTempValues(maxStorageTempEntry), displayTextColor(maxStorageTempEntry, 'temp'))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Post-Transit/Storage Min. Temp.', displayTempValues(minStorageTempEntry), displayTextColor(minStorageTempEntry, 'temp'))}
+              {displayItemText(t('reportingDetail.temps.postMin'), displayTempValues(minStorageTempEntry), displayTextColor(minStorageTempEntry, 'temp'))}
             </Grid>
           </Grid>
 
           {/* Temperature range times */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Transit Time within Temp. Range', sensorProcessedData.transit_within_temperature, 'reportingGreenText') : 'Transit Time within Temp. Range: NA'}
+              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime(t('reportingDetail.time.transitWithinTemp'), sensorProcessedData.transit_within_temperature, 'reportingGreenText') : `${t('reportingDetail.time.transitWithinTemp')}: 'N/A'`}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Transit Time outside Temp. Range', sensorProcessedData.transit_outside_temperature, 'reportingRedText') : 'Transit Time outside Temp. Range: NA'}
+              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime(t('reportingDetail.time.transitOutsideTemp'), sensorProcessedData.transit_outside_temperature, 'reportingRedText') : `${t('reportingDetail.time.transitOutsideTemp')}: 'N/A'`}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Post-Transit/Storage Time within Temp. Range', sensorProcessedData.post_within_temperature, 'reportingGreenText') : 'Post-Transit/Storage Time within Temp. Range: NA'}
+              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime(t('reportingDetail.time.postWithinTemp'), sensorProcessedData.post_within_temperature, 'reportingGreenText') : `${t('reportingDetail.time.postWithinTemp')}: 'N/A'`}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Post-Transit/Storage Time outside Temp. Range', sensorProcessedData.post_outside_temperature, 'reportingRedText') : 'Post-Transit/Storage Time outside Temp. Range: NA'}
+              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime(t('reportingDetail.time.postOutsideTemp'), sensorProcessedData.post_outside_temperature, 'reportingRedText') : `${t('reportingDetail.time.postOutsideTemp')}: 'N/A'`}
             </Grid>
           </Grid>
 
           {/* Humidity thresholds */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} sm={4} md={3} id="itemText">
-              {displayItemText('Maximum Humidity Threshold', `${displayThresholdData(selectedShipment.max_excursion_humidity, '%')}`)}
+              {displayItemText(t('reportingDetail.thresholds.maxHum'), `${displayThresholdData(selectedShipment.max_excursion_humidity, '%')}`)}
             </Grid>
             {!isMobileDevice && <Grid item xs={0} sm={4} md={6} />}
             <Grid item xs={6} sm={4} md={3} id="itemText">
-              {displayItemText('Minumum Humidity Threshold', `${displayThresholdData(selectedShipment.min_excursion_humidity, '%')}`)}
+              {displayItemText(t('reportingDetail.thresholds.minHum'), `${displayThresholdData(selectedShipment.min_excursion_humidity, '%')}`)}
             </Grid>
           </Grid>
 
           {/* Humidity measurements */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Transit Max.Hum.', `${maxTransitHumEntry}%`, displayTextColor(maxTransitHumEntry, 'hum'))}
+              {displayItemText(t('reportingDetail.humidity.transitMax'), `${maxTransitHumEntry}%`, displayTextColor(maxTransitHumEntry, 'hum'))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Transit Min. Hum.', `${minTransitHumEntry}%`, displayTextColor(minTransitHumEntry, 'hum'))}
+              {displayItemText(t('reportingDetail.humidity.transitMin'), `${minTransitHumEntry}%`, displayTextColor(minTransitHumEntry, 'hum'))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Post-Transit/Storage Max. Hum.', `${maxStorageHumEntry}%`, displayTextColor(maxStorageHumEntry, 'hum'))}
+              {displayItemText(t('reportingDetail.humidity.postMax'), `${maxStorageHumEntry}%`, displayTextColor(maxStorageHumEntry, 'hum'))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Post-Transit/Storage Min. Hum.', `${minStorageHumEntry}%`, displayTextColor(minStorageHumEntry, 'hum'))}
+              {displayItemText(t('reportingDetail.humidity.postMin'), `${minStorageHumEntry}%`, displayTextColor(minStorageHumEntry, 'hum'))}
             </Grid>
           </Grid>
 
           {/* Humidity range times */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Transit Time within Hum. Range', sensorProcessedData.transit_within_humidity, 'reportingGreenText') : 'Transit Time within Hum. Range: NA'}
+              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime(t('reportingDetail.time.transitWithinHum'), sensorProcessedData.transit_within_humidity, 'reportingGreenText') : `${t('reportingDetail.time.transitWithinHum')}: 'N/A'`}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Transit Time outside Hum. Range', sensorProcessedData.transit_outside_humidity, 'reportingRedText') : 'Transit Time outside Hum. Range: NA'}
+              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime(t('reportingDetail.time.transitOutsideHum'), sensorProcessedData.transit_outside_humidity, 'reportingRedText') : `${t('reportingDetail.time.transitOutsideHum')}: 'N/A'`}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Post-Transit/Storage Time within Hum. Range', sensorProcessedData.post_within_humidity, 'reportingGreenText') : 'Post-Transit/Storage Time within Hum. Range: NA'}
+              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime(t('reportingDetail.time.postWithinHum'), sensorProcessedData.post_within_humidity, 'reportingGreenText') : `${t('reportingDetail.time.postWithinHum')}: 'N/A'`}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime('Post-Transit/Storage Time outside Hum. Range', sensorProcessedData.post_outside_humidity, 'reportingRedText') : 'Post-Transit/Storage Time outside Hum. Range: NA'}
+              {!_.isEmpty(sensorProcessedData) ? convertSecondsToFormattedTime(t('reportingDetail.time.postOutsideHum'), sensorProcessedData.post_outside_humidity, 'reportingRedText') : `${t('reportingDetail.time.postOutsideHum')}: 'N/A'`}
             </Grid>
           </Grid>
 
           {/* Shock and light measurements */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Transit/Storage Shock Threshold', `${displayThresholdData(selectedShipment.shock_threshold, 'G')}`)}
+              {displayItemText(t('reportingDetail.shockLight.thresholdShock'), `${displayThresholdData(selectedShipment.shock_threshold, 'G')}`)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Transit/Storage Max. Shock', `${maxShockEntry} G`, displayTextColor(maxShockEntry, 'shock'))}
+              {displayItemText(t('reportingDetail.shockLight.maxShock'), `${maxShockEntry} G`, displayTextColor(maxShockEntry, 'shock'))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText('Transit/Storage Light Threshold', `${displayThresholdData(selectedShipment.light_threshold, 'LUX')}`)}
+              {displayItemText(t('reportingDetail.shockLight.thresholdLight'), `${displayThresholdData(selectedShipment.light_threshold, 'LUX')}`)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText" fontWeight="700">
-              {displayItemText('Transit/Storage Max. Light', `${maxLightEntry} LUX`, displayTextColor(maxLightEntry, 'light'))}
+              {displayItemText(t('reportingDetail.shockLight.maxLight'), `${maxLightEntry} LUX`, displayTextColor(maxLightEntry, 'light'))}
             </Grid>
           </Grid>
 
@@ -647,17 +656,17 @@ const ReportingDetailTable = forwardRef((props, ref) => {
                 const { custodian_name, custodian_data: { custodian_type } } = item;
                 let custodianRole;
                 if (_.includes(custodian_type, '1')) {
-                  custodianRole = 'Shipper';
+                  custodianRole = t('reportingDetail.custody.roles.shipper');
                 } else if (_.includes(custodian_type, '2')) {
-                  custodianRole = 'Logistics Provider';
+                  custodianRole = t('reportingDetail.custody.roles.logisticsProvider');
                 } else if (_.includes(custodian_type, '3')) {
-                  custodianRole = 'Warehouse';
+                  custodianRole = t('reportingDetail.custody.roles.warehouse');
                 } else if (_.includes(custodian_type, '4')) {
-                  custodianRole = 'Receiver';
+                  custodianRole = t('reportingDetail.custody.roles.receiver');
                 }
                 return (
                   <Grid key={`${item}-${index}`} item xs={6} md={3} id="itemText">
-                    {displayItemText(`Intermediate Custodian ${index + 1} (${custodianRole})`, custodian_name, null, 'notranslate')}
+                    {displayItemText(t('reportingDetail.custody.intermediate', { n: index + 1, role: custodianRole }), custodian_name, null)}
                   </Grid>
                 );
               })}
@@ -682,32 +691,34 @@ const ReportingDetailTable = forwardRef((props, ref) => {
             _.map(items, (item, index) => (
               <Grid key={`${item}-${index}`} container className="reportingDetailTableBody">
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Item Name', item.name, null, 'notranslate')}
+                  {displayItemText(t('reportingDetail.items.itemName'), item.name, null)}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('# of Units', item.number_of_units)}
+                  {displayItemText(t('reportingDetail.items.unitsCount'), item.number_of_units)}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Item Type', itemTypesData.filter((it) => it.url === item.item_type)[0].name)}
+                  {displayItemText(t('reportingDetail.items.itemType'), itemTypesData.filter((it) => it.url === item.item_type)[0].name)}
                 </Grid>
                 <Grid item xs={6} md={3} id="itemText">
-                  {displayItemText('Gross Weight', `${item.gross_weight} Pounds`)}
+                  {displayItemText(t('reportingDetail.items.grossWeight'), `${item.gross_weight} ${t('reportingDetail.items.pounds')}`)}
                 </Grid>
               </Grid>
             ))
           )}
         </Grid>
       )}
-      {_.isEmpty(selectedShipment) && (
-        <Typography
-          variant="h6"
-          align="left"
-          margin={2}
-          marginBottom={3}
-        >
-          Select a shipment to view reporting data
-        </Typography>
-      )}
+      {
+        _.isEmpty(selectedShipment) && (
+          <Typography
+            variant="h6"
+            align="left"
+            margin={2}
+            marginBottom={3}
+          >
+            {t('reportingDetail.selectPrompt')}
+          </Typography>
+        )
+      }
     </div>
   );
 });

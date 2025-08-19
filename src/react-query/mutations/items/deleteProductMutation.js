@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 // Import a utility to extract and show error messages
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom React hook to handle deleting a product.
@@ -44,7 +45,7 @@ export const useDeleteProductMutation = (organization, displayAlert, section) =>
         await queryClient.invalidateQueries({
           queryKey: ['products', organization],
         });
-        displayAlert('success', 'Product deleted successfully!');
+        displayAlert('success', i18n.t('api.successMessages.Product deleted successfully!'));
       },
       /**
        * Called if the mutation throws an error.

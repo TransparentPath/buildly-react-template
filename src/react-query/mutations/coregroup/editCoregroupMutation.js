@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for mutation and query client
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service to make API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for error handling
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to edit an existing core group (user group).
@@ -45,7 +46,7 @@ export const useEditCoregroupMutation = (displayAlert, section) => {
           queryKey: ['coregroups'],
         });
         // Display a success alert to notify the user of the successful core group update
-        displayAlert('success', 'User group successfully edited!');
+        displayAlert('success', i18n.t('api.successMessages.User group successfully edited!'));
       },
       /**
        * Callback to handle errors during the mutation.

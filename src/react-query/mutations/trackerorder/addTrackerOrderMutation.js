@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to create new tracker orders.
@@ -46,7 +47,7 @@ export const useAddTrackerOrderMutation = (history, redirectTo, displayAlert, se
           queryKey: ['trackerOrders'],
         });
         setCart([]); // Clear the cart UI state
-        displayAlert('success', 'Successfully added tracker order(s)');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added tracker order(s)'));
         if (history && redirectTo) {
           history.push(redirectTo);
         }

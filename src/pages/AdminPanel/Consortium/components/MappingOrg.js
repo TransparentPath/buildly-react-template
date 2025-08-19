@@ -21,8 +21,11 @@ import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrg
 import { getCustodianQuery } from '@react-query/queries/custodians/getCustodianQuery';
 // Custom hook to show alert messages to the user
 import useAlert from '@hooks/useAlert';
+import { useTranslation } from 'react-i18next';
 
 const MappingOrg = ({ history, redirectTo }) => {
+  const { t } = useTranslation();
+
   // Retrieve the currently logged-in user's data
   const user = getUser();
   const organization = user.organization.organization_uuid;
@@ -70,8 +73,8 @@ const MappingOrg = ({ history, redirectTo }) => {
       hideAddButton // Hides the add button since this view is for mapping/editing
       loading={isLoadingOrgs || isLoadingCustodians} // Show loader until both queries are done
       rows={custodianData || []} // Populate the table rows with custodian data
-      columns={getMappingOrg(orgData)} // Generate dynamic columns based on organization data
-      filename="Mapping Custodian to Organization" // Filename for exporting the table
+      columns={getMappingOrg(orgData, t)} // Generate dynamic columns based on organization data
+      filename={t('mappingOrg.tableTitle')} // Filename for exporting the table
       editAction={editData} // Function to trigger when editing a row
     >
       {/* Define a nested route to show the EditMapping form */}

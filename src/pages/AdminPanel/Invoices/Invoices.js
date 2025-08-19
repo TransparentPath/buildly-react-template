@@ -45,9 +45,9 @@ import OrganizationSelector from '@components/OrganizationSelector/OrganizationS
 import { MONTHS } from '@utils/mock';
 import { useInput } from '@hooks/useInput';
 import useAlert from '@hooks/useAlert';
-import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
 import Loader from '@components/Loader/Loader';
 import { checkForGlobalAdmin } from '@utils/utilMethods';
+import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
 import { useWhatsappChargesMutation } from '@react-query/mutations/notifications/whatsappChargesMutation';
 import { getTrackerOrderQuery } from '@react-query/queries/trackerorder/getTrackerOrderQuery';
 import { useEditTrackerOrderMutation } from '@react-query/mutations/trackerorder/editTrackerOrderMutation';
@@ -487,9 +487,9 @@ const Invoices = () => {
         {/* Title section with heading and PDF download icon */}
         <Grid item xs={12} sm={4} className="invoiceContainer">
           <Typography className="invoiceHeading" variant="h4">
-            Monthly Invoice
+            {t('invoices.title')}
           </Typography>
-          <Tooltip placement="bottom" title={t('download_pdf')}>
+          <Tooltip placement="bottom" title={t('invoices.downloadPdf')}>
             <LoginIcon className="invoiceDownloadIcon" onClick={generatePdfInvoice} />
           </Tooltip>
         </Grid>
@@ -514,12 +514,10 @@ const Invoices = () => {
             select
             value={selectYear}
             onChange={handleYearChange}
-            label="Year"
+            label={t('invoices.year')}
             disabled={!organization}
           >
-            <MenuItem value="">
-              <span className="notranslate">{t('select_year')}</span>
-            </MenuItem>
+            <MenuItem value="">{t('common.selectYear')}</MenuItem>
             {availableYears.map((item, index) => (
               <MenuItem key={`year${index}`} value={item}>{item}</MenuItem>
             ))}
@@ -531,18 +529,14 @@ const Invoices = () => {
             variant="outlined"
             id="month"
             select
-            label="Month"
+            label={t('invoices.month')}
             value={selectMonth}
             onChange={handleMonthChange}
             disabled={!selectYear}
           >
-            <MenuItem value="">
-              <span className="notranslate">{t('select_month')}</span>
-            </MenuItem>
+            <MenuItem value="">{t('common.selectMonth')}</MenuItem>
             {availableMonths.map((item, index) => (
-              <MenuItem key={`month${index}`} value={item.value}>
-                <span className="notranslate">{t(item.label)}</span>
-              </MenuItem>
+              <MenuItem key={`month${index}`} value={item.value}>{t(`months.${item.label}`)}</MenuItem>
             ))}
           </TextField>
 
@@ -555,7 +549,7 @@ const Invoices = () => {
             disabled={!selectMonth || !selectYear}
             onClick={handleSubmit}
           >
-            OK
+            {t('common.ok')}
           </Button>
         </Grid>
       </Grid>
@@ -564,14 +558,14 @@ const Invoices = () => {
       {!_.isEmpty(whatsappChargesData)
         ? (
           <Grid container className="invoiceDetailsContainer" ref={invoicesDetailsRef}>
-            <Typography className="invoiceDetailsHeader">Charges & Shipments</Typography>
+            <Typography className="invoiceDetailsHeader">{t('invoices.chargesShipments')}</Typography>
 
             {/* Left side - Charges section */}
             <Grid item xs={12} sm={5.98} className="invoiceChargesContainer">
               <Grid container>
                 {/* Email alerts summary */}
                 <Grid item xs={7}>
-                  <Typography className="invoiceChargesTitle">{`Email Alerts: ${whatsappChargesData.total_alerts_count}`}</Typography>
+                  <Typography className="invoiceChargesTitle">{t('invoices.emailAlerts', { count: whatsappChargesData.total_alerts_count })}</Typography>
                   {!_.isEmpty(whatsappChargesData.detailed_email_messages) && whatsappChargesData.detailed_email_messages.map((item, index) => (
                     <Typography key={index} className="invoiceMsgText">{`${item.user} - ${item.message_count}`}</Typography>
                   ))}
@@ -579,7 +573,7 @@ const Invoices = () => {
 
                 {/* WhatsApp alerts summary */}
                 <Grid item xs={5}>
-                  <Typography className="invoiceChargesTitle">{`Whatsapp Alerts: ${whatsappChargesData.total_whatsapp_messages}`}</Typography>
+                  <Typography className="invoiceChargesTitle">{t('invoices.whatsappAlerts', { count: whatsappChargesData.total_whatsapp_messages })}</Typography>
                   {!_.isEmpty(whatsappChargesData.detailed_whatsapp_messages) && whatsappChargesData.detailed_whatsapp_messages.map((item, index) => (
                     <Typography key={index} className="invoiceMsgText">{`${item.user} - ${item.message_count}`}</Typography>
                   ))}
@@ -590,7 +584,7 @@ const Invoices = () => {
               <div className="invoiceOrderListContainer">
                 {!_.isEmpty(ordersData) ? ordersData.map((item, index) => (
                   <div key={index} className="invoiceOrderListItemContainer">
-                    <Typography className="invoiceChargesTitle">Device Order: YES</Typography>
+                    <Typography className="invoiceChargesTitle">{t('invoices.deviceOrderYes')}</Typography>
                     <Typography className="invoiceMsgText">
                       {`${moment(item.order_date).format('DD/MM/YYYY')} - ${item.order_quantity.map((quantity, i) => (
                         `${quantity} ${item.order_type && item.order_type[i] ? item.order_type[i] : ''}`
@@ -599,7 +593,7 @@ const Invoices = () => {
 
                     {/* Shipping fees with inline editing capability */}
                     <div className="invoiceOrderListItemSubContainer">
-                      <Typography className="invoiceMsgText">Shipping Fees:</Typography>
+                      <Typography className="invoiceMsgText">{t('invoices.shippingFees')}</Typography>
                       {isEditing.field === 'shippingCost' && isEditing.index === index ? (
                         // Edit mode - show input field
                         <TextField
@@ -615,7 +609,7 @@ const Invoices = () => {
                         />
                       ) : (
                         // Display mode - show text value
-                        <Typography ml={1} className="invoiceMsgText notranslate">{`$${item.shipping_cost}`}</Typography>
+                        <Typography ml={1} className="invoiceMsgText">{`$${item.shipping_cost}`}</Typography>
                       )}
 
                       {/* Edit/Save button */}
@@ -628,7 +622,7 @@ const Invoices = () => {
                       </IconButton>
                     </div>
                   </div>
-                )) : <Typography className="invoiceOrderDataEmptyText">No orders are available</Typography>}
+                )) : <Typography className="invoiceOrderDataEmptyText">{t('invoices.noOrders')}</Typography>}
               </div>
 
               {/* Total charges summary */}
@@ -636,9 +630,7 @@ const Invoices = () => {
                 <Grid item xs={7} />
                 <Grid item xs={5}>
                   <Typography className="invoiceTotalChargesTitle">
-                    Total:
-                    {' '}
-                    <span className="notranslate">{`$${totalCost}`}</span>
+                    {`${t('invoices.total')} $${totalCost}`}
                   </Typography>
                 </Grid>
               </Grid>
@@ -658,16 +650,16 @@ const Invoices = () => {
                           <Typography variant="body2">{item.name}</Typography>
                         </Grid>
                         <Grid item xs={5}>
-                          <Typography variant="body2">{`Tracker: ${item.tracker[0]}`}</Typography>
+                          <Typography variant="body2">{t('invoices.tracker', { tracker: item.tracker[0] })}</Typography>
                         </Grid>
                       </React.Fragment>
                     ))}
                   </Grid>
                 )
-                : <Typography className="invoiceShipmentDataEmptyText">No shipments are available</Typography>}
+                : <Typography className="invoiceShipmentDataEmptyText">{t('invoices.noShipments')}</Typography>}
             </Grid>
           </Grid>
-        ) : <Typography className="invoiceEmptyText">No data to display</Typography>}
+        ) : <Typography className="invoiceEmptyText">{t('invoices.noData')}</Typography>}
     </div>
   );
 };

@@ -31,8 +31,11 @@ import useAlert from '@hooks/useAlert';
 
 // Zustand store to access timezone or related data
 import { useStore } from '@zustand/timezone/timezoneStore';
+import { useTranslation } from 'react-i18next';
 
 const Consortium = ({ history, redirectTo }) => {
+  const { t } = useTranslation();
+
   // Retrieve current user info
   const user = getUser();
   const organization = user.organization.organization_uuid;
@@ -54,7 +57,7 @@ const Consortium = ({ history, redirectTo }) => {
   // Fetch all organizations using React Query
   const { data: orgData, isLoading: isLoadingOrgs } = useQuery(
     ['organizations'],
-    () => getAllOrganizationQuery(displayAlert, 'Consortiums'),
+    () => getAllOrganizationQuery(displayAlert, 'Consortium'),
     { refetchOnWindowFocus: false },
   );
 
@@ -119,16 +122,17 @@ const Consortium = ({ history, redirectTo }) => {
         _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time'))
           ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'time')).unit_of_measure
           : '',
+        t,
       )}
-      filename="Consortiums"
-      addButtonHeading="Consortium"
+      filename={t('consortium.tableTitle')}
+      addButtonHeading={t('consortium.addButton')}
       onAddButtonClick={onAddButtonClick}
       editAction={editData}
       deleteAction={deleteData}
       openDeleteModal={openDeleteModal}
       setDeleteModal={setDeleteModal}
       handleDeleteModal={handleDeleteModal}
-      deleteModalTitle="Are you sure you want to Delete this Consortium?"
+      deleteModalTitle={t('consortium.deleteModalTitle')}
     >
       {/* Routes for rendering the Add/Edit form inside the DataTableWrapper */}
       <Route path={`${addPath}`} component={AddConsortium} />

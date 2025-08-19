@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to handle the creation of a new item type via API.
@@ -51,7 +52,7 @@ export const useAddItemTypeMutation = (organization, history, redirectTo, displa
           queryKey: ['itemTypes', organization], // Invalidate itemTypes query specific to the organization
         });
         // Notify the user that the item type was added successfully
-        displayAlert('success', 'Successfully added item type');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added item type'));
         // Redirect the user if routing info is provided
         if (history && redirectTo) {
           history.push(redirectTo);

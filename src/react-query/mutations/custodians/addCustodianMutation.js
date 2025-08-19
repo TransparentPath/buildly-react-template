@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for mutation and query client
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service to make API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for error handling
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to add a new custodian to the system.
@@ -90,7 +91,7 @@ export const useAddCustodianMutation = (
         // Display a success message to notify the user
         displayAlert(
           'success',
-          'Successfully added custodian. Please ensure your organization admin assigns an organization to this custodian',
+          i18n.t('api.successMessages.Successfully added custodian. Please ensure your organization admin assigns an organization to this custodian.'),
         );
         // Redirect the user if necessary
         if (history && redirectTo) {

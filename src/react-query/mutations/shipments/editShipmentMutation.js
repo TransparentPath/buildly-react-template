@@ -4,6 +4,7 @@ import { httpService } from '@modules/http/http.service'; // Custom HTTP service
 import _ from 'lodash'; // Lodash utility library for data manipulation
 import { getLocations } from '@utils/getLocations'; // Utility to get locations for carriers
 import { getErrorMessage } from '@utils/utilMethods'; // Utility to handle and display error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for editing an existing shipment.
@@ -31,7 +32,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
     async (shipmentData) => {
       // Destructure the shipment data to extract individual parts like custody, files, carriers, etc.
       const {
-        start_custody, end_custody, files, carriers, updateGateway, deleteFiles, isWarehouse,
+        start_custody, end_custody, files, carriers, updateGateway, deleteFiles, isWarehouse, orgData,
       } = shipmentData;
       let shipmentPayload = shipmentData.shipment; // Initialize shipment payload with the provided shipment data
       let uploadFile = null;
@@ -216,11 +217,22 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
             gatewayPayload,
           );
           if (_.includes(['planned', 'en route', 'arrived'], _.toLower(data.data.status))) {
+            let transmissionInterval = data.data.transmission_time; // Default transmission interval
+            let measurementInterval = data.data.measurement_time; // Default measurement interval
+
+            if (_.isEqual(_.toLower(data.data.status), 'planned')) {
+              transmissionInterval = orgData.default_pre_transit_transmission_interval;
+              measurementInterval = orgData.default_pre_transit_measurement_interval;
+            } else if (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) {
+              transmissionInterval = orgData.default_post_transit_transmission_interval;
+              measurementInterval = orgData.default_post_transit_measurement_interval;
+            }
+
             const configurePayload = {
               platform_type: data.data.platform_name,
               gateway: updateGateway.imei_number,
-              transmission_interval: _.isEqual(_.toLower(data.data.status), 'planned') || (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) ? 5 : data.data.transmission_time,
-              measurement_interval: _.isEqual(_.toLower(data.data.status), 'planned') || (_.isEqual(_.toLower(data.data.status), 'arrived') && !isWarehouse) ? 5 : data.data.measurement_time,
+              transmission_interval: transmissionInterval,
+              measurement_interval: measurementInterval,
             };
             await httpService.makeRequest(
               'post',
@@ -255,7 +267,7 @@ export const useEditShipmentMutation = (organization, history, redirectTo, displ
         await queryClient.invalidateQueries({
           queryKey: ['custodians'],
         });
-        displayAlert('success', 'Successfully edited shipment');
+        displayAlert('success', i18n.t('api.successMessages.Successfully edited shipment'));
       },
       /**
        * onError callback: This is triggered when the mutation fails.

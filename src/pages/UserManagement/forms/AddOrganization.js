@@ -79,8 +79,12 @@ const AddOrganization = ({
   const defaultMinHumidity = useInput(0); // Default minimum humidity input
   const defaultShock = useInput(4); // Default shock threshold input
   const defaultLight = useInput(5); // Default light threshold input
-  const defaultTransmissionInterval = useInput(20); // Default transmission interval input
-  const defaultMeasurementInterval = useInput(20); // Default measurement interval input
+  const defaultPreTransitTransmissionInterval = useInput(120); // Default transmission interval input
+  const defaultPreTransitMeasurementInterval = useInput(120); // Default measurement interval input
+  const defaultTransitTransmissionInterval = useInput(20); // Default transmission interval input
+  const defaultTransitMeasurementInterval = useInput(20); // Default measurement interval inputconst defaultTransitTransmissionInterval = useInput(20); // Default transmission interval input
+  const defaultPostTransitTransmissionInterval = useInput(120); // Default transmission interval input
+  const defaultPostTransitMeasurementInterval = useInput(120); // Default measurement interval input
   const country = useInput('United States'); // Default country input
   const currency = useInput('USD'); // Default currency input
   const dateFormat = useInput('MMM DD, YYYY'); // Default date format input
@@ -196,8 +200,12 @@ const AddOrganization = ({
     defaultMinHumidity.reset();
     defaultShock.reset();
     defaultLight.reset();
-    defaultTransmissionInterval.reset();
-    defaultMeasurementInterval.reset();
+    defaultPreTransitTransmissionInterval.reset();
+    defaultPreTransitMeasurementInterval.reset();
+    defaultTransitTransmissionInterval.reset();
+    defaultTransitMeasurementInterval.reset();
+    defaultPostTransitTransmissionInterval.reset();
+    defaultPostTransitMeasurementInterval.reset();
     country.reset();
     currency.reset();
     dateFormat.reset();
@@ -232,8 +240,12 @@ const AddOrganization = ({
       || defaultMinHumidity.hasChanged()
       || defaultShock.hasChanged()
       || defaultLight.hasChanged()
-      || defaultTransmissionInterval.hasChanged()
-      || defaultMeasurementInterval.hasChanged()
+      || defaultPreTransitTransmissionInterval.hasChanged()
+      || defaultPreTransitMeasurementInterval.hasChanged()
+      || defaultTransitTransmissionInterval.hasChanged()
+      || defaultTransitMeasurementInterval.hasChanged()
+      || defaultPostTransitTransmissionInterval.hasChanged()
+      || defaultPostTransitMeasurementInterval.hasChanged()
       || country.hasChanged()
       || currency.hasChanged()
       || dateFormat.hasChanged()
@@ -339,8 +351,12 @@ const AddOrganization = ({
       || defaultMinHumidity.hasChanged()
       || defaultShock.hasChanged()
       || defaultLight.hasChanged()
-      || defaultTransmissionInterval.hasChanged()
-      || defaultMeasurementInterval.hasChanged()
+      || defaultPreTransitTransmissionInterval.hasChanged()
+      || defaultPreTransitMeasurementInterval.hasChanged()
+      || defaultTransitTransmissionInterval.hasChanged()
+      || defaultTransitMeasurementInterval.hasChanged()
+      || defaultPostTransitTransmissionInterval.hasChanged()
+      || defaultPostTransitMeasurementInterval.hasChanged()
       || country.hasChanged()
       || currency.hasChanged()
       || dateFormat.hasChanged()
@@ -374,8 +390,12 @@ const AddOrganization = ({
           default_min_humidity: _.toNumber(defaultMinHumidity.value),
           default_shock: _.toNumber(defaultShock.value),
           default_light: _.toNumber(defaultLight.value),
-          default_transmission_interval: _.toNumber(defaultTransmissionInterval.value),
-          default_measurement_interval: _.toNumber(defaultMeasurementInterval.value),
+          default_pre_transit_transmission_interval: defaultPreTransitTransmissionInterval.value,
+          default_pre_transit_measurement_interval: defaultPreTransitMeasurementInterval.value,
+          default_transit_transmission_interval: defaultTransitTransmissionInterval.value,
+          default_transit_measurement_interval: defaultTransitMeasurementInterval.value,
+          default_post_transit_transmission_interval: defaultPostTransitTransmissionInterval.value,
+          default_post_transit_measurement_interval: defaultPostTransitMeasurementInterval.value,
         },
         user_role: 'Admins',
         country: country.value,
@@ -397,7 +417,7 @@ const AddOrganization = ({
       <FormModal
         open={open}
         handleClose={closeFormModal}
-        title="Add Organization"
+        title={t('addOrganization.title')}
         openConfirmModal={openConfirmModal}
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
@@ -434,7 +454,7 @@ const AddOrganization = ({
                 required
                 fullWidth
                 id="admin_email"
-                label="Administrator Emails"
+                label={t('addOrganization.adminEmails')}
                 name="admin_email"
                 autoComplete="admin_email"
                 error={formError.admin_email && formError.admin_email.error}
@@ -453,7 +473,7 @@ const AddOrganization = ({
                 fullWidth
                 required
                 id="organization_name"
-                label="Organization Name"
+                label={t('addOrganization.organizationName')}
                 error={formError.organization_name && formError.organization_name.error}
                 helperText={
                   formError.organization_name ? formError.organization_name.message : ''
@@ -475,13 +495,11 @@ const AddOrganization = ({
                 select
                 id="org-type"
                 name="org-type"
-                label="Organization Type"
+                label={t('addOrganization.organizationType')}
                 autoComplete="orgType"
                 {...orgType.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {_.map(organizationTypesData, (type) => (
                   <MenuItem
                     key={`orgType-${type.id}`}
@@ -499,7 +517,7 @@ const AddOrganization = ({
                 fullWidth
                 required
                 id="organization_abbrevation"
-                label="Organization Abbreviation"
+                label={t('addOrganization.organizationAbbreviation')}
                 name="organization_abbrevation"
                 autoComplete="organization_abbrevation"
                 error={
@@ -525,7 +543,7 @@ const AddOrganization = ({
                 margin="normal"
                 id="radius"
                 fullWidth
-                label={`Radius for Geofence (${_.toLower(distance.value)})`}
+                label={t('addOrganization.radius', { unit: _.toLower(distance.value) })}
                 name="radius"
                 autoComplete="radius"
                 {...radius.bind}
@@ -540,7 +558,7 @@ const AddOrganization = ({
                 className="addOrganizationNumberInput"
                 id="default-max-temperature"
                 name="default-max-temperature"
-                label="Default Maximum Temperature for Excursion"
+                label={t('addOrganization.defaultMaxTemperature')}
                 autoComplete="default-max-temperature"
                 InputProps={{
                   startAdornment: <InputAdornment position="start"><TemperatureIcon /></InputAdornment>,
@@ -567,7 +585,7 @@ const AddOrganization = ({
                 className="addOrganizationNumberInput"
                 id="default-min-temperature"
                 name="default-min-temperature"
-                label="Default Minimum Temperature for Excursion"
+                label={t('addOrganization.defaultMinTemperature')}
                 autoComplete="default-min-temperature"
                 InputProps={{
                   startAdornment: <InputAdornment position="start"><TemperatureIcon /></InputAdornment>,
@@ -594,7 +612,7 @@ const AddOrganization = ({
                 className="addOrganizationNumberInput"
                 id="default-max-humidity"
                 name="default-max-humidity"
-                label="Default Maximum Humidity for Excursion"
+                label={t('addOrganization.defaultMaxHumidity')}
                 autoComplete="default-max-humidity"
                 InputProps={{
                   startAdornment: <InputAdornment position="start"><HumidityIcon /></InputAdornment>,
@@ -612,7 +630,7 @@ const AddOrganization = ({
                 className="addOrganizationNumberInput"
                 id="default-min-humidity"
                 name="default-min-humidity"
-                label="Default Minimum Humidity for Excursion"
+                label={t('addOrganization.defaultMinHumidity')}
                 autoComplete="default-min-humidity"
                 InputProps={{
                   startAdornment: <InputAdornment position="start"><HumidityIcon /></InputAdornment>,
@@ -630,7 +648,7 @@ const AddOrganization = ({
                 className="addOrganizationNumberInput"
                 id="default-shock"
                 name="default-shock"
-                label="Default Shock Threshold"
+                label={t('addOrganization.defaultShock')}
                 autoComplete="default-shock"
                 InputProps={{
                   startAdornment: <InputAdornment position="start"><ShockIcon /></InputAdornment>,
@@ -648,7 +666,7 @@ const AddOrganization = ({
                 className="addOrganizationNumberInput"
                 id="default-light"
                 name="default-light"
-                label="Default Light Threshold"
+                label={t('addOrganization.defaultLight')}
                 autoComplete="default-light"
                 InputProps={{
                   startAdornment: <InputAdornment position="start"><LightIcon /></InputAdornment>,
@@ -663,22 +681,20 @@ const AddOrganization = ({
                 margin="normal"
                 fullWidth
                 select
-                placeholder="Select..."
-                id="default-transmission-interval"
-                name="default-transmission-interval"
-                label="Default Sensor Data Transmission Interval"
-                autoComplete="default-transmission-interval"
+                placeholder={t('addOrganization.select')}
+                id="default-pre-transit-transmission-interval"
+                name="default-pre-transit-transmission-interval"
+                label={t('addOrganization.defaultPreTransitTransmissionInterval')}
+                autoComplete="default-pre-transit-transmission-interval"
                 InputLabelProps={{ shrink: true }}
                 SelectProps={{ displayEmpty: true }}
-                value={defaultTransmissionInterval.value}
+                value={defaultPreTransitTransmissionInterval.value}
                 onChange={(e) => {
-                  defaultTransmissionInterval.setValue(e.target.value);
-                  defaultMeasurementInterval.setValue(e.target.value);
+                  defaultPreTransitTransmissionInterval.setValue(e.target.value);
+                  defaultPreTransitMeasurementInterval.setValue(e.target.value);
                 }}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {!_.isEmpty(TIVE_GATEWAY_TIMES)
                   && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
@@ -693,20 +709,126 @@ const AddOrganization = ({
                 margin="normal"
                 fullWidth
                 select
-                placeholder="Select..."
-                id="default-measurement-interval"
-                name="default-measurement-interval"
-                label="Default Sensor Data Measurement Interval"
-                autoComplete="default-measurement-interval"
+                placeholder={t('addOrganization.select')}
+                id="default-pre-transit-measurement-interval"
+                name="default-pre-transit-measurement-interval"
+                label={t('addOrganization.defaultPreTransitMeasurementInterval')}
+                autoComplete="default-pre-transit-measurement-interval"
                 InputLabelProps={{ shrink: true }}
                 SelectProps={{ displayEmpty: true }}
-                {...defaultMeasurementInterval.bind}
+                {...defaultPreTransitMeasurementInterval.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
-                  _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultTransmissionInterval.value),
+                  _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultPreTransitTransmissionInterval.value),
+                  (time, index) => (
+                    <MenuItem key={`${time.value}-${index}`} value={time.value}>
+                      {time.label}
+                    </MenuItem>
+                  ),
+                )}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                select
+                placeholder={t('addOrganization.select')}
+                id="default-transit-transmission-interval"
+                name="default-transit-transmission-interval"
+                label={t('addOrganization.defaultTransitTransmissionInterval')}
+                autoComplete="default-transit-transmission-interval"
+                InputLabelProps={{ shrink: true }}
+                SelectProps={{ displayEmpty: true }}
+                value={defaultTransitTransmissionInterval.value}
+                onChange={(e) => {
+                  defaultTransitTransmissionInterval.setValue(e.target.value);
+                  defaultTransitMeasurementInterval.setValue(e.target.value);
+                }}
+              >
+                <MenuItem value="">{t('common.select')}</MenuItem>
+                {!_.isEmpty(TIVE_GATEWAY_TIMES)
+                  && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
+                    <MenuItem key={`${time.value}-${index}`} value={time.value}>
+                      {time.label}
+                    </MenuItem>
+                  ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                select
+                placeholder={t('addOrganization.select')}
+                id="default-transit-measurement-interval"
+                name="default-transit-measurement-interval"
+                label={t('addOrganization.defaultTransitMeasurementInterval')}
+                autoComplete="default-transit-measurement-interval"
+                InputLabelProps={{ shrink: true }}
+                SelectProps={{ displayEmpty: true }}
+                {...defaultTransitMeasurementInterval.bind}
+              >
+                <MenuItem value="">{t('common.select')}</MenuItem>
+                {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
+                  _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultTransitTransmissionInterval.value),
+                  (time, index) => (
+                    <MenuItem key={`${time.value}-${index}`} value={time.value}>
+                      {time.label}
+                    </MenuItem>
+                  ),
+                )}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                select
+                placeholder={t('addOrganization.select')}
+                id="default-post-transit-transmission-interval"
+                name="default-post-transit-transmission-interval"
+                label={t('addOrganization.defaultPostTransitTransmissionInterval')}
+                autoComplete="default-post-transit-transmission-interval"
+                InputLabelProps={{ shrink: true }}
+                SelectProps={{ displayEmpty: true }}
+                value={defaultPostTransitTransmissionInterval.value}
+                onChange={(e) => {
+                  defaultPostTransitTransmissionInterval.setValue(e.target.value);
+                  defaultPostTransitMeasurementInterval.setValue(e.target.value);
+                }}
+              >
+                <MenuItem value="">{t('common.select')}</MenuItem>
+                {!_.isEmpty(TIVE_GATEWAY_TIMES)
+                  && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
+                    <MenuItem key={`${time.value}-${index}`} value={time.value}>
+                      {time.label}
+                    </MenuItem>
+                  ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                select
+                placeholder={t('addOrganization.select')}
+                id="default-post-transit-measurement-interval"
+                name="default-post-transit-measurement-interval"
+                label={t('addOrganization.defaultPostTransitMeasurementInterval')}
+                autoComplete="default-post-transit-measurement-interval"
+                InputLabelProps={{ shrink: true }}
+                SelectProps={{ displayEmpty: true }}
+                {...defaultPostTransitMeasurementInterval.bind}
+              >
+                <MenuItem value="">{t('common.select')}</MenuItem>
+                {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
+                  _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultPostTransitTransmissionInterval.value),
                   (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
                       {time.label}
@@ -723,7 +845,7 @@ const AddOrganization = ({
                 select
                 id="country"
                 name="country"
-                label="Default Country"
+                label={t('addOrganization.defaultCountry')}
                 autoComplete="country"
                 value={country.value}
                 onChange={(e) => {
@@ -736,9 +858,7 @@ const AddOrganization = ({
                   country.setValue(e.target.value);
                 }}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {countryList && _.map(countryList, (cntry, index) => (
                   <MenuItem
                     key={`country-${index}-${cntry}`}
@@ -757,13 +877,11 @@ const AddOrganization = ({
                 select
                 id="currency"
                 name="currency"
-                label="Default Currency"
+                label={t('addOrganization.defaultCurrency')}
                 autoComplete="currency"
                 {...currency.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {currencyList && _.map(currencyList, (curr, index) => (
                   <MenuItem
                     key={`currency-${index}-${curr}`}
@@ -782,13 +900,11 @@ const AddOrganization = ({
                 select
                 id="date-format"
                 name="date-format"
-                label="Default Date Format"
+                label={t('addOrganization.defaultDateFormat')}
                 autoComplete="date-format"
                 {...dateFormat.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {_.map(DATE_DISPLAY_CHOICES, (date, index) => (
                   <MenuItem
                     key={`date-${index}-${date.label}`}
@@ -807,13 +923,11 @@ const AddOrganization = ({
                 select
                 id="time-format"
                 name="time-format"
-                label="Default Time Format"
+                label={t('addOrganization.defaultTimeFormat')}
                 autoComplete="time-format"
                 {...timeFormat.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {_.map(TIME_DISPLAY_CHOICES, (time, index) => (
                   <MenuItem
                     key={`time-${index}-${time.label}`}
@@ -832,13 +946,11 @@ const AddOrganization = ({
                 select
                 id="distance"
                 name="distance"
-                label="Default Unit of Measure for Distance"
+                label={t('addOrganization.defaultDistance')}
                 autoComplete="distance"
                 {...distance.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {_.map(UOM_DISTANCE_CHOICES, (dist, index) => (
                   <MenuItem
                     key={`distance-${index}-${dist}`}
@@ -857,14 +969,11 @@ const AddOrganization = ({
                 select
                 id="temp"
                 name="temp"
-                label="Default Unit of Measure for Temperature"
+                label={t('addOrganization.defaultTemperature')}
                 autoComplete="temp"
                 {...temp.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {_.map(UOM_TEMPERATURE_CHOICES, (tmp, index) => (
                   <MenuItem
                     key={`temperature-${index}-${tmp}`}
@@ -883,13 +992,11 @@ const AddOrganization = ({
                 select
                 id="weight"
                 name="weight"
-                label="Default Unit of Measure for Weight"
+                label={t('addOrganization.defaultWeight')}
                 autoComplete="weight"
                 {...weight.bind}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {_.map(UOM_WEIGHT_CHOICES, (wgt, index) => (
                   <MenuItem
                     key={`weight-${index}-${wgt}`}
@@ -908,7 +1015,7 @@ const AddOrganization = ({
                 select
                 id="timezone"
                 name="timezone"
-                label="Default Time Zone"
+                label={t('addOrganization.defaultTimezone')}
                 autoComplete="timezone"
                 value={timezone.value}
                 onChange={(e) => {
@@ -930,7 +1037,7 @@ const AddOrganization = ({
                 select
                 id="language"
                 name="language"
-                label="Default Language"
+                label={t('addOrganization.defaultLanguage')}
                 autoComplete="language"
                 value={language.value}
                 onChange={(e) => {
@@ -939,13 +1046,13 @@ const AddOrganization = ({
               >
                 {_.map(LANGUAGES, (item, index) => (
                   <MenuItem key={`${item.value}-${index}`} value={item.label}>
-                    <span className="notranslate">{t(item.label)}</span>
+                    {t(item.label)}
                   </MenuItem>
                 ))}
               </TextField>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="subtitle1" fontWeight={700}>Alert Settings:</Typography>
+              <Typography variant="subtitle1" fontWeight={700}>{t('addOrganization.alertSettings')}</Typography>
             </Grid>
             <Grid item xs={6} alignSelf="center">
               <FormControlLabel
@@ -953,7 +1060,7 @@ const AddOrganization = ({
                 label={(
                   <div className="addOrganizationIconContainer">
                     <TemperatureIcon className="addOrganizationIcons" />
-                    Temperature Alerts
+                    {t('addOrganization.temperatureAlerts')}
                   </div>
                 )}
                 control={(
@@ -971,7 +1078,7 @@ const AddOrganization = ({
                 label={(
                   <div className="addOrganizationIconContainer">
                     <HumidityIcon className="addOrganizationIcons" />
-                    Humidity Alerts
+                    {t('addOrganization.humidityAlerts')}
                   </div>
                 )}
                 control={<Switch checked={supressHumidityAlerts.value} color="primary" onChange={(e) => supressHumidityAlerts.setValue(e.target.checked)} />}
@@ -983,7 +1090,7 @@ const AddOrganization = ({
                 label={(
                   <div className="adminPanelOrgIconContainer">
                     <ShockIcon className="adminPanelOrgIcons" />
-                    Shock Alerts
+                    {t('addOrganization.shockAlerts')}
                   </div>
                 )}
                 control={<Switch checked={supressShockAlerts.value} color="primary" onChange={(e) => supressShockAlerts.setValue(e.target.checked)} />}
@@ -995,7 +1102,7 @@ const AddOrganization = ({
                 label={(
                   <div className="adminPanelOrgIconContainer">
                     <LightIcon className="adminPanelOrgIcons" />
-                    Light Alerts
+                    {t('addOrganization.lightAlerts')}
                   </div>
                 )}
                 control={<Switch checked={supressLightAlerts.value} color="primary" onChange={(e) => supressLightAlerts.setValue(e.target.checked)} />}
@@ -1012,7 +1119,7 @@ const AddOrganization = ({
                 className="addOrganizationSubmit"
                 disabled={submitDisabled()}
               >
-                Register & Send
+                {t('addOrganization.registerSend')}
               </Button>
             </Grid>
           </Grid>

@@ -164,7 +164,7 @@ const AddResellers = ({ open, setOpen }) => {
       <FormModal
         open={open}
         handleClose={closeFormModal}
-        title="Create/Update Reseller Organization"
+        title={t('reseller.createOrUpdate')}
         openConfirmModal={openConfirmModal}
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
@@ -179,43 +179,39 @@ const AddResellers = ({ open, setOpen }) => {
           color="primary"
           onClick={() => setAddResellerOpen(true)}
         >
-          + Add Reseller
+          +
+          {' '}
+          {t('reseller.addReseller')}
         </Button>
 
         {/* Form to add a new reseller organization */}
         {isAddResellerOpen && (
           <>
             <Typography variant="body1" className="addResellerTitle">
-              Create New Reseller Organization
+              {t('reseller.createNew')}
             </Typography>
             <Grid container>
               <Grid item xs={12} sm={7}>
                 <TextField
-                  className="notranslate"
                   variant="outlined"
                   margin="normal"
                   fullWidth
                   select
                   id="resellerOrganization"
-                  label={(
-                    <span className="translate">Select Reseller Organization</span>
-                  )}
+                  label={t('reseller.selectResellerOrg')}
                   value={resellerOrganization.value.name || ''}
                   onChange={(e) => {
                     const selectedOrg = !_.isEmpty(orgData) && orgData.find((org) => _.isEqual(org.name, e.target.value));
                     resellerOrganization.setValue(selectedOrg);
                   }}
                 >
-                  <MenuItem value="">
-                    <span className="notranslate">{t('select')}</span>
-                  </MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {!_.isEmpty(orgData) && _.map(
                     _.filter(orgData, (org) => _.isEqual(org.organization_type, 2) && !org.is_reseller),
                     (org) => (
                       <MenuItem
                         key={`organization-${org.id}`}
                         value={org.name || ''}
-                        className="notranslate"
                       >
                         {org.name}
                       </MenuItem>
@@ -235,7 +231,7 @@ const AddResellers = ({ open, setOpen }) => {
                       setAddResellerOpen(false);
                     }}
                   >
-                    Cancel
+                    {t('reseller.cancel')}
                   </Button>
                 </Grid>
                 <Grid item sm={5} md={3.5}>
@@ -247,7 +243,7 @@ const AddResellers = ({ open, setOpen }) => {
                     disabled={isLoadingOrgs || addResellerSubmitDisabled()}
                     onClick={handleAddResellerSubmit}
                   >
-                    Save Reseller
+                    {t('reseller.saveReseller')}
                   </Button>
                 </Grid>
               </Grid>
@@ -260,18 +256,15 @@ const AddResellers = ({ open, setOpen }) => {
           <Grid container spacing={6}>
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" className="addResellerTitle">
-                Select Reseller Organization
+                {t('reseller.selectResellerOrg')}
               </Typography>
               <TextField
-                className="notranslate"
                 variant="outlined"
                 margin="normal"
                 fullWidth
                 select
                 id="selectedResellerOrganization"
-                label={(
-                  <span className="translate">Select Reseller Organization</span>
-                )}
+                label={t('reseller.selectResellerOrg')}
                 value={selectedResellerOrganization.value.name || ''}
                 onChange={(e) => {
                   const selectedOrg = !_.isEmpty(orgData) && orgData.find((org) => _.isEqual(org.name, e.target.value));
@@ -279,16 +272,13 @@ const AddResellers = ({ open, setOpen }) => {
                   selectedResellerOrganization.setValue(selectedOrg);
                 }}
               >
-                <MenuItem value="">
-                  <span className="notranslate">{t('select')}</span>
-                </MenuItem>
+                <MenuItem value="">{t('common.select')}</MenuItem>
                 {!_.isEmpty(orgData) && _.map(
                   _.filter(orgData, (org) => _.isEqual(org.organization_type, 2) && org.is_reseller),
                   (org) => (
                     <MenuItem
                       key={`organization-${org.id}`}
                       value={org.name || ''}
-                      className="notranslate"
                     >
                       {org.name}
                     </MenuItem>
@@ -298,7 +288,7 @@ const AddResellers = ({ open, setOpen }) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" className="addResellerTitle">
-                Reseller Customer Organization
+                {t('reseller.resellerCustomerOrg')}
               </Typography>
               {/* Display selected reseller customer organizations */}
               {!_.isEmpty(resellerCustomerOrganization.value)
@@ -306,15 +296,12 @@ const AddResellers = ({ open, setOpen }) => {
                   <Grid container alignItems="center" justifyContent="space-between">
                     <Grid item xs={10.8}>
                       <TextField
-                        className="notranslate"
                         variant="outlined"
                         margin="normal"
                         fullWidth
                         contentEditable={false}
                         id={`reseller-customer-${index}`}
-                        label={(
-                          <span className="translate">{`Reseller Customer Organization ${index + 1}`}</span>
-                        )}
+                        label={t('reseller.resellerCustomerOrgIndex', { index: index + 1 })}
                         value={item.name}
                       />
                     </Grid>
@@ -340,24 +327,19 @@ const AddResellers = ({ open, setOpen }) => {
                 <Grid container alignItems="center" justifyContent="space-between">
                   <Grid item xs={10.8}>
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       margin="normal"
                       fullWidth
                       select
                       id="resellerCustomerOrganization"
-                      label={(
-                        <span className="translate">Select Reseller Customer Organization</span>
-                      )}
+                      label={t('reseller.selectResellerCustomerOrg')}
                       onChange={(e) => {
                         const selectedOrg = !_.isEmpty(orgData) && orgData.find((org) => _.isEqual(org.name, e.target.value));
                         resellerCustomerOrganization.setValue([...resellerCustomerOrganization.value, selectedOrg]);
                         setAddResellerCustomerOpen(false);
                       }}
                     >
-                      <MenuItem value="">
-                        <span className="notranslate">{t('select')}</span>
-                      </MenuItem>
+                      <MenuItem value="">{t('common.select')}</MenuItem>
                       {!_.isEmpty(orgData) && _.map(
                         _.filter(orgData, (o) => (
                           !o.is_reseller
@@ -366,7 +348,7 @@ const AddResellers = ({ open, setOpen }) => {
                           && !_.includes(_.map(resellerCustomerOrganization.value, 'organization_uuid'), o.organization_uuid)
                         )),
                         (org) => (
-                          <MenuItem key={`organization-${org.id}`} value={org.name || ''} className="notranslate">
+                          <MenuItem key={`organization-${org.id}`} value={org.name || ''}>
                             {org.name}
                           </MenuItem>
                         ),
@@ -400,7 +382,9 @@ const AddResellers = ({ open, setOpen }) => {
                     style={{ marginTop: 16 }}
                     disabled={_.isEmpty(selectedResellerOrganization.value)}
                   >
-                    + Add Reseller Customer Organization
+                    +
+                    {' '}
+                    {t('reseller.addResellerCustomerOrg')}
                   </Button>
                 )}
 
@@ -415,7 +399,7 @@ const AddResellers = ({ open, setOpen }) => {
                       color="primary"
                       onClick={closeFormModal}
                     >
-                      Cancel
+                      {t('reseller.cancel')}
                     </Button>
                   </Grid>
                   <Grid item sm={5} md={3.5}>
@@ -427,7 +411,7 @@ const AddResellers = ({ open, setOpen }) => {
                       disabled={isLoadingOrgs || addCustomerSubmitDisabled()}
                       onClick={handleAddCustomerSubmit}
                     >
-                      Save Reseller
+                      {t('reseller.saveReseller')}
                     </Button>
                   </Grid>
                 </Grid>

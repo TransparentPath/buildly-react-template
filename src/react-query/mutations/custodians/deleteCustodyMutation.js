@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for error handling
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for deleting a custody type.
@@ -38,7 +39,7 @@ export const useDeleteCustodyMutation = (displayAlert, section) => {
           queryKey: ['custodies'],
         });
         // Display a success alert
-        displayAlert('success', 'Custody deleted successfully!');
+        displayAlert('success', i18n.t('api.successMessages.Custody deleted successfully!'));
       },
       /**
        * Callback executed if an error occurs during the mutation.
