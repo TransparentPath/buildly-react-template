@@ -109,7 +109,7 @@ const UniversalFileViewer = ({ open, closeFileView, selectedFile }) => {
     }
 
     // Image viewer
-    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension)) {
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'].includes(extension)) {
       return (
         <img
           src={fileURL}
@@ -121,20 +121,33 @@ const UniversalFileViewer = ({ open, closeFileView, selectedFile }) => {
 
     // Office document viewer
     if (['csv', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension)) {
-      const officeOnlineViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileURL)}`;
+      if (isGoogleStorage) {
+        const officeOnlineViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileURL)}`;
+        return (
+          <iframe
+            src={officeOnlineViewerUrl}
+            title={fileName}
+            width="100%"
+            height="100%"
+            style={{ border: 'none' }}
+          />
+        );
+      }
+
+      // if not stored file
       return (
-        <iframe
-          src={officeOnlineViewerUrl}
-          title={fileName}
-          width="100%"
-          height="100%"
-          style={{ border: 'none' }}
+        <FileViewer
+          fileType={extension}
+          filePath={fileURL}
+          onError={(e) => {
+            console.error('FileViewer error:', e);
+          }}
         />
       );
     }
 
     // Video player
-    if (['mp4', 'mov', 'webm'].includes(extension)) {
+    if (['avi', 'mp3', 'mp4', 'mov', 'webm', 'ogg', 'wav', 'wmv'].includes(extension)) {
       return (
         <video
           src={fileURL}
