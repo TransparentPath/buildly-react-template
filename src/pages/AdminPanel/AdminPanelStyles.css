@@ -53,6 +53,12 @@
   align-items: center;
 }
 
+.adminPanelOrgIconContainer > .MuiSvgIcon-root {
+  margin-right: 10px;
+  fill: var(--color-palette-background-dark);
+  opacity: 0.7;
+}
+
 .adminPanelOrgIcons {
   margin-right: 10px;
   fill: var(--color-palette-background-dark);

@@ -299,6 +299,8 @@
   },
   "orgSettings": {
     "alertSettings": "Paramètres d'alerte :",
+    "enableTilt": "Activer l'inclinaison",
+    "tilt": "Inclinaison",
     "temperatureAlerts": "Alertes de température",
     "humidityAlerts": "Alertes d'humidité",
     "shockAlerts": "Alertes de choc",
@@ -1097,6 +1099,7 @@
       "humidity": "Humidité",
       "shock": "Choc",
       "light": "Lumière",
+      "tilt": "Inclinaison",
       "battery": "Batterie"
     },
     "irregular": {
@@ -1327,6 +1330,8 @@
       "max_shock": "Choc maximal",
       "light": "Lumière",
       "max_light": "Lumière maximale",
+      "tilt": "Inclinaison autour de l'axe Y",
+      "roll": "Inclinaison autour de l'axe X",
       "battery": "Batterie",
       "max_battery": "Batterie maximale"
     }

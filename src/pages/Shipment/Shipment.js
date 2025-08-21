@@ -590,6 +590,12 @@ const Shipment = ({ history }) => {
             {` LUX): ${marker.light} LUX`}
           </Typography>
         </Grid>
+        {user && user.organization && user.organization.enable_tilt && (
+          <Typography>
+            {`${t('shipment.sensor.tilt')}: `}
+            {_.isEmpty(marker.tilt) ? 'N/A' : `${marker.tilt.pitch}° around Y-axis / ${marker.tilt.roll}° around X-axis`}
+          </Typography>
+        )}
         <Typography>{`${t('shipment.sensor.battery')}: ${marker.battery}`}</Typography>
       </>
     );
@@ -743,6 +749,7 @@ const Shipment = ({ history }) => {
             setSelectedCluster={setSelectedCluster} // Function to set the selected cluster
             selectedCluster={selectedCluster} // Currently selected cluster
             mapCountry={organizationCountry} // Country for the map
+            orgData={user.organization} // Organization data for the map
           />
         </Grid>
 

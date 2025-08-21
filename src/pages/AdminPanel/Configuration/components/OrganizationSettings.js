@@ -52,6 +52,7 @@ import { useEditUnitMutation } from '@react-query/mutations/items/editUnitMutati
 import useAlert from '@hooks/useAlert';
 import '../../AdminPanelStyles.css';
 import { useTranslation } from 'react-i18next';
+import { TiltIcon } from '@utils/constants';
 
 /**
  * OrganizationSettings Component
@@ -120,6 +121,9 @@ const OrganizationSettings = () => {
   );
   const orgAbb = useInput(
     (organizationData && organizationData.abbrevation) || '',
+  );
+  const enableTilt = useInput(
+    (organizationData && organizationData.enable_tilt) || false,
   );
 
   /**
@@ -331,6 +335,7 @@ const OrganizationSettings = () => {
     radius.reset();
     orgType.reset();
     orgAbb.reset();
+    enableTilt.reset();
     defaultMaxTemperature.reset();
     defaultMinTemperature.reset();
     defaultMaxHumidity.reset();
@@ -367,6 +372,7 @@ const OrganizationSettings = () => {
     || radius.hasChanged()
     || orgType.hasChanged()
     || orgAbb.hasChanged()
+    || enableTilt.hasChanged()
     || defaultMaxTemperature.hasChanged()
     || defaultMinTemperature.hasChanged()
     || defaultMaxHumidity.hasChanged()
@@ -415,6 +421,7 @@ const OrganizationSettings = () => {
       || radius.hasChanged()
       || orgType.hasChanged()
       || orgAbb.hasChanged()
+      || enableTilt.hasChanged()
       || distance.hasChanged()
       || defaultMaxTemperature.hasChanged()
       || defaultMinTemperature.hasChanged()
@@ -458,6 +465,7 @@ const OrganizationSettings = () => {
           !supressShockAlerts.value ? 'shock' : '',
           !supressLightAlerts.value ? 'light' : '',
         ], ''),
+        enable_tilt: enableTilt.value,
       };
 
       // Update radius if distance unit changed
@@ -602,6 +610,25 @@ const OrganizationSettings = () => {
                 </div>
               )}
               control={<Switch checked={supressLightAlerts.value} color="primary" onChange={(e) => supressLightAlerts.setValue(e.target.checked)} />}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Enable Tilt for the organization */}
+        <Grid container spacing={2} mb={2}>
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" fontWeight={700}>{t('orgSettings.enableTilt')}</Typography>
+          </Grid>
+          <Grid item xs={6} alignSelf="center">
+            <FormControlLabel
+              labelPlacement="end"
+              label={(
+                <div className="adminPanelOrgIconContainer">
+                  <TiltIcon />
+                  {t('orgSettings.tilt')}
+                </div>
+              )}
+              control={<Switch checked={enableTilt.value} color="primary" onChange={(e) => enableTilt.setValue(e.target.checked)} />}
             />
           </Grid>
         </Grid>

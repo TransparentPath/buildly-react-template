@@ -48,6 +48,7 @@ export const MapComponent = (props) => {
     setSelectedCluster, // Function to update selected cluster externally
     selectedCluster, // Currently selected marker cluster
     mapCountry, // Country code for the map region
+    orgData,
   } = props;
 
   const { t } = useTranslation(); // Translation function for internationalization
@@ -334,6 +335,28 @@ export const MapComponent = (props) => {
                           ) : null}
                         </Grid>
                       ))}
+                      {orgData && orgData.enable_tilt && (
+                        <Grid
+                          item
+                          xs={12}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {getIcon({ id: 'tilt', title: 'Tilt' }, t)}
+                          <div
+                            style={{
+                              marginLeft: theme.spacing(0.5),
+                              color: _.find(mark.allAlerts, { id: 'tilt' })
+                                ? _.find(mark.allAlerts, { id: 'tilt' }).color
+                                : 'inherit',
+                            }}
+                          >
+                            {_.isEmpty(mark.tilt) ? ' N/A' : ` ${mark.tilt.pitch}° around Y-axis / ${mark.tilt.roll}° around X-axis`}
+                          </div>
+                        </Grid>
+                      )}
                       <Grid
                         item
                         xs={12}

@@ -25,7 +25,6 @@ import Loader from '@components/Loader/Loader';
 import FormModal from '@components/Modal/FormModal';
 import GraphComponent from '@components/GraphComponent/GraphComponent';
 import { getUser } from '@context/User.context';
-import { REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
 import { useTranslation } from 'react-i18next';
@@ -34,12 +33,14 @@ import { useTranslation } from 'react-i18next';
 const GenerateReport = ({
   open, // Boolean state to control visibility of the modal
   setOpen, // Setter function for `open`
+  enabledTilt, // check if tilt is enabled or not
   tableRef, // Ref to the table component
   mapRef, // Ref to the map component
   tempGraphRef, // Ref to temperature graph
   humGraphRef, // Ref to humidity graph
   shockGraphRef, // Ref to shock graph
   lightGraphRef, // Ref to light graph
+  tiltGraphRef, // Ref to tilt graph
   batteryGraphRef, // Ref to battery graph
   alertsTableRef, // Ref to alerts table
   downloadCSV, // Function to trigger CSV download
@@ -120,6 +121,12 @@ const GenerateReport = ({
       if (dataUrl4) base64DataArray.push(dataUrl4);
       if (dataUrl5) base64DataArray.push(dataUrl5);
       if (dataUrl6) base64DataArray.push(dataUrl6);
+
+      if (enabledTilt) {
+        const dataUrl9 = await captureScreenshot(tiltGraphRef);
+        if (dataUrl9) base64DataArray.push(dataUrl9);
+      }
+
       if (dataUrl7) base64DataArray.push(dataUrl7);
       if (dataUrl8) base64DataArray.push(dataUrl8);
     } catch (error) {

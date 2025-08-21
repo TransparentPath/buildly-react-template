@@ -299,6 +299,8 @@
   },
   "orgSettings": {
     "alertSettings": "Alarmeinstellungen:",
+    "enableTilt": "Neigung aktivieren",
+    "tilt": "Neigung",
     "temperatureAlerts": "Temperaturalarm",
     "humidityAlerts": "Feuchtigkeitsalarm",
     "shockAlerts": "Stoßalarm",
@@ -1097,6 +1099,7 @@
       "humidity": "Feuchtigkeit",
       "shock": "Erschütterung",
       "light": "Licht",
+      "tilt": "Neigung",
       "battery": "Batterie"
     },
     "irregular": {
@@ -1327,6 +1330,8 @@
       "max_shock": "Maximale Erschütterung",
       "light": "Licht",
       "max_light": "Maximales Licht",
+      "tilt": "Neigung um die Y-Achse",
+      "roll": "Neigung um die X-Achse",
       "battery": "Batterie",
       "max_battery": "Maximale Batterie"
     }

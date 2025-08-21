@@ -300,6 +300,8 @@
   },
   "orgSettings": {
     "alertSettings": "إعدادات التنبيه:",
+    "enableTilt": "تمكين الإمالة",
+    "tilt": "إمالة",
     "temperatureAlerts": "تنبيهات درجة الحرارة",
     "humidityAlerts": "تنبيهات الرطوبة",
     "shockAlerts": "تنبيهات الصدمة",
@@ -1098,6 +1100,7 @@
       "humidity": "الرطوبة",
       "shock": "الصدمة",
       "light": "الضوء",
+      "tilt": "إمالة",
       "battery": "البطارية"
     },
     "irregular": {
@@ -1328,6 +1331,8 @@
       "max_shock": "أقصى صدمة",
       "light": "الضوء",
       "max_light": "أقصى ضوء",
+      "tilt": "إمالة حول المحور Y",
+      "roll": "إمالة حول المحور X",
       "battery": "البطارية",
       "max_battery": "الحد الأقصى للبطارية"
     }

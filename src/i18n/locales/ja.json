@@ -299,6 +299,8 @@
   },
   "orgSettings": {
     "alertSettings": "アラート設定：",
+    "enableTilt": "チルトを有効にする",
+    "tilt": "傾ける",
     "temperatureAlerts": "温度アラート",
     "humidityAlerts": "湿度アラート",
     "shockAlerts": "衝撃アラート",
@@ -1097,6 +1099,7 @@
       "humidity": "湿度",
       "shock": "衝撃",
       "light": "光",
+      "tilt": "傾ける",
       "battery": "バッテリー"
     },
     "irregular": {
@@ -1327,6 +1330,8 @@
       "max_shock": "最大衝撃",
       "light": "光",
       "max_light": "最大光量",
+      "tilt": "Y軸を中心に傾ける",
+      "roll": "X軸を中心に傾ける",
       "battery": "バッテリー",
       "max_battery": "最大バッテリー"
     }

@@ -299,6 +299,8 @@
   },
   "orgSettings": {
     "alertSettings": "Impostazioni di avviso:",
+    "enableTilt": "Abilita inclinazione",
+    "tilt": "Inclinare",
     "temperatureAlerts": "Avvisi temperatura",
     "humidityAlerts": "Avvisi umidità",
     "shockAlerts": "Avvisi urto",
@@ -1327,6 +1329,8 @@
       "max_shock": "Urto massimo",
       "light": "Luce",
       "max_light": "Luce massima",
+      "tilt": "Inclinazione attorno all'asse Y",
+      "roll": "Inclinazione attorno all'asse X",
       "battery": "Batteria",
       "max_battery": "Batteria massima"
     }
