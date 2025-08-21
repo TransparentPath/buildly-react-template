@@ -297,9 +297,13 @@
 }
 
 .createShipmentGuidanceList {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  list-style-type: disc;
+  border: 1px solid;
+  padding-left: 8px;
+}
+
+.createShipmentGuidanceListHeader {
+  background-color: var(--color-palette-background-light);
+  font-weight: bold;
 }
 
 @media screen and (max-width: 620px) {
