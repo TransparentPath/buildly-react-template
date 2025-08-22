@@ -505,6 +505,17 @@ const Reporting = () => {
     return richTextResult;
   };
 
+  // Sanitize worksheet name by removing invalid characters and limiting length
+    const sanitizeWorksheetName = (name) => {
+      // Remove characters that are invalid in Excel worksheet names
+      // Replace with underscore: \/?*[]:'
+      let safeName = name.replace(/[\\/?*\[\]:']/g, '_');
+      // Remove any other non-printable characters
+      safeName = safeName.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+      // Trim leading/trailing spaces and limit length to 31 characters (Excel limit)
+      return safeName.trim().substring(0, 31);
+    };
+
   /**
    * Downloads sensor report data as an Excel file
    *
@@ -522,7 +533,7 @@ const Reporting = () => {
   const downloadExcel = async () => {
     // Create a new workbook and add a worksheet
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(selectedShipment.name);
+    const worksheet = workbook.addWorksheet(sanitizeWorksheetName(selectedShipment.name));
 
     // Define border style for consistent cell formatting
     const borderStyle = {
