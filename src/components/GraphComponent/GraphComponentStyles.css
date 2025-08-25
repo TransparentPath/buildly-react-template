@@ -27,6 +27,14 @@
   margin-left: 16px;
 }
 
+.graphRollColor {
+  width: 30px;
+  height: 15px;
+  background-color: var(--color-palette-cluster-main);
+  margin-right: 8px;
+  margin-left: 16px;
+}
+
 .graphTooltip {
   padding: 8px 16px;
   background-color: var(--color-palette-background-dark);

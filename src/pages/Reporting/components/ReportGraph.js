@@ -19,11 +19,11 @@ const ReportGraph = forwardRef((props, ref) => {
     theme, // MUI theme object for accessing palette, spacing, etc.
     graphType, // Currently selected graph type (e.g., temperature, humidity)
     data, // Graph data categorized by graph type
+    enabledTilt,
   } = props;
-
   const { t } = useTranslation(); // Translation function for internationalization
 
-  const reportTypes = REPORT_TYPES(unitOfMeasure);
+  const reportTypes = REPORT_TYPES(unitOfMeasure, enabledTilt);
   const hasValidGraphData = data && typeof data === 'object' && graphType in data && !_.isEmpty(data[graphType]);
 
   return (

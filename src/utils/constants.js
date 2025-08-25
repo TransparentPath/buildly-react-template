@@ -1366,7 +1366,8 @@ export const processReportsAndMarkers = (
             ...tiltData,
             {
               x: dateTime,
-              y: report_entry.report_tilt,
+              y: (report_entry.report_tilt && report_entry.report_tilt.pitch) || null,
+              roll: (report_entry.report_tilt && report_entry.report_tilt.roll) || null,
             },
           ];
           humidityData = [
@@ -1445,13 +1446,19 @@ export const tempUnit = (uomt) => {
 };
 
 // Defines available report types with respective units of measure
-export const REPORT_TYPES = (unitOfMeasure) => ([
-  { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
-  { id: 'humidity', unit: '%' },
-  { id: 'shock', unit: 'G' },
-  { id: 'light', unit: 'LUX' },
-  { id: 'battery', unit: '%' },
-]);
+export const REPORT_TYPES = (unitOfMeasure, enabledTilt) => {
+  let cols = [
+    { id: 'temperature', unit: tempUnit(_.find(unitOfMeasure, (unit) => (_.isEqual(_.toLower(unit.unit_of_measure_for), 'temperature')))) },
+    { id: 'humidity', unit: '%' },
+    { id: 'shock', unit: 'G' },
+    { id: 'light', unit: 'LUX' },
+  ];
+  if (enabledTilt) {
+    cols = [...cols, { id: 'tilt', unit: '°' }];
+  }
+  cols = [...cols, { id: 'battery', unit: '%' }];
+  return cols;
+};
 
 // Defines marker data types with their corresponding units
 export const MARKER_DATA = (unitOfMeasure) => ([
@@ -1462,7 +1469,7 @@ export const MARKER_DATA = (unitOfMeasure) => ([
 ]);
 
 // Generates the sensor report columns with custom cell rendering logic for different data types
-export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
+export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, enabled_tilt, t) => {
   // Helper function to determine cell styles based on the presence of null or undefined values
   const getCellStyle = (tableMeta) => ({
     fontWeight: (
@@ -1659,7 +1666,7 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
         sort: true,
         sortThirdClickReset: true,
         filter: true,
-        display: false,
+        display: enabled_tilt,
         setCellHeaderProps: () => ({ className: 'reportingSensorLeftHeader' }),
         customBodyRender: (value, tableMeta) => (
           <div style={getCellStyle(tableMeta)}>
@@ -1667,11 +1674,11 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, t) => {
               ? (
                 <div>
                   <div>
-                    Pitch:
+                    Around Y-axis:
                     {_.round(_.toNumber(value.pitch), 2)}
                   </div>
                   <div>
-                    Roll:
+                    Around X-axis:
                     {_.round(_.toNumber(value.roll), 2)}
                   </div>
                 </div>

@@ -81,6 +81,7 @@ const Reporting = () => {
   const theme = useTheme(); // Accessing the Material-UI theme
   const user = getUser(); // Fetching the current user details
   const organization = user.organization.organization_uuid; // Extracting organization ID from user details
+  const enabledTilt = user.organization.enable_tilt; // Checking if tilt feature is enabled for the organization
   const { options: tzOptions } = useTimezoneSelect({ labelStyle: 'original', timezones: allTimezones }); // Fetching timezone options
   const { t } = useTranslation();
   // State variables for managing component data
@@ -103,6 +104,7 @@ const Reporting = () => {
   const humGraphRef = useRef();
   const shockGraphRef = useRef();
   const lightGraphRef = useRef();
+  const tiltGraphRef = useRef();
   const batteryGraphRef = useRef();
   const alertsTableRef = useRef();
 
@@ -506,6 +508,17 @@ const Reporting = () => {
     return richTextResult;
   };
 
+  // Sanitize worksheet name by removing invalid characters and limiting length
+  const sanitizeWorksheetName = (name) => {
+    // Remove characters that are invalid in Excel worksheet names
+    // Replace with underscore: \/?*[]:'
+    let safeName = name.replace(/[\\/?*\[\]:']/g, '_');
+    // Remove any other non-printable characters
+    safeName = safeName.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+    // Trim leading/trailing spaces and limit length to 31 characters (Excel limit)
+    return safeName.trim().substring(0, 31);
+  };
+
   /**
    * Downloads sensor report data as an Excel file
    *
@@ -523,7 +536,7 @@ const Reporting = () => {
   const downloadExcel = async () => {
     // Create a new workbook and add a worksheet
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(selectedShipment.name);
+    const worksheet = workbook.addWorksheet(sanitizeWorksheetName(selectedShipment.name));
 
     // Define border style for consistent cell formatting
     const borderStyle = {
@@ -534,7 +547,7 @@ const Reporting = () => {
     };
 
     // Filter columns to only include those marked for display
-    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment, t).filter((col) => col.options.display !== false, null);
+    const columns = SENSOR_REPORT_COLUMNS(unitData, selectedShipment, enabledTilt, t).filter((col) => col.options.display !== false, null);
 
     // Sort report data by timestamp in descending order (newest first)
     const data = _.orderBy(
@@ -1299,6 +1312,7 @@ const Reporting = () => {
             containerStyle={{ height: '625px' }}
             unitOfMeasure={unitData}
             mapCountry={organizationCountry}
+            orgData={user.organization}
           />
         </Grid>
       </Grid>
@@ -1319,7 +1333,7 @@ const Reporting = () => {
         {/* Vertical icon list to select graph types */}
         <Grid item xs={2} sm={1}>
           <List component="nav" aria-label="main graph-type" className="reportingGraphIconBar">
-            {_.map(REPORT_TYPES(unitData), (item, index) => (
+            {_.map(REPORT_TYPES(unitData, enabledTilt), (item, index) => (
               <ListItem
                 key={`iconItem${index}${item.id}`}
                 button
@@ -1360,6 +1374,7 @@ const Reporting = () => {
         timezone={timeZone}
         downloadCSV={downloadCSV}
         downloadExcel={downloadExcel}
+        enabled_tilt={enabledTilt}
       />
 
       <AlertsReport
@@ -1373,22 +1388,27 @@ const Reporting = () => {
       />
 
       {/* Graph snapshots for each sensor type (used in report generation) */}
-      <ReportGraph ref={tempGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="temperature" data={allGraphs} />
-      <ReportGraph ref={humGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="humidity" data={allGraphs} />
-      <ReportGraph ref={shockGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="shock" data={allGraphs} />
-      <ReportGraph ref={lightGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="light" data={allGraphs} />
-      <ReportGraph ref={batteryGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="battery" data={allGraphs} />
+      <ReportGraph enabledTilt={enabledTilt} ref={tempGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="temperature" data={allGraphs} />
+      <ReportGraph enabledTilt={enabledTilt} ref={humGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="humidity" data={allGraphs} />
+      <ReportGraph enabledTilt={enabledTilt} ref={shockGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="shock" data={allGraphs} />
+      <ReportGraph enabledTilt={enabledTilt} ref={lightGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="light" data={allGraphs} />
+      {enabledTilt && (
+        <ReportGraph enabledTilt={enabledTilt} ref={tiltGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="tilt" data={allGraphs} />
+      )}
+      <ReportGraph enabledTilt={enabledTilt} ref={batteryGraphRef} selectedShipment={selectedShipment} unitOfMeasure={unitData} theme={theme} graphType="battery" data={allGraphs} />
 
       {/* Generate Report modal component with all visual sections' refs passed in */}
       <GenerateReport
         open={showGenerateReport}
         setOpen={setShowGenerateReport}
+        enabledTilt={enabledTilt}
         tableRef={reportingDetailTableRef}
         mapRef={mapRef}
         tempGraphRef={tempGraphRef}
         humGraphRef={humGraphRef}
         shockGraphRef={shockGraphRef}
         lightGraphRef={lightGraphRef}
+        tiltGraphRef={tiltGraphRef}
         batteryGraphRef={batteryGraphRef}
         alertsTableRef={alertsTableRef}
         downloadCSV={downloadCSV}

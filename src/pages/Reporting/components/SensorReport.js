@@ -29,6 +29,7 @@ const SensorReport = (props) => {
     timezone, // Timezone info (could be used for formatting)
     downloadCSV, // Handler for downloading CSV
     downloadExcel, // Handler for downloading Excel
+    enabled_tilt,
   } = props;
 
   // Local state to manage data rows and selection
@@ -112,7 +113,7 @@ const SensorReport = (props) => {
           hideAddButton // Hides the default add button
           filename={t('sensorReport.export.filename')} // Export filename
           rows={rows} // Row data for the table
-          columns={SENSOR_REPORT_COLUMNS(unitOfMeasure, selectedShipment, t)} // Columns configured with UOM and shipment info
+          columns={SENSOR_REPORT_COLUMNS(unitOfMeasure, selectedShipment, enabled_tilt, t)} // Columns configured with UOM and shipment info
           selectable={{
             rows: 'multiple', // Allow multiple row selection
             rowsHeader: false, // No selection checkbox in header
