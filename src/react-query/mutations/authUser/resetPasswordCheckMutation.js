@@ -2,6 +2,7 @@
 import { useMutation } from 'react-query'; // Hook for performing mutations (e.g., POST requests)
 import { httpService } from '@modules/http/http.service'; // Centralized HTTP request utility
 import { getErrorMessage } from '@utils/utilMethods'; // Helper to extract and display meaningful error messages
+import i18n from '../../../i18n/index'; // Internationalization utility for translations
 
 /**
  * Custom hook to verify the password reset token and user ID.
@@ -40,7 +41,7 @@ export const useResetPasswordCheckMutation = (
       history.push(`${resetRedirectTo}/${response.data.uid}/${response.data.token}/`);
     } else {
       // If the response indicates failure (e.g., expired or invalid token), show error and redirect to login
-      displayAlert('error', 'Invalid ID or token. Try resending the link to your email');
+      displayAlert('error', i18n.t('api.messages.Invalid ID or token. Try resending the link to your email.'));
       history.push(loginRedirectTo);
     }
     return response.data; // Return the server response for further use if needed

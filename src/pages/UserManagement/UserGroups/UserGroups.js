@@ -8,11 +8,13 @@ import { getCoregroupQuery } from '@react-query/queries/coregroup/getCoregroupQu
 import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrganizationQuery';
 import { getGroupsFormattedRow } from '@utils/constants';
 import { useEditCoregroupMutation } from '@react-query/mutations/coregroup/editCoregroupMutation';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Component for displaying and updating permissions for core user groups.
  */
 const UserGroups = () => {
+  const { t } = useTranslation();
   const { displayAlert } = useAlert(); // Hook to display alerts
   const [rows, setRows] = useState([]); // State to hold formatted group data
 
@@ -73,15 +75,15 @@ const UserGroups = () => {
     <div>
       <DataTableWrapper
         hideAddButton // Do not show add new row button
-        filename="User Groups" // Filename used when exporting
-        tableHeader="User Groups" // Title shown at top of table
+        filename={t('userGroups.filename')} // Filename used when exporting
+        tableHeader={t('userGroups.tableHeader')} // Title shown at top of table
         loading={isLoadingCoregroup || isLoadingOrganizations || isEditingGroup} // Show loading state
         rows={rows || []} // Table data
         columns={[
           // Column for displaying group name/type
           {
             name: 'display_permission_name',
-            label: 'Group Type',
+            label: t('userGroups.groupType'),
             options: {
               sort: true,
               sortThirdClickReset: true,
@@ -91,6 +93,7 @@ const UserGroups = () => {
           // Permission toggle columns (Create, Read, Update, Delete)
           ...['Create', 'Read', 'Update', 'Delete'].map((permission) => ({
             name: permission,
+            label: t(`userGroups.${permission.toLowerCase()}`),
             options: {
               sort: true,
               sortThirdClickReset: true,

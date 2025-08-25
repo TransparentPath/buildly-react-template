@@ -20,6 +20,7 @@ import { getAllOrganizationQuery } from '@react-query/queries/authUser/getAllOrg
 import { useDeleteCustodianMutation } from '@react-query/mutations/custodians/deleteCustodianMutation'; // Mutation to delete a custodian
 import { useUploadBulkCustodianMutation } from '@react-query/mutations/custodians/uploadBulkCustodianMutation'; // Mutation for bulk uploading custodians
 import useAlert from '@hooks/useAlert'; // Custom hook for displaying alerts
+import { useTranslation } from 'react-i18next';
 
 // Custodian component that manages custodian data and actions
 const Custodian = ({ history, redirectTo }) => {
@@ -29,6 +30,8 @@ const Custodian = ({ history, redirectTo }) => {
 
   // Use alert hook to display alerts
   const { displayAlert } = useAlert();
+
+  const { t } = useTranslation();
 
   // State variables for handling rows, modal visibility, and deletion
   const [rows, setRows] = useState([]); // Stores formatted rows for the data table
@@ -146,23 +149,23 @@ const Custodian = ({ history, redirectTo }) => {
         || isLoadingOrgs || isDeletingCustodian || isUploadingBulkCustodian // Show loading spinner while data is being fetched
       }
       rows={rows || []} // Pass rows (formatted custodian data) to the table
-      columns={custodianColumns} // Define the columns for the table
-      filename="CustodianData" // Filename for the exported data
-      addButtonHeading="Add Custodian" // Heading for the add button
+      columns={custodianColumns(t)} // Define the columns for the table
+      filename={t('custodian.filename')} // Filename for the exported data
+      addButtonHeading={t('custodian.addButtonHeading')} // Heading for the add button
       onAddButtonClick={onAddButtonClick} // Action when the add button is clicked
       editAction={editItem} // Action when an item is edited
       deleteAction={deleteItem} // Action when an item is deleted
       openDeleteModal={openDeleteModal} // Pass modal visibility state
       setDeleteModal={setDeleteModal} // Set function to control modal visibility
       handleDeleteModal={handleDeleteModal} // Handle deletion confirmation
-      deleteModalTitle="Are you sure you want to delete this Custodian?" // Modal title
-      tableHeader="Custodians" // Table header
+      deleteModalTitle={t('custodian.deleteModalTitle')} // Modal title
+      tableHeader={t('custodian.tableHeader')} // Table header
       downloadTemplateButton // Enable download template button
       uploadDataButton // Enable upload data button
       downloadTemplateHref={window.env.CUSTODIAN_TEMPLATE_URL} // URL for downloading bulk template
       onUploadData={onUploadData} // Handle file upload
-      downloadTemplateHeading="Bulk Custodian Template" // Heading for the download template button
-      uploadDataHeading="Bulk Custodian Data" // Heading for the upload data button
+      downloadTemplateHeading={t('custodian.downloadTemplateHeading')} // Heading for the download template button
+      uploadDataHeading={t('custodian.uploadDataHeading')} // Heading for the upload data button
     >
       {/* Define routes for adding and editing custodians */}
       <Route path={addCustodianPath} component={AddCustodians} />

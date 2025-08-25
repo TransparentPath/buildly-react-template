@@ -48,16 +48,24 @@ const GraphComponent = ({
           <div className="graphLegendDiv" style={{ marginBottom: 6, marginTop: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <div className="graphNormalColor" />
-              <Typography className="notranslate" variant="body1">{t(selectedGraph)}</Typography>
+              <Typography variant="body1">{t(`graph.metrics.${selectedGraph}`, selectedGraph)}</Typography>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <div className="graphMaxColor" />
-              <Typography className="notranslate" variant="body1">{t(`max_${selectedGraph}`)}</Typography>
-            </div>
+            {_.includes(_.keysIn(data[0]), 'max') && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <div className="graphMaxColor" />
+                <Typography variant="body1">{t(`graph.metrics.max_${selectedGraph}`)}</Typography>
+              </div>
+            )}
             {_.includes(_.keysIn(data[0]), 'min') && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <div className="graphMinColor" />
-                <Typography className="notranslate" variant="body1">{t(`min_${selectedGraph}`)}</Typography>
+                <Typography variant="body1">{t(`graph.metrics.min_${selectedGraph}`)}</Typography>
+              </div>
+            )}
+            {_.includes(_.keysIn(data[0]), 'roll') && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <div className="graphRollColor" />
+                <Typography variant="body1">{t('graph.metrics.roll')}</Typography>
               </div>
             )}
           </div>
@@ -95,16 +103,18 @@ const GraphComponent = ({
                 isAnimationActive={false}
               />
               {/* Max value line */}
-              <Line
-                connectNulls
-                dot={false}
-                type="monotone"
-                dataKey="max"
-                stroke={theme.palette.error.main} // Error color for max (usually red)
-                fill={theme.palette.error.main}
-                strokeWidth={3}
-                isAnimationActive={false}
-              />
+              {_.includes(_.keysIn(data[0]), 'max') && (
+                <Line
+                  connectNulls
+                  dot={false}
+                  type="monotone"
+                  dataKey="max"
+                  stroke={theme.palette.error.main} // Error color for max (usually red)
+                  fill={theme.palette.error.main}
+                  strokeWidth={3}
+                  isAnimationActive={false}
+                />
+              )}
               {/* Min value line (conditionally shown only if "min" exists in data) */}
               {_.includes(_.keysIn(data[0]), 'min') && (
                 <Line
@@ -118,6 +128,19 @@ const GraphComponent = ({
                   isAnimationActive={false}
                 />
               )}
+              {/* Roll value line (conditionally shown only if "roll" exists in data) */}
+              {_.includes(_.keysIn(data[0]), 'roll') && (
+                <Line
+                  connectNulls
+                  dot={false}
+                  type="monotone"
+                  dataKey="roll"
+                  stroke={theme.palette.cluster.main} // Info color for roll (usually blue)
+                  fill={theme.palette.cluster.main}
+                  strokeWidth={3}
+                  isAnimationActive={false}
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </>
@@ -127,7 +150,7 @@ const GraphComponent = ({
           variant="body1"
           style={{ marginTop: theme.spacing(5), textAlign: 'center' }}
         >
-          No data to display
+          {t('graph.noData')}
         </Typography>
       )}
     </div>

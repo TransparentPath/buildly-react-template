@@ -6,6 +6,7 @@ import {
   VerifiedUserOutlined as DeactivateIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { IconButton, MenuItem, Select } from '@mui/material';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import { getUser } from '@context/User.context';
@@ -23,6 +24,7 @@ import { useDeleteCoreuserMutation } from 'react-query/mutations/coreuser/delete
  * Allows activation/deactivation, permission assignment, and user deletion.
  */
 const Users = () => {
+  const { t } = useTranslation();
   const user = getUser(); // Get the currently authenticated user
   const { displayAlert } = useAlert(); // Hook for displaying alert messages
   const [rows, setRows] = useState([]); // State to hold the formatted rows of user data
@@ -114,16 +116,16 @@ const Users = () => {
     <div>
       <DataTableWrapper
         hideAddButton // Hide the button to add a new user
-        filename="Users" // Name used for export
-        tableHeader="Users" // Title of the table
+        filename={t('users.filename')} // Name used for export
+        tableHeader={t('users.tableHeader')} // Title of the table
         loading={isLoadingCoreuser || isLoadingCoregroup || isLoadingOrganizations || isEditingUser || isDeletingUser} // Show loading spinner when data is loading
         rows={rows || []} // Display the user data in rows
         columns={[
           // Define the standard user columns (e.g., name, email) using a utility function
-          ...userColumns(),
+          ...userColumns(t),
           {
             // Column for selecting and displaying user permissions (assigned group)
-            name: 'Permissions',
+            name: t('users.permissions'),
             options: {
               sort: true,
               sortThirdClickReset: true,
@@ -152,7 +154,7 @@ const Users = () => {
           },
           {
             // Column for toggling user activation (activate/deactivate)
-            name: 'Activate/Deactivate User',
+            name: t('users.activateDeactivateUser'),
             options: {
               filter: false,
               sort: false,
@@ -167,7 +169,7 @@ const Users = () => {
                       className="usersIconButton"
                       onClick={(e) => activateDeactivateUser(coreuser)} // Toggle active status when clicked
                     >
-                      {coreuser.is_active ? <ActivateIcon titleAccess="Deactivate" /> : <DeactivateIcon titleAccess="Activate" />}
+                      {coreuser.is_active ? <ActivateIcon titleAccess={t('users.deactivate')} /> : <DeactivateIcon titleAccess={t('users.activate')} />}
                     </IconButton>
                   </div>
                 );
@@ -176,7 +178,7 @@ const Users = () => {
           },
           {
             // Column for deleting a user
-            name: 'Delete User',
+            name: t('users.deleteUser'),
             options: {
               filter: false,
               sort: false,
@@ -191,7 +193,7 @@ const Users = () => {
                         className="usersIconButton"
                         onClick={(e) => deleteUser(coreuser)} // Delete the user when clicked
                       >
-                        <DeleteIcon titleAccess="Delete" />
+                        <DeleteIcon titleAccess={t('users.delete')} />
                       </IconButton>
                     )}
                   </div>

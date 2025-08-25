@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 import { oauthService } from '@modules/oauth/oauth.service';
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to update organization settings.
@@ -58,7 +59,7 @@ export const useUpdateOrganizationMutation = (discardFormData, displayAlert, sec
           queryKey: ['organizations'],
         });
         // Show success message to user
-        displayAlert('success', 'Organization settings successfully updated!');
+        displayAlert('success', i18n.t('api.successMessages.Organization settings successfully updated!'));
         // Discard form data (e.g., close modal or clear input fields)
         if (typeof discardFormData === 'function') {
           discardFormData();

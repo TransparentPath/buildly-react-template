@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment-timezone';
+import i18n from '../i18n/index';
 
 /**
  * Checks whether the given user is a Global Admin.
@@ -179,7 +180,7 @@ export const calculateLatLngBounds = (lat, lng, miles) => {
  * @param {function} displayAlert - Callback function to show an alert (e.g., toast).
  */
 export const getErrorMessage = (section, error, message, displayAlert) => {
-  let errorMessage = `Unable to ${message}`;
+  let errorMessage = `${i18n.t('api.unable')} ${i18n.t(`api.messages.${message}`)}`;
   let errorCode = '';
 
   if (error.response) {
@@ -192,8 +193,8 @@ export const getErrorMessage = (section, error, message, displayAlert) => {
 
   // Build message based on presence of valid error code
   const fullMessage = !_.isEmpty(errorCode.toString())
-    ? `${section} section: ${errorMessage}. Error code: ${errorCode}`
-    : `${section} section: ${errorMessage}`;
+    ? `${i18n.t(`api.sections.${section}`)} ${i18n.t('api.section')}: ${errorMessage}. ${i18n.t('api.error')}: ${errorCode}`
+    : `${i18n.t(`api.sections.${section}`)} ${i18n.t('api.section')}: ${errorMessage}`;
 
   displayAlert('error', fullMessage);
 };

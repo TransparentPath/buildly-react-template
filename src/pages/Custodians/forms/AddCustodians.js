@@ -103,8 +103,8 @@ const AddCustodians = ({ history, location }) => {
   const zip = useInput(contactData.postal_code || '', { required: true });
 
   // UI text based on mode (add/edit)
-  const buttonText = editPage ? 'Save' : 'Add Custodian';
-  const formTitle = editPage ? 'Edit Custodian' : 'Add Custodian';
+  const buttonText = editPage ? t('addCustodians.save') : t('addCustodians.addCustodian');
+  const formTitle = editPage ? t('addCustodians.editCustodian') : t('addCustodians.addCustodian');
 
   // Current user's organization
   const organization = getUser().organization.organization_uuid;
@@ -390,13 +390,12 @@ const AddCustodians = ({ history, location }) => {
               {/* Company name field */}
               <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                 <TextField
-                  className="notranslate"
                   variant="outlined"
                   margin="normal"
                   required
                   fullWidth
                   id="company"
-                  label={<span className="translate">Company Name</span>}
+                  label={t('addCustodians.companyName')}
                   name="company"
                   autoComplete="company"
                   error={formError.company && formError.company.error}
@@ -424,7 +423,7 @@ const AddCustodians = ({ history, location }) => {
                   margin="normal"
                   fullWidth
                   id="abbrevation"
-                  label="Abbrevation"
+                  label={t('addCustodians.abbrevation')}
                   name="abbrevation"
                   autoComplete="abbrevation"
                   inputProps={{
@@ -448,15 +447,13 @@ const AddCustodians = ({ history, location }) => {
                   id="custodianType"
                   select
                   required
-                  label="Custodian Type"
+                  label={t('addCustodians.custodianType')}
                   error={formError.custodianType && formError.custodianType.error}
                   helperText={formError.custodianType ? formError.custodianType.message : ''}
                   onBlur={(e) => handleBlur(e, 'required', custodianType, 'custodianType')}
                   {...custodianType.bind}
                 >
-                  <MenuItem value="">
-                    <span className="notranslate">{t('select')}</span>
-                  </MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {custodianTypesData && _.map(_.orderBy(custodianTypesData, ['name'], ['asc']),
                     (item, index) => (
                       <MenuItem
@@ -477,7 +474,7 @@ const AddCustodians = ({ history, location }) => {
                   disabled
                   fullWidth
                   id="glnNumber"
-                  label="GLN Number"
+                  label={t('addCustodians.glnNumber')}
                   name="glnNumber"
                   autoComplete="glnNumber"
                   {...glnNumber.bind}
@@ -489,7 +486,7 @@ const AddCustodians = ({ history, location }) => {
             <Card variant="outlined" className="custodianAddressContainer">
               <CardContent>
                 <Typography variant="h6" gutterBottom mt={1} mb={isMobile() ? 0 : 1.65}>
-                  Contact Info
+                  {t('addCustodians.contactInfo')}
                 </Typography>
 
                 {/* Contact name fields */}
@@ -497,13 +494,12 @@ const AddCustodians = ({ history, location }) => {
                   {/* First name */}
                   <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       margin="normal"
                       required
                       fullWidth
                       id="first_name"
-                      label={<span className="translate">First Name</span>}
+                      label={t('addCustodians.firstName')}
                       name="first_name"
                       autoComplete="first_name"
                       error={formError.first_name && formError.first_name.error}
@@ -516,13 +512,12 @@ const AddCustodians = ({ history, location }) => {
                   {/* Last name */}
                   <Grid className="custodianInputWithTooltip" item xs={12} md={6}>
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       margin="normal"
                       required
                       fullWidth
                       id="last_name"
-                      label={<span className="translate">Last Name</span>}
+                      label={t('addCustodians.lastName')}
                       name="last_name"
                       autoComplete="last_name"
                       error={formError.last_name && formError.last_name.error}
@@ -537,12 +532,11 @@ const AddCustodians = ({ history, location }) => {
                 <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip" item xs={12}>
                     <TextField
-                      className="notranslate"
                       variant="outlined"
                       margin="normal"
                       fullWidth
                       id="email"
-                      label={<span className="translate">Email</span>}
+                      label={t('addCustodians.email')}
                       name="email"
                       autoComplete="email"
                       error={formError.email && formError.email.error}
@@ -556,12 +550,12 @@ const AddCustodians = ({ history, location }) => {
                 {/* Phone number with custom input component */}
                 <Grid container mt={0} spacing={isDesktop() ? 2 : 0}>
                   <Grid className="custodianInputWithTooltip custodianRow" item xs={12}>
-                    <Typography className="custodianPhoneLabel">Phone Number</Typography>
+                    <Typography className="custodianPhoneLabel">{t('addCustodians.phoneNumber')}</Typography>
                     <PhoneInput
                       value={number}
                       onChange={(value) => setNumber(value)}
-                      placeholder="Phone Number"
-                      specialLabel="Phone"
+                      placeholder={t('addCustodians.phoneNumber')}
+                      specialLabel={t('addCustodians.phone')}
                       inputClass={numberFocus ? 'custodianPhoneInputFocused' : 'custodianPhoneInput'}
                       containerClass={numberFocus ? 'custodianPhoneInputContainerFocused' : 'custodianPhoneInputContainer'}
                       buttonClass="custodianFlagDropdown"
@@ -581,7 +575,7 @@ const AddCustodians = ({ history, location }) => {
                       required
                       fullWidth
                       id="address_1"
-                      label="Address Line 1"
+                      label={t('addCustodians.address1')}
                       name="address_1"
                       autoComplete="address_1"
                       value={address1}
@@ -599,7 +593,7 @@ const AddCustodians = ({ history, location }) => {
                   <div className={!_.isEmpty(placePredictions) ? 'custodianAddressPredictions' : ''}>
                     {placePredictions && _.map(placePredictions, (value, index) => (
                       <MenuItem
-                        className="custodianAddressPredictionsItem notranslate"
+                        className="custodianAddressPredictionsItem"
                         key={`custodianState${index}${value}`}
                         value={value.description}
                         onClick={() => {
@@ -621,7 +615,7 @@ const AddCustodians = ({ history, location }) => {
                       margin="normal"
                       fullWidth
                       id="address_2"
-                      label="Address Line 2"
+                      label={t('addCustodians.address2')}
                       name="address_2"
                       autoComplete="address_2"
                       {...address_2.bind}
@@ -637,7 +631,7 @@ const AddCustodians = ({ history, location }) => {
                       margin="normal"
                       fullWidth
                       id="city"
-                      label="City"
+                      label={t('addCustodians.city')}
                       name="city"
                       autoComplete="city"
                       disabled
@@ -650,7 +644,7 @@ const AddCustodians = ({ history, location }) => {
                       margin="normal"
                       fullWidth
                       id="state"
-                      label="State/Province"
+                      label={t('addCustodians.state')}
                       name="state"
                       autoComplete="state"
                       disabled
@@ -667,7 +661,7 @@ const AddCustodians = ({ history, location }) => {
                       margin="normal"
                       fullWidth
                       id="country"
-                      label="Country"
+                      label={t('addCustodians.country')}
                       name="country"
                       autoComplete="country"
                       disabled
@@ -680,7 +674,7 @@ const AddCustodians = ({ history, location }) => {
                       margin="normal"
                       fullWidth
                       id="zip"
-                      label="ZIP/Postal Code"
+                      label={t('addCustodians.zip')}
                       name="zip"
                       autoComplete="zip"
                       disabled
@@ -717,7 +711,7 @@ const AddCustodians = ({ history, location }) => {
                   onClick={discardFormData}
                   className="custodianSubmit"
                 >
-                  Cancel
+                  {t('addCustodians.cancel')}
                 </Button>
               </Grid>
             </Grid>

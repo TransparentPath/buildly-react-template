@@ -25,20 +25,22 @@ import Loader from '@components/Loader/Loader';
 import FormModal from '@components/Modal/FormModal';
 import GraphComponent from '@components/GraphComponent/GraphComponent';
 import { getUser } from '@context/User.context';
-import { REPORT_TYPES } from '@utils/constants';
 import { isDesktop } from '@utils/mediaQuery';
 import ReportGraph from './ReportGraph';
+import { useTranslation } from 'react-i18next';
 
 // Main component for generating and downloading shipment reports
 const GenerateReport = ({
   open, // Boolean state to control visibility of the modal
   setOpen, // Setter function for `open`
+  enabledTilt, // check if tilt is enabled or not
   tableRef, // Ref to the table component
   mapRef, // Ref to the map component
   tempGraphRef, // Ref to temperature graph
   humGraphRef, // Ref to humidity graph
   shockGraphRef, // Ref to shock graph
   lightGraphRef, // Ref to light graph
+  tiltGraphRef, // Ref to tilt graph
   batteryGraphRef, // Ref to battery graph
   alertsTableRef, // Ref to alerts table
   downloadCSV, // Function to trigger CSV download
@@ -46,6 +48,7 @@ const GenerateReport = ({
   reportPDFDownloadMutation, // Mutation function to upload base64 images for PDF generation
   selectedShipment, // Current selected shipment object
 }) => {
+  const { t } = useTranslation();
   const user = getUser(); // Get current user info
   const theme = useTheme(); // Access MUI theme object
   const [openConfirmModal, setConfirmModal] = useState(false); // Confirmation modal state
@@ -118,6 +121,12 @@ const GenerateReport = ({
       if (dataUrl4) base64DataArray.push(dataUrl4);
       if (dataUrl5) base64DataArray.push(dataUrl5);
       if (dataUrl6) base64DataArray.push(dataUrl6);
+
+      if (enabledTilt) {
+        const dataUrl9 = await captureScreenshot(tiltGraphRef);
+        if (dataUrl9) base64DataArray.push(dataUrl9);
+      }
+
       if (dataUrl7) base64DataArray.push(dataUrl7);
       if (dataUrl8) base64DataArray.push(dataUrl8);
     } catch (error) {
@@ -166,7 +175,7 @@ const GenerateReport = ({
       <FormModal
         open={open}
         handleClose={closeFormModal}
-        title="Insights Report"
+        title={t('generateReport.title')}
         openConfirmModal={openConfirmModal}
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
@@ -178,7 +187,7 @@ const GenerateReport = ({
           <Grid container spacing={isDesktop() ? 2 : 0}>
             <Grid className="itemInputWithTooltip" item xs={12}>
               <Typography fontSize={18} fontWeight="500">
-                Choose option(s) for which you want to download:
+                {t('generateReport.prompt')}
               </Typography>
             </Grid>
           </Grid>
@@ -196,7 +205,7 @@ const GenerateReport = ({
                         name="csv"
                       />
                     )}
-                    label="CSV File"
+                    label={t('generateReport.formats.csv')}
                   />
                   <FormControlLabel
                     control={(
@@ -206,7 +215,7 @@ const GenerateReport = ({
                         name="excel"
                       />
                     )}
-                    label="Excel File"
+                    label={t('generateReport.formats.excel')}
                   />
                   {/* Show PDF option only if report download URL exists */}
                   {!_.isEmpty(selectedShipment) && !_.isEmpty(selectedShipment.report_download_url) && (
@@ -218,7 +227,7 @@ const GenerateReport = ({
                           name="pdf"
                         />
                       )}
-                      label="PDF File"
+                      label={t('generateReport.formats.pdf')}
                     />
                   )}
                 </FormGroup>
@@ -237,7 +246,7 @@ const GenerateReport = ({
                 className="generateReportButton"
                 onClick={generatePdfReport}
               >
-                Generate PDF Report
+                {t('generateReport.actions.generatePdf')}
               </Button>
             </Grid>
             {!_.isEmpty(selectedShipment) && (
@@ -253,7 +262,7 @@ const GenerateReport = ({
                     !(selectedFormats.csv || selectedFormats.excel || selectedFormats.pdf)
                   }
                 >
-                  Download
+                  {t('generateReport.actions.download')}
                 </Button>
               </Grid>
             )}
@@ -266,7 +275,7 @@ const GenerateReport = ({
                 className="generateReportButton"
                 onClick={discardFormData}
               >
-                Cancel
+                {t('generateReport.actions.cancel')}
               </Button>
             </Grid>
           </Grid>

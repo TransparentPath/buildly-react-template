@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 // Import a utility for handling and displaying error messages
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to delete an item type.
@@ -44,7 +45,7 @@ export const useDeleteItemTypeMutation = (organization, displayAlert, section) =
         await queryClient.invalidateQueries({
           queryKey: ['itemTypes', organization],
         });
-        displayAlert('success', 'Item type deleted successfully!');
+        displayAlert('success', i18n.t('api.successMessages.Item type deleted successfully!'));
       },
       /**
        * Callback executed if the mutation fails.

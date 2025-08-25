@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for mutation and cache
 import { httpService } from '@modules/http/http.service'; // Custom HTTP request service
 import { getErrorMessage } from '@utils/utilMethods'; // Utility to format and display error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom React hook to handle editing a shipment template.
@@ -49,7 +50,7 @@ export const useEditShipmentTemplateMutation = (
         await queryClient.invalidateQueries({
           queryKey: ['shipmentTemplates', organization],
         });
-        displayAlert('success', `Successfully edited template ${res.name}`);
+        displayAlert('success', `${i18n.t('api.successMessages.Successfully edited template')} ${res.name}`);
       },
       /**
        * Called if the mutation fails.

@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // `useMutation` hook from React Query for handling mutations
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service to make API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to handle error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to synchronize (sync) gateways (trackers) with the API.
@@ -51,7 +52,7 @@ export const useSyncGatewayMutation = (
           queryKey: ['gateways', organization], // Identifies the query for gateways and the organization context
         });
         // Displaying a success message indicating that the trackers have been synced successfully
-        displayAlert('success', 'Successfully synced trackers');
+        displayAlert('success', i18n.t('api.successMessages.Successfully synced trackers'));
       },
       /**
        * onError callback: This function is executed when the mutation (API request) fails.

@@ -8,6 +8,7 @@ import {
   Divider,
   Box,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 // Importing custom styles for the component
 import './TopBarStyles.css';
 
@@ -23,6 +24,8 @@ const AccountMenu = ({
   handlePrivacyClick, // Function to handle clicking on the "Privacy Policy" menu item
   organizationName, // The name of the organization the user works at
 }) => {
+  const { t } = useTranslation();
+
   // handleClose function: This is used to close the menu by setting the anchor element to null
   const handleClose = () => {
     setAnchorEl(null); // Close the menu by resetting the anchor element
@@ -55,7 +58,7 @@ const AccountMenu = ({
           textAlign="center" // Centers the text inside the Box
         >
           {/* Display user's full name (first and last) */}
-          <Typography variant="h6" className="notranslate">
+          <Typography variant="h6">
             {/* Display user's full name if user data is available */}
             {user && `${user.first_name} ${user.last_name}`}
           </Typography>
@@ -67,10 +70,7 @@ const AccountMenu = ({
           {/* Display organization name if available */}
           {organizationName && (
             <Typography variant="body1">
-              Works at:
-              {' '}
-              {/* Display organization name */}
-              <span className="notranslate">{organizationName}</span>
+              {`${t('accountMenu.worksAt')} ${organizationName}`}
             </Typography>
           )}
         </Box>
@@ -79,35 +79,35 @@ const AccountMenu = ({
         {/* MenuItem for "Account & Settings" */}
         <MenuItem onClick={handleAccountSettingsClick} className="topbarAdminMenuRoot">
           {/* Text for the menu item */}
-          <ListItemText primary="Account & Settings" />
+          <ListItemText primary={t('accountMenu.accountSettings')} />
         </MenuItem>
         {/* Divider between menu items */}
         <Divider />
         {/* MenuItem for "What's New?" */}
         <MenuItem onClick={handleWhatsNewClick} className="topbarAdminMenuRoot">
           {/* Text for the menu item */}
-          <ListItemText primary="What's New?" />
+          <ListItemText primary={t('accountMenu.whatsNew')} />
         </MenuItem>
         {/* Divider between menu items */}
         <Divider />
         {/* MenuItem for "About Platform" */}
         <MenuItem onClick={handleAboutClick} className="topbarAdminMenuRoot">
           {/* Text for the menu item */}
-          <ListItemText primary="About Platform" />
+          <ListItemText primary={t('accountMenu.aboutPlatform')} />
         </MenuItem>
         {/* Divider between menu items */}
         <Divider />
         {/* MenuItem for "Privacy Policy" */}
         <MenuItem onClick={handlePrivacyClick} className="topbarAdminMenuRoot">
           {/* Text for the menu item */}
-          <ListItemText primary="Privacy Policy" />
+          <ListItemText primary={t('accountMenu.privacyPolicy')} />
         </MenuItem>
         {/* Divider between menu items */}
         <Divider />
         {/* MenuItem for "Logout" */}
         <MenuItem onClick={handleLogoutClick} className="topbarAdminMenuRoot">
           {/* Text for the menu item */}
-          <ListItemText primary="Logout" />
+          <ListItemText primary={t('accountMenu.logout')} />
         </MenuItem>
       </Menu>
     </div>

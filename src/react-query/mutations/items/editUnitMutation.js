@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { httpService } from '@modules/http/http.service';
 // Utility function to handle and display error messages
 import { getErrorMessage } from '@utils/utilMethods';
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to edit an existing unit of measure.
@@ -48,7 +49,7 @@ export const useEditUnitMutation = (organization, displayAlert, section) => {
         await queryClient.invalidateQueries({
           queryKey: ['unit', organization], // Invalidates the unit cache for the given organization
         });
-        displayAlert('success', 'Unit of measure successfully edited!'); // Show success alert
+        displayAlert('success', i18n.t('api.successMessages.Unit of measure successfully edited!')); // Show success alert
       },
       /**
        * onError callback is called when the mutation fails.

@@ -6,6 +6,7 @@ import {
   ListItemText,
   Divider,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 // Importing custom styles for the component
 import './TopBarStyles.css';
 
@@ -16,6 +17,8 @@ const AdminMenu = ({
   handleUserManagementClick, // Function to handle clicks on the "User Management" menu item
   handleAdminPanelClick, // Function to handle clicks on the "Admin Panel" menu item
 }) => {
+  const { t } = useTranslation();
+
   // handleClose function, used to close the menu when called (sets settingEl to null)
   const handleClose = () => {
     setSettingEl(null); // Reset the anchor element to null, which closes the menu
@@ -41,14 +44,14 @@ const AdminMenu = ({
       {/* Admin Panel menu item */}
       <MenuItem onClick={handleAdminPanelClick} className="topbarAdminMenuRoot">
         {/* The text displayed for this menu item */}
-        <ListItemText primary="Admin Panel" />
+        <ListItemText primary={t('adminMenu.adminPanel')} />
       </MenuItem>
       {/* Divider to separate menu items */}
       <Divider />
       {/* User Management menu item */}
       <MenuItem onClick={handleUserManagementClick} className="topbarAdminMenuRoot">
         {/* The text displayed for this menu item */}
-        <ListItemText primary="User Management" />
+        <ListItemText primary={t('adminMenu.userManagement')} />
       </MenuItem>
     </Menu>
   );

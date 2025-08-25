@@ -92,8 +92,8 @@ const AddItems = ({
   const [formError, setFormError] = useState({});
 
   // UI text based on mode (add/edit)
-  const buttonText = editPage ? 'Save' : 'Add Item';
-  const formTitle = editPage ? 'Edit Item' : 'Add Item';
+  const buttonText = editPage ? t('addItems.save') : t('addItems.addItem');
+  const formTitle = editPage ? t('addItems.editItem') : t('addItems.addItem');
 
   // Current user's organization
   const organization = getUser().organization.organization_uuid;
@@ -325,15 +325,12 @@ const AddItems = ({
             <Grid container spacing={isDesktop() ? 2 : 0}>
               <Grid className="itemInputWithTooltip" item xs={12}>
                 <TextField
-                  className="notranslate"
                   variant="outlined"
                   margin="normal"
                   required
                   fullWidth
                   id="item_name"
-                  label={(
-                    <span className="translate">Item Name</span>
-                  )}
+                  label={t('addItems.itemName')}
                   name="item_name"
                   autoComplete="item_name"
                   error={formError.item_name && formError.item_name.error}
@@ -352,7 +349,7 @@ const AddItems = ({
                   required
                   id="item_type"
                   select
-                  label="Item Type"
+                  label={t('addItems.itemType')}
                   error={formError.item_type && formError.item_type.error}
                   helperText={
                     formError.item_type ? formError.item_type.message : ''
@@ -360,9 +357,7 @@ const AddItems = ({
                   onBlur={(e) => handleBlur(e, 'required', item_type, 'item_type')}
                   {...item_type.bind}
                 >
-                  <MenuItem value="">
-                    <span className="notranslate">{t('select')}</span>
-                  </MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {itemTypesData && _.map(_.orderBy(itemTypesData, ['name'], ['asc']), (item, index) => (
                     <MenuItem
                       key={`itemType${index}:${item.id}`}
@@ -379,7 +374,7 @@ const AddItems = ({
             <Card variant="outlined" className="itemCardItems">
               <CardContent>
                 <Typography variant="h6" gutterBottom mt={1} mb={isMobile() ? 0 : 1.65}>
-                  Product Info
+                  {t('addItems.productInfo')}
                 </Typography>
                 <Grid container spacing={isDesktop() ? 2 : 0}>
                   {/* Product selection autocomplete */}
@@ -397,7 +392,7 @@ const AddItems = ({
                           <TextField
                             {...params}
                             required
-                            label="Product"
+                            label={t('addItems.product')}
                             variant="outlined"
                             margin="normal"
                             fullWidth
@@ -417,7 +412,7 @@ const AddItems = ({
                       multiline
                       rows={4}
                       id="product_desc"
-                      label="Product Description"
+                      label={t('addItems.productDescription')}
                       name="product_desc"
                       autoComplete="product_desc"
                       value={product_desc}
@@ -437,7 +432,7 @@ const AddItems = ({
                       fullWidth
                       disabled
                       id="product_type"
-                      label="Product Type"
+                      label={t('addItems.productType')}
                       value={product_type}
                     />
                   </Grid>
@@ -454,7 +449,7 @@ const AddItems = ({
                       disabled
                       type="number"
                       id="product_value"
-                      label="Product Value"
+                      label={t('addItems.productValue')}
                       value={product_value}
                       InputProps={{
                         startAdornment: (
@@ -487,7 +482,7 @@ const AddItems = ({
                       disabled
                       type="number"
                       id="product_weight"
-                      label="Product Weight"
+                      label={t('addItems.productWeight')}
                       value={product_weight}
                     />
                   </Grid>
@@ -508,7 +503,7 @@ const AddItems = ({
                       fullWidth
                       disabled
                       id="gtin"
-                      label="GTIN"
+                      label={t('addItems.gtin')}
                       name="gtin"
                       autoComplete="gtin"
                       value={gtin}
@@ -527,7 +522,7 @@ const AddItems = ({
                       fullWidth
                       disabled
                       id="upc"
-                      label="UPC"
+                      label={t('addItems.upc')}
                       name="upc"
                       autoComplete="upc"
                       value={upc}
@@ -546,7 +541,7 @@ const AddItems = ({
                       fullWidth
                       disabled
                       id="ean"
-                      label="EAN"
+                      label={t('addItems.ean')}
                       name="ean"
                       autoComplete="ean"
                       value={ean}
@@ -565,7 +560,7 @@ const AddItems = ({
                       fullWidth
                       disabled
                       id="paper_tag_no"
-                      label="Paper Tag Number"
+                      label={t('addItems.paperTagNumber')}
                       name="paper_tag_no"
                       autoComplete="paper_tag_no"
                       value={paper_tag_no}
@@ -584,7 +579,7 @@ const AddItems = ({
                       fullWidth
                       disabled
                       id="batch_id"
-                      label="Batch/Run ID"
+                      label={t('addItems.batchRunId')}
                       name="batch_id"
                       autoComplete="batch_id"
                       value={batch_id}
@@ -603,7 +598,7 @@ const AddItems = ({
                       fullWidth
                       disabled
                       id="bin_id"
-                      label="BIN ID"
+                      label={t('addItems.binId')}
                       name="bin_id"
                       autoComplete="bin_id"
                       value={bin_id}
@@ -629,7 +624,7 @@ const AddItems = ({
                   required
                   id="units"
                   type="number"
-                  label="# of Units"
+                  label={t('addItems.numberOfUnits')}
                   value={units}
                   onChange={(e) => onNumberOfUnitsChange(e)}
                 />
@@ -648,7 +643,7 @@ const AddItems = ({
                   disabled
                   type="number"
                   id="item_value"
-                  label="Item Value"
+                  label={t('addItems.itemValue')}
                   value={item_value}
                   InputProps={{
                     startAdornment: (
@@ -675,7 +670,7 @@ const AddItems = ({
                   disabled
                   type="number"
                   id="item_weight"
-                  label="Item Weight"
+                  label={t('addItems.itemWeight')}
                   value={item_weight}
                 />
               </Grid>
@@ -707,7 +702,7 @@ const AddItems = ({
                   onClick={discardFormData}
                   className="itemSubmit"
                 >
-                  Cancel
+                  {t('addItems.cancel')}
                 </Button>
               </Grid>
             </Grid>

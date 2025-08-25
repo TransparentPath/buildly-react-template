@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import _ from 'lodash';
 import { Container } from '@mui/material';
@@ -22,10 +22,31 @@ import PrivacyPolicy from '@pages/PrivacyPolicy/PrivacyPolicy';
 import CookieConsent from '@components/CookieConsent/CookieConsent';
 import { useAutoLogout } from '@hooks/useAutoLogout';
 import { oauthService } from '@modules/oauth/oauth.service';
+import { LANGUAGES } from '@utils/mock';
+import i18n from '../../i18n/index';
 
 const ContainerDashboard = ({ location, history }) => {
   // Fetching the current user data using the getUser function from context
   const userData = getUser();
+
+  // Set localStorage language based on LANGUAGES and userData.user_language
+  // Set localStorage language and i18n language based on LANGUAGES and userData.user_language
+  useEffect(() => {
+    if (userData && userData.user_language) {
+      const langObj = LANGUAGES.find((l) => l.label === userData.user_language);
+      if (langObj && langObj.value) {
+        const currentLang = localStorage.getItem('language');
+        if (currentLang !== langObj.value) {
+          localStorage.setItem('language', langObj.value);
+          // Set i18n language directly only if different
+          if (i18n && typeof i18n.changeLanguage === 'function' && i18n.language !== langObj.value) {
+            i18n.changeLanguage(langObj.value);
+          }
+        }
+      }
+    }
+  }, [userData]);
+
   // useState hook to manage the visibility of the navigation bar (whether it's hidden or not)
   const [navHidden, setNavHidden] = useState(false);
 

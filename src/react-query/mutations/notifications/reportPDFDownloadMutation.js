@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from 'react-query'; // React Query hooks 
 import _ from 'lodash'; // Utility library for handling data manipulations (not currently used in this snippet)
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to handle and display error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to initiate a PDF report generation and handle its download.
@@ -37,7 +38,7 @@ export const useReportPDFDownloadMutation = (
      */
     async (reportPDFData) => {
       // Notify the user that the report generation is in progress
-      displayAlert('info', 'PDF Report (Processing may take several minutes)');
+      displayAlert('info', i18n.t('api.infoMessages.PDF Report (Processing may take several minutes)'));
       // Make the POST request to the report generation endpoint
       const response = await httpService.makeRequestWithoutHeaders(
         'post', // HTTP method
@@ -57,7 +58,7 @@ export const useReportPDFDownloadMutation = (
        */
       onSuccess: async () => {
         // Show a success message when the report is ready for download
-        displayAlert('success', 'You can now download the report');
+        displayAlert('success', i18n.t('api.successMessages.You can now download the report'));
         // Invalidate the 'shipments' query to refresh shipment data and ensure the UI shows the latest info
         await queryClient.invalidateQueries({
           queryKey: ['shipments', shipmentFilter, locShipmentID, organization],

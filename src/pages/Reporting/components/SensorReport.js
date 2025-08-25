@@ -29,6 +29,7 @@ const SensorReport = (props) => {
     timezone, // Timezone info (could be used for formatting)
     downloadCSV, // Handler for downloading CSV
     downloadExcel, // Handler for downloading Excel
+    enabled_tilt,
   } = props;
 
   // Local state to manage data rows and selection
@@ -100,12 +101,9 @@ const SensorReport = (props) => {
             className="reportingSensorReportTitle"
             variant="h5"
           >
-            {shipmentName ? (
-              <>
-                <span>Sensor Report - Shipment: </span>
-                <span className="notranslate">{shipmentName}</span>
-              </>
-            ) : 'Sensor Report'}
+            {shipmentName
+              ? `${t('sensorReport.title.shipmentPrefix')} ${shipmentName}`
+              : t('sensorReport.title.base')}
           </Typography>
         </div>
 
@@ -113,9 +111,9 @@ const SensorReport = (props) => {
         <DataTableWrapper
           noSpace // Custom prop to reduce padding/margin
           hideAddButton // Hides the default add button
-          filename="SensorReportData" // Export filename
+          filename={t('sensorReport.export.filename')} // Export filename
           rows={rows} // Row data for the table
-          columns={SENSOR_REPORT_COLUMNS(unitOfMeasure, selectedShipment, t)} // Columns configured with UOM and shipment info
+          columns={SENSOR_REPORT_COLUMNS(unitOfMeasure, selectedShipment, enabled_tilt, t)} // Columns configured with UOM and shipment info
           selectable={{
             rows: 'multiple', // Allow multiple row selection
             rowsHeader: false, // No selection checkbox in header
@@ -128,13 +126,15 @@ const SensorReport = (props) => {
             customToolbar: () => (
               <>
                 <Typography variant="caption" className="reportingSensorTableTitle">
-                  <span style={{ fontStyle: 'italic', fontWeight: '700' }}>bold/italic alerts</span>
+                  <span style={{ fontStyle: 'italic', fontWeight: '700' }}>
+                    {t('sensorReport.toolbar.legendEmphasis')}
+                  </span>
                   {' '}
-                  indicates alerts outside of selected transmission
+                  {t('sensorReport.toolbar.legendExplanation')}
                 </Typography>
 
                 {/* Download icon with menu options */}
-                <Tooltip title={t('download_option')} placement="bottom">
+                <Tooltip title={t('sensorReport.download.tooltip')} placement="bottom">
                   <IconButton className="reportingSensorTableExcelDownload" onClick={handleMenuOpen}>
                     <DownloadIcon />
                   </IconButton>
@@ -148,7 +148,7 @@ const SensorReport = (props) => {
                       handleMenuClose(); // Close menu
                     }}
                   >
-                    Download CSV
+                    {t('sensorReport.download.csv')}
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
@@ -156,7 +156,7 @@ const SensorReport = (props) => {
                       handleMenuClose(); // Close menu
                     }}
                   >
-                    Download Excel
+                    {t('sensorReport.download.excel')}
                   </MenuItem>
                 </Menu>
               </>

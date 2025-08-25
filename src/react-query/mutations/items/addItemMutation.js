@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for managing mutation and query invalidation
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to handle errors
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for adding a new item to a shipment.
@@ -50,7 +51,7 @@ export const useAddItemMutation = (
           queryKey: ['items', organization],
         });
         // Display success alert with a message
-        displayAlert('success', 'Successfully added item');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added item'));
         // Redirect to the specified path after successful creation
         if (history && redirectTo) {
           history.push(redirectTo); // Use history to navigate programmatically

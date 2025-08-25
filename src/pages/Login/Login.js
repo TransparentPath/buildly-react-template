@@ -15,6 +15,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import logo from '@assets/tp-logo.png';
 import Copyright from '@components/Copyright/Copyright';
 import Loader from '@components/Loader/Loader';
@@ -28,6 +29,8 @@ import { useLoginMutation } from '@react-query/mutations/authUser/loginMutation'
 import './LoginStyles.css';
 
 const Login = ({ history }) => {
+  const { t } = useTranslation();
+
   // Manage the input fields for email and password using custom hooks
   const email = useInput(localStorage.getItem('email') || '', { required: true });
   const password = useInput('', { required: true });
@@ -145,19 +148,19 @@ const Login = ({ history }) => {
         <CardContent>
           <div className="loginPaper">
             {/* Logo image for the login page */}
-            <img src={logo} className="loginLogo" alt="Company logo" />
+            <img src={logo} className="loginLogo" alt={t('login.logoAlt')} />
             {/* Login heading */}
-            <Typography component="h1" variant="h5">Sign in</Typography>
+            <Typography component="h1" variant="h5">{t('login.title')}</Typography>
             <form className="loginForm" noValidate onSubmit={handleSubmit}>
               {/* Email input field */}
               <TextField
-                className="loginTextField notranslate"
+                className="loginTextField"
                 variant="outlined"
                 margin="normal"
                 required
                 fullWidth
                 id="email"
-                label={<span className="translate">Email</span>}
+                label={t('login.email')}
                 name="email"
                 autoComplete="email"
                 error={isLoginError || (error.email && error.email.error)} // Show error if login failed or validation failed
@@ -172,7 +175,7 @@ const Login = ({ history }) => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={t('login.password')}
                 type={showPassword ? 'text' : 'password'} // Toggle between password and text field
                 id="password"
                 autoComplete="current-password"
@@ -198,7 +201,7 @@ const Login = ({ history }) => {
               {/* Error message for incorrect email/password */}
               {isLoginError && (
                 <Typography className="loginErrorText">
-                  Incorrect email or password. Try again!
+                  {t('login.errorInvalidCredentials')}
                 </Typography>
               )}
               {/* Submit button */}
@@ -210,7 +213,7 @@ const Login = ({ history }) => {
                 style={{ marginTop: 8, marginBottom: 16 }}
                 disabled={isPasswordCheck || islogin || submitDisabled()} // Disable button if loading or validation fails
               >
-                Sign in
+                {t('login.signIn')}
               </Button>
               <Grid container alignItems="center">
                 <Grid item xs={7}>
@@ -223,17 +226,13 @@ const Login = ({ history }) => {
                         color="primary"
                       />
                     )}
-                    label="Remember Email"
+                    label={t('login.rememberEmail')}
                   />
                 </Grid>
                 <Grid item xs={5} style={{ textAlign: 'end' }}>
                   {/* Forgot password link */}
-                  <Link
-                    to={routes.RESET_PASSWORD}
-                    variant="body2"
-                    color="primary"
-                  >
-                    Forgot Password?
+                  <Link to={routes.RESET_PASSWORD} variant="body2" color="primary">
+                    {t('login.forgotPassword')}
                   </Link>
                 </Grid>
               </Grid>

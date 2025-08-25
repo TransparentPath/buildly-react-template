@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for handling mutations and managing cache
 import { httpService } from '@modules/http/http.service'; // Custom service for HTTP requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to format and display error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to delete an organization type using a mutation.
@@ -30,7 +31,7 @@ export const useDeleteOrganizationTypeMutation = (displayAlert, section) => {
           queryKey: ['organizationTypes'], // Query key corresponding to the list of organization types
         });
         // Show a success alert to inform the user
-        displayAlert('success', 'Organization type deleted successfully!');
+        displayAlert('success', i18n.t('api.successMessages.Organization type deleted successfully!'));
       },
       // Called when the mutation fails with an error
       onError: (error) => {

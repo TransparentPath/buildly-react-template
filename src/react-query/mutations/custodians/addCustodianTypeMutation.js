@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service to make API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for error handling
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for adding a new custodian type.
@@ -41,7 +42,7 @@ export const useAddCustodianTypeMutation = (history, redirectTo, displayAlert, s
           queryKey: ['custodianTypes'], // Invalidate the 'custodianTypes' query to refresh the data
         });
         // Display a success alert
-        displayAlert('success', 'Successfully added custodian type');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added custodian type'));
         // Redirect the user to the specified path if history and redirectTo are provided
         if (history && redirectTo) {
           history.push(redirectTo);

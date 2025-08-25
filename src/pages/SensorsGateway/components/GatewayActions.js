@@ -176,12 +176,10 @@ const GatewayActions = ({
           variant="outlined"
           id="gateway_actions"
           select
-          label="Actions"
+          label={t('gatewayActions.actions')}
           {...gateway_action.bind}
         >
-          <MenuItem value="">
-            <span className="notranslate">{t('select')}</span>
-          </MenuItem>
+          <MenuItem value="">{t('common.select')}</MenuItem>
           {_.map(GATEWAY_ACTIONS, (item, index) => {
             if (_.isEqual(_.size(selectedRows), 1) && !_.isEqual(item.value, 'Remove Tracker')) {
               return null;
@@ -191,7 +189,7 @@ const GatewayActions = ({
                 key={`gatewayAction${index}:${item.id}`}
                 value={item.value}
               >
-                {item.label}
+                {t(`gatewayActions.${item.label}`)}
               </MenuItem>
             );
           })}
@@ -204,7 +202,7 @@ const GatewayActions = ({
           disabled={!!_.isEmpty(gateway_action.value)}
           onClick={() => setShowGatewayAction(true)}
         >
-          OK
+          {t('common.ok')}
         </Button>
       </Grid>
 
@@ -212,7 +210,7 @@ const GatewayActions = ({
       <FormModal
         open={showGatewayAction}
         handleClose={closeFormModal}
-        title="Tracker Action"
+        title={t('gatewayActions.trackerAction')}
         openConfirmModal={openConfirmModal}
         setConfirmModal={setConfirmModal}
         handleConfirmModal={discardFormData}
@@ -223,13 +221,12 @@ const GatewayActions = ({
             {/* Disabled field showing selected tracker names */}
             <Grid className="gatewayInputWithTooltip" item xs={12}>
               <TextField
-                className="notranslate"
                 variant="outlined"
                 margin="normal"
                 required
                 fullWidth
                 id="selectedTrackers"
-                label={<span className="translate">Selected Trackers</span>}
+                label={t('gatewayActions.selectedTrackers')}
                 disabled
                 multiline
                 value={selectedRows.map((tracker) => tracker.name).join('\n')}
@@ -249,15 +246,13 @@ const GatewayActions = ({
                   required
                   id="changeStatus"
                   select
-                  label="Change Status"
+                  label={t('gatewayActions.changeStatus')}
                   error={formError.changeStatus && formError.changeStatus.error}
                   helperText={formError.changeStatus ? formError.changeStatus.message : ''}
                   onBlur={(e) => handleBlur(e, 'required', change_status, 'changeStatus')}
                   {...change_status.bind}
                 >
-                  <MenuItem value="">
-                    <span className="notranslate">{t('select')}</span>
-                  </MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {GATEWAY_STATUS
                     && _.map(
                       GATEWAY_STATUS,
@@ -266,7 +261,7 @@ const GatewayActions = ({
                           key={`gatewayStatus${index}:${item.value}`}
                           value={item.value}
                         >
-                          {item.name}
+                          {t(`gatewayActions.${item.name}`)}
                         </MenuItem>
                       ),
                     )}
@@ -283,16 +278,14 @@ const GatewayActions = ({
                   required
                   id="assignShipper"
                   select
-                  label="Assign Shipper"
+                  label={t('gatewayActions.assignShipper')}
                   error={formError.assignShipper && formError.assignShipper.error}
                   helperText={formError.assignShipper ? formError.assignShipper.message : ''}
                   onBlur={(e) => handleBlur(e, 'required', assignShipper, 'assignShipper')}
                   value={assignShipper}
                   onChange={onInputChange}
                 >
-                  <MenuItem value="">
-                    <span className="notranslate">{t('select')}</span>
-                  </MenuItem>
+                  <MenuItem value="">{t('common.select')}</MenuItem>
                   {custodianList
                     && _.map(
                       _.orderBy(
@@ -315,7 +308,7 @@ const GatewayActions = ({
 
             {_.isEqual(gateway_action.value, 'Remove Tracker') && (
               <Typography ml={2}>
-                Are you sure you want to remove these above tracker(s) from the organization?
+                {t('gatewayActions.removeConfirm')}
               </Typography>
             )}
           </Grid>
@@ -331,7 +324,7 @@ const GatewayActions = ({
                 className="gatewaySubmit"
                 disabled={isEditingGateway || submitDisabled()}
               >
-                Save
+                {t('gatewayActions.save')}
               </Button>
             </Grid>
             <Grid item xs={12} sm={4} className="gatewaySubmit2">
@@ -343,7 +336,7 @@ const GatewayActions = ({
                 onClick={discardFormData}
                 className="gatewaySubmit"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </Grid>
           </Grid>

@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service to make API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function for error handling
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for deleting a custodian and its associated contact.
@@ -50,7 +51,7 @@ export const useDeleteCustodianMutation = (organization, displayAlert, section) 
           queryKey: ['contact', organization],
         });
         // Display a success alert
-        displayAlert('success', 'Custodian deleted successfully!');
+        displayAlert('success', i18n.t('api.successMessages.Custodian deleted successfully!'));
       },
       /**
        * Callback executed if an error occurs during the mutation.

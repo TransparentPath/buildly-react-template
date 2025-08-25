@@ -1,10 +1,12 @@
 /* eslint-disable no-alert */
 import { useEffect, useRef } from 'react';
 import { routes } from '@routes/routesConstants'; // Adjust if necessary
+import { useTranslation } from 'react-i18next';
 
 export const useAutoLogout = (logoutFn, history) => {
   const timerRef = useRef(null);
   const hasLoggedOutRef = useRef(false); // Prevent double logout
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleSessionExpiration = () => {
@@ -27,7 +29,7 @@ export const useAutoLogout = (logoutFn, history) => {
               });
             });
           }
-          alert('You have been logged out due to session expiration. Please log in again.');
+          alert(t('alerts.sessionExpiredAlert'));
           history.push(routes.LOGIN);
         }
       }

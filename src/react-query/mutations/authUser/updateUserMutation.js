@@ -3,7 +3,7 @@ import { useMutation } from 'react-query'; // React Query hook for mutations
 import { httpService } from '@modules/http/http.service'; // Custom HTTP request service
 import { oauthService } from '@modules/oauth/oauth.service'; // OAuth service for user session management
 import { getErrorMessage } from '@utils/utilMethods'; // Utility to format and display errors
-
+import i18n from '../../../i18n/index';
 /**
  * Custom hook to update user profile and organization details.
  *
@@ -62,19 +62,13 @@ export const useUpdateUserMutation = (
     onSuccess: (data) => {
       // If the user's language is changed, alert and reload the page to apply the changes
       if (history) {
-        if (data.user_language) {
-          // Notify the user that the language change requires a page reload
-          // eslint-disable-next-line no-alert
-          alert('Detected language change. So need to reload the website. It might take a little while for this.');
-          window.location.reload(); // Reload the page to apply language settings
-        }
         // Redirect user to the home page and then back to the current route
         const route = window.location.pathname;
         history.push('/');
         history.push(route);
       } else {
         // If no history object is available, just display a success message
-        displayAlert('success', 'Account details successfully updated');
+        displayAlert('success', i18n.t('api.successMessages.Account details successfully updated'));
       }
     },
     /**

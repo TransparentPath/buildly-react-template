@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hooks for mutations and cache management
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
 import { getErrorMessage } from '@utils/utilMethods'; // Utility function to handle and extract error messages
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook to edit a gateway type.
@@ -39,7 +40,7 @@ export const useEditGatewayTypeMutation = (history, redirectTo, displayAlert, se
         await queryClient.invalidateQueries({
           queryKey: ['gatewayTypes'], // Invalidates the query to ensure the data is updated
         });
-        displayAlert('success', 'Tracker type successfully edited!');
+        displayAlert('success', i18n.t('api.successMessages.Tracker type successfully edited!'));
         if (history && redirectTo) {
           history.push(redirectTo); // Redirects to the specified route if provided
         }

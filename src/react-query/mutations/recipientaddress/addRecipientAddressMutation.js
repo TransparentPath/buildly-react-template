@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query'; // React Query hook for handling mutations (async actions like POST, PATCH, DELETE)
 import { httpService } from '@modules/http/http.service'; // Custom HTTP service for making API requests
+import i18n from '../../../i18n/index';
 
 /**
  * Custom hook for adding a recipient address.
@@ -48,7 +49,7 @@ export const useAddRecipientAddressMutation = (history, redirectTo, displayAlert
           queryKey: ['recipientAddresses'],
         });
         // Displaying a success message
-        displayAlert('success', 'Successfully added recipient address');
+        displayAlert('success', i18n.t('api.successMessages.Successfully added recipient address'));
         // Redirecting to the specified route if provided
         if (history && redirectTo) {
           history.push(redirectTo);
@@ -63,7 +64,7 @@ export const useAddRecipientAddressMutation = (history, redirectTo, displayAlert
        */
       onError: (error, variables) => {
         // Displaying an error message if the recipient already exists
-        displayAlert('error', `Recipient ${variables.name} might already exist. Please cross-check.`);
+        displayAlert('error', i18n.t('recipientExists', { name: variables.name }));
       },
     },
   );

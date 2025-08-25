@@ -51,8 +51,10 @@ export const TIVE_GATEWAY_TIMES = [
   { value: 30, label: '30 Minutes', short_label: '30 Min.' },
   { value: 60, label: '1 Hour', short_label: '1 Hr.' },
   { value: 120, label: '2 Hours', short_label: '2 Hrs.' },
+  { value: 240, label: '4 Hours', short_label: '4 Hrs.' },
   { value: 360, label: '6 Hours', short_label: '6 Hrs.' },
   { value: 720, label: '12 Hours', short_label: '12 Hrs.' },
+  { value: 1440, label: '24 Hours', short_label: '24 Hrs.' },
 ];
 
 /**

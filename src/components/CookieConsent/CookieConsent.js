@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash'; // Utility library for deep checks and object handling
 import moment from 'moment-timezone'; // Library for date/time manipulation with timezone support
 import { Grid, Typography, Button } from '@mui/material'; // MUI components for layout and UI
@@ -11,6 +12,7 @@ import { routes } from '@routes/routesConstants'; // Predefined route constants 
 import './CookieConsentStyles.css'; // Custom styles for this component
 
 const CookieConsent = () => {
+  const { t } = useTranslation();
   const history = useHistory(); // Used for navigating to privacy policy
   const user = getUser(); // Get current logged-in user object
   const [visible, setVisible] = useState(false); // State to toggle visibility of the cookie banner
@@ -24,23 +26,16 @@ const CookieConsent = () => {
    * - If it's missing, we show the banner
    */
   useEffect(() => {
+    let shouldShow = true;
     if (user) {
       if (!_.isEmpty(user.last_gdpr_shown)) {
         const nextGdprShown = moment(user.last_gdpr_shown).add(1, 'year');
-        if (moment().unix() > nextGdprShown.unix()) {
-          // Show banner if last shown date is older than a year
-          setVisible(true);
-        } else {
-          // Otherwise hide it
-          setVisible(false);
-        }
-      } else {
-        // Show banner if `last_gdpr_shown` is empty
-        setVisible(true);
+        shouldShow = moment().unix() > nextGdprShown.unix();
       }
-    } else {
-      // Show banner if user data isn't loaded yet
-      setVisible(true);
+    }
+    // Only update state if value actually changes
+    if (visible !== shouldShow) {
+      setVisible(shouldShow);
     }
   }, [user]);
 
@@ -69,28 +64,23 @@ const CookieConsent = () => {
           {isUpdateUser && <Loader open={isUpdateUser} />}
           {/* Header Text */}
           <Grid item xs={12}>
-            <Typography variant="h6">We value your privacy</Typography>
+            <Typography variant="h6">{t('cookieConsent.header')}</Typography>
           </Grid>
           {/* Main GDPR Explanation */}
           <Grid item xs={12}>
             <Typography variant="body1" paragraph>
-              We use necessary cookies to make our site work and improve your experience on our website.
-              Necessary cookies enable core functionality such as security, network management, and
-              accessibility. We may store and/or access information on a device and process personal
-              data. Additionally, we may utilize precise geolocation data and identification. You may
-              disable these by changing your browser settings, but this may affect how the website
-              functions.
+              {t('cookieConsent.body')}
             </Typography>
           </Grid>
           {/* Privacy Policy Link */}
           <Grid item xs={12}>
             <Typography variant="body1" paragraph>
-              For more information about the cookies we collect, see our
+              {t('cookieConsent.privacyPrefix')}
               {' '}
               <Button className="cookieButton" onClick={() => history.push(routes.PRIVACY_POLICY)}>
-                Privacy Policy
+                {t('cookieConsent.privacyPolicy')}
               </Button>
-              .
+              {t('cookieConsent.privacySuffix')}
             </Typography>
           </Grid>
           {/* Accept Button */}
@@ -100,7 +90,7 @@ const CookieConsent = () => {
             color="primary"
             onClick={() => handleSubmit()}
           >
-            Accept
+            {t('cookieConsent.accept')}
           </Button>
           {/* Decline Button (currently behaves the same as accept — can be enhanced later) */}
           <Button
@@ -110,7 +100,7 @@ const CookieConsent = () => {
             onClick={() => handleSubmit()}
             style={{ marginLeft: 16 }}
           >
-            Decline
+            {t('cookieConsent.decline')}
           </Button>
         </Grid>
       ) : null}
