@@ -2085,6 +2085,72 @@ export const newGatewayColumns = (t) => ([
   },
 ]);
 
+// Returns column definitions for all devices view
+export const getAllDevicesColumns = (t) => ([
+  {
+    name: 'tracker_identifier',
+    label: 'Tracker Identifier',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'organization',
+    label: 'Organization',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'tracker_status',
+    label: 'Tracker Status',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => {
+        const statusClass = value === 'Available' ? 'statusAvailable' : 'statusUnavailable';
+        return (
+          <span className={statusClass}>
+            {value}
+          </span>
+        );
+      },
+    },
+  },
+  {
+    name: 'battery',
+    label: 'Battery',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: false,
+    },
+  },
+  {
+    name: 'tracker_type',
+    label: 'Tracker Type',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'battery_type',
+    label: 'Battery Type',
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+]);
+
 // Formats gateway row data by enriching it with readable values for type, shipment, and custodian
 export const getGatewayFormattedRow = (data, gatewayTypeList, shipmentData, custodianData) => {
   if (

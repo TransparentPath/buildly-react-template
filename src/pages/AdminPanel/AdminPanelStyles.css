@@ -164,3 +164,22 @@
 .recipientAddressPredictionsItem:last-child {
   border-bottom: 0px;
 }
+
+/* Device Status Styles */
+.statusAvailable {
+  background-color: #4caf50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.statusUnavailable {
+  background-color: #f44336;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
