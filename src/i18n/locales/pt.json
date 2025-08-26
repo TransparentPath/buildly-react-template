@@ -464,11 +464,15 @@
     "cancel": "Cancelar"
   },
   "adminTrackers": {
-    "newDevices": "Novos Dispositivos",
-    "reuseDevices": "Reutilizar Dispositivos",
-    "uploadNewDevices": "Enviar Novos Dispositivos",
-    "uploadReusedDevices": "Enviar Dispositivos Reutilizados",
-    "trackerIdentifier": "Identificador do Rastreador"
+    "allDevices": "Todos os dispositivos",
+    "uploadNewDevices": "Carregar novos dispositivos",
+    "availableDevices": "Dispositivos disponíveis/indisponíveis",
+    "assignedDevices": "Dispositivos atribuídos",
+    "trackerIdentifier": "Identificador do Rastreador",
+    "organization": "Organização",
+    "trackerStatus": "Status do Rastreador",
+    "battery": "Bateria",
+    "trackerType": "Tipo de Rastreador"
   },
   "trackerOrder": {
     "repeatOrder": "Repetir Pedido",

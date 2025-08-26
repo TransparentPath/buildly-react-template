@@ -88,6 +88,7 @@
 }
 
 .adminPanelNumberInput input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 
@@ -140,8 +141,42 @@
 }
 
 /* Trackers Styles */
-.adminTrackersButton {
-  margin: 0px 0px 16px;
+.adminTrackersNewDevicesButton {
+  margin: 16px 0;
+  border-radius: 8px;
+}
+
+.adminTrackersDatatable {
+  margin-top: -32px;
+  margin-bottom: 24px;
+}
+
+.adminTrackersSubmitButton {
+  margin-left: 20px;
+  margin-top: 8px;
+}
+
+.adminTrackersUnavailable {
+  background-color: var(--color-palette-background-light);
+  width: 50%;
+  padding: 4px 16px;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.adminTrackersAvailable {
+  background-color: var(--color-palette-success-main);
+  width: 50%;
+  padding: 4px 16px;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.adminTrackersAssigned {
+  background-color: var(--color-palette-info-main);
+  width: 50%;
+  padding: 4px 16px;
+  text-align: center;
   border-radius: 8px;
 }
 

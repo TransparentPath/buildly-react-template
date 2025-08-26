@@ -464,11 +464,15 @@
     "cancel": "キャンセル"
   },
   "adminTrackers": {
-    "newDevices": "新しいデバイス",
-    "reuseDevices": "デバイスを再利用",
-    "uploadNewDevices": "新しいデバイスをアップロード",
-    "uploadReusedDevices": "再利用デバイスをアップロード",
-    "trackerIdentifier": "トラッカー識別子"
+    "allDevices": "すべてのデバイス",
+    "uploadNewDevices": "新しいデバイスをアップロードする",
+    "availableDevices": "利用可能/利用できないデバイス",
+    "assignedDevices": "割り当てられたデバイス",
+    "trackerIdentifier": "トラッカー識別子",
+    "organization": "組織",
+    "trackerStatus": "トラッカーのステータス",
+    "battery": "バッテリー",
+    "trackerType": "トラッカーの種類"
   },
   "trackerOrder": {
     "repeatOrder": "再注文",

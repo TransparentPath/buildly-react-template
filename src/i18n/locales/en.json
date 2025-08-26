@@ -464,11 +464,15 @@
     "cancel": "Cancel"
   },
   "adminTrackers": {
-    "newDevices": "New Devices",
-    "reuseDevices": "Reuse Devices",
+    "allDevices": "All Devices",
     "uploadNewDevices": "Upload New Devices",
-    "uploadReusedDevices": "Upload Reused Devices",
-    "trackerIdentifier": "Tracker Identifier"
+    "availableDevices": "Available/Unavailable Devices",
+    "assignedDevices": "Assigned Devices",
+    "trackerIdentifier": "Tracker Identifier",
+    "organization": "Organization",
+    "trackerStatus": "Tracker Status",
+    "battery": "Battery",
+    "trackerType": "Tracker Type"
   },
   "trackerOrder": {
     "repeatOrder": "Repeat Order",

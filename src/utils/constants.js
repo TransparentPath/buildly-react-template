@@ -2072,11 +2072,52 @@ export const gatewayColumns = (timezone, dateFormat, theme, t) => ([
   },
 ]);
 
-// Returns minimal column definition for new gateways view
-export const newGatewayColumns = (t) => ([
+// Returns minimal column definition for all devices view
+export const allDevicesColumns = (t) => ([
   {
     name: 'name',
     label: t('adminTrackers.trackerIdentifier'),
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: '_organization',
+    label: t('adminTrackers.organization'),
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'gateway_status',
+    label: t('adminTrackers.trackerStatus'),
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => {
+        const className = `adminTrackers${_.capitalize(value)}`;
+        return <div className={className}>{value && value !== '-' ? _.capitalize(value) : value}</div>;
+      },
+    },
+  },
+  {
+    name: 'last_known_battery_level',
+    label: t('adminTrackers.battery'),
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => (!_.includes([null, undefined, 'None'], value) ? `${value}%` : 'N/A'),
+    },
+  },
+  {
+    name: '_type',
+    label: t('adminTrackers.trackerType'),
     options: {
       sort: true,
       sortThirdClickReset: true,

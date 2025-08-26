@@ -464,11 +464,15 @@
     "cancel": "Abbrechen"
   },
   "adminTrackers": {
-    "newDevices": "Neue Geräte",
-    "reuseDevices": "Geräte wiederverwenden",
-    "uploadNewDevices": "Neue Geräte hochladen",
-    "uploadReusedDevices": "Wiederverwendete Geräte hochladen",
-    "trackerIdentifier": "Tracker-Bezeichner"
+    "allDevices": "Alle Geräte",
+    "uploadNewDevices": "Laden Sie neue Geräte hoch",
+    "availableDevices": "Verfügbare/Nicht verfügbare Geräte",
+    "assignedDevices": "Zugewiesene Geräte",
+    "trackerIdentifier": "Tracker-ID",
+    "organization": "Organisation",
+    "trackerStatus": "Tracker-Status",
+    "battery": "Batterie",
+    "trackerType": "Tracker-Typ"
   },
   "trackerOrder": {
     "repeatOrder": "Bestellung wiederholen",

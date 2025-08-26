@@ -465,11 +465,15 @@
     "cancel": "إلغاء"
   },
   "adminTrackers": {
-    "newDevices": "أجهزة جديدة",
-    "reuseDevices": "إعادة استخدام الأجهزة",
+    "allDevices": "جميع الأجهزة",
     "uploadNewDevices": "تحميل أجهزة جديدة",
-    "uploadReusedDevices": "تحميل أجهزة معاد استخدامها",
-    "trackerIdentifier": "معرّف جهاز التتبع"
+    "availableDevices": "الأجهزة المتاحة/غير المتاحة",
+    "assignedDevices": "الأجهزة المخصصة",
+    "trackerIdentifier": "معرف المتعقب",
+    "organization": "منظمة",
+    "trackerStatus": "حالة المتتبع",
+    "battery": "بطارية",
+    "trackerType": "نوع المتتبع"
   },
   "trackerOrder": {
     "repeatOrder": "إعادة الطلب",
