@@ -819,7 +819,9 @@
     "unsavedConfirm": "Sus cambios no se han guardado y se descartarán. ¿Está seguro de salir?"
   },
   "alerts": {
-    "sessionExpiredAlert": "Has sido desconectado debido a la expiración de la sesión. Por favor, inicia sesión de nuevo.",
+    "sessionExpiredTitle": "Sesión finalizada por seguridad",
+    "sessionExpiredAlert": "Para proteger los datos de su envío, ha cerrado sesión. Inicie sesión para continuar.",
+    "sessionExpiredButton": "Acceso",
     "newVersionAlert": "Nueva versión disponible de la aplicación. La página se recargará automáticamente para pasar a la última versión de la aplicación."
   },
   "cookieConsent": {

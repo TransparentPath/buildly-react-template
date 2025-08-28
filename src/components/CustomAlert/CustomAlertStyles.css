@@ -1,0 +1,10 @@
+/* Custom Alert Dialog Styles */
+
+.customAlert {
+  z-index: 9999;
+}
+
+.customAlertPaper {
+  max-width: 500px;
+  min-width: 320px;
+}

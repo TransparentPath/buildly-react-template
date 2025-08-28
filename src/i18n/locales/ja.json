@@ -819,7 +819,9 @@
     "unsavedConfirm": "変更は保存されておらず、破棄されます。本当に離れますか？"
   },
   "alerts": {
-    "sessionExpiredAlert": "セッションの有効期限が切れたため、ログアウトされました。再度ログインしてください。",
+    "sessionExpiredTitle": "セキュリティ上の理由によりセッションが終了しました",
+    "sessionExpiredAlert": "発送データを安全に保つため、ログアウトしています。続行するにはログインしてください。",
+    "sessionExpiredButton": "ログイン",
     "newVersionAlert": "アプリケーションの新しいバージョンが利用可能です。最新バージョンに移行するため、ページが自動的にリロードされます。"
   },
   "cookieConsent": {

@@ -819,7 +819,9 @@
     "unsavedConfirm": "Ihre Änderungen sind nicht gespeichert und werden verworfen. Sind Sie sicher, dass Sie verlassen möchten?"
   },
   "alerts": {
-    "sessionExpiredAlert": "Sie wurden aufgrund eines abgelaufenen Sitzungszeitraums abgemeldet. Bitte melden Sie sich erneut an.",
+    "sessionExpiredTitle": "Sitzung wurde aus Sicherheitsgründen beendet",
+    "sessionExpiredAlert": "Um Ihre Sendungsdaten zu schützen, wurden Sie abgemeldet. Bitte melden Sie sich an, um fortzufahren.",
+    "sessionExpiredButton": "Einloggen",
     "newVersionAlert": "Eine neue Version der Anwendung ist verfügbar. Die Seite wird automatisch neu geladen, um auf die neueste Version zu wechseln."
   },
   "cookieConsent": {

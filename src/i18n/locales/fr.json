@@ -819,7 +819,9 @@
     "unsavedConfirm": "Vos modifications ne sont pas enregistrées et seront perdues. Êtes-vous sûr de vouloir quitter ?"
   },
   "alerts": {
-    "sessionExpiredAlert": "Vous avez été déconnecté en raison de l'expiration de la session. Veuillez vous reconnecter.",
+    "sessionExpiredTitle": "Session terminée pour des raisons de sécurité",
+    "sessionExpiredAlert": "Pour protéger vos données d'expédition, vous avez été déconnecté. Veuillez vous connecter pour continuer.",
+    "sessionExpiredButton": "Se connecter",
     "newVersionAlert": "Nouvelle version de l'application disponible. La page va se recharger automatiquement pour activer la dernière version."
   },
   "cookieConsent": {

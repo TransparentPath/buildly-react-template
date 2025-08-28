@@ -819,7 +819,9 @@
     "unsavedConfirm": "Your changes are unsaved and will be discarded. Are you sure to leave?"
   },
   "alerts": {
-    "sessionExpiredAlert": "You have been logged out due to session expiration. Please log in again.",
+    "sessionExpiredTitle": "Session ended for security",
+    "sessionExpiredAlert": "To keep your shipment data safe, you've been signed out. Please log in to continue.",
+    "sessionExpiredButton": "Log In",
     "newVersionAlert": "New version available for the application. It will automatically reload the page to move to the latest version of the application."
   },
   "cookieConsent": {
