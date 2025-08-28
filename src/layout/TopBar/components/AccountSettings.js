@@ -107,7 +107,7 @@ const AccountSettings = ({ open, setOpen }) => {
     };
 
     // Add WhatsApp number to user data if changed
-    if (whatsappNumber !== user.whatsApp_number) {
+    if (whatsappNumber && (whatsappNumber !== user.whatsApp_number)) {
       userData = { ...userData, whatsApp_number: whatsappNumber };
     }
 
