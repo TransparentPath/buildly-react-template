@@ -467,6 +467,7 @@
     "allDevices": "Alle Geräte",
     "uploadNewDevices": "Laden Sie neue Geräte hoch",
     "availableDevices": "Verfügbare/Nicht verfügbare Geräte",
+    "removeDevices": "Geräte entfernen",
     "assignedDevices": "Zugewiesene Geräte",
     "trackerIdentifier": "Tracker-ID",
     "organization": "Organisation",

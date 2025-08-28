@@ -151,6 +151,10 @@
   margin-bottom: 24px;
 }
 
+.adminTrackersRemoveDevicesButton:disabled > svg {
+  fill: var(--color-palette-action-disabled) !important;
+}
+
 .adminTrackersSubmitButton {
   margin-left: 20px;
   margin-top: 8px;

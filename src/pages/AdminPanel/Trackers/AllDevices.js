@@ -2,7 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from 'react-query';
 import _ from 'lodash';
-import { Button, Grid, Typography } from '@mui/material';
+import {
+  Button,
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { PhonelinkErase as RemoveDevicesIcon } from '@mui/icons-material';
 import DataTableWrapper from '@components/DataTableWrapper/DataTableWrapper';
 import Loader from '@components/Loader/Loader';
 import { getUser } from '@context/User.context';
@@ -29,7 +36,6 @@ const Configuration = (props) => {
   const [assignedRows, setAssignedRows] = useState([]); // Holds the list of assigned gateways/devices
   const [selectedRows, setSelectedRows] = useState([]); // Holds selected rows from the table
   const [selectedAvailableRowsIndex, setSelectedAvailableRowsIndex] = useState([]); // Holds indices of selected available/unavailable rows
-  const [selectedAssignedRowsIndex, setSelectedAssignedRowsIndex] = useState([]); // Holds indices of selected assigned rows
   const [organization, setOrganization] = useState(org_name); // Currently selected organization
   const [mainMenuOpen, setMainMenuOpen] = useState(false); // Controls the menu open/close state
   const [submenuAnchorEl, setSubmenuAnchorEl] = useState(null); // Anchors the submenu position
@@ -82,14 +88,24 @@ const Configuration = (props) => {
   };
 
   // Function to handle the selection of rows in the data table
-  const handleSelectedTrackers = (allRows, isAssigned) => {
-    const selectedFilteredRows = _.map(allRows, (item) => (isAssigned ? assignedRows[item.dataIndex] : availableRows[item.dataIndex]));
+  const handleSelectedTrackers = (allRows) => {
+    const selectedFilteredRows = _.map(allRows, (item) => availableRows[item.dataIndex]);
     setSelectedRows(selectedFilteredRows); // Set selected rows data
-    if (isAssigned) {
-      setSelectedAssignedRowsIndex(_.map(allRows, (item) => item.dataIndex)); // Set selected assigned rows indices
-    } else {
-      setSelectedAvailableRowsIndex(_.map(allRows, (item) => item.dataIndex)); // Set selected available/unavilable rows indices
-    }
+    setSelectedAvailableRowsIndex(_.map(allRows, (item) => item.dataIndex)); // Set selected available/unavilable rows indices
+  };
+
+  // Function to handle the removal of selected devices
+  const handleRemoveDevices = () => {
+    const updatedRows = _.map(selectedRows, (row) => ({
+      ...row,
+      organization_uuid: null, // remove organization
+      is_new: false, // Mark rows as no longer new
+    }));
+
+    editGatewayMutation(updatedRows); // Call the mutation to edit gateways
+
+    setSelectedRows([]); // Clear selected rows
+    setSelectedAvailableRowsIndex([]); // Clear selected available rows indices
   };
 
   // Function to handle the change of the selected organization
@@ -113,7 +129,6 @@ const Configuration = (props) => {
 
     setSelectedRows([]); // Clear selected rows
     setSelectedAvailableRowsIndex([]); // Clear selected available rows indices
-    setSelectedAssignedRowsIndex([]); // Clear selected assigned rows indices
     setOrganization(org_name); // Reset the organization to the user's default
   };
 
@@ -149,7 +164,27 @@ const Configuration = (props) => {
             }}
             selected={selectedAvailableRowsIndex} // Highlight selected rows
             onRowSelectionChange={(rowsSelectedData, allRows, rowsSelected) => {
-              handleSelectedTrackers(allRows, false); // Update selected rows when a selection change occurs
+              handleSelectedTrackers(allRows); // Update selected rows when a selection change occurs
+            }}
+            extraOptions={{
+              download: false, // Disable download option
+              filter: false, // Disable filter option
+              print: false, // Disable print option
+              search: true, // Enable search option
+              viewColumns: false, // Disable column visibility toggle
+              customToolbar: () => (
+                <Grid item xs={12}>
+                  <IconButton
+                    className="adminTrackersRemoveDevicesButton"
+                    onClick={handleRemoveDevices}
+                    disabled={isFetchingNewGateway || isEditingGateway || isLoadingAllGateway || _.isEmpty(selectedAvailableRowsIndex)}
+                  >
+                    <Tooltip arrow title={t('adminTrackers.removeDevices')}>
+                      <RemoveDevicesIcon />
+                    </Tooltip>
+                  </IconButton>
+                </Grid>
+              ),
             }}
           />
         </Grid>
@@ -186,13 +221,12 @@ const Configuration = (props) => {
             noSpace
             rows={assignedRows} // Pass the rows (gateway data) to the table
             columns={allDevicesColumns(t)} // Define the columns for the table
-            selectable={{
-              rows: 'multiple', // Allow multiple row selections
-              rowsHeader: true, // Allow header row selection
-            }}
-            selected={selectedAssignedRowsIndex} // Highlight selected rows
-            onRowSelectionChange={(rowsSelectedData, allRows, rowsSelected) => {
-              handleSelectedTrackers(allRows, true); // Update selected rows when a selection change occurs
+            extraOptions={{
+              download: false, // Disable download option
+              filter: false, // Disable filter option
+              print: false, // Disable print option
+              search: true, // Enable search option
+              viewColumns: false, // Disable column visibility toggle
             }}
           />
         </Grid>

@@ -467,6 +467,7 @@
     "allDevices": "Todos los dispositivos",
     "uploadNewDevices": "Cargar nuevos dispositivos",
     "availableDevices": "Dispositivos disponibles/no disponibles",
+    "removeDevices": "Quitar dispositivos",
     "assignedDevices": "Dispositivos asignados",
     "trackerIdentifier": "Identificador de rastreador",
     "organization": "Organización",

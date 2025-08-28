@@ -467,6 +467,7 @@
     "allDevices": "すべてのデバイス",
     "uploadNewDevices": "新しいデバイスをアップロードする",
     "availableDevices": "利用可能/利用できないデバイス",
+    "removeDevices": "デバイスの削除",
     "assignedDevices": "割り当てられたデバイス",
     "trackerIdentifier": "トラッカー識別子",
     "organization": "組織",

@@ -468,6 +468,7 @@
     "allDevices": "جميع الأجهزة",
     "uploadNewDevices": "تحميل أجهزة جديدة",
     "availableDevices": "الأجهزة المتاحة/غير المتاحة",
+    "removeDevices": "إزالة الأجهزة",
     "assignedDevices": "الأجهزة المخصصة",
     "trackerIdentifier": "معرف المتعقب",
     "organization": "منظمة",

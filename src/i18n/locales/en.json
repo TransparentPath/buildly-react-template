@@ -468,6 +468,7 @@
     "uploadNewDevices": "Upload New Devices",
     "availableDevices": "Available/Unavailable Devices",
     "assignedDevices": "Assigned Devices",
+    "removeDevices": "Remove Devices",
     "trackerIdentifier": "Tracker Identifier",
     "organization": "Organization",
     "trackerStatus": "Tracker Status",
