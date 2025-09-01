@@ -211,6 +211,7 @@
     "available": "متاح",
     "assigned": "معين",
     "in_transit": "قيد النقل",
+    "in-transit": "قيد النقل",
     "unavailable": "غير متاح",
     "unassigned": "غير معين",
     "columns": {
@@ -332,7 +333,19 @@
     "defaultTimezone": "المنطقة الزمنية الافتراضية",
     "defaultLanguage": "اللغة الافتراضية",
     "save": "حفظ",
-    "reset": "إعادة تعيين"
+    "reset": "إعادة تعيين",
+    "orgType": {
+      "Custodian": "الوصي",
+      "Producer": "المنتج"
+    },
+    "unit": {
+      "Miles": "الأميال",
+      "Kilometers": "الكيلومترات",
+      "Celsius": "سيلسيوس",
+      "Fahrenheit": "فهرنهايت",
+      "Pounds": "أرطال",
+      "Kilograms": "كيلوغرامات"
+    }
   },
   "custodianType": {
     "custodianType": "نوع الوصي",

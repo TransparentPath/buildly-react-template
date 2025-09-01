@@ -210,6 +210,7 @@
     "available": "Verfügbar",
     "assigned": "Zugewiesen",
     "in_transit": "Unterwegs",
+    "in-transit": "Unterwegs",
     "unavailable": "Nicht verfügbar",
     "unassigned": "NICHT ZUGEWIESEN",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "Standard-Zeitzone",
     "defaultLanguage": "Standardsprache",
     "save": "Speichern",
-    "reset": "Zurücksetzen"
+    "reset": "Zurücksetzen",
+    "orgType": {
+      "Custodian": "Depotbank",
+      "Producer": "Produzent"
+    },
+    "unit": {
+      "Miles": "Meilen",
+      "Kilometers": "Kilometer",
+      "Celsius": "Celsius",
+      "Fahrenheit": "Fahrenheit",
+      "Pounds": "Pfund",
+      "Kilograms": "Kilogramm"
+    }
   },
   "custodianType": {
     "custodianType": "Verwahrtyp",

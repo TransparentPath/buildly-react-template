@@ -73,7 +73,7 @@
     "items": "アイテム",
     "custodians": "管理者",
     "trackers": "トラッカー",
-    "reporting": "レポート"
+    "reporting": "報告"
   },
   "topbar": {
     "menu": "メニュー",
@@ -210,6 +210,7 @@
     "available": "利用可能",
     "assigned": "割り当て済み",
     "in_transit": "輸送中",
+    "in-transit": "輸送中",
     "unavailable": "利用不可",
     "unassigned": "未割り当て",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "デフォルトタイムゾーン",
     "defaultLanguage": "デフォルト言語",
     "save": "保存",
-    "reset": "リセット"
+    "reset": "リセット",
+    "orgType": {
+      "Custodian": "カストディアン",
+      "Producer": "プロデューサー"
+    },
+    "unit": {
+      "Miles": "マイル",
+      "Kilometers": "キロメートル",
+      "Celsius": "摂氏",
+      "Fahrenheit": "華氏",
+      "Pounds": "ポンド",
+      "Kilograms": "キログラム"
+    }
   },
   "custodianType": {
     "custodianType": "カストディアンタイプ",
@@ -1363,17 +1376,17 @@
     }
   },
   "generateReport": {
-    "title": "Rapport d’Insights",
-    "prompt": "Choisissez la/les option(s) à télécharger :",
+    "title": "インサイトレポート",
+    "prompt": "ダウンロードしたいオプションを選択してください:",
     "formats": {
-      "csv": "Fichier CSV",
-      "excel": "Fichier Excel",
-      "pdf": "Fichier PDF"
+      "csv": "CSVファイル",
+      "excel": "Excelファイル",
+      "pdf": "PDFファイル"
     },
     "actions": {
-      "generatePdf": "Générer le rapport PDF",
-      "download": "Télécharger",
-      "cancel": "Annuler"
+      "generatePdf": "PDFレポートを生成",
+      "download": "ダウンロード",
+      "cancel": "キャンセル"
     }
   },
   "reportingActive": {

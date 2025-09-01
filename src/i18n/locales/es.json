@@ -210,6 +210,7 @@
     "available": "Disponible",
     "assigned": "Asignado",
     "in_transit": "En tránsito",
+    "in-transit": "En tránsito",
     "unavailable": "No disponible",
     "unassigned": "NO ASIGNADO",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "Zona Horaria Predeterminada",
     "defaultLanguage": "Idioma Predeterminado",
     "save": "Guardar",
-    "reset": "Restablecer"
+    "reset": "Restablecer",
+    "orgType": {
+      "Custodian": "Custodio",
+      "Producer": "Productor"
+    },
+    "unit": {
+      "Miles": "Millas",
+      "Kilometers": "Kilómetros",
+      "Celsius": "Celsius",
+      "Fahrenheit": "Fahrenheit",
+      "Pounds": "Libras",
+      "Kilograms": "Kilogramos"
+    }
   },
   "custodianType": {
     "custodianType": "Tipo de Custodia",

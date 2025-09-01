@@ -210,6 +210,7 @@
     "available": "Disponible",
     "assigned": "Assigné",
     "in_transit": "En transit",
+    "in-transit": "En transit",
     "unavailable": "Indisponible",
     "unassigned": "NON ATTRIBUÉ",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "Fuseau horaire par défaut",
     "defaultLanguage": "Langue par défaut",
     "save": "Enregistrer",
-    "reset": "Réinitialiser"
+    "reset": "Réinitialiser",
+    "orgType": {
+      "Custodian": "Dépositaire",
+      "Producer": "Producteur"
+    },
+    "unit": {
+      "Miles": "Miles",
+      "Kilometers": "Kilomètres",
+      "Celsius": "Celsius",
+      "Fahrenheit": "Fahrenheit",
+      "Pounds": "Livres",
+      "Kilograms": "Kilogrammes"
+    }
   },
   "custodianType": {
     "custodianType": "Type de dépositaire",

@@ -1529,23 +1529,23 @@ const CreateShipment = ({ history, location }) => {
                   <MenuItem value="">{t('common.select')}</MenuItem>
                   {_.isEmpty(editData) && _.map(CREATE_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                      {t(st.label)}
+                      {t(`createShipment.${st.label}`)}
                     </MenuItem>
                   ))}
                   {!_.isEmpty(editData) && !cannotEdit && !isAdmin && _.map(USER_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                      {t(st.label)}
+                      {t(`createShipment.${st.label}`)}
                     </MenuItem>
                   ))}
                   {!_.isEmpty(editData) && ((cannotEdit && !isAdmin) || (!cannotEdit && isAdmin))
                     && _.map([...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS], (st, idx) => (
                       <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                        {t(st.label)}
+                        {t(`createShipment.${st.label}`)}
                       </MenuItem>
                     ))}
                   {!_.isEmpty(editData) && cannotEdit && isAdmin && _.map([...ADMIN_SHIPMENT_STATUS], (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                      {t(st.label)}
+                      {t(`createShipment.${st.label}`)}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -2317,7 +2317,7 @@ const CreateShipment = ({ history, location }) => {
                           {!_.isEmpty(TIVE_GATEWAY_TIMES)
                             && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                               <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                                {time.label}
+                                {t(`createShipment.intervalGuidance.${time.short_label}`)}
                               </MenuItem>
                             ))}
                         </TextField>
@@ -2344,7 +2344,7 @@ const CreateShipment = ({ history, location }) => {
                             )),
                             (time, index) => (
                               <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                                {time.label}
+                                {t(`createShipment.intervalGuidance.${time.short_label}`)}
                               </MenuItem>
                             ),
                           )}

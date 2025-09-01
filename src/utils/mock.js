@@ -45,16 +45,16 @@ export const UOM_WEIGHT_CHOICES = ['Pounds', 'Kilograms'];
  * - `short_label`: Abbreviated label for compact display.
  */
 export const TIVE_GATEWAY_TIMES = [
-  { value: 5, label: '5 Minutes', short_label: '5 Min.' },
-  { value: 10, label: '10 Minutes', short_label: '10 Min.' },
-  { value: 20, label: '20 Minutes', short_label: '20 Min.' },
-  { value: 30, label: '30 Minutes', short_label: '30 Min.' },
-  { value: 60, label: '1 Hour', short_label: '1 Hr.' },
-  { value: 120, label: '2 Hours', short_label: '2 Hrs.' },
-  { value: 240, label: '4 Hours', short_label: '4 Hrs.' },
-  { value: 360, label: '6 Hours', short_label: '6 Hrs.' },
-  { value: 720, label: '12 Hours', short_label: '12 Hrs.' },
-  { value: 1440, label: '24 Hours', short_label: '24 Hrs.' },
+  { value: 5, label: '5 Minutes', short_label: '5m' },
+  { value: 10, label: '10 Minutes', short_label: '10m' },
+  { value: 20, label: '20 Minutes', short_label: '20m' },
+  { value: 30, label: '30 Minutes', short_label: '30m' },
+  { value: 60, label: '1 Hour', short_label: '1h' },
+  { value: 120, label: '2 Hours', short_label: '2h' },
+  { value: 240, label: '4 Hours', short_label: '4h' },
+  { value: 360, label: '6 Hours', short_label: '6h' },
+  { value: 720, label: '12 Hours', short_label: '12h' },
+  { value: 1440, label: '24 Hours', short_label: '24h' },
 ];
 
 /**

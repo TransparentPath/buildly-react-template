@@ -329,7 +329,7 @@ const AddGateway = ({
                               key={`gatewayStatus${index}:${item.value}`}
                               value={item.value}
                             >
-                              {item.name}
+                              {t(`gateway.${item.name.toLowerCase()}`)}
                             </MenuItem>
                           ),
                         )}
