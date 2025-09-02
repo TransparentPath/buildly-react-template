@@ -95,6 +95,7 @@ import './ShipmentStyles.css';
 import { isMobile } from '@utils/mediaQuery';
 import UniversalFileViewer from '@components/UniversalFileViewer/UniversalFileViewer';
 import { useTranslation } from 'react-i18next';
+import translateDynamicText from '@utils/googleTranslate';
 
 /**
  * CreateShipment Component
@@ -119,7 +120,7 @@ const CreateShipment = ({ history, location }) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Get current user info and relevant organizational data
   const user = getUser();
@@ -291,6 +292,8 @@ const CreateShipment = ({ history, location }) => {
     || 20,
   );
 
+  const [translatedCurrency, setTranslatedCurrency] = useState('');
+
   // Form state tracking
   const [formError, setFormError] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -406,6 +409,17 @@ const CreateShipment = ({ history, location }) => {
   // Edits an existing shipment's details.
   // Redirects to shipment list screen on success.
   const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert, 'Create shipment');
+
+  // useEffect to translate the currency
+  useEffect(async () => {
+    let curr = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+      : '';
+    if (i18n.language !== 'en') {
+      curr = await translateDynamicText(curr, i18n.language);
+    }
+    setTranslatedCurrency(curr);
+  }, [unitData]);
 
   // useEffect to populate form fields when editing an existing shipment
   useEffect(() => {
@@ -1607,12 +1621,7 @@ const CreateShipment = ({ history, location }) => {
                     noOptionsIcon
                     noSpace
                     rows={itemRows}
-                    columns={itemColumns(
-                      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
-                        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
-                        : '',
-                      t,
-                    )}
+                    columns={itemColumns(translatedCurrency, t)}
                   />
                 </Grid>
               )}

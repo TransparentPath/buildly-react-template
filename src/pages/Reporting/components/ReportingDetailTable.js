@@ -467,7 +467,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           {/* Shipment status and excursions */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText(t('reportingDetail.status.shipmentStatus'), t(`createShipment.${_.toLower(selectedShipment.status)}`), null)}
+              {displayItemText(t('reportingDetail.status.shipmentStatus'), t(`createShipment.${selectedShipment.status}`), null)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
               {displayItemText(t('reportingDetail.status.preTransit'), t('reportingDetail.status.none'))}

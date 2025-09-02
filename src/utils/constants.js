@@ -1475,13 +1475,13 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, enabled_t
   const getCellStyle = (tableMeta) => ({
     fontWeight: (
       _.some(
-        _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
+        _.range(5, 8), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
         ? '700' : '400'), // Set font weight to bold if the value is null or undefined
     fontStyle: (
       _.some(
-        _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
+        _.range(5, 8), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
         ? 'italic' : 'normal'), // Set font style to italic if the value is null or undefined
@@ -2102,7 +2102,7 @@ export const allDevicesColumns = (t) => ([
       filter: true,
       customBodyRender: (value) => {
         const className = `adminTrackers${_.capitalize(value)}`;
-        return <div className={className}>{value && value !== '-' ? _.capitalize(value) : value}</div>;
+        return <div className={className}>{value && value !== '-' ? _.capitalize(t(`gateway.${value}`)) : value}</div>;
       },
     },
   },
