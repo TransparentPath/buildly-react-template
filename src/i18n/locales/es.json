@@ -210,6 +210,7 @@
     "available": "Disponible",
     "assigned": "Asignado",
     "in_transit": "En tránsito",
+    "in-transit": "En tránsito",
     "unavailable": "No disponible",
     "unassigned": "NO ASIGNADO",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "Zona Horaria Predeterminada",
     "defaultLanguage": "Idioma Predeterminado",
     "save": "Guardar",
-    "reset": "Restablecer"
+    "reset": "Restablecer",
+    "orgType": {
+      "Custodian": "Custodio",
+      "Producer": "Productor"
+    },
+    "unit": {
+      "Miles": "Millas",
+      "Kilometers": "Kilómetros",
+      "Celsius": "Celsius",
+      "Fahrenheit": "Fahrenheit",
+      "Pounds": "Libras",
+      "Kilograms": "Kilogramos"
+    }
   },
   "custodianType": {
     "custodianType": "Tipo de Custodia",
@@ -464,11 +477,16 @@
     "cancel": "Cancelar"
   },
   "adminTrackers": {
-    "newDevices": "Nuevos Dispositivos",
-    "reuseDevices": "Reutilizar Dispositivos",
-    "uploadNewDevices": "Subir Nuevos Dispositivos",
-    "uploadReusedDevices": "Subir Dispositivos Reutilizados",
-    "trackerIdentifier": "Identificador del Rastreador"
+    "allDevices": "Todos los dispositivos",
+    "uploadNewDevices": "Cargar nuevos dispositivos",
+    "availableDevices": "Dispositivos disponibles/no disponibles",
+    "removeDevices": "Quitar dispositivos",
+    "assignedDevices": "Dispositivos asignados",
+    "trackerIdentifier": "Identificador de rastreador",
+    "organization": "Organización",
+    "trackerStatus": "Estado del rastreador",
+    "battery": "Batería",
+    "trackerType": "Tipo de rastreador"
   },
   "trackerOrder": {
     "repeatOrder": "Repetir Pedido",
@@ -814,7 +832,9 @@
     "unsavedConfirm": "Sus cambios no se han guardado y se descartarán. ¿Está seguro de salir?"
   },
   "alerts": {
-    "sessionExpiredAlert": "Has sido desconectado debido a la expiración de la sesión. Por favor, inicia sesión de nuevo.",
+    "sessionExpiredTitle": "Sesión finalizada por seguridad",
+    "sessionExpiredAlert": "Para proteger los datos de su envío, ha cerrado sesión. Inicie sesión para continuar.",
+    "sessionExpiredButton": "Acceso",
     "newVersionAlert": "Nueva versión disponible de la aplicación. La página se recargará automáticamente para pasar a la última versión de la aplicación."
   },
   "cookieConsent": {

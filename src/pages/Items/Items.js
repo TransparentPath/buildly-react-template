@@ -15,9 +15,10 @@ import { getProductTypeQuery } from '@react-query/queries/items/getProductTypeQu
 import { useDeleteItemMutation } from '@react-query/mutations/items/deleteItemMutation';
 import useAlert from '@hooks/useAlert';
 import { useTranslation } from 'react-i18next';
+import translateDynamicText from '@utils/googleTranslate';
 
 const Items = ({ history, redirectTo }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Fetch the logged-in user and their organization ID
   const user = getUser();
@@ -30,6 +31,8 @@ const Items = ({ history, redirectTo }) => {
   const [rows, setRows] = useState([]); // Stores the rows for the table
   const [openDeleteModal, setDeleteModal] = useState(false); // Controls visibility of delete confirmation modal
   const [deleteItemId, setDeleteItemId] = useState(''); // ID of the item to be deleted
+
+  const [translatedCurrency, setTranslatedCurrency] = useState('');
 
   // Fetching different data via react-query hooks:
   const { data: itemData, isLoading: isLoadingItems } = useQuery(
@@ -71,6 +74,17 @@ const Items = ({ history, redirectTo }) => {
     ? `${redirectTo}/items`
     : `${routes.ITEMS}/edit`;
 
+  // useEffect to translate the currency
+  useEffect(async () => {
+    let curr = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+      : '';
+    if (i18n.language !== 'en') {
+      curr = await translateDynamicText(curr, i18n.language);
+    }
+    setTranslatedCurrency(curr);
+  }, [unitData]);
+
   // Effect hook to format and update the rows when data changes
   useEffect(() => {
     if (!_.isEmpty(itemData) && !_.isEmpty(itemTypesData) && !_.isEmpty(unitData)) {
@@ -89,6 +103,7 @@ const Items = ({ history, redirectTo }) => {
       productData,
       productTypesData,
       unitData,
+      translatedCurrency,
     });
   };
 
@@ -115,6 +130,7 @@ const Items = ({ history, redirectTo }) => {
       productData,
       productTypesData,
       unitData,
+      translatedCurrency,
     });
   };
 
@@ -124,19 +140,7 @@ const Items = ({ history, redirectTo }) => {
       <DataTableWrapper
         loading={isLoadingItems || isLoadingItemTypes || isLoadingUnits || isLoadingProducts || isLoadingProductTypes || isDeletingItem}
         rows={rows || []} // Pass the formatted rows
-        columns={itemColumns(
-          // Find the unit of measure for currency and pass it to the columns configuration
-          _.find(
-            unitData,
-            (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
-          )
-            ? _.find(
-              unitData,
-              (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
-            ).unit_of_measure
-            : '',
-          t,
-        )}
+        columns={itemColumns(translatedCurrency, t)}
         filename={t('items.filename')} // Filename for downloading the data
         addButtonHeading={t('items.addButtonHeading')} // Heading for the add button
         onAddButtonClick={onAddButtonClick} // Trigger the onAddButtonClick function when clicked

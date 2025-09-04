@@ -211,6 +211,7 @@
     "available": "متاح",
     "assigned": "معين",
     "in_transit": "قيد النقل",
+    "in-transit": "قيد النقل",
     "unavailable": "غير متاح",
     "unassigned": "غير معين",
     "columns": {
@@ -332,7 +333,19 @@
     "defaultTimezone": "المنطقة الزمنية الافتراضية",
     "defaultLanguage": "اللغة الافتراضية",
     "save": "حفظ",
-    "reset": "إعادة تعيين"
+    "reset": "إعادة تعيين",
+    "orgType": {
+      "Custodian": "الوصي",
+      "Producer": "المنتج"
+    },
+    "unit": {
+      "Miles": "الأميال",
+      "Kilometers": "الكيلومترات",
+      "Celsius": "سيلسيوس",
+      "Fahrenheit": "فهرنهايت",
+      "Pounds": "أرطال",
+      "Kilograms": "كيلوغرامات"
+    }
   },
   "custodianType": {
     "custodianType": "نوع الوصي",
@@ -465,11 +478,16 @@
     "cancel": "إلغاء"
   },
   "adminTrackers": {
-    "newDevices": "أجهزة جديدة",
-    "reuseDevices": "إعادة استخدام الأجهزة",
+    "allDevices": "جميع الأجهزة",
     "uploadNewDevices": "تحميل أجهزة جديدة",
-    "uploadReusedDevices": "تحميل أجهزة معاد استخدامها",
-    "trackerIdentifier": "معرّف جهاز التتبع"
+    "availableDevices": "الأجهزة المتاحة/غير المتاحة",
+    "removeDevices": "إزالة الأجهزة",
+    "assignedDevices": "الأجهزة المخصصة",
+    "trackerIdentifier": "معرف المتعقب",
+    "organization": "منظمة",
+    "trackerStatus": "حالة المتتبع",
+    "battery": "بطارية",
+    "trackerType": "نوع المتتبع"
   },
   "trackerOrder": {
     "repeatOrder": "إعادة الطلب",
@@ -815,7 +833,9 @@
     "unsavedConfirm": "لم يتم حفظ التغييرات وسيتم تجاهلها. هل أنت متأكد أنك تريد المغادرة؟"
   },
   "alerts": {
-    "sessionExpiredAlert": "تم تسجيل خروجك بسبب انتهاء صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.",
+    "sessionExpiredTitle": "انتهت الجلسة لأسباب أمنية",
+    "sessionExpiredAlert": "للحفاظ على بيانات شحنتك آمنة، تم تسجيل خروجك. يُرجى تسجيل الدخول للمتابعة.",
+    "sessionExpiredButton": "تسجيل الدخول",
     "newVersionAlert": "يتوفر إصدار جديد من التطبيق. سيتم إعادة تحميل الصفحة تلقائيًا للانتقال إلى أحدث إصدار من التطبيق."
   },
   "cookieConsent": {

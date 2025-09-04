@@ -210,6 +210,7 @@
     "available": "Disponibile",
     "assigned": "Assegnato",
     "in_transit": "In transito",
+    "in-transit": "In transito",
     "unavailable": "Non disponibile",
     "unassigned": "NON ASSEGNATO",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "Fuso orario predefinito",
     "defaultLanguage": "Lingua predefinita",
     "save": "Salva",
-    "reset": "Ripristina"
+    "reset": "Ripristina",
+    "orgType": {
+      "Custodian": "Custodia",
+      "Producer": "Produttore"
+    },
+    "unit": {
+      "Miles": "Miglia",
+      "Kilometers": "Chilometri",
+      "Celsius": "Celsius",
+      "Fahrenheit": "Fahrenheit",
+      "Pounds": "Libbre",
+      "Kilograms": "Chilogrammi"
+    }
   },
   "custodianType": {
     "custodianType": "Tipo di Custode",
@@ -464,11 +477,16 @@
     "cancel": "Annulla"
   },
   "adminTrackers": {
-    "newDevices": "Nuovi Dispositivi",
-    "reuseDevices": "Riutilizza Dispositivi",
-    "uploadNewDevices": "Carica Nuovi Dispositivi",
-    "uploadReusedDevices": "Carica Dispositivi Riutilizzati",
-    "trackerIdentifier": "Identificatore del Tracker"
+    "allDevices": "Tutti i dispositivi",
+    "uploadNewDevices": "Carica nuovi dispositivi",
+    "availableDevices": "Dispositivi disponibili/non disponibili",
+    "removeDevices": "Rimuovi dispositivi",
+    "assignedDevices": "Dispositivi assegnati",
+    "trackerIdentifier": "Identificatore del tracker",
+    "organization": "Organizzazione",
+    "trackerStatus": "Stato del localizzatore",
+    "battery": "Batteria",
+    "trackerType": "Tipo di localizzatore"
   },
   "trackerOrder": {
     "repeatOrder": "Ripeti Ordine",
@@ -814,7 +832,9 @@
     "unsavedConfirm": "Le modifiche non sono state salvate e verranno eliminate. Sei sicuro di voler uscire?"
   },
   "alerts": {
-    "sessionExpiredAlert": "Sei stato disconnesso a causa della scadenza della sessione. Effettua nuovamente l'accesso.",
+    "sessionExpiredTitle": "La sessione è terminata per motivi di sicurezza",
+    "sessionExpiredAlert": "Per proteggere i dati della tua spedizione, sei stato disconnesso. Accedi per continuare.",
+    "sessionExpiredButton": "Log In",
     "newVersionAlert": "È disponibile una nuova versione dell'applicazione. La pagina verrà ricaricata automaticamente per passare alla versione più recente."
   },
   "cookieConsent": {

@@ -210,6 +210,7 @@
     "available": "Disponible",
     "assigned": "Assigné",
     "in_transit": "En transit",
+    "in-transit": "En transit",
     "unavailable": "Indisponible",
     "unassigned": "NON ATTRIBUÉ",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "Fuseau horaire par défaut",
     "defaultLanguage": "Langue par défaut",
     "save": "Enregistrer",
-    "reset": "Réinitialiser"
+    "reset": "Réinitialiser",
+    "orgType": {
+      "Custodian": "Dépositaire",
+      "Producer": "Producteur"
+    },
+    "unit": {
+      "Miles": "Miles",
+      "Kilometers": "Kilomètres",
+      "Celsius": "Celsius",
+      "Fahrenheit": "Fahrenheit",
+      "Pounds": "Livres",
+      "Kilograms": "Kilogrammes"
+    }
   },
   "custodianType": {
     "custodianType": "Type de dépositaire",
@@ -464,11 +477,16 @@
     "cancel": "Annuler"
   },
   "adminTrackers": {
-    "newDevices": "Nouveaux appareils",
-    "reuseDevices": "Réutiliser les appareils",
-    "uploadNewDevices": "Téléverser de nouveaux appareils",
-    "uploadReusedDevices": "Téléverser des appareils réutilisés",
-    "trackerIdentifier": "Identifiant du Traceur"
+    "allDevices": "Tous les appareils",
+    "uploadNewDevices": "Télécharger de nouveaux appareils",
+    "availableDevices": "Appareils disponibles/indisponibles",
+    "removeDevices": "Supprimer des appareils",
+    "assignedDevices": "Appareils attribués",
+    "trackerIdentifier": "Identifiant du traqueur",
+    "organization": "Organisation",
+    "trackerStatus": "Statut du suivi",
+    "battery": "Batterie",
+    "trackerType": "Type de suivi"
   },
   "trackerOrder": {
     "repeatOrder": "Répéter la commande",
@@ -814,7 +832,9 @@
     "unsavedConfirm": "Vos modifications ne sont pas enregistrées et seront perdues. Êtes-vous sûr de vouloir quitter ?"
   },
   "alerts": {
-    "sessionExpiredAlert": "Vous avez été déconnecté en raison de l'expiration de la session. Veuillez vous reconnecter.",
+    "sessionExpiredTitle": "Session terminée pour des raisons de sécurité",
+    "sessionExpiredAlert": "Pour protéger vos données d'expédition, vous avez été déconnecté. Veuillez vous connecter pour continuer.",
+    "sessionExpiredButton": "Se connecter",
     "newVersionAlert": "Nouvelle version de l'application disponible. La page va se recharger automatiquement pour activer la dernière version."
   },
   "cookieConsent": {

@@ -274,7 +274,7 @@ export const getProductColumns = (timezone, uomw, dateFormat, timeFormat, t) => 
       sort: true,
       sortThirdClickReset: true,
       filter: true,
-      customBodyRender: () => uomw, // Always show passed-in unit of measure value
+      customBodyRender: () => t(`orgSettings.unit.${uomw}`), // Always show passed-in unit of measure value
     },
   },
   {
@@ -594,6 +594,7 @@ export const itemColumns = (currUnit, t) => ([
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      customBodyRender: (value) => (t(`orgSettings.unit.${value}`)),
     },
   },
 ]);
@@ -1474,13 +1475,13 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, enabled_t
   const getCellStyle = (tableMeta) => ({
     fontWeight: (
       _.some(
-        _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
+        _.range(5, 8), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
         ? '700' : '400'), // Set font weight to bold if the value is null or undefined
     fontStyle: (
       _.some(
-        _.range(5, 10), (i) => _.isEqual(tableMeta.rowData[i], null)
+        _.range(5, 8), (i) => _.isEqual(tableMeta.rowData[i], null)
           || _.isEqual(tableMeta.rowData[i], undefined),
       )
         ? 'italic' : 'normal'), // Set font style to italic if the value is null or undefined
@@ -1712,12 +1713,12 @@ export const SENSOR_REPORT_COLUMNS = (unitOfMeasure, selectedShipment, enabled_t
                   <Typography variant="body1">
                     T:
                     {' '}
-                    {tTime ? tTime.short_label : 'N/A'}
+                    {tTime ? (t(`createShipment.intervalGuidance.${tTime.short_label}`)) : 'N/A'}
                   </Typography>
                   <Typography variant="body1">
                     M:
                     {' '}
-                    {mTime ? mTime.short_label : 'N/A'}
+                    {mTime ? (t(`createShipment.intervalGuidance.${mTime.short_label}`)) : 'N/A'}
                   </Typography>
                 </Grid>
               )}
@@ -1987,7 +1988,7 @@ export const gatewayColumns = (timezone, dateFormat, theme, t) => ([
 
         return (
           <span style={styles}>
-            {value && value !== '-' ? _.capitalize(value) : value}
+            {value && value !== '-' ? _.capitalize(t(`gateway.${value}`)) : value}
           </span>
         );
       },
@@ -2072,11 +2073,52 @@ export const gatewayColumns = (timezone, dateFormat, theme, t) => ([
   },
 ]);
 
-// Returns minimal column definition for new gateways view
-export const newGatewayColumns = (t) => ([
+// Returns minimal column definition for all devices view
+export const allDevicesColumns = (t) => ([
   {
     name: 'name',
     label: t('adminTrackers.trackerIdentifier'),
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: '_organization',
+    label: t('adminTrackers.organization'),
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+    },
+  },
+  {
+    name: 'gateway_status',
+    label: t('adminTrackers.trackerStatus'),
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => {
+        const className = `adminTrackers${_.capitalize(value)}`;
+        return <div className={className}>{value && value !== '-' ? _.capitalize(t(`gateway.${value}`)) : value}</div>;
+      },
+    },
+  },
+  {
+    name: 'last_known_battery_level',
+    label: t('adminTrackers.battery'),
+    options: {
+      sort: true,
+      sortThirdClickReset: true,
+      filter: true,
+      customBodyRender: (value) => (!_.includes([null, undefined, 'None'], value) ? `${value}%` : 'N/A'),
+    },
+  },
+  {
+    name: '_type',
+    label: t('adminTrackers.trackerType'),
     options: {
       sort: true,
       sortThirdClickReset: true,
@@ -2175,6 +2217,7 @@ export const shipmentColumns = (timezone, dateFormat, language, muiTheme, t) => 
       sort: true,
       sortThirdClickReset: true,
       filter: true,
+      customBodyRender: (value) => (t(`createShipment.${value}`)),
     },
   },
   {
@@ -2535,7 +2578,6 @@ export const getUserFormattedRows = (userData) => {
   const formattedData = _.map(userData, (ud) => ({
     ...ud,
     full_name: `${ud.first_name} ${ud.last_name}`,
-    last_activity: 'Today', // Static placeholder for now
     org_display_name: ud.organization.name,
   }));
 
@@ -2565,15 +2607,6 @@ export const userColumns = (t) => ([
   {
     name: 'email',
     label: t('users.email'),
-    options: {
-      sort: true,
-      sortThirdClickReset: true,
-      filter: true,
-    },
-  },
-  {
-    name: 'last_activity',
-    label: t('users.lastActivity'),
     options: {
       sort: true,
       sortThirdClickReset: true,

@@ -310,14 +310,14 @@ const Gateway = ({ history, redirectTo }) => {
                   id={_.isEqual(custodianName, '-') ? 'unassigned-header' : `${custodianName}-header`}
                 >
                   <Typography className="gatewayAccordingHeading">
-                    {_.isEqual(custodianName, '-') ? t('gateway.unassigned_trackers') : custodianName.toUpperCase()}
+                    {_.isEqual(custodianName, '-') ? 'UNASSIGNED TRACKERS' : custodianName.toUpperCase()}
                   </Typography>
                 </AccordionSummary>
 
                 <AccordionDetails>
                   <DataTableWrapper
                     hideAddButton
-                    filename={_.isEqual(custodianName, '-') ? t('gateway.unassigned_trackers') : `${custodianName} ${t('gateway.trackers').toLowerCase()}`}
+                    filename={_.isEqual(custodianName, '-') ? 'UNASSIGNED TRACKERS' : `${custodianName} ${t('gateway.trackers').toLowerCase()}`}
                     rows={rows.filter((row) => row.custodian.toString() === custodianName) || []}
                     columns={gatewayColumns(
                       data,

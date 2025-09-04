@@ -664,7 +664,7 @@ const OrganizationSettings = () => {
               <MenuItem value="">{t('common.select')}</MenuItem>
               {_.map(organizationTypesData, (type) => (
                 <MenuItem key={`orgType-${type.id}`} value={type.id}>
-                  {_.capitalize(type.name)}
+                  {t(`orgSettings.orgType.${_.capitalize(type.name)}`)}
                 </MenuItem>
               ))}
             </TextField>
@@ -850,7 +850,7 @@ const OrganizationSettings = () => {
               {!_.isEmpty(TIVE_GATEWAY_TIMES)
                 && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                    {time.label}
+                    {t(`createShipment.intervalGuidance.${time.short_label}`)}
                   </MenuItem>
                 ))}
             </TextField>
@@ -875,7 +875,7 @@ const OrganizationSettings = () => {
                 _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultPreTransitTransmissionInterval.value),
                 (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                    {time.label}
+                    {t(`createShipment.intervalGuidance.${time.short_label}`)}
                   </MenuItem>
                 ),
               )}
@@ -907,7 +907,7 @@ const OrganizationSettings = () => {
               {!_.isEmpty(TIVE_GATEWAY_TIMES)
                 && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                    {time.label}
+                    {t(`createShipment.intervalGuidance.${time.short_label}`)}
                   </MenuItem>
                 ))}
             </TextField>
@@ -932,7 +932,7 @@ const OrganizationSettings = () => {
                 _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultTransitTransmissionInterval.value),
                 (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                    {time.label}
+                    {t(`createShipment.intervalGuidance.${time.short_label}`)}
                   </MenuItem>
                 ),
               )}
@@ -964,7 +964,7 @@ const OrganizationSettings = () => {
               {!_.isEmpty(TIVE_GATEWAY_TIMES)
                 && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                    {time.label}
+                    {t(`createShipment.intervalGuidance.${time.short_label}`)}
                   </MenuItem>
                 ))}
             </TextField>
@@ -989,7 +989,7 @@ const OrganizationSettings = () => {
                 _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultPostTransitTransmissionInterval.value),
                 (time, index) => (
                   <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                    {time.label}
+                    {t(`createShipment.intervalGuidance.${time.short_label}`)}
                   </MenuItem>
                 ),
               )}
@@ -1125,7 +1125,7 @@ const OrganizationSettings = () => {
                 key={`distance-${index}-${dist}`}
                 value={dist}
               >
-                {dist}
+                {t(`orgSettings.unit.${dist}`)}
               </MenuItem>
             ))}
           </TextField>
@@ -1148,7 +1148,7 @@ const OrganizationSettings = () => {
                 key={`temperature-${index}-${tmp}`}
                 value={tmp}
               >
-                {tmp}
+                {t(`orgSettings.unit.${tmp}`)}
               </MenuItem>
             ))}
           </TextField>
@@ -1171,7 +1171,7 @@ const OrganizationSettings = () => {
                 key={`weight-${index}-${wgt}`}
                 value={wgt}
               >
-                {wgt}
+                {t(`orgSettings.unit.${wgt}`)}
               </MenuItem>
             ))}
           </TextField>

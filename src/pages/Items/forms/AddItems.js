@@ -57,6 +57,7 @@ const AddItems = ({
     productData, // Available products for selection
     productTypesData, // Product type definitions
     unitData, // Unit measurements and currency info
+    translatedCurrency, // Translated currency string
   } = location.state || {};
 
   // Determine if this is an edit operation and extract existing data
@@ -454,15 +455,7 @@ const AddItems = ({
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            {_.find(
-                              unitData,
-                              (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
-                            )
-                              ? _.find(
-                                unitData,
-                                (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
-                              ).unit_of_measure
-                              : ''}
+                            {translatedCurrency}
                           </InputAdornment>
                         ),
                       }}
@@ -648,15 +641,7 @@ const AddItems = ({
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        {_.find(
-                          unitData,
-                          (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
-                        )
-                          ? _.find(
-                            unitData,
-                            (unit) => _.toLower(unit.unit_of_measure_for) === 'currency',
-                          ).unit_of_measure
-                          : ''}
+                        {translatedCurrency}
                       </InputAdornment>
                     ),
                   }}
