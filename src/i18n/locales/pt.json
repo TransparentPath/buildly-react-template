@@ -210,6 +210,7 @@
     "available": "Disponível",
     "assigned": "Atribuído",
     "in_transit": "Em Trânsito",
+    "in-transit": "Em Trânsito",
     "unavailable": "Indisponível",
     "unassigned": "NÃO ATRIBUÍDO",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "Fuso Horário Padrão",
     "defaultLanguage": "Idioma Padrão",
     "save": "Salvar",
-    "reset": "Redefinir"
+    "reset": "Redefinir",
+    "orgType": {
+      "Custodian": "Custódia",
+      "Producer": "Produtor"
+    },
+    "unit": {
+      "Miles": "Milhas",
+      "Kilometers": "Quilômetros",
+      "Celsius": "Celsius",
+      "Fahrenheit": "Fahrenheit",
+      "Pounds": "Libras",
+      "Kilograms": "Quilogramas"
+    }
   },
   "custodianType": {
     "custodianType": "Tipo de Custódia",
@@ -464,11 +477,16 @@
     "cancel": "Cancelar"
   },
   "adminTrackers": {
-    "newDevices": "Novos Dispositivos",
-    "reuseDevices": "Reutilizar Dispositivos",
-    "uploadNewDevices": "Enviar Novos Dispositivos",
-    "uploadReusedDevices": "Enviar Dispositivos Reutilizados",
-    "trackerIdentifier": "Identificador do Rastreador"
+    "allDevices": "Todos os dispositivos",
+    "uploadNewDevices": "Carregar novos dispositivos",
+    "availableDevices": "Dispositivos disponíveis/indisponíveis",
+    "removeDevices": "Remover dispositivos",
+    "assignedDevices": "Dispositivos atribuídos",
+    "trackerIdentifier": "Identificador do Rastreador",
+    "organization": "Organização",
+    "trackerStatus": "Status do Rastreador",
+    "battery": "Bateria",
+    "trackerType": "Tipo de Rastreador"
   },
   "trackerOrder": {
     "repeatOrder": "Repetir Pedido",
@@ -814,7 +832,9 @@
     "unsavedConfirm": "Suas alterações não foram salvas e serão descartadas. Tem certeza de que deseja sair?"
   },
   "alerts": {
-    "sessionExpiredAlert": "Você foi desconectado devido ao término da sessão. Por favor, faça login novamente.",
+    "sessionExpiredTitle": "Sessão encerrada por segurança",
+    "sessionExpiredAlert": "Para manter os dados da sua remessa seguros, você foi desconectado. Faça login para continuar.",
+    "sessionExpiredButton": "Conecte-se",
     "newVersionAlert": "Nova versão disponível do aplicativo. A página será recarregada automaticamente para ativar a versão mais recente."
   },
   "cookieConsent": {

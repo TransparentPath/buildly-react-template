@@ -467,7 +467,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
           {/* Shipment status and excursions */}
           <Grid container className="reportingDetailTableBody">
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText(t('reportingDetail.status.shipmentStatus'), selectedShipment.status, null)}
+              {displayItemText(t('reportingDetail.status.shipmentStatus'), t(`createShipment.${selectedShipment.status}`), null)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
               {displayItemText(t('reportingDetail.status.preTransit'), t('reportingDetail.status.none'))}
@@ -538,7 +538,7 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText(t('reportingDetail.timestamps.end'), formatDate((selectedShipment.actual_time_of_completion || selectedShipment.edit_date), timeZone, `${dateFormat} ${timeFormat} z`))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText(t('reportingDetail.timestamps.total'), dateDifference(selectedShipment.create_date, selectedShipment.actual_time_of_completion || selectedShipment.edit_date))}
+              {displayItemText(t('reportingDetail.timestamps.total'), dateDifference(selectedShipment.create_date, selectedShipment.actual_time_of_completion || selectedShipment.edit_date, t))}
             </Grid>
           </Grid>
 
@@ -548,10 +548,10 @@ const ReportingDetailTable = forwardRef((props, ref) => {
               {displayItemText(t('reportingDetail.thresholds.maxTemp'), `${displayThresholdData(selectedShipment.max_excursion_temp, tempDisplayUnit)}`)}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText(t('reportingDetail.time.transit'), dateDifference(selectedShipment.actual_time_of_departure, selectedShipment.actual_time_of_arrival))}
+              {displayItemText(t('reportingDetail.time.transit'), dateDifference(selectedShipment.actual_time_of_departure, selectedShipment.actual_time_of_arrival, t))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
-              {displayItemText(t('reportingDetail.time.postTransitStorage'), dateDifference(selectedShipment.actual_time_of_arrival, selectedShipment.actual_time_of_completion || selectedShipment.edit_date))}
+              {displayItemText(t('reportingDetail.time.postTransitStorage'), dateDifference(selectedShipment.actual_time_of_arrival, selectedShipment.actual_time_of_completion || selectedShipment.edit_date, t))}
             </Grid>
             <Grid item xs={6} md={3} id="itemText">
               {displayItemText(t('reportingDetail.thresholds.minTemp'), `${displayThresholdData(selectedShipment.min_excursion_temp, tempDisplayUnit)}`)}

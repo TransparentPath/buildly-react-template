@@ -430,7 +430,7 @@ const AddCustodians = ({ history, location }) => {
                     maxLength: 7,
                     style: { textTransform: 'uppercase' },
                   }}
-                  helperText="Maximum of 7 charcters"
+                  helperText={t('addCustodians.max7')}
                   {...abbrevation.bind}
                 />
               </Grid>

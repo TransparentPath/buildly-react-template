@@ -95,6 +95,7 @@ import './ShipmentStyles.css';
 import { isMobile } from '@utils/mediaQuery';
 import UniversalFileViewer from '@components/UniversalFileViewer/UniversalFileViewer';
 import { useTranslation } from 'react-i18next';
+import translateDynamicText from '@utils/googleTranslate';
 
 /**
  * CreateShipment Component
@@ -119,7 +120,7 @@ const CreateShipment = ({ history, location }) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Get current user info and relevant organizational data
   const user = getUser();
@@ -291,6 +292,8 @@ const CreateShipment = ({ history, location }) => {
     || 20,
   );
 
+  const [translatedCurrency, setTranslatedCurrency] = useState('');
+
   // Form state tracking
   const [formError, setFormError] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -406,6 +409,17 @@ const CreateShipment = ({ history, location }) => {
   // Edits an existing shipment's details.
   // Redirects to shipment list screen on success.
   const { mutate: editShipmentMutation, isLoading: isEditingShipment } = useEditShipmentMutation(organizationUuid, history, routes.SHIPMENT, displayAlert, 'Create shipment');
+
+  // useEffect to translate the currency
+  useEffect(async () => {
+    let curr = _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
+      ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
+      : '';
+    if (i18n.language !== 'en') {
+      curr = await translateDynamicText(curr, i18n.language);
+    }
+    setTranslatedCurrency(curr);
+  }, [unitData]);
 
   // useEffect to populate form fields when editing an existing shipment
   useEffect(() => {
@@ -1529,23 +1543,23 @@ const CreateShipment = ({ history, location }) => {
                   <MenuItem value="">{t('common.select')}</MenuItem>
                   {_.isEmpty(editData) && _.map(CREATE_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                      {t(st.label)}
+                      {t(`createShipment.${st.label}`)}
                     </MenuItem>
                   ))}
                   {!_.isEmpty(editData) && !cannotEdit && !isAdmin && _.map(USER_SHIPMENT_STATUS, (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                      {t(st.label)}
+                      {t(`createShipment.${st.label}`)}
                     </MenuItem>
                   ))}
                   {!_.isEmpty(editData) && ((cannotEdit && !isAdmin) || (!cannotEdit && isAdmin))
                     && _.map([...CREATE_SHIPMENT_STATUS, ...ADMIN_SHIPMENT_STATUS], (st, idx) => (
                       <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                        {t(st.label)}
+                        {t(`createShipment.${st.label}`)}
                       </MenuItem>
                     ))}
                   {!_.isEmpty(editData) && cannotEdit && isAdmin && _.map([...ADMIN_SHIPMENT_STATUS], (st, idx) => (
                     <MenuItem key={`${idx}-${st.label}`} value={st.value}>
-                      {t(st.label)}
+                      {t(`createShipment.${st.label}`)}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -1607,12 +1621,7 @@ const CreateShipment = ({ history, location }) => {
                     noOptionsIcon
                     noSpace
                     rows={itemRows}
-                    columns={itemColumns(
-                      _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency'))
-                        ? _.find(unitData, (unit) => (_.toLower(unit.unit_of_measure_for) === 'currency')).unit_of_measure
-                        : '',
-                      t,
-                    )}
+                    columns={itemColumns(translatedCurrency, t)}
                   />
                 </Grid>
               )}
@@ -2205,47 +2214,58 @@ const CreateShipment = ({ history, location }) => {
                   <Grid container mt={1}>
                     <Grid item xs={2.5} className="createShipmentGuidanceList createShipmentGuidanceListHeader">Interval</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList createShipmentGuidanceListHeader">Lithium</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList createShipmentGuidanceListHeader">Non-Lithium</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList createShipmentGuidanceListHeader">Non-Lithium</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.5m')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium5m')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium5m')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium5m')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.10m')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium10m')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium10m')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium10m')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.20m')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium20m')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium20m')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium20m')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.30m')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium30m')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium30m')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium30m')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.1h')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium1h')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium1h')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium1h')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.2h')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium2h')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium2h')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium2h')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.4h')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium4h')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium4h')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium4h')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.6h')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium6h')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium6h')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium6h')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.12h')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium12h')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium12h')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium12h')}</Grid>
+                    <Grid item xs={4.5} />
 
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.24h')}</Grid>
                     <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.lithium24h')}</Grid>
-                    <Grid item xs={7} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium24h')}</Grid>
+                    <Grid item xs={2.5} className="createShipmentGuidanceList">{t('createShipment.intervalGuidance.nonlithium24h')}</Grid>
+                    <Grid item xs={4.5} />
                   </Grid>
                   <Typography variant="caption" component="div" fontStyle="italic" color={theme.palette.background.light}>
                     {t('createShipment.intervalGuidanceNote')}
@@ -2295,14 +2315,18 @@ const CreateShipment = ({ history, location }) => {
                           value={transmissionInterval.value}
                           onChange={(e) => {
                             transmissionInterval.setValue(e.target.value);
-                            measurementInterval.setValue(e.target.value);
+                            if (_.includes(_.toLower(gatewayType.value), 'tive') && e.target.value === 1440) {
+                              measurementInterval.setValue(720);
+                            } else {
+                              measurementInterval.setValue(e.target.value);
+                            }
                           }}
                         >
                           <MenuItem value="">{t('common.select')}</MenuItem>
                           {!_.isEmpty(TIVE_GATEWAY_TIMES)
                             && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                               <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                                {time.label}
+                                {t(`createShipment.intervalGuidance.${time.short_label}`)}
                               </MenuItem>
                             ))}
                         </TextField>
@@ -2322,10 +2346,14 @@ const CreateShipment = ({ history, location }) => {
                         >
                           <MenuItem value="">{t('common.select')}</MenuItem>
                           {!_.isEmpty(TIVE_GATEWAY_TIMES) && _.map(
-                            _.filter(TIVE_GATEWAY_TIMES, (tive) => (_.includes(gatewayType.value, 'ProofTracker') ? tive.value === transmissionInterval.value : tive.value <= transmissionInterval.value)),
+                            _.filter(TIVE_GATEWAY_TIMES, (tive) => (
+                              _.includes(gatewayType.value, 'ProofTracker')
+                                ? tive.value === transmissionInterval.value
+                                : ((tive.value <= transmissionInterval.value) && tive.value !== 1440)
+                            )),
                             (time, index) => (
                               <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                                {time.label}
+                                {t(`createShipment.intervalGuidance.${time.short_label}`)}
                               </MenuItem>
                             ),
                           )}

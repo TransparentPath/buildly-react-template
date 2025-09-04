@@ -73,7 +73,7 @@
     "items": "アイテム",
     "custodians": "管理者",
     "trackers": "トラッカー",
-    "reporting": "レポート"
+    "reporting": "報告"
   },
   "topbar": {
     "menu": "メニュー",
@@ -210,6 +210,7 @@
     "available": "利用可能",
     "assigned": "割り当て済み",
     "in_transit": "輸送中",
+    "in-transit": "輸送中",
     "unavailable": "利用不可",
     "unassigned": "未割り当て",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "デフォルトタイムゾーン",
     "defaultLanguage": "デフォルト言語",
     "save": "保存",
-    "reset": "リセット"
+    "reset": "リセット",
+    "orgType": {
+      "Custodian": "カストディアン",
+      "Producer": "プロデューサー"
+    },
+    "unit": {
+      "Miles": "マイル",
+      "Kilometers": "キロメートル",
+      "Celsius": "摂氏",
+      "Fahrenheit": "華氏",
+      "Pounds": "ポンド",
+      "Kilograms": "キログラム"
+    }
   },
   "custodianType": {
     "custodianType": "カストディアンタイプ",
@@ -464,11 +477,16 @@
     "cancel": "キャンセル"
   },
   "adminTrackers": {
-    "newDevices": "新しいデバイス",
-    "reuseDevices": "デバイスを再利用",
-    "uploadNewDevices": "新しいデバイスをアップロード",
-    "uploadReusedDevices": "再利用デバイスをアップロード",
-    "trackerIdentifier": "トラッカー識別子"
+    "allDevices": "すべてのデバイス",
+    "uploadNewDevices": "新しいデバイスをアップロードする",
+    "availableDevices": "利用可能/利用できないデバイス",
+    "removeDevices": "デバイスの削除",
+    "assignedDevices": "割り当てられたデバイス",
+    "trackerIdentifier": "トラッカー識別子",
+    "organization": "組織",
+    "trackerStatus": "トラッカーのステータス",
+    "battery": "バッテリー",
+    "trackerType": "トラッカーの種類"
   },
   "trackerOrder": {
     "repeatOrder": "再注文",
@@ -814,7 +832,9 @@
     "unsavedConfirm": "変更は保存されておらず、破棄されます。本当に離れますか？"
   },
   "alerts": {
-    "sessionExpiredAlert": "セッションの有効期限が切れたため、ログアウトされました。再度ログインしてください。",
+    "sessionExpiredTitle": "セキュリティ上の理由によりセッションが終了しました",
+    "sessionExpiredAlert": "発送データを安全に保つため、ログアウトしています。続行するにはログインしてください。",
+    "sessionExpiredButton": "ログイン",
     "newVersionAlert": "アプリケーションの新しいバージョンが利用可能です。最新バージョンに移行するため、ページが自動的にリロードされます。"
   },
   "cookieConsent": {
@@ -1356,17 +1376,17 @@
     }
   },
   "generateReport": {
-    "title": "Rapport d’Insights",
-    "prompt": "Choisissez la/les option(s) à télécharger :",
+    "title": "インサイトレポート",
+    "prompt": "ダウンロードしたいオプションを選択してください:",
     "formats": {
-      "csv": "Fichier CSV",
-      "excel": "Fichier Excel",
-      "pdf": "Fichier PDF"
+      "csv": "CSVファイル",
+      "excel": "Excelファイル",
+      "pdf": "PDFファイル"
     },
     "actions": {
-      "generatePdf": "Générer le rapport PDF",
-      "download": "Télécharger",
-      "cancel": "Annuler"
+      "generatePdf": "PDFレポートを生成",
+      "download": "ダウンロード",
+      "cancel": "キャンセル"
     }
   },
   "reportingActive": {

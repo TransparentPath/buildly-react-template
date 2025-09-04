@@ -505,7 +505,7 @@ const AddOrganization = ({
                     key={`orgType-${type.id}`}
                     value={type.id}
                   >
-                    {_.capitalize(type.name)}
+                    {t(`orgSettings.orgType.${_.capitalize(type.name)}`)}
                   </MenuItem>
                 ))}
               </TextField>
@@ -698,7 +698,7 @@ const AddOrganization = ({
                 {!_.isEmpty(TIVE_GATEWAY_TIMES)
                   && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                      {time.label}
+                      {t(`createShipment.intervalGuidance.${time.short_label}`)}
                     </MenuItem>
                   ))}
               </TextField>
@@ -723,7 +723,7 @@ const AddOrganization = ({
                   _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultPreTransitTransmissionInterval.value),
                   (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                      {time.label}
+                      {t(`createShipment.intervalGuidance.${time.short_label}`)}
                     </MenuItem>
                   ),
                 )}
@@ -752,7 +752,7 @@ const AddOrganization = ({
                 {!_.isEmpty(TIVE_GATEWAY_TIMES)
                   && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                      {time.label}
+                      {t(`createShipment.intervalGuidance.${time.short_label}`)}
                     </MenuItem>
                   ))}
               </TextField>
@@ -777,7 +777,7 @@ const AddOrganization = ({
                   _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultTransitTransmissionInterval.value),
                   (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                      {time.label}
+                      {t(`createShipment.intervalGuidance.${time.short_label}`)}
                     </MenuItem>
                   ),
                 )}
@@ -806,7 +806,7 @@ const AddOrganization = ({
                 {!_.isEmpty(TIVE_GATEWAY_TIMES)
                   && _.map(TIVE_GATEWAY_TIMES, (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                      {time.label}
+                      {t(`createShipment.intervalGuidance.${time.short_label}`)}
                     </MenuItem>
                   ))}
               </TextField>
@@ -831,7 +831,7 @@ const AddOrganization = ({
                   _.filter(TIVE_GATEWAY_TIMES, (tive) => tive.value <= defaultPostTransitTransmissionInterval.value),
                   (time, index) => (
                     <MenuItem key={`${time.value}-${index}`} value={time.value}>
-                      {time.label}
+                      {t(`createShipment.intervalGuidance.${time.short_label}`)}
                     </MenuItem>
                   ),
                 )}
@@ -956,7 +956,7 @@ const AddOrganization = ({
                     key={`distance-${index}-${dist}`}
                     value={dist}
                   >
-                    {dist}
+                    {t(`orgSettings.unit.${dist}`)}
                   </MenuItem>
                 ))}
               </TextField>
@@ -979,7 +979,7 @@ const AddOrganization = ({
                     key={`temperature-${index}-${tmp}`}
                     value={tmp}
                   >
-                    {tmp}
+                    {t(`orgSettings.unit.${tmp}`)}
                   </MenuItem>
                 ))}
               </TextField>
@@ -1002,7 +1002,7 @@ const AddOrganization = ({
                     key={`weight-${index}-${wgt}`}
                     value={wgt}
                   >
-                    {wgt}
+                    {t(`orgSettings.unit.${wgt}`)}
                   </MenuItem>
                 ))}
               </TextField>
@@ -1046,7 +1046,7 @@ const AddOrganization = ({
               >
                 {_.map(LANGUAGES, (item, index) => (
                   <MenuItem key={`${item.value}-${index}`} value={item.label}>
-                    {t(item.label)}
+                    {t(`languages.${item.label}`)}
                   </MenuItem>
                 ))}
               </TextField>

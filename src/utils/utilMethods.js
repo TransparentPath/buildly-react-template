@@ -137,7 +137,7 @@ export const getTimezone = (value, timeZone) => moment.tz(value, timeZone).forma
  * @param {string|Date} finalDate - End date.
  * @returns {string} - Difference in format like "5 days, 4 hrs., 30 min."
  */
-export const dateDifference = (initialDate, finalDate) => {
+export const dateDifference = (initialDate, finalDate, t) => {
   const date1 = moment(initialDate);
   const date2 = moment(finalDate);
   const diff = date2.diff(date1);
@@ -145,7 +145,7 @@ export const dateDifference = (initialDate, finalDate) => {
   const days = Math.floor(duration.asDays());
   const hours = duration.hours();
   const minutes = duration.minutes();
-  const dateString = `${days} days, ${hours} hrs., ${minutes} min.`;
+  const dateString = `${days} ${t('reportingDetail.time.days')}, ${hours} ${t('reportingDetail.time.hoursAbbrev')}, ${minutes} ${t('reportingDetail.time.minutesAbbrev')}.`;
   return dateString;
 };
 

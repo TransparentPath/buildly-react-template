@@ -15,7 +15,7 @@ import { checkForAdmin, checkForGlobalAdmin } from '@utils/utilMethods'; // Help
 import Configuration from './Configuration/Configuration'; // Configuration page for device management
 // import ImportExport from './ImportExport/ImportExport'; // Import/export functionality (currently commented out)
 import ConsortiumSettings from './Consortium/ConsortiumSettings'; // Consortium settings page
-import TrackerSettings from './Trackers/TrackerSettings'; // Tracker settings page
+import AllDevices from './Trackers/AllDevices'; // Tracker settings page
 import TrackerOrder from './TrackerOrder/TrackerOrder'; // Order trackers page
 import Invoices from './Invoices/Invoices'; // Invoices page
 import './AdminPanelStyles.css'; // Custom styles for the admin panel
@@ -100,7 +100,7 @@ const AdminPanel = ({
             />
           )} */}
           <Route path={routes.CONSORTIUM} component={ConsortiumSettings} />
-          <Route path={routes.ADMIN_TRACKERS} component={TrackerSettings} />
+          <Route path={routes.ADMIN_TRACKERS} component={AllDevices} />
           <Route path={routes.TRACKERORDER} component={TrackerOrder} />
           <Route path={routes.INVOICES} component={Invoices} />
         </Box>

@@ -512,8 +512,10 @@ const Reporting = () => {
   const sanitizeWorksheetName = (name) => {
     // Remove characters that are invalid in Excel worksheet names
     // Replace with underscore: \/?*[]:'
+    // eslint-disable-next-line no-useless-escape
     let safeName = name.replace(/[\\/?*\[\]:']/g, '_');
     // Remove any other non-printable characters
+    // eslint-disable-next-line no-control-regex
     safeName = safeName.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
     // Trim leading/trailing spaces and limit length to 31 characters (Excel limit)
     return safeName.trim().substring(0, 31);
@@ -1241,7 +1243,7 @@ const Reporting = () => {
               onChange={(event, newValue) => {
                 handleShipmentSelection(newValue);
               }}
-              filterOptions={(options, { inputValue }) => options.filter((option) => option.name.toLowerCase().includes(inputValue.toLowerCase()))}
+              // filterOptions={(options, { inputValue }) => options.filter((option) => option.name.toLowerCase().includes(inputValue.toLowerCase()))}
               renderOption={(props, option) => (
                 <li
                   {...props}

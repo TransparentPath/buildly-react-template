@@ -16,6 +16,8 @@ import {
 import _ from 'lodash';
 // Global alert component used across the application
 import Alert from '@components/Alert/Alert';
+// Custom alert component that mimics window.alert() with enhanced features
+import CustomAlert from '@components/CustomAlert/CustomAlert';
 // App context and initialization object used for dependency injection or global app data
 import { app, AppContext } from '@context/App.context';
 // Main dashboard container (rendered after successful login)
@@ -81,6 +83,8 @@ const App = () => (
           </div>
           {/* Global alert system for showing toast or modal alerts */}
           <Alert />
+          {/* Custom alert system for enhanced modal alerts */}
+          <CustomAlert />
         </CssVarsProvider>
       </StyledEngineProvider>
     </AppContext.Provider>

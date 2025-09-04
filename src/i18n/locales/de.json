@@ -210,6 +210,7 @@
     "available": "Verfügbar",
     "assigned": "Zugewiesen",
     "in_transit": "Unterwegs",
+    "in-transit": "Unterwegs",
     "unavailable": "Nicht verfügbar",
     "unassigned": "NICHT ZUGEWIESEN",
     "columns": {
@@ -331,7 +332,19 @@
     "defaultTimezone": "Standard-Zeitzone",
     "defaultLanguage": "Standardsprache",
     "save": "Speichern",
-    "reset": "Zurücksetzen"
+    "reset": "Zurücksetzen",
+    "orgType": {
+      "Custodian": "Depotbank",
+      "Producer": "Produzent"
+    },
+    "unit": {
+      "Miles": "Meilen",
+      "Kilometers": "Kilometer",
+      "Celsius": "Celsius",
+      "Fahrenheit": "Fahrenheit",
+      "Pounds": "Pfund",
+      "Kilograms": "Kilogramm"
+    }
   },
   "custodianType": {
     "custodianType": "Verwahrtyp",
@@ -464,11 +477,16 @@
     "cancel": "Abbrechen"
   },
   "adminTrackers": {
-    "newDevices": "Neue Geräte",
-    "reuseDevices": "Geräte wiederverwenden",
-    "uploadNewDevices": "Neue Geräte hochladen",
-    "uploadReusedDevices": "Wiederverwendete Geräte hochladen",
-    "trackerIdentifier": "Tracker-Bezeichner"
+    "allDevices": "Alle Geräte",
+    "uploadNewDevices": "Laden Sie neue Geräte hoch",
+    "availableDevices": "Verfügbare/Nicht verfügbare Geräte",
+    "removeDevices": "Geräte entfernen",
+    "assignedDevices": "Zugewiesene Geräte",
+    "trackerIdentifier": "Tracker-ID",
+    "organization": "Organisation",
+    "trackerStatus": "Tracker-Status",
+    "battery": "Batterie",
+    "trackerType": "Tracker-Typ"
   },
   "trackerOrder": {
     "repeatOrder": "Bestellung wiederholen",
@@ -814,7 +832,9 @@
     "unsavedConfirm": "Ihre Änderungen sind nicht gespeichert und werden verworfen. Sind Sie sicher, dass Sie verlassen möchten?"
   },
   "alerts": {
-    "sessionExpiredAlert": "Sie wurden aufgrund eines abgelaufenen Sitzungszeitraums abgemeldet. Bitte melden Sie sich erneut an.",
+    "sessionExpiredTitle": "Sitzung wurde aus Sicherheitsgründen beendet",
+    "sessionExpiredAlert": "Um Ihre Sendungsdaten zu schützen, wurden Sie abgemeldet. Bitte melden Sie sich an, um fortzufahren.",
+    "sessionExpiredButton": "Einloggen",
     "newVersionAlert": "Eine neue Version der Anwendung ist verfügbar. Die Seite wird automatisch neu geladen, um auf die neueste Version zu wechseln."
   },
   "cookieConsent": {

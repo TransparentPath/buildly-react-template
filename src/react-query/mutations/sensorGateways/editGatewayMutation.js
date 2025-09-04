@@ -72,6 +72,9 @@ export const useEditGatewayMutation = (
         await queryClient.invalidateQueries({
           queryKey: ['gateways', organization], // Invalidates the 'gateways' cache for the specified organization
         });
+        await queryClient.invalidateQueries({
+          queryKey: ['allGateways'], // Invalidates the query to ensure the data is updated
+        });
         displayAlert('success', i18n.t('api.successMessages.Tracker(s) successfully edited!'));
         if (history && redirectTo) {
           history.push(redirectTo); // Redirects if a route is provided

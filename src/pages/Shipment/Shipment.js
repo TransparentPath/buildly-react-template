@@ -848,10 +848,10 @@ const Shipment = ({ history }) => {
                         </Grid>
                         <Grid item flex={1}>
                           <Typography variant="body1">
-                            {`T: ${tTime ? tTime.short_label : 'N/A'}`}
+                            {`T: ${tTime ? (t(`createShipment.intervalGuidance.${tTime.short_label}`)) : 'N/A'}`}
                           </Typography>
                           <Typography variant="body1">
-                            {`M: ${mTime ? mTime.short_label : 'N/A'}`}
+                            {`M: ${mTime ? (t(`createShipment.intervalGuidance.${mTime.short_label}`)) : 'N/A'}`}
                           </Typography>
                         </Grid>
                       </Grid>
